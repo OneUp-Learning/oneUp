@@ -87,6 +87,8 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
     mainCondIndex = int(condTable[0])
     
     def stringToCondHelper(string):
+        print("printing string")
+        print(string)
         if string[0]=='E': # empty.  Only used in special circumstances.  Should not appear in a well-formed condition
             return None
         elif string[0]=='A': # atom.  A single condition
@@ -162,7 +164,7 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                 cond.operand1Type = OperandTypes.challengeSet
             elif parts[1] == "topic":
                 cond.operand1Type = OperandTypes.topicSet
-            elif parts[1] == "category":
+            elif parts[1] == "activitycategory":
                 cond.operand1Type = OperandTypes.activtiyCategorySet   
             else:
                 print("not activities, category, challenges, or topics, instead: "+parts[1])
@@ -292,7 +294,7 @@ def databaseConditionToJSONString(condition):
                     output += '"'+str(topicID)+'"'
                 count -= 1
         elif condition.operand1Type == OperandTypes.activtiyCategorySet:
-            output += 'category","objects":['
+            output += 'activitycategory","objects":['
             activityCategoryIDs = [activityCategorySet.category.categoryID for activityCategorySet in ActivityCategorySet.objects.filter(condition=condition)]
             count = len(activityCategoryIDs)
             for activityCategoryID in activityCategoryIDs:
@@ -344,7 +346,7 @@ def setUpContextDictForConditions(context_dict,course,rule = None):
     context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list,"index":ObjectTypes.challenge },
                                    {"name":"activity","plural":"activities", "objects":act_list,"index":ObjectTypes.activity },
                                    {"name":"topic","plural":"topics","objects":topic_list,"index":ObjectTypes.topic },
-                                   {"name":"category","plural":"categories","objects":actCat_list,"index":ObjectTypes.activityCategory},]
+                                   {"name":"activitycategory","plural":"categories","objects":actCat_list,"index":ObjectTypes.activityCategory},]
     
     objectTypesStruct = { ot["index"]:ot for ot in context_dict['objectTypes'] }
     context_dict['defaultObject'] = "challenge"
@@ -367,6 +369,7 @@ def setUpContextDictForConditions(context_dict,course,rule = None):
         condition = rule.conditionID
         #print("Condition: "+str(condition))    
         context_dict['initialCond'] = databaseConditionToJSONString(condition)
+        print(context_dict['initialCond'])
         context_dict['awardFrequency']=rule.awardFrequency
         context_dict['chosenObjectSpecifier'] = rule.objectSpecifier
     else:

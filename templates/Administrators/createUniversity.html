@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>OneUp | Create University</title>
+      {% include 'scripts.html' %}
+      <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
+   </head>
+   <body >
+      {% include 'adminHeading.html' %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+            {% if editing %}
+            <h3>Edit University</h3>
+            {% else %}
+               <h3>Create University</h3>
+            {% endif %}
+            <p><span class="red-text">*</span> Denotes Required Fields.</p>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  <table>
+                     <thead>
+                        <th>Created University</th>
+                     </thead>
+                     <tbody>
+                        {% for university in universities %}
+                        <tr>
+                           <td>{{university.universityName}}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                           <td class="center-align"><i>No universities created.</i></td>
+                        </tr>
+                        {% endfor %}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <form name="course_create" method="POST">
+                  {% csrf_token %}
+                  
+                  <div class="card">
+                     <div class="card-content">
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input value="{{universityName}}" name="universityName" id="universityName" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
+                              <label for="universityName"><span class= "red-text">*</span> University Name</label>
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <select id="courses" name="courses" {%if view%}readonly{%endif%} multiple>
+                              <option value="" disabled selected>Choose course(s)</option>
+                              {% for qualified_course in qualified_courses %}
+                                <option id="{{qualified_course.courseID}}" value="{{qualified_course.courseID}}">{{qualified_course.courseName}}</option>
+                              {% endfor %}
+                              </select>
+                              <label>Course(s)</label>
+                              {% if instructorNames %}
+                              <script  type="text/javascript"> 
+                                 window.onload = function() {
+                                    let names = {{instructorNames|safe}};
+                                    names.forEach(name => {
+                                 	   document.getElementById(name).selected = true;
+                                        
+                                    });
+                                    $("#instructors").material_select();
+                                 }
+                              </script> 
+                              {% endif %}
+                           </div>
+                        </div>
+                       
+                     <div class="card-action right-align">
+                       
+                        <button class="btn waves-effect waves-light" type="submit" name="submit">{% if editing %}Save{% else %}Create{% endif %}<i class="material-icons right">send</i>
+                        </button>
+                   
+                        <a class="waves-effect waves-light btn" href="/oneUp/administrators/adminHome">											
+                        <i class="material-icons left">navigate_before</i>Back</a>           
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+   {% if errorMessage %}
+      <script>
+      	Materialize.toast("{{errorMessage}}", 4000);
+      </script>
+      {% endif %}
+</html>
