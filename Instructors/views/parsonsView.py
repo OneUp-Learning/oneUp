@@ -381,11 +381,13 @@ def getModelSolution(solution_string, distractor_limit):
             skip_flag = 0
             continue
         if (hash_pattern.search(line)):
+            #print("hash pattern found for line", line)
             #get the next element to determine how indented it is
             next_element = solution_string[solution_string.index(line) + 1]
             
             line = re.sub("☃", "", line)
             next_element = re.sub("☃", "", next_element)
+            next_element = re.sub("##", "", next_element)
             #we use the difference to calculate whether we must indent and where
             leading_space_count_current_line = len(line) - len(line.lstrip(' '))
             leading_space_count_next_line = len(next_element) - len(next_element.lstrip(' '))
@@ -597,7 +599,7 @@ def convertTabsToSpaces(solution_string):
 
 #mystical code that uses refraction to do a deep dive into the child nodes and retreieve them.
 def childFragmentFunction(children, level, line_dictionary, student_hashes, student_indentation, student_solution_string, student_solution):
-    ending_curly_pattern = re.compile("}\n")
+    ending_curly_pattern = re.compile("(}\n|} \n)")
     semicolon_curly_pattern = re.compile("; \n")
     return_pattern = re.compile("(?=return.*;\n)")
     spacer = " " * level
@@ -613,7 +615,7 @@ def childFragmentFunction(children, level, line_dictionary, student_hashes, stud
         is_return_pattern = return_pattern.search(line)
         if(is_ending_curly or is_semicolon_curly_pattern):
             line = re.sub("; \n",";\n" + spacer,line)
-            line = re.sub("}\n", "}\n" + spacer, line)
+            line = re.sub("(}\n|} \n)", "}\n" + spacer, line)
 
         if(is_return_pattern):
             line = re.sub("(?=return.*;\n)", spacer, line)
