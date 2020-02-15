@@ -313,6 +313,71 @@ def getAverageActivityScore(course,student, activity):
         return 0
     return float(sum([score.activityScore for score in scores])) / float(len(scores))
 
+def getSumOfScoreOfEveryStudentActivity(course,student, activity):
+    ''' Return the sum of every student's score of an activity for a course'''
+    scores = getAllActivityScores(course, activity)
+    if len(scores) == 0:
+        return 0
+    return float(sum([score.activityScore for score in scores]))
+
+def getSumOfScoreOfAllStudentActivitiesCategory(course, student, category):
+    ''' Return the sum of student's activities for a particular category'''
+    print("coooom here")
+    print(category)
+    from Students.models import StudentActivities
+    StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category)
+    if len(StudActivities) == 0:
+        return 0
+    print(float(sum([StudActivity.activityScore for StudActivity in StudActivities])))
+    return float(sum([StudActivity.activityScore for StudActivity in StudActivities]))
+
+def getMinScoreOfStudentsActivitiesCategory(course, student, category):
+    ''' Return the min score out of all students' activities for a particular category. this functions sums
+    every student's activies in a particular categroy and returns the lowest '''
+    from Students.models import StudentRegisteredCourses
+    students = StudentRegisteredCourses.objects.filter(courseID = course).exclude(studentID__isTestStudent=True)
+    scores = [getSumOfScoreOfAllStudentActivitiesCategory(course, student.studentID, category) for student in students]
+    return float(min(scores))
+
+def getMaxScoreOfStudentsActivitiesCategory(course, student, category):
+    ''' Return the max score out of all students' activities for a particular category. this functions sums
+    every student's activies in a particular categroy and returns the highest '''
+    from Students.models import StudentRegisteredCourses
+    students = StudentRegisteredCourses.objects.filter(courseID = course).exclude(studentID__isTestStudent=True)
+    scores = [getSumOfScoreOfAllStudentActivitiesCategory(course, student.studentID, category) for student in students]
+    return float(max(scores))
+
+def getAveOfScore(course, student, category):
+    
+    print("coooom here")
+    print(category)
+    from Students.models import StudentActivities
+    StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category)
+    if len(StudActivities) == 0:
+        return 0
+    return float(sum([StudActivity.activityScore for StudActivity in StudActivities])/len(StudActivities))
+
+def getAverageScoreOfStudentsActivitiesCategory(course, student, category):
+    ''' Return the average score of all students' activities for a particular category. this functions sums
+    every student's activies in a particular categroy and returns the average '''
+    from Students.models import StudentRegisteredCourses
+    print("at least here")
+    students = StudentRegisteredCourses.objects.filter(courseID = course).exclude(studentID__isTestStudent=True)
+    scores = [getAveOfScore(course, student.studentID, category) for student in students]
+    if not scores:
+        return 0
+    print(scores)
+    print("getAverageScoreOfStudentsActivitiesCategory")
+    print(float(sum(scores)/len(scores)))
+    return float(sum(scores)/len(scores))
+
+def getSumOfScoreOfAllStudentsActivitiesCategory(course, student, category):
+    ''' Return the sum of every student's activities for a particular category'''
+    from Students.models import StudentRegisteredCourses
+    students = StudentRegisteredCourses.objects.filter(courseID = course)
+    scores = [getSumOfScoreOfAllStudentActivitiesCategory(course, student.studentID, category) for student in students]
+    return float(sum(scores))
+
 def getPercentOfScoreOutOfMaxChallengeScore(course, student, challenge):
     ''' This will return the percentage of the highest challenge score obtained by a student
         for a challenge.
@@ -1258,6 +1323,13 @@ class SystemVariable():
     averagePercentageOfWarmupsForTopic = 967 # Average percenage of all warmups related to the given topic
     totalEarndVC = 968 # Total amount of vc earned by a student
     totalSpentVC = 969 # Total amount of vc spent by a student
+    sumOfScoreOfEveryStudentActivity = 970
+    sumOfScoreOfAllStudentActivitiesCategory = 971
+    minScoreOfStudentsActivitiesCategory = 972
+    maxScoreOfStudentsActivitiesCategory = 973
+    averageScoreOfStudentsActivitiesCategory = 974
+    sumOfScoreOfAllStudentsActivitiesCategory = 975
+    averageScoreOfStudentActivitiesCategory = 976
 
     
 
@@ -1357,6 +1429,97 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activity: getAverageActivityScore
+            }
+        },
+        sumOfScoreOfEveryStudentActivity:{
+            'index':sumOfScoreOfEveryStudentActivity,
+            'name':'sumOfScoreOfEveryStudentActivity',
+            'displayName':"Total score for an activity for all students",
+            'description':'The total score for an activity for all students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activity: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activity: getSumOfScoreOfEveryStudentActivity
+            }
+        },
+        minScoreOfStudentsActivitiesCategory:{
+            'index':minScoreOfStudentsActivitiesCategory,
+            'name':'minScoreOfStudentsActivitiesCategory',
+            'displayName':"Minimum score for a category for all students",
+            'description':'The minimum score for a category for all students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getMinScoreOfStudentsActivitiesCategory
+            }
+        },
+        maxScoreOfStudentsActivitiesCategory:{
+            'index':maxScoreOfStudentsActivitiesCategory,
+            'name':'maxScoreOfStudentsActivitiesCategory',
+            'displayName':"Maximum score for a category for all students",
+            'description':'The maximum score for a category for all students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getMaxScoreOfStudentsActivitiesCategory
+            }
+        },
+        averageScoreOfStudentsActivitiesCategory:{
+            'index':averageScoreOfStudentsActivitiesCategory,
+            'name':'averageScoreOfStudentsActivitiesCategory',
+            'displayName':"Average score for a category for all students",
+            'description':'The average score for a category for all students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getAverageScoreOfStudentsActivitiesCategory
+            }
+        },
+        averageScoreOfStudentActivitiesCategory:{
+            'index':averageScoreOfStudentActivitiesCategory,
+            'name':'averageScoreOfStudentActivitiesCategory',
+            'displayName':"Average score for a category for a student",
+            'description':'The average score for a category for a student',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getAveOfScore
+            }
+        },
+        sumOfScoreOfAllStudentsActivitiesCategory:{
+            'index':sumOfScoreOfAllStudentsActivitiesCategory,
+            'name':'sumOfScoreOfAllStudentsActivitiesCategory',
+            'displayName':"Total score for a category for all students",
+            'description':'The total score for a category for all students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getSumOfScoreOfAllStudentsActivitiesCategory
+            }
+        },
+        sumOfScoreOfAllStudentActivitiesCategory:{
+            'index':sumOfScoreOfAllStudentActivitiesCategory,
+            'name':'sumOfScoreOfAllStudentActivitiesCategory',
+            'displayName':"Total score for a category for a students",
+            'description':'The total score for a category for a students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getSumOfScoreOfAllStudentActivitiesCategory
             }
         },
         percentOfScoreOutOfMaxChallengeScore:{
@@ -1769,7 +1932,7 @@ class SystemVariable():
         uniqueSeriousChallengesGreaterThan30Percent:{
             'index': uniqueSeriousChallengesGreaterThan30Percent,
             'name':'uniqueSeriousChallengesGreaterThan30Percent',
-            'displayName':'#of Serious Challenges Score (greater or equal than 30% correct)',
+            'displayName':'# of Serious Challenges Score (greater or equal than 30% correct)',
             'description':'The number of serious challenges a student has completed with a score greater or equal than 30%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
