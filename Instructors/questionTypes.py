@@ -580,6 +580,7 @@ def dynamicMakeAnswerList(qdict, POST):
         studentAnswers = dict()
         submissionCount = dict()
         lastPartSubmitted = 0
+        print("\n\nSTUDENT ANSWERS!!\n")
         for pnum in qdict['parts']:
             if 'user_answers' in qdict['parts'][pnum]:
                 user_answers=qdict['parts'][pnum]['user_answers']
@@ -600,7 +601,7 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
         if qdict['numParts'] == 1:
             answers = {}
             for ans in studentAnswers:
-                answerParts = ans.split(":")
+                answerParts = ans.split(":",1)
                 answers[answerParts[0]] = answerParts[1]
             qdict['user_answers'] = answers
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)
