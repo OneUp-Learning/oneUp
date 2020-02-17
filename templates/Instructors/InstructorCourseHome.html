@@ -9,8 +9,9 @@
       <main>
           <div class="row">
               <div class="col s12 m12 l10 offset-l1">
-            <div class="row">
+
             {% if ccparams.announcementsUsed %}
+            <div class="row">
                 <div class="col s12 m6">
                   <div class="card-panel">
                   <table>
@@ -37,7 +38,7 @@
                   </div>
                   </div>
                 </div>
-                {% endif %}
+           {% endif %}
            {% if ccparams.seriousChallengesUsed %}                
                 <div class="col s12 m6">
                   <div class="card-panel">
@@ -65,9 +66,18 @@
                   </div>
                   </div>
                 </div>
-            </div> 
+
          {% endif %}     
-                               
+ 
+ 		 {% if not ccparams.announcementsUsed and not ccparams.seriousChallengesUsed %}
+ 		   <div class="row center-align">
+                <div class="col s12">
+                   <h3>Welcome!</h3>
+                </div>
+             </div>
+         {% endif %}   
+         </div> 
+                                       
             <div class="row">
              {% if badgesUsed and gamificationUsed %}     
                 <div class="col s12">
