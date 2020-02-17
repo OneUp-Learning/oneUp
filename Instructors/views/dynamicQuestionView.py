@@ -220,6 +220,12 @@ def calcResubmissionPenalty(subCount,qdict):
     ahundred = Decimal(100)
     return Decimal(max(ahundred - (Decimal(subCount) * Decimal(qdict["resubmissionPenalty"])),0)/ahundred)
 
+def convertStringOrTenIfBlank(s,convertFun):
+    if s == "":
+        return convertFun(10)
+    else:
+        return convertFun(s)
+
 @login_required
 def dynamicQuestionPartAJAX(request):
     context_dict = {}
@@ -276,9 +282,9 @@ def dynamicQuestionPartAJAX(request):
                     # It's going to make i into a string when it gets stored in the sessions anyway (not sure why),
 
             lupaQuestionTable[uniqid] = qdict
-            qdict['submissionsAllowed'] = int(request.POST['_submissionsAllowed'])
-            qdict['resubmissionPenalty'] = Decimal(request.POST['_resubmissionPenalty'])
-            qdict['point'] = Decimal(request.POST.get('_points',10))
+            qdict['submissionsAllowed'] = convertStringOrTenIfBlank(request.POST['_submissionsAllowed'],int)
+            qdict['resubmissionPenalty'] = convertStringOrTenIfBlank(request.POST['_resubmissionPenalty'],Decimal)
+            qdict['point'] = convertStringOrTenIfBlank(request.POST.get('_points',Decimal(10)),Decimal)
             qdict['total_points'] = qdict['point']
             
             # We also take a moment or two to clear out old dynamic questions we were trying out.  Anything more than a week old gets
