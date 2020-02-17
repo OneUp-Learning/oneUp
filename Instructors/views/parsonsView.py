@@ -442,6 +442,7 @@ def getModelSolution(solution_string, distractor_limit):
 
     #print("model solution", model_solution)
     #print("display_code", display_code)
+    #print("indentation", indentation)
     random.shuffle(model_solution)
     formattedCode['model_solution'] = model_solution
     formattedCode['display_code'] = display_code
@@ -516,7 +517,8 @@ def getIndenationErrorCount(student_indentation, indentation_solution):
     for i in range(len(indentation_solution)):
         try:
             if(student_indentation[i] != indentation_solution[i]):
-                    errors.append("Indentation line "+ str(i))
+                #print("Indentation error student", student_indentation[i], indentation_solution[i])
+                errors.append("Indentation line "+ str(i))
         except IndexError:
             True
     #print("indentation error count", student_indentation, indentation_solution, errors)
