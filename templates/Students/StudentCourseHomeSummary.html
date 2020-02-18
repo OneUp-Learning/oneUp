@@ -247,7 +247,7 @@
                            margin: [0],
                            events: {
                                 load: function () {
-                                    // set up the updating of the chart every 10 minutes
+                                    // set up the updating of the chart every 5 minutes
                                     
                                     {% if not ccparams.progressBarGroupUsed %}
                                     var earned_series = this.series[2];
@@ -293,7 +293,7 @@
                                                 console.table(response)
                                             }
                                         });
-                                    }, 600000);
+                                    }, 300000);
                                     // }, 1000);
                                 }
                             }
