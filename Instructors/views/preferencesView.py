@@ -51,6 +51,9 @@ def preferencesView(request):
         # Student Starting Page
         ccparams.displayStudentStartPageSummary = request.POST.get('displayStudentStartPageSummary')
 
+        # Student Achievement Page
+        ccparams.displayAchievementPage = "displayAchievementPage" in request.POST
+
         # Leveling
         ccparams.levelingUsed = "levelingUsed" in request.POST
 
@@ -172,6 +175,9 @@ def preferencesView(request):
 
             # Student Start Page
             context_dict["displayStudentStartPageSummary"] = ccparams.displayStudentStartPageSummary
+
+            # Student Achievement Page
+            context_dict["displayAchievementPage"] = ccparams.displayAchievementPage
 
             # Leveling
             context_dict["levelingUsed"] = ccparams.levelingUsed
