@@ -293,7 +293,8 @@ class LeaderboardsConfig(models.Model):
     howFarBack = models.IntegerField(default=0000)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the leaderboard config.'''
-        self.periodicTask.delete()
+        if self.periodicTask == None:
+            self.periodicTask.delete()
         super().delete(*args, **kwargs)
 
     def __str__(self):              
