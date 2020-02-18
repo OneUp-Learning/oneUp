@@ -317,7 +317,7 @@
 				{% if ccparams.gradebookUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/CoursePerformance">Grades</a></li>
 				{% endif %}
-				{%if ccparams.gamificationUsed %}
+				{%if ccparams.gamificationUsed and ccparams.displayAchievementPage %}
 				<li><a class="waves-effect" href="/oneUp/students/achievements">Achievements</a></li>
 				{% endif %}
 				{% if ccparams.gamificationUsed %} 
@@ -423,7 +423,7 @@
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/ChallengesList"><i class="material-icons">star</i>Serious Challenges</a></li>
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/ActivityList"><i class="material-icons">toys</i>Activities</a></li>
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/CoursePerformance"><i class="material-icons">timeline</i>Course Performance</a></li>
-						{%if ccparams.gamificationUsed %}
+						{%if ccparams.gamificationUsed and ccparams.displayAchievementPage %}
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/achievements"><i class="material-icons">flare</i>Achievements</a></li>
 						{% endif %}
 						{% if ccparams.chatUsed or ccparams.avatarUsed or  ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis %}

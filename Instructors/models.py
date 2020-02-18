@@ -44,7 +44,21 @@ class Courses(models.Model):
    #semester = models.CharField(max_length=75) 
     def __str__(self):              
         return str(self.courseID) +","+ self.courseName
-    
+
+class Universities(models.Model):
+    universityID = models.AutoField(primary_key=True)
+    universityName = models.CharField(max_length=300)
+    universityDescription = models.CharField(max_length=2000, default="")
+   
+    def __str__(self):              
+        return str(self.universityID) +", "+ self.universityName  +", "+ self.universityDescription  
+
+class UniversityCourses(models.Model):
+    universityCourseID = models.AutoField(primary_key=True)
+    universityID = models.ForeignKey(Universities, on_delete=models.SET_NULL, null=True, verbose_name="Univerity", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True, verbose_name = "Course", db_index=True)
+    def __str__(self):
+        return str(self.universityID) + "," + str(self.courseID)
     
 # Table listing all the Instructors and the respective courses they are currently administering    
 class InstructorRegisteredCourses(models.Model):
