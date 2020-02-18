@@ -45,7 +45,7 @@
 							<tbody>
 								{% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp, due_date, chall_position in challenge_range %}
 								<input type="hidden" name="challengeID" value="{{chall_ID}}">
-								<tr>
+								<tr class="no-padding">
 									<td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
 									<td>{{chall_visible}}</td>
 									<td>{{start_Timestamp}}</td>
@@ -83,7 +83,7 @@
 									</td>
 								</tr>
 								{% empty %}
-								<tr>
+								<tr class="no-padding">
 									<td class="center-align" colspan="5"><i>No serious challenge created</i></td>
 								</tr>
 								{% endfor %}
@@ -114,7 +114,7 @@
 										<tbody>
 											{% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp, due_date, chall_position in all_challenges %}
 											<input type="hidden" name="challengeID" value="{{chall_ID}}">
-											<tr>
+											<tr class="no-padding">
 												<td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
 												<td>{{chall_visible}}</td>
 												<td>{{start_Timestamp}}</td>
@@ -152,7 +152,7 @@
 												</td>
 											</tr>
 											{% empty %}
-											<tr>
+											<tr class="no-padding">
 												<td class="center-align" colspan="5"><i>No serious challenge created</i></td>
 											</tr>
 											{% endfor %}

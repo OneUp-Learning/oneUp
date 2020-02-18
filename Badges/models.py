@@ -330,6 +330,8 @@ class CourseConfigParams(models.Model):
 
     displayStudentStartPageSummary = models.BooleanField(default=False) ## This toggles the view on the student course home page to show class achievements or student achievements summary
 
+    displayAchievementPage = models.BooleanField(default=True)       ## This toggles the view on the student achievement page in the nav bars
+
     chatUsed = models.BooleanField(default=False)                      ## This will enable or disable the chat feature 
     
     seriousChallengesGrouped = models.BooleanField(default=False)     ## Show the serious challenges grouped by topics similar to warmup challenges on the instructor side

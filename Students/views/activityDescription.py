@@ -103,6 +103,7 @@ def ActivityDetail(request):
                     context_dict['canUpload'] = True
                 else:
                     context_dict['canUpload'] = False
+                context_dict['score'] = 0
 
         # and len(request.FILES) > 0 : #means that we are tryng to upload some files
         if request.POST:

@@ -247,7 +247,7 @@
                            margin: [0],
                            events: {
                                 load: function () {
-                                    // set up the updating of the chart every 10 minutes
+                                    // set up the updating of the chart every 5 minutes
                                     
                                     {% if not ccparams.progressBarGroupUsed %}
                                     var earned_series = this.series[2];
@@ -293,7 +293,7 @@
                                                 console.table(response)
                                             }
                                         });
-                                    }, 600000);
+                                    }, 300000);
                                     // }, 1000);
                                 }
                             }
@@ -412,8 +412,11 @@
                            stacking: 'normal',
                            grouping: false,
                            //Progressbar purple color points earned.
+                           {% if not ccparams.progressBarGroupUsed %}
                            color: '#9966FF', 
-                           //color:'#3f51b5',
+                           {% else %}
+                           color:'#3f51b5',
+                           {% endif %}
                            //color: '#FFFF33',
                            data: [PointsEarnedData()]
                        },
