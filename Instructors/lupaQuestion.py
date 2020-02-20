@@ -504,7 +504,7 @@ else:
                 answer = results[answer_name]
                 pyanswer = {}
                 pyanswer['success']=answer['success']
-                pyanswer['value']=answer['value']
+                pyanswer['value']=Decimal(answer['value'])
                 (success,pyanswer['seqnum'])=runtime.eval("_inputs["+str(n)+"]['"+answer_name+"']['seqnum']")
                 if not success:
                     self.updateRuntime(runtime)
@@ -524,7 +524,7 @@ else:
                         pydetail['seqnum'] = detail['seqnum']
                         pydetail['name'] = detail_name
                         pydetail['success'] = detail['success']
-                        pydetail['value'] = detail['value']
+                        pydetail['value'] = Decimal(detail['value'])
                         pydetail['max_points'] = Decimal(detail['max_points'])
                         pydetails.append(pydetail)
                     pydetails.sort(key=lambda x: x['seqnum'])
