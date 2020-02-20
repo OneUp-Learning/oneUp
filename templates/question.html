@@ -558,10 +558,13 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 				padding = parseInt(padding, 10) + (indent_amount_in_pixels * direction * multiple);
 				
 				if(padding < 0) padding = 0;
-			}
-			if (padding >= 0 && padding <= max_indent_range_in_pixels){
-				$(ui.placeholder[0]).css("left", padding);
+      }
+      
+      
+      // Some reason putting this outside the if statement makes the purple blueish line show for every indent
+      $(ui.placeholder[0]).css("left", padding);
 
+			if (padding >= 0 && padding <= max_indent_range_in_pixels){
 				$(ui.item[0]).attr('data-padding', padding);
 				$(ui.item[0]).attr('data-multiple', multiple);
 			}

@@ -55,22 +55,22 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select id="courses" name="courses" {%if view%}readonly{%endif%} multiple>
+                              <select id="courses" name="universityCourses" {%if view%}readonly{%endif%} multiple>
                               <option value="" disabled selected>Choose course(s)</option>
                               {% for qualified_course in qualified_courses %}
-                                <option id="{{qualified_course.courseID}}" value="{{qualified_course.courseID}}">{{qualified_course.courseName}}</option>
+                                <option id="{{qualified_course}}" value="{{qualified_course}}">{{qualified_course}}</option>
                               {% endfor %}
                               </select>
                               <label>Course(s)</label>
-                              {% if instructorNames %}
+                              {% if universityCourses %}
                               <script  type="text/javascript"> 
                                  window.onload = function() {
-                                    let names = {{instructorNames|safe}};
+                                    let names = {{universityCourses|safe}};
                                     names.forEach(name => {
                                  	   document.getElementById(name).selected = true;
                                         
                                     });
-                                    $("#instructors").material_select();
+                                    $("#courses").material_select();
                                  }
                               </script> 
                               {% endif %}

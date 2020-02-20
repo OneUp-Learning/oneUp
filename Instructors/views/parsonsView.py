@@ -372,7 +372,7 @@ def getModelSolution(solution_string, distractor_limit):
     distractor_pattern = re.compile("#dist")
 
     for line in solution_string:
-        #print("currentLine", line)
+        #print("currentLine", repr(line))
         if(distractor_pattern.search(line)):
             distractors.append(line)
             continue
@@ -395,11 +395,10 @@ def getModelSolution(solution_string, distractor_limit):
             #this difference will allow us to know how indented they are
             difference = leading_space_count_current_line - leading_space_count_next_line
             #print("linediff", difference)
-            line = re.sub("##", "", line)
             skip_flag = 1
 
             if (difference == -4):
-                #print("after")
+                #print("-4diff")
                 #if indentation is after the line
                 #example:
                 #data++;
@@ -407,18 +406,17 @@ def getModelSolution(solution_string, distractor_limit):
                 next_element = re.sub("^", "\n&nbsp;", next_element)
                 line += next_element
             if (difference == 4):
+                #print("4diff", repr(line))
                 next_element = re.sub("^    ", "", next_element)
                 #if indentation is before the line
                 #example:
                 #   data++;
                 #index++;
-                line = re.sub("^    ", "", line)
+                line = re.sub("\s{8}(?=.*; ##)", "    ", line)
                 line = re.sub("$", "\n", line)
                 #print("line before", line)
-                line = re.sub("(?=return.*;)", "    ", line)
                 #print("line after", line)
                 line += next_element
-                #print("generated line", line)
             if(difference == 0):
                 #print("zero diff\n")
                 line = re.sub("^ *", "", line)
@@ -427,9 +425,10 @@ def getModelSolution(solution_string, distractor_limit):
             #print("added line\n", line)
         else:
             line = re.sub("☃ *", "", line)
-
-        model_solution.append({'line':line, 'hashVal':str(hash(line))})
-        display_code.update({str(hash(line)): re.sub("&nbsp;", "", line)})
+        line = re.sub("##", "", line)
+        if(line != ''):
+            model_solution.append({'line':line, 'hashVal':str(hash(line))})
+            display_code.update({str(hash(line)): re.sub("&nbsp;", "", line)})
 
     distractor_counter = 0
     for distractor in distractors:

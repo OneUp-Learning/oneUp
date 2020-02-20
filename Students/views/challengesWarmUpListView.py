@@ -121,7 +121,8 @@ def ChallengesWarmUpList(request):
         all_challenges_for_topic = []
         isTopicUnlocked = []
 
-        course_topics = CoursesTopics.objects.filter(courseID=currentCourse)
+        course_topics = CoursesTopics.objects.filter(
+            courseID=currentCourse).order_by("topicPos")
         hasUnspecifiedTopic = False
 
         for ct in course_topics:
@@ -154,7 +155,7 @@ def ChallengesWarmUpList(request):
         if hasUnspecifiedTopic:
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous")
-            topic_Pos.append(str(course_topics.count()))
+            topic_Pos.append(str(len(topic_Pos)+1))
             topic_challenges = challengesForTopic(
                 unspecified_topic, student, currentCourse)
             challenges_count.append(len(list(topic_challenges)))
@@ -163,7 +164,7 @@ def ChallengesWarmUpList(request):
 
         context_dict['isWarmup'] = True
 
-        context_dict['topic_range'] = sorted(list(zip(range(1, course_topics.count(
-        )+1), topic_ID, topic_Name, topic_Pos, challenges_count, all_challenges_for_topic, isTopicUnlocked)), key=lambda tup: tup[3])
+        context_dict['topic_range'] = zip(range(1, course_topics.count(
+        )+1), topic_ID, topic_Name, topic_Pos, challenges_count, all_challenges_for_topic, isTopicUnlocked)
 
     return render(request, 'Students/ChallengesWarmUpList.html', context_dict)

@@ -17,12 +17,33 @@ def courseUniversityView(request):
 
     if request.method == 'POST':
         name = request.POST['universityName']
+        courses = []
+        if 'universityCourses' in request.POST:
+            universityCoursesList = request.POST.getlist("universityCourses")
+            print("fdjlsjfklds")
+            print(universityCoursesList)
+            courses = [Courses.objects.get(
+                courseName=courseName) for courseName in universityCoursesList]
 
         if 'universityID' in request.GET:  # Editing course
             university = Universities.objects.get(
                 universityID=int(request.GET['universityID']))
             university.universityName = name
             university.save()
+
+            # Add selected courses to university
+            if 'universityCourses' in request.POST:
+                for course in courses:
+                    if not UniversityCourses.objects.filter(courseID=course):
+                        uC = UniversityCourses()
+                        uC.universityID = university
+                        uC.courseID = course
+                        uC.save()
+
+            coursesToRemove = UniversityCourses.objects.filter(
+                universityID=university).exclude(courseID__in=courses)
+            for course in coursesToRemove:
+                course.delete()
         else:
             universtiyExist = Universities.objects.filter(universityName=name)
             if universtiyExist:
@@ -32,19 +53,38 @@ def courseUniversityView(request):
                 university.universityName = name
                 university.save()
 
+                # Add selected courses to university
+                if 'universityCourses' in request.POST:
+                    for course in courses:
+                        if not UniversityCourses.objects.filter(courseID=course):
+                            uC = UniversityCourses()
+                            uC.universityID = university
+                            uC.courseID = course
+                            uC.save()
+
+    # Get all universities
+    context_dict['universities'] = Universities.objects.all()
+    nonQualifiedCourses = [
+        universityCourse.courseID for universityCourse in UniversityCourses.objects.all()]
+    context_dict['qualified_courses'] = [
+        course for course in Courses.objects.all() if not course in nonQualifiedCourses]
+
     if 'universityID' in request.GET:
         university = Universities.objects.get(
             universityID=int(request.GET['universityID']))
         context_dict["universityName"] = university.universityName
-        context_dict['universtyCourses'] = UniversityCourses.objects.filter(
+        universityCourses = UniversityCourses.objects.filter(
             universityID=university)
+        context_dict['universityCourses'] = [
+            universityCourse.courseID.courseName for universityCourse in universityCourses]
         context_dict["editing"] = True
-
-    # Get all universities
-    context_dict['universities'] = Universities.objects.all()
-
-    courses = Courses.objects.all()
-    context_dict['qualified_courses'] = [
-        course for course in courses if not UniversityCourses.objects.filter(courseID=course)]
+        nonQualifiedCourses = []
+        for universityCourse in UniversityCourses.objects.all():
+            if not universityCourse.courseID.courseName in context_dict['universityCourses']:
+                nonQualifiedCourses.append(universityCourse.courseID)
+        print("non qualified")
+        print(nonQualifiedCourses)
+        context_dict['qualified_courses'] = [
+            course for course in Courses.objects.all() if not course in nonQualifiedCourses]
 
     return render(request, 'Administrators/createUniversity.html', context_dict)
