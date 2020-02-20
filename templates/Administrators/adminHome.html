@@ -10,7 +10,7 @@
          <div class="row">
             <div class="col s12 m12 l10 offset-l1">
                <div class="row">
-                  <div class="col s12 m4">
+                  <div class="col s12 m3">
                      <div class="card">
                         <div class="card-content">
                            <table>
@@ -57,7 +57,54 @@
                         </div>
                      </div>
                   </div>
-                  <div class="col s12 m4">
+                  <div class="col s10 m3">
+                     <div class="card">
+                        <div class="card-content">
+                           <table>
+                              <thead>
+                                 <th>Universities</th>
+                              </thead>
+                              <tbody>
+                                 {% for university in universites %}
+                                 <tr>
+                                    <td>{{university.universityName}}</td>
+                                    <td>
+                                       <form action="/oneUp/administrators/deleteItem" method="POST">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="universityToDelete" value="{{university.universityID}}"> 
+                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_university{{university.universityID}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                          <ul id='dropdown_university{{university.universityID}}' class='dropdown-content'>
+                                             <li><a href="/oneUp/administrators/createUniversity?universityID={{university.universityID}}">Edit</a></li>
+                                             <li class="divider"></li>
+                                             <li><a class="modal-trigger" href="#modal_delete_university{{university.universityID}}">Delete</a></li>
+                                          </ul>
+                                          <div id="modal_delete_university{{university.universityID}}" class="modal">
+                                             <div class="modal-content">
+                                                <h5>Are you sure you want to delete?</h5>
+                                             </div>
+                                             <div class="modal-footer">
+                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+                                                </button>                                        
+                                             </div>
+                                          </div>
+                                       </form>
+                                    </td>
+                                 </tr>
+                                 {% empty %}
+                                 <tr>
+                                    <td class="center-align" colspan="2"><i>No universities created.</i></td>
+                                 </tr>
+                                 {% endfor %}
+                              </tbody>
+                           </table>
+                        </div>
+                        <div class="card-action right-align">
+                           <a class="waves-effect waves-light btn" href="/oneUp/administrators/createUniversity"><i class="material-icons right">navigate_next</i>Create</a>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col s12 m3">
                      <div class="card">
                         <div class="card-content">
                            <table>
@@ -105,7 +152,7 @@
                         </div>
                      </div>
                   </div>
-                  <div class="col s12 m4">
+                  <div class="col s12 m3">
                      <div class="card">
                         <div class="card-content">
                            <table>

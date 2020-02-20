@@ -44,7 +44,12 @@ def ActivityList(request):
 
         studentId = context_dict['student']  # get student
         categories = ActivitiesCategory.objects.filter(courseID=current_course)
-        for cat in categories:
+        categories_l = []
+        if categories:
+            categories_l = list(categories)[1:] + \
+                list(categories)[0:1]
+
+        for cat in categories_l:
             cats.append(cat)
 
         # Displaying the list of challenges from database
@@ -60,7 +65,7 @@ def ActivityList(request):
             else:
                 context_dict['currentCat'] = "all"
 
-        for category in categories:
+        for category in categories_l:
             print("cat name")
             print(category.name)
             cat_activities = category_activities(
@@ -109,7 +114,7 @@ def category_activities(category, studentId, current_course):
 
     activity_objects = Activities.objects.filter(
         category=category, courseID=current_course)
-    print(activity_objects)
+
     for act in activity_objects:
         # if today is after the data it was assigninged display it
         # logger.debug(act.startTimestamp)
@@ -149,10 +154,10 @@ def category_activities(category, studentId, current_course):
         # Progessive Unlocking
         try:
             oType = ObjectTypes.activity
-            
+
             studentUnlockings = StudentProgressiveUnlocking.objects.filter(
                 studentID=studentId, courseID=current_course, objectType=oType, objectID=act.pk)
-            
+
             unlockingRules = ProgressiveUnlocking.objects.filter(
                 courseID=current_course, objectType=oType, objectID=act.pk)
 
@@ -165,7 +170,7 @@ def category_activities(category, studentId, current_course):
                     break
             else:
                 isUnlocked.append(True)
-                
+
             if unlockingRules:
                 for unlockingRule in unlockingRules:
                     unlockDescript.append(unlockingRule.description)
