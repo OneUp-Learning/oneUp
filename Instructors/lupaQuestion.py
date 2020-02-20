@@ -1,6 +1,7 @@
 import importlib
 from oneUp.settings import BASE_DIR
 import os
+from decimal import Decimal
 
 lupa_spec = importlib.util.find_spec('lupa')
 lupa_available = True
@@ -524,7 +525,7 @@ else:
                         pydetail['name'] = detail_name
                         pydetail['success'] = detail['success']
                         pydetail['value'] = detail['value']
-                        pydetail['max_points'] = detail['max_points']
+                        pydetail['max_points'] = Decimal(detail['max_points'])
                         pydetails.append(pydetail)
                     pydetails.sort(key=lambda x: x['seqnum'])
                     pyanswer['details']=pydetails

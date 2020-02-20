@@ -8,7 +8,7 @@ function makeNewEditors() {
         var editorDiv = allEditorDivs[i];
         if (ace_editors[editorDiv.id] == undefined) {
         	ace_editors[editorDiv.id] = ace.edit(editorDiv.id);
-            var thiseditor = window.aceEditors[editorDiv.id]
+            var thiseditor = ace_editors[editorDiv.id]
 		    thiseditor.setTheme("ace/theme/chrome");
 		    thiseditor.getSession().setMode("ace/mode/"+editorDiv.title); // We're putting language mode in title. Yes, this is an abuse of the field, but it shouldn't hurt anything.				    
 		}

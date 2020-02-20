@@ -333,6 +333,7 @@ def dynamicQuestionPartAJAX(request):
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(partNum-1, answers)
             if lupaQuestion.error is not None:
                 qdict['error'] = lupaQuestion.error
+                qdict['evaluations']=[]
                             
             earnedScore = 0
             numberIncorrect = 0
