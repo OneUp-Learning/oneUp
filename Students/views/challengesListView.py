@@ -246,7 +246,10 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
             
                             gradeID  = []
                             
-                            numberOfAttempts.append(len(sChallenges))
+                            if challenge.numberAttempts == 99999:
+                                numberOfAttempts.append(challenge.numberAttempts)
+                            else: 
+                                numberOfAttempts.append(challenge.numberAttempts-len(sChallenges))
                             
                             for sc in sChallenges:
                                 gradeID.append(int(sc.getScore()))
@@ -262,7 +265,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
                             gradeFirst.append('Not Completed')
                             gradeMax.append('Not Completed')
                             gradeMin.append('Not Completed')
-                            numberOfAttempts.append("0")
+                            numberOfAttempts.append(challenge.numberAttempts)
                             adjusmentReason.append("")
                 
                     # Progressive Unlocking
