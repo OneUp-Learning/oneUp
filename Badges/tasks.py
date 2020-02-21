@@ -76,6 +76,172 @@ def schedule_celery_task_checker():
         crontab=get_or_create_schedule(minute='*/30'),
     )
 
+
+def refresh_xp(student_reg_course):
+    celery_calculate_xp.delay(student_reg_course.pk)
+
+@app.task
+def celery_calculate_xp(student_reg_course_id):
+    from Students.models import StudentRegisteredCourses
+    student_reg_course = StudentRegisteredCourses.objects.get(pk=int(student_reg_course_id))
+    
+    xp = calculate_xp(student_reg_course)
+    student_reg_course.xp = xp
+    student_reg_course.save()
+
+def calculate_xp(student_reg_course, gradeWarmup=False, gradeSerious=False, gradeActivity=False):
+    from Badges.models import CourseConfigParams, LeaderboardsConfig
+    from Instructors.models import Challenges, Activities, CoursesSkills, Skills
+    from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
+    from Students.views import classResults
+
+    xp = 0  
+    xpWeightSP = 0
+    xpWeightSChallenge = 0
+    xpWeightWChallenge = 0
+    xpWeightAPoints = 0
+    course = student_reg_course.courseID
+    studentId = student_reg_course.studentID
+    ccparamsList = CourseConfigParams.objects.filter(courseID=course)
+    
+    # If result only, we only want to search from the start of the course
+    # else, we will search based on howFarBack (see below)
+    startOfTime = True
+    
+    # Specify if the xp should be calculated based on max score or first attempt
+    xpSeriousMaxScore = True 
+    xpWarmupMaxScore = True
+    challengeClassmates = False
+    if len(ccparamsList) > 0:
+        cparams = ccparamsList[0]
+        xpWeightSP = cparams.xpWeightSP
+        xpWeightSChallenge = cparams.xpWeightSChallenge
+        xpWeightWChallenge = cparams.xpWeightWChallenge
+        xpWeightAPoints = cparams.xpWeightAPoints
+        xpSeriousMaxScore = cparams.xpCalculateSeriousByMaxScore 
+        xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore
+
+       
+    # SERIOUS CHALLENGES
+    # Get the earned points
+    earnedSeriousChallengePoints = 0 
+
+    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition')
+    for challenge in courseChallenges:
+        seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
+
+        # Ignore challenges that have invalid total scores
+        if seriousChallenge and seriousChallenge[0].challengeID.totalScore < 0:
+            continue
+        # Get the scores for this challenge then either add the max score
+        # or the first score to the earned points variable
+        gradeID  = []    
+        for serious in seriousChallenge:
+            gradeID.append(float(serious.getScoreWithBonus())) # get the score + adjustment + bonus
+
+        if xpSeriousMaxScore and gradeID:                           
+            earnedSeriousChallengePoints += max(gradeID)           
+        elif gradeID:
+            earnedSeriousChallengePoints += float(seriousChallenge.first().getScoreWithBonus())
+
+    
+    # Weighting the total serious challenge points to be used in calculation of the XP Points  
+    weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
+    print(weightedSeriousChallengePoints)
+
+    # WARMUP CHALLENGES
+    # Get the earned points
+    earnedWarmupChallengePoints = 0 
+
+    courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False)
+    for challenge in courseChallenges:
+        
+        warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
+        print("Challenge List ", warmupChallenge)
+        # Ignore challenges that have invalid total scores
+        if warmupChallenge and warmupChallenge[0].challengeID.totalScore < 0:
+            continue
+
+        # Get the scores for this challenge then either add the max score
+        # or the first score to the earned points variable
+        gradeID  = []         
+        for warmup in warmupChallenge:
+            gradeID.append(float(warmup.testScore))   
+
+        if xpWarmupMaxScore and gradeID:                          
+            earnedWarmupChallengePoints += max(gradeID)
+        elif gradeID:
+            earnedWarmupChallengePoints += float(warmupChallenge.first().testScore)
+            
+    # Weighting the total warmup challenge points to be used in calculation of the XP Points  
+    weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
+    print(weightedWarmupChallengePoints)
+    # ACTIVITIES
+    # Get the earned points
+    earnedActivityPoints = 0
+
+    courseActivities = Activities.objects.filter(courseID=course, isGraded=True)
+    for activity in courseActivities:
+        studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
+        
+        # Get the scores for this challenge then add the max score
+        # to the earned points variable
+        gradeID  = []                            
+        for studentActivity in studentActivities:
+            gradeID.append(float(studentActivity.getScoreWithBonus())) 
+                               
+        if gradeID:
+            earnedActivityPoints += max(gradeID)
+
+    # Weighting the total activity points to be used in calculation of the XP Points  
+    weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
+    print(weightedActivityPoints)
+    # SKILL POINTS
+    # Get the earned points
+    earnedSkillPoints = 0
+    
+    cskills = CoursesSkills.objects.filter(courseID=course)
+    for sk in cskills:
+        
+        skill = Skills.objects.get(skillID=sk.skillID.skillID)
+        
+        sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+        
+        if sp:  
+            # Get the scores for this challenge then add the max score
+            # to the earned points variable               
+            gradeID  = []
+            
+            for p in sp:
+                gradeID.append(int(p.skillPoints))
+            
+            sumSkillPoints = sum(gradeID,0)                
+            earnedSkillPoints += sumSkillPoints
+
+
+    # Weighting the total skill points to be used in calculation of the XP Points     
+    weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
+    print(weightedSkillPoints)
+    # Return the xp and/or required variables rounded to 1 decimal place
+    xp = 0
+    if gradeWarmup:
+        xp += weightedWarmupChallengePoints
+    if gradeSerious:
+        xp += weightedSeriousChallengePoints
+    if gradeActivity:
+        xp += weightedActivityPoints
+
+    if not gradeSerious and not gradeWarmup and not gradeActivity:
+        xp += weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints
+    
+    xp = round(xp, 1)
+    return xp
+
+
+
+
+
+
 @app.task(ignore_result=True)
 def process_expired_serious_challenges(course_id, user_id, challenge_id, due_date, timezone):
     from Instructors.models import Challenges, Courses

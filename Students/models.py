@@ -57,6 +57,7 @@ class StudentRegisteredCourses(models.Model):
     avatarImage= models.CharField(max_length=200, default='')    
     virtualCurrencyAmount = models.IntegerField(default=0)
     attendanceStreakStartDate = models.DateTimeField(default = datetime.now)
+    xp = models.DecimalField(decimal_places=2, max_digits=100, default=0)
     def __str__(self):
         return str(self.studentID) + "," + str(self.courseID)
     

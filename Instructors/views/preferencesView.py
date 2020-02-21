@@ -10,6 +10,7 @@ from Badges.models import CourseConfigParams, LeaderboardsConfig
 from Students.models import StudentRegisteredCourses
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
+from Badges.tasks import refresh_xp
 
 from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
 
@@ -136,6 +137,8 @@ def preferencesView(request):
                 st_c.virtualCurrencyAmount += int(
                     ccparams.virtualCurrencyAdded)
                 st_c.save()
+            # Update student xp
+            refresh_xp(st_c)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
