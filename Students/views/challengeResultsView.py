@@ -313,7 +313,6 @@ def ChallengeResults(request):
                 challenge_question = challengeQuestions[i]
 
                 studentChallengeQuestion = StudentChallengeQuestions.objects.get(challengeQuestionID=challenge_question, studentChallengeID=student_challenge ,studentChallengeID__studentID=context_dict['student'], studentChallengeID__courseID=currentCourse)
-
                 questDict = questionTypeFunctions[challenge_question.questionID.type]["makeqdict"](
                     challenge_question.questionID, i, challengeId, challenge_question, studentChallengeQuestion)
                 questDict['total_points'] = studentChallengeQuestion.questionTotal

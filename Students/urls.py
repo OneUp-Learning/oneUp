@@ -27,7 +27,7 @@ from Students.views.coursePerformanceView import CoursePerformance
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
 from Students.views.resetPasswordView import resetPasswordView
-from Students.views.studentCourseHomeView import StudentCourseHome
+from Students.views.studentCourseHomeView import StudentCourseHome, progressBarData
 from Students.views.studentHomeView import StudentHome
 from Students.views.transactionsView import transactionsView, filterTransactions, save_transaction_reason
 from Students.views.transactionNotesView import transactionNotesView
@@ -73,6 +73,7 @@ urlpatterns = [
     url(r'^Logout', LogoutView, name='Logout'),
     url(r'^ResetPassword', resetPasswordView, name='ResetPassword'),
     url(r'^StudentCourseHome', StudentCourseHome, name='StudentCourseHome'),
+    url(r'^progressBarData', progressBarData, name='progressBarData'),
     url(r'^StudentHome', StudentHome, name='StudentHome'),
     url(r'^Transactions', transactionsView, name='Transactions'),
     url(r'^TransactionNotes', transactionNotesView, name='Transaction Notes'),

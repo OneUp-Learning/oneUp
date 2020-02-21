@@ -81,10 +81,10 @@
                            <tbody>
 			              {% for i, activityID, activityName, description, points, activityPosition in activities %}
 			              <tr>
-			                <td><div class="col s12">{{activityName}}</div></td>
-			                <td><div class="col s12">{{description}}</div></td>
-			                <td><div class="col s12">{{points}} Points</div></td>
-					<td>
+			                <td class="no-padding"><div class="col s12">{{activityName}}</div></td>
+			                <td class="no-padding"><div class="col s12">{{description}}</div></td>
+			                <td class="no-padding"><div class="col s12">{{points}} Points</div></td>
+					<td class="no-padding">
 					  <div class="col s12">
 					    <input placeholder="Position" value="{{activityPosition}}" name="activityPositions[]" id="chall_position" maxlength="4"
 						   type="number" class="validate" min="0" required>
@@ -92,7 +92,7 @@
 					  </div>
 					</td>
 
-			                <td>
+			                <td class="no-padding">
 			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 			                    data-beloworigin="true" data-activates='activity{{activityID}}' data-position="right" data-delay="50"
 			                    data-tooltip="Options"><i class="material-icons">more_vert</i></a>
@@ -104,13 +104,13 @@
 			                      <li class="divider"></li>
 			                      <li><a class="modal-trigger" href="#modal_delete{{activityID}}">Delete</a></li>
 			                    </ul>
-			                    <div id="modal_delete{{activity_ID}}" class="modal">
+			                    <div id="modal_delete{{activityID}}" class="modal">
 			                      <div class="modal-content">
 			                        <h5>Are you sure you want to delete?</h5>
 			                      </div>
 			                      <div class="modal-footer">
 			                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-			                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="button" onclick="deleteActivity('{{activity_ID}}')"
+			                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="button" onclick="deleteActivity('{{activityID}}')"
 			                          value="Delete">Delete
 			                        </button>
 			                      </div>

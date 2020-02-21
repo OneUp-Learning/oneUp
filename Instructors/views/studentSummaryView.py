@@ -42,6 +42,9 @@ def studentSummary(request):
     user_XP = []
     user_VC = []
     context_dict['isVCUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).virtualCurrencyUsed
+    context_dict['warmupsUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).warmupsUsed
+    context_dict['seriousUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).seriousChallengesUsed
+    context_dict['activitiesUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).activitiesUsed
     
     
     courseStudents = StudentRegisteredCourses.objects.filter(
@@ -117,8 +120,8 @@ def studentSummary(request):
         wc_totalStudentAttempts.append(wc_totalAttempts)
 
         time_period = TimePeriods.timePeriods[1503]
-        s_id, xp = studentScore(s, currentCourse, 0, time_period, 0, result_only=True,
-                                gradeWarmup=False, gradeSerious=False, seriousPlusActivity=False, context_dict=None)
+        result = studentScore(s, currentCourse, 0, time_period, 0, result_only=True)
+        xp = result['xp']
         user_XP.append(xp)
         user_VC.append(cs.virtualCurrencyAmount)
 

@@ -13,32 +13,22 @@ from Badges.models import CourseConfigParams
 @login_required
 def CourseInformation(request):
     
-    context_dict,currentCourse = studentInitialContextDict(request)
+    context_dict, currentCourse = studentInitialContextDict(request)
     
-    if 'currentCourseID' in request.session:  
-        if currentCourse.courseDescription != "":
-            context_dict['course_Description'] = currentCourse.courseDescription
-                        
-        skill_ID = []      
-        skill_Name = []
-        
-        ##GGM added class skills displayed
-        ccparamsList = CourseConfigParams.objects.filter(courseID=currentCourse)
-        if len(ccparamsList) >0:
-            cparams = ccparamsList[0]
-            context_dict['studentClassSkillsToggle']=cparams.classSkillsDisplayed        
-        
-        cskills = CoursesSkills.objects.filter(courseID=currentCourse)
-        for sk in cskills:
-            skill_ID.append(sk.skillID.skillID) 
+    if currentCourse.courseDescription != "":
+        context_dict['course_Description'] = currentCourse.courseDescription
+                    
+    skill_ID = []      
+    skill_Name = []
+    
+    cskills = CoursesSkills.objects.filter(courseID=currentCourse)
+    for sk in cskills:
+        skill_ID.append(sk.skillID.skillID) 
 
-            skills = Skills.objects.filter(skillID=sk.skillID.skillID)
-            for s in skills:
-                skill_Name.append(s.skillName)
-                        
-        context_dict['skill_range'] = zip(range(1,cskills.count()+1),skill_ID,skill_Name)
-        
-    else:
-        context_dict['course_Name'] = 'Not Selected'       
+        skills = Skills.objects.filter(skillID=sk.skillID.skillID)
+        for s in skills:
+            skill_Name.append(s.skillName)
+                    
+    context_dict['skill_range'] = zip(range(1,cskills.count()+1),skill_ID,skill_Name)
         
     return render(request,'Students/CourseInformation.html', context_dict)

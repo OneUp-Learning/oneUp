@@ -276,7 +276,7 @@ def parsonsqdict(question, i, challengeId, challenge_question,studChallQuest):
     distractor_limit = qdict['distractor_limit']
 
     #tokenizer characters ☃ and ¬
-    solution_string = re.sub("\n", "\n¬☃", qdict['answerText'])
+    solution_string = re.sub("\n", "\n¬☃", qdict['answerText'].strip())
     solution_string = [x.strip() for x in solution_string.split('¬')]
     qdict['answerText'] = solution_string
 
@@ -580,6 +580,7 @@ def dynamicMakeAnswerList(qdict, POST):
         studentAnswers = dict()
         submissionCount = dict()
         lastPartSubmitted = 0
+        print("\n\nSTUDENT ANSWERS!!\n")
         for pnum in qdict['parts']:
             if 'user_answers' in qdict['parts'][pnum]:
                 user_answers=qdict['parts'][pnum]['user_answers']
@@ -600,7 +601,7 @@ def dynamicAnswersAndGrades(qdict, studentAnswers):
         if qdict['numParts'] == 1:
             answers = {}
             for ans in studentAnswers:
-                answerParts = ans.split(":")
+                answerParts = ans.split(":",1)
                 answers[answerParts[0]] = answerParts[1]
             qdict['user_answers'] = answers
             qdict['evaluations'] = lupaQuestion.answerQuestionPart(1, answers)

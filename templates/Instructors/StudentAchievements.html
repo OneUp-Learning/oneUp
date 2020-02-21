@@ -29,12 +29,16 @@
                                 <td>{{user_Email}}</td>
                                 <td><a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons" >more_vert</i></a>
                                     <ul id='dropdown-{{i}}' class='dropdown-content'>
-                                    {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
+                                    {% if skillsUsed %}
                                         <li><a href="/oneUp/instructors/studentSkillsEarned?userID={{userID}}">Skills</a></li>
+                                    {% endif %}
+                                    {% if activitiesUsed %}
                                         <li><a href="/oneUp/instructors/activityScore?userID={{userID}}">Activities</a></li>
                                     {% endif %}
-                                    {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
+                                    {% if warmupsUsed%}
                                         <li><a href="/oneUp/students/ChallengesWarmUpList?userID={{userID}}">Warm Ups</a></li>
+                                    {% endif %}
+                                    {% if seriousUsed %}
                                         <li><a href="/oneUp/students/ChallengesList?userID={{userID}}">Challenges</a></li>
                                     {% endif %}
                                         <li><a href="/oneUp/students/achievements?userID={{userID}}">Dashboard</a></li>

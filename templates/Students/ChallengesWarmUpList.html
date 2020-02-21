@@ -117,6 +117,34 @@
          </div>
          </div>
       </main>
+      {% if congrat %}
+         <script>
+            $(document).ready(function(){
+            $('#congrat').modal('open');
+            });          
+         </script>
+         <div id="congrat" class="modal  ">
+             <div class="modal-content">
+                  <div class="row center-align">
+                      <div>
+                           <h4>{{congrat}}</h4>
+                       </div>
+                  </div>
+                  <div class="row center-align" style="margin-top: 50px;">
+                     <div >
+                              <h5>{{calloutQ}}</div>
+                     </div>
+                  </div>
+            
+                  <div class="modal-footer">
+                     <div class="center-align">
+                        <a href="/oneUp/students/ChallengesWarmUpList" class="modal-trigger modal-close waves-effect waves-light btn" style="margin-right: 50px" id="no" >No Thanks</a>
+                        <a href="/oneUp/students/CalloutCreate?direct_warmup_callout=True" class="modal-trigger modal-close waves-effect waves-light btn" id="yes" >yes</a>
+                     </div>
+                  </div>
+             </div>
+          </div>
+      {% endif %}
       {% include 'footer.html' %}
    </body>
 </html>

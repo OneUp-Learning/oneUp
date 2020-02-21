@@ -78,7 +78,7 @@
                      </tr>
                   </thead>
                   <tbody>
-                     {% for i,userID,first_Name,last_Name,user_Email,user_Action, user_Avatar in user_range %}
+                     {% for i,userID,first_Name,last_Name,user_Email,user_Action, user_Avatar, pk in user_range %}
                      <tr>
                         <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{user_Avatar}}"></td>
                         <td>{{first_Name}}</td>
@@ -89,6 +89,7 @@
                            <form action="/oneUp/instructors/deleteStudent" method="POST">
                               {% csrf_token %}
                               <input type="hidden" name="userID" value="{{userID}}">
+                              <input type="hidden" name="student_internal_id" id="student_internal_id" value="{{pk}}">
                               <a class="dropdown-button tooltipped secondary-content" href="#!"
                                  data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}'
                                  data-position="right" data-delay="50" data-tooltip="Options"><i

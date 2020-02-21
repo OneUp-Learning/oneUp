@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
+      <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
+      <style>
+        
+      @media only screen and (max-width : 992px) {
+            #sidenav-desktop {
+                display: none;
+            }
+        }
+      </style>
+   </head>
+   <body>
+      {% include 'stheading.html' %}
+   
+      
+      <main style="display: flex;">
+        <div id="sidenav-desktop" class="side-nav fixed" style="position: relative; height: auto; min-width: 250px; width: 250px; max-width: 300px; padding-bottom: 16px;">
+            <div class="user-view" style="padding: 16px; display: flex;">
+                <div class="background">
+                  <img src="/static/images/pic01.jpg" style="
+                  background-position: center;
+                  background-repeat: no-repeat;
+                  background-size: cover;
+                  filter: blur(1px);
+                  transform: scale(1.1);
+              ">
+                </div>
+                <div style="display: flex; width:100%; flex-direction: column;">
+                {% if ccparams.gamificationUsed and ccparams.avatarUsed %}
+                <img src="{{avatar}}" style="width: 96px; height: 96px; margin-right: auto; margin-left: auto; border-radius: 50%;">
+                {% endif %}
+                <div style="text-align: center; margin-top: 8px; color: #ecf9ff">
+                    <!-- <div style="font-size: 1.6em;font-weight: 400;">Austin Hodge</div> -->
+                    <div style="font-size: 1.3em;font-weight: 300;">{{username}}</div>
+                    <div style="font-size: 0.95em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{course_Name}}</div>
+                </div>
+                </div>
+            </div>
+           
+            <div style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly;">
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        {{studentXP_range}}
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Experience Points
+                    </div>
+                </div>
+                {% if ccparams.warmupsUsed %}
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        {{totalWCEarnedPoints|floatformat}}
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Practice Points
+                    </div>
+                </div>
+                {% endif %}
+                {% if ccparams.virtualCurrencyUsed %}
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        {{course_Bucks}}
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Current VC
+                    </div>
+                </div>
+                {% endif %}
+                <!-- <div class="subheader" style="color: black; font-size: 1.64rem;font-weight: 400;">Experience Points</div>
+                <div style="font-size: 1.3em;font-weight: 300;">100</div> -->
+            </div>
+            {% if challengeClassmates %}
+            <div class="divider" style="margin-bottom: 8px;"></div>
+            <div style="padding-left: 16px; padding-right: 8px; margin-bottom: 8px; font-size: 1.4rem;">
+                Duels
+            </div>
+            <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        {{numOfDuelWon}}
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Wins
+                    </div>
+                </div>
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        {{numOfDuelLost}}
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Losses
+                    </div>
+                </div>
+                <a id="drop-duels" class="waves-effect waves-light" style="color: black; max-width: 80px; min-width: fit-content; align-self: center;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        <i id="duels-drop-icon" class="material-icons">arrow_drop_up</i>
+                    </div>
+                </a>
+                
+            </div>
+            
+            <div id="duels-info" style="display: none; padding-left: 32px; padding-right: 8px; background-color: #039be50d;">
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Sent</div>
+                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelSent}}</div>
+                </div>
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Accepted</div>
+                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelAccepted}}</div>
+                </div>
+            </div>
+
+            <div class="divider" style="margin-bottom: 8px; margin-top: 0;"></div>
+            <div style="padding-left: 16px; padding-right: 8px; margin-bottom: 8px; font-size: 1.4rem;">
+                Callouts
+            </div>
+            <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        {{numOfCalloutWon}}
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Wins
+                    </div>
+                </div>
+                <div style="max-width: 80px; min-width: 80px;">
+                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        {{numOfCalloutLost}}
+                    </div>
+                    <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
+                        Losses
+                    </div>
+                </div>
+                <a id="drop-callouts" class="waves-effect waves-light" style="color: black; max-width: 80px; min-width: fit-content; align-self: center;">
+                    <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                        <i id="callouts-drop-icon" class="material-icons">arrow_drop_up</i>
+                    </div>
+                </a>
+                
+            </div>
+            
+            <div id="callouts-info" style="display: none; padding-left: 32px; padding-right: 8px; background-color: #039be50d;">
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Sent</div>
+                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfCalloutSent}}</div>
+                </div>
+                <div>
+                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Requested</div>
+                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelAccepted}}</div>
+                </div>
+            </div>
+            
+            {% endif %}
+
+            <!-- {% if challengeClassmates %}
+            <div class="divider" style="margin-bottom: 8px; margin-top: 0;"></div>
+            <div  style="padding-left: 32px; padding-right: 8px;">
+                <div class="subheader" style="color: black; font-size: 1.64rem;font-weight: 400;">Duel Wins & Losses</div>
+                <div style="font-size: 1.3em;font-weight: 300;">100</div>
+                <div style="font-size: 1.3em;font-weight: 300;">1</div>
+            </div>
+            {% endif %} -->
+            <script>
+                $("#drop-duels").click(function () {
+
+                    $header = $(this);
+                    // Getting the element to toggle
+                    $content = $("#duels-info");
+                    // Update icon
+                    $("#duels-drop-icon").text(function(){
+                        return $content.is(":visible") ? "arrow_drop_up" : "arrow_drop_down";
+                    })
+                    // Open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+                    $content.slideToggle(500, function () {
+                        // Execute this after slideToggle is done
+                        
+                    });
+
+                });
+                $("#drop-callouts").click(function () {
+
+                    $header = $(this);
+                    // Getting the element to toggle
+                    $content = $("#callouts-info");
+                    // Update icon
+                    $("#callouts-drop-icon").text(function(){
+                        return $content.is(":visible") ? "arrow_drop_up" : "arrow_drop_down";
+                    })
+                    // Open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+                    $content.slideToggle(500, function () {
+                        // Execute this after slideToggle is done
+                        
+                    });
+
+                });
+            </script>
+        </div>
+
+        <div id="content" style="width: 100%;">
+            <div class="row center-align">
+                <div class="col s12">
+                   <h3>Welcome!</h3>
+                </div>
+             </div>
+         {% if ccparams.progressBarUsed and ccparams.gamificationUsed %}
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <div class="card">
+                    <div class="card-content">
+                        {% if ccparams.progressBarGroupUsed %}
+                        <span class="card-title">Group Progress</span>
+                        {% else %}
+                        <span class="card-title">Your Progress</span>
+                        {% endif %}
+                        <div id="progressbar" style="height: 80px"></div>
+                    </div>
+                </div>
+            </div>
+            <script type='text/javascript'>
+               // PROGRESS BAR
+               $(function() {
+                   var PointsEarnedData = function() {
+                       return {{currentEarnedPoints}};
+                   };
+                   var RemainingChallengePoints = function() {
+                       return {{remainingPointsToEarn}};
+                   };
+                   var ChallengePointsmissed = function() {
+                       return {{missedPoints}};
+                   };
+                   var ChallengePointsProjected = function() {
+                       return {{projectedEarnedPoints}};
+                   };
+                   var ChallengesMaxPoints = function() {
+                       return {{progressBarTotalPoints}};
+                   };
+                   //Your Progress
+                   $('#progressbar').highcharts({
+                       chart: {
+                           type: 'bar',
+                           borderWidth: 0,
+                           borderColor: '#333300',
+                           margin: [0],
+                           events: {
+                                load: function () {
+                                    // set up the updating of the chart every 5 minutes
+                                    
+                                    {% if not ccparams.progressBarGroupUsed %}
+                                    var earned_series = this.series[2];
+                                    var unclaimed_series = this.series[1];
+                                    var missed_series = this.series[0];
+                                    var projected_series = this.series[3];
+                                    {% else %}
+                                    var unclaimed_series = this.series[0];
+                                    var earned_series = this.series[1];
+                                    {% endif %}
+                                    var y_axis_max = this.yAxis[0];
+                                    setInterval(function () {
+                                        $.ajax({
+                                            type: "GET",
+                                            url: "/oneUp/students/progressBarData",
+                                            // data: {'class_scores': true, 'metric_average': false},
+                                            success: function (response) {     
+                                                if(response['status'] == 'success'){
+                                                    var earned_value = response['currentEarnedPoints'];
+                                                    // var earned_value = Math.round(Math.random() * 100);
+                                                    var max = response['progressBarTotalPoints'];
+                                                    var rest = max - earned_value;
+
+                                                    y_axis_max.setExtremes(0, max);
+
+                                                    {% if not ccparams.progressBarGroupUsed %}
+                                                    var missed_value = response['missedPoints'];
+                                                    var projected_value = response['projectedEarnedPoints'];
+                                                    rest = max - missed_value - earned_value;
+                                                    
+                                                    missed_series.setData([missed_value], false, false);
+                                                    projected_series.setData([projected_value], false, false);
+                                                    earned_series.setData([earned_value], false, false);
+                                                    unclaimed_series.setData([rest], true, true)
+                                                    {% else %}
+                                                    earned_series.setData([earned_value], false, false);
+                                                    unclaimed_series.setData([rest], true, true)
+                                                    {% endif %}
+                                                                    
+                                                    
+                                                    
+                                                }
+                                                console.table(response)
+                                            }
+                                        });
+                                    }, 300000);
+                                    // }, 1000);
+                                }
+                            }
+                       },
+                       credits: {
+                           enabled: false
+                       },
+                       title: {
+                           text: ''
+                       },
+                       legend: {
+                           enabled: false
+                       },
+                       xAxis: {
+                           lineWidth: 0,
+                           minorGridLineWidth: 0,
+                           lineColor: 'transparent',
+                           labels: {
+                               enabled: false
+                           },
+                           minorTickLength: 0,
+                           tickLength: 0
+                       },
+                       yAxis: {
+                        //    tickInterval: 5,
+                           allowDecimals: false,
+                           tickColor: '#ccc',
+                           tickWidth: 0,
+                           tickLength: 300,
+                           lineColor: '#eee',
+                           lineWidth: 0,
+                           gridLineWidth: 0,
+                           gridLineColor: 'rgba(255,255,255,.15)',
+                           endOnTick: true,
+                           title: {
+                               text: ''
+                           },
+                           min: 0,
+                           max: [ChallengesMaxPoints()],
+                           endOnTick: true,
+                           startOnTick: false,
+                           labels: {
+                               style: {
+                                   fontSize: '9px'
+                               }
+                           },
+                           {% if not ccparams.progressBarGroupUsed %}
+                           plotLines: [{
+                                value: [ChallengePointsProjected()],
+                                width: 2,
+                                zIndex: 4,
+                                //Progressbar marker black color
+                                color: 'darkblue'
+                            }],
+                            {% endif %}
+                       },
+                       tooltip: {
+                           useHTML: true,
+                           headerFormat: '',
+                       },
+                       plotOptions: {
+                           bar: {
+                               grouping: false,
+                               shadow: false,
+                               borderWidth: 0,
+                               pointPadding: .25,
+                               groupPadding: 0
+                           },
+                           {% if not ccparams.progressBarGroupUsed %}
+                           scatter: {
+                                marker: {
+                                    symbol: 'line',
+                                    lineWidth: 0,
+                                    radius: 9,
+                                    lineColor: '#333'
+                                }
+                            }
+                            {% endif %}
+                       },
+                       series: [
+                       {% if not ccparams.progressBarGroupUsed %}
+                       {
+                            name: 'Points Already Lost',
+                            enableMouseTracking: true,
+                            borderWidth: 0,
+                            borderRadius: 0,
+                            stacking: 'normal',
+                            grouping: false,
+                            //progress bar red color points already lost
+                            color: 'red', //darkred
+                            data: [ChallengePointsmissed()]
+                        },
+                        {% endif %}    
+                       {
+                           name: 'Points Unclaimed',
+                           enableMouseTracking: true,
+                           borderWidth: 0,
+                           borderRadius: 0,
+                           stacking: 'normal',
+                           grouping: false,
+                           //Progress bar yellow color points remaining.
+                           //color: '#a7daff', 
+                           color: '#FFEB42',
+                           //color: '#9966FF',
+                           {% if not ccparams.progressBarGroupUsed %}
+                           data: [ChallengesMaxPoints() - ChallengePointsmissed() - PointsEarnedData()]
+                           {% else %}
+                           data: [ChallengesMaxPoints() - PointsEarnedData()]
+                           {% endif %}
+                       }, {
+                           //pointRange:1.1,
+                           name: 'Points Earned',
+                           enableMouseTracking: true,
+                           borderWidth: 0,
+                           borderRadius: 0,
+                           stacking: 'normal',
+                           grouping: false,
+                           //Progressbar purple color points earned.
+                           {% if not ccparams.progressBarGroupUsed %}
+                           color: '#9966FF', 
+                           {% else %}
+                           color:'#3f51b5',
+                           {% endif %}
+                           //color: '#FFFF33',
+                           data: [PointsEarnedData()]
+                       },
+                       {% if not ccparams.progressBarGroupUsed %}
+                        {
+                            name: 'Projected Total Points',
+                            //Progress bar total projected points black color.
+                            color: 'darkblue',
+                            //color:'#9966FF',
+                            pointRange: .5,
+                            zIndex: 1,
+                            data: [ChallengePointsProjected()]
+                        }
+                        {% endif %}
+                    ]
+                   });
+               });
+           </script>
+         </div>
+        {% endif %}
+        {% if scparams.displayBadges and ccparams.gamificationUsed and ccparams.badgesUsed %}                            
+        <div class="row">
+           <div class="col s12 m10 offset-m1">
+              <div class="card">
+                  <div class="card-content">
+                     <span class="card-title">Your Badges</span>
+                     <div style="display: flex; flex-wrap: wrap;">
+                        {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in studentBadges %}
+                        <div style="height: 64px; width: fit-content; margin: 2px;">
+                           <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
+                              height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
+                        </div>
+                        {% empty %}
+                        <div><i class="center-align" style="flex: 1;">No badges earned</i></div>
+                        {% endfor %}
+                     </div>
+                  </div>
+              </div>
+           </div>
+        </div>
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  <div class="card-content">
+                     <span class="card-title">Latest Group Badges</span>
+                     <div style="display: flex; flex-wrap: wrap;">
+                        {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %}
+                        <div style="height: 64px; width: fit-content; margin: 2px;">
+                           <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
+                              height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
+                           <img alt="Avatar Image" width="30px" height="30px"
+                                 src="{{avatarImage}}" data-position="top" data-delay="50">
+                        </div>
+                        {% empty %}
+                        <div><i class="center-align" style="flex: 1;">No badges earned</i></div>
+                        {% endfor %}
+                     </div>
+                  </div>
+              </div>
+            </div>
+         </div>
+         {% endif %}  
+         {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
+         <div class="row">
+            <div class="col s12 s12 m10 offset-m1">
+               <div class="row" style="display: flex;">
+                  <div class="col s12 m6"></div>
+                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %}
+                  <div class="col s12">
+                     <div class="card-panel">
+                        <table>
+                           <caption>
+                              <h5>{{leaderboardNames}}</h5>
+                           </caption>
+                           <thead>
+                              <th>Student</th>
+                              <th>Points</th>
+                           </thead>
+                           <tbody>
+                              {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
+                              <tr>
+                                 <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+                                 </td>
+                                 <td>{{points}}</td>
+                              </tr>
+                              {% empty %}
+                              <tr>
+                                 <td class="center-align" colspan="2"><i>No students with enough XP to place
+                                       on leaderboard</i></td>
+                              </tr>
+                              {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+
+                  {% endfor %}
+                  <div class="col s12 m6"></div>
+               </div>
+            </div>
+         </div>
+         {% endif %}
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

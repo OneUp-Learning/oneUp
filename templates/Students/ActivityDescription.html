@@ -45,31 +45,19 @@
                                  <span>{{activity.deadLine}}</span>
                               </li>
                            {% endif %}
-                           {% if activity.isGraded %}
                         	<li>
                         		<span><b>Points: </b></span>
-                        		<span>{{activity.points}}</span>
-                        	</li>
-                           {% endif %}
+                        		<span>{{score}} / {{activity.points|floatformat:2}}</span>
+                           </li>
                         </ul>
                         </div>
-                        <!--  <div class="section">
-                            <h4>Activity Due Date</h4>
-                            <blockquote>{{activity.activityID.deadLine}}</blockquote>
-                        </div>
-                        <div class="section">
-                           <h4>Activity Points</h4>
-                           <blockquote>Your Score: {{activity.activityScore}} <br />
-                           Total points: {{activity.activityID.points}}</blockquote>
-                        </div> -->
+                       
+                        {% if feedback %}
                         <div class="section">
                            <h5>Instructor Note</h5> 
-                           {% if feedback %}
-                           		<p>{{feedback}}</p>
-                           {% else %}
-                           		<p>No feedback yet<p>
-                           {% endif %}
+                           <p>{{feedback}}</p>
                         </div>
+                        {% endif %}
                         {% if instructorHasFiles == True%}
                         <div class="section">
                           <h5>Activity Files</h5>

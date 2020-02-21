@@ -124,20 +124,20 @@
                         </thead>
                         <tbody>
                            {% for i,q_ID,q_preview,q_type_name,q_type_displayName,q_difficulty, q_position, q_duplicate in question_range %}
-                           <tr>
-                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{q_preview}}</td>
-                              <td>{{q_type_displayName}}</td>                              
-                              <td>
+                           <tr class="no-padding">
+                              <td class="no-padding" style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{q_preview}}</td>
+                              <td class="no-padding">{{q_type_displayName}}</td>                              
+                              <td class="no-padding">
                               <div class="input-field col s12">
                                     <input value="{{q_position}}" name="{{q_ID}}" maxlength="4" type="number" min="0" required>
                               </div>
                                 </td>
-                                <td>
+                                <td class="no-padding">
                                  {% if q_duplicate.0 %}
                                  <span class="new badge indigo custom-badge tooltipped" data-position="top" data-tooltip="Editing will override duplicates">duplicate</span>
                               {% endif %}
                                 </td>
-                              <td>
+                              <td class="no-padding">
                                     <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                     <ul id='dropdown-{{i}}' class='dropdown-content'>
                                        {% csrf_token %} 
