@@ -119,8 +119,7 @@ def studentSummary(request):
         wc_totalStudentUniqueTaken.append(wc_totalUniqueTaken)
         wc_totalStudentAttempts.append(wc_totalAttempts)
 
-        time_period = TimePeriods.timePeriods[1503]
-        result = studentScore(s, currentCourse, 0, time_period, 0, result_only=True)
+        result = studentScore(s, currentCourse, 0, result_only=True)
         xp = result['xp']
         user_XP.append(xp)
         user_VC.append(cs.virtualCurrencyAmount)
