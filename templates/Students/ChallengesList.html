@@ -99,7 +99,7 @@
                                           <th>Name</th>
                                           <th>Due Date</th>
                                           <th>Score</th>
-                                          <th>Number of Attempts</th>
+                                          <th>Remaining Attempts</th>
                                           <th>Adjustment Reason</th>
                                           <th class="secondary-content">
                                              <a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="top" data-delay="50" data-tooltip="Display"><i class="material-icons" >filter_list</i></a>
@@ -118,7 +118,7 @@
                                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
                                              <td>{{challDueDate|default_date}}</td>
                                              <td>{{grade}}</td>
-                                             {% if numberOfAttempts == '0' %}
+                                             {% if numberOfAttempts == 99999 %}
                                              <td>Unlimited</td>
                                              {% else %}
                                              <td>{{numberOfAttempts}}</td>
