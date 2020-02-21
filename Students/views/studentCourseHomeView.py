@@ -113,7 +113,7 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		students = StudentRegisteredCourses.objects.filter(courseID= current_course, studentID__isTestStudent=False)
 		for student in students:
 			# Get latest data
-			data = studentScore(student.studentID, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+			data = studentScore(student.studentID, current_course, 0, result_only=True)
 		
 			response['xp'] += data['xp']
 			if for_student == student.studentID:
@@ -144,12 +144,12 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		
 		response['progressBarTotalPoints'] = progressBarTotalPoints
 		if response['data'] == 0:
-			data = studentScore(for_student, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+			data = studentScore(for_student, current_course, 0, result_only=True)
 			response['data'] = data
 		
 	else:
 		# Get latest data
-		data = studentScore(for_student, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+		data = studentScore(for_student, current_course, 0, result_only=True)
 	
 		response['xp'] = data['xp']
 		response['data'] = data

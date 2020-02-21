@@ -9,8 +9,7 @@ def updateLeaderboard(course):
     currentTime = utcDate()
 
     for studentrc in studentrcs:
-        time_period = TimePeriods.timePeriods[1503]
-        result = studentScore(studentrc.studentID, course, 0, time_period, 0, result_only=True)
+        result = studentScore(studentrc.studentID, course, 0, result_only=True)
         xp = result['xp']
         # get all the students that have xp
         if xp > 0:
