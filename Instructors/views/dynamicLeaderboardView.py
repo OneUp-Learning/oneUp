@@ -18,6 +18,7 @@ from Students.views.avatarView import checkIfAvatarExist
 import inspect
 import logging
 from notify.views import delete
+import time
 logger = logging.getLogger(__name__)
 
 
@@ -219,6 +220,7 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDispla
         Ex. Time Period: Weekly - Return results within 7 days ago
         
         Returns list of tuples: [(student, value), (student, value),...]'''
+    print(periodicVariable)
     results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
     results.sort(key=lambda tup: tup[1], reverse=True)
     results = results[:studentsDisplayedNum]
@@ -263,7 +265,7 @@ def generateSkillTable(currentCourse, context_dict):
                     skillInfo = {'skillName':skill.skillName,'usersInfo':usersInfo[0:ccparams.numStudentBestSkillsDisplayed]} 
                     context_dict['skills'].append(skillInfo) 
         
-def generateLeaderboards(currentCourse, displayHomePage):
+def generateLeaderboards(currentCourse, displayHomePage, timer=None):
     
     if displayHomePage:
         leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=True)
@@ -274,6 +276,8 @@ def generateLeaderboards(currentCourse, displayHomePage):
     leaderboardDescriptions = []
     leaderboardRankings = []
     print(leaderboardsConfigs, "CONFIGS")
+    second_elapsed_time = time.perf_counter()
+    print(f"[LDB] Start Elapsed Time {second_elapsed_time}")
     for leaderboard in leaderboardsConfigs:
 
         points = []
@@ -314,6 +318,8 @@ def generateLeaderboards(currentCourse, displayHomePage):
         leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
         leaderboardNames.append(leaderboard.leaderboardName)
         leaderboardDescriptions.append(leaderboard.leaderboardDescription)
+    print(f"[LDB] End Elapsed Time {time.perf_counter()-second_elapsed_time}")
+
     return zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)  
 def createTimePeriodContext(context_dict):
     context_dict['periodicVariables'] = [variable for _, variable in PeriodicVariables.periodicVariables.items()]
