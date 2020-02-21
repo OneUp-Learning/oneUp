@@ -28,6 +28,7 @@ import pytz
 from decimal import Decimal
 from oneUp.ckeditorUtil import config_ck_editor
 from Students.views.challengeSetupView import remove_old_challenge_session_entries
+from Badges.tasks import refresh_xp
 
 
 def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
@@ -258,6 +259,9 @@ def ChallengeResults(request):
                 # We also take this time to clean up any session entries from challenges which got started and never finished and are
                 # at least a month old.
                 remove_old_challenge_session_entries(request.session)
+                
+                # Update student xp
+                refresh_xp(context_dict['student_registered_course'])
 
         if request.GET:
             if 'warmUp' in request.GET:

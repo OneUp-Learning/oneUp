@@ -44,7 +44,7 @@ def StudentCourseHome(request):
 	context_dict['progressBarTotalPoints'] = progress_data['progressBarTotalPoints']
 	context_dict['remainingPointsToEarn'] = progress_data['remainingPointsToEarn']
 
-	context_dict['studentXP_range'] = progress_data['xp']
+	context_dict['studentXP_range'] = progress_data['data']['xp']
 	context_dict['totalWCEarnedPoints'] = progress_data['data']['totalWCEarnedPoints']
 	context_dict['totalWCPossiblePoints'] = progress_data['data']['totalWCPossiblePoints']
 

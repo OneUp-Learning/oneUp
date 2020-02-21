@@ -19,6 +19,7 @@ from notify.signals import notify
 from decimal import Decimal
 from oneUp.decorators import instructorsCheck
 import json
+from Badges.tasks import refresh_xp
 
 default_student_points = -1
 default_student_bonus = 0
@@ -114,6 +115,8 @@ def activityAssignPointsView(request):
             if activityGradedNow[studentRC.studentID] == True:
                 register_event(Event.participationNoted, request,
                                studentRC.studentID, activity.activityID)
+                # Update student xp
+                refresh_xp(context_dict['student_registered_course'])
                 print("Registered Event: Participation Noted Event, Student: " +
                       str(studentRC.studentID) + ", Activity Assignment: " + str(activity))
 
