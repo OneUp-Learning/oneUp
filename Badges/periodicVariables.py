@@ -19,6 +19,7 @@ from billiard.connection import CHALLENGE
 from oneUp.logger import logger
 
 from django.conf import settings
+import time
 
 from Students.models import StudentEventLog
 
@@ -97,9 +98,11 @@ def get_periodic_variable_results(variable_index, period_index, course_id):
     students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     rank = []
     # Evaluate each student based on periodic variable function
+    elapsed_time = time.perf_counter()
+    print(f"[Periodic Calls] Start Elapsed Time {elapsed_time}")
     for student_in_course in students:
         rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, result_only=True))
-    
+    print(f"[Periodic Calls] End Elapsed Time {time.perf_counter() - elapsed_time}")
     return rank
 
 def delete_periodic_task(unique_id, variable_index, award_type, course):

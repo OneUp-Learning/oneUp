@@ -221,7 +221,10 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDispla
         
         Returns list of tuples: [(student, value), (student, value),...]'''
     print(periodicVariable)
+    elapsed_time = time.perf_counter()
+    print(f"[Periodic Results] Start Elapsed Time {elapsed_time}")
     results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
+    print(f"[Periodic Results] End Elapsed Time {time.perf_counter() - elapsed_time}")
     results.sort(key=lambda tup: tup[1], reverse=True)
     results = results[:studentsDisplayedNum]
     results = [(name, score) for name, score in results if score != 0.0 or score != 0]
@@ -287,7 +290,10 @@ def generateLeaderboards(currentCourse, displayHomePage, timer=None):
         
         
         if leaderboard.isContinous:
+            elapsed_time = time.perf_counter()
+            print(f"[Continous LDB] Start Elapsed Time {elapsed_time}")
             results = getContinousLeaderboardData(leaderboard.periodicVariable, leaderboard.howFarBack, leaderboard.numStudentsDisplayed, currentCourse)
+            print(f"[Continous LDB] End Elapsed Time {time.perf_counter()-elapsed_time}")
             if results:
                 hasRecords = True
             for result in results:#result[0] is student object, result[1] is points
