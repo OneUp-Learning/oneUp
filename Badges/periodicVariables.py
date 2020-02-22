@@ -914,17 +914,17 @@ def calculate_student_xp_rankings(course, student, periodic_variable, time_perio
     return (student, xp)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=True, gradeSerious=False, gradeActivity=False)
+    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=True, gradeSerious=False, gradeActivity=False, gradeSkills=True)
     xp = result['xp']
     return (student, xp)
     
 def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=True, gradeActivity=False)
+    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=True, gradeActivity=False, gradeSkills=True)
     xp = result['xp']
     return (student, xp)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    result = studentScore(student, course, unique_id , last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, gradeActivity=True)
+    result = studentScore(student, course, unique_id , last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, gradeActivity=True, gradeSkills=True)
     xp = result['xp']
     return (student, xp)
 
@@ -1177,7 +1177,7 @@ def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
 
-def studentScore(studentId, course, unique_id, result_only=False, last_ran=None, gradeWarmup=False, gradeSerious=False, gradeActivity=False):
+def studentScore(studentId, course, unique_id, result_only=False, last_ran=None, gradeWarmup=False, gradeSerious=False, gradeActivity=False, gradeSkills=False):
     
     from Badges.models import CourseConfigParams, LeaderboardsConfig
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
@@ -1286,7 +1286,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         
         # Weighting the total serious challenge points to be used in calculation of the XP Points  
         weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
-        print("total score points serious", weightedSeriousChallengePoints)
+        logger.debug("total score points serious", weightedSeriousChallengePoints)
         
         
         totalPointsSeriousChallenges = sum(total)
@@ -1402,52 +1402,58 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         result['earnedActivityPoints'] = earnedActivityPoints
         result['totalPointsActivities'] = totalPointsActivities
 
-    # SKILL POINTS
-    # Get the earned points
-    earnedSkillPoints = 0
+    if gradeSkills:
+        # SKILL POINTS
+        # Get the earned points
+        earnedSkillPoints = 0
 
-    skill_Name = []                
-    skill_Points = []
-    skill_ClassAvg = []
-    
-    cskills = CoursesSkills.objects.filter(courseID=course)
-    for sk in cskills:
+        skill_Name = []                
+        skill_Points = []
+        skill_ClassAvg = []
         
-        skill = Skills.objects.get(skillID=sk.skillID.skillID)
-        skill_Name.append(skill.skillName)
-        
-        sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
-        print ("Skill Points Records", sp)
-        
-        if not sp:  
-            skill_Points.append(0)                     
-        else:    
-            # Get the scores for this challenge then add the max score
-            # to the earned points variable               
-            gradeID  = []
+        cskills = CoursesSkills.objects.filter(courseID=course)
+        for sk in cskills:
             
-            for p in sp:
-                gradeID.append(int(p.skillPoints))
-                print("skillPoints", p.skillPoints)   
+            skill = Skills.objects.get(skillID=sk.skillID.skillID)
+            skill_Name.append(skill.skillName)
             
-            sumSkillPoints = sum(gradeID,0)                
-            earnedSkillPoints += sumSkillPoints
+            sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
+            print ("Skill Points Records", sp)
+            
+            if not sp:  
+                skill_Points.append(0)                     
+            else:    
+                # Get the scores for this challenge then add the max score
+                # to the earned points variable               
+                gradeID  = []
+                
+                for p in sp:
+                    gradeID.append(int(p.skillPoints))
+                    print("skillPoints", p.skillPoints)   
+                
+                sumSkillPoints = sum(gradeID,0)                
+                earnedSkillPoints += sumSkillPoints
 
-            skill_Points.append(sumSkillPoints)
-            skill_ClassAvg.append(classResults.skillClassAvg(
-                skill.skillID, course))
+                skill_Points.append(sumSkillPoints)
+                skill_ClassAvg.append(classResults.skillClassAvg(
+                    skill.skillID, course))
+        
+        result['skill_range'] = list(
+            zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
+        result['nondefskill_range'] = list(
+            zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
+        result['skillWithAverage_range'] = list(
+            zip(range(1, len(skill_Name)+1), skill_Name, skill_ClassAvg))
+
+        # Weighting the total skill points to be used in calculation of the XP Points     
+        print("earnedSkillPoints: ", earnedSkillPoints)              
+        weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
+
+        result['weightedSkillPoints'] = weightedSkillPoints
+        result['earnedSkillPoints'] = earnedSkillPoints
+
+
     
-    result['skill_range'] = list(
-        zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
-    result['nondefskill_range'] = list(
-        zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
-    result['skillWithAverage_range'] = list(
-        zip(range(1, len(skill_Name)+1), skill_Name, skill_ClassAvg))
-
-
-    # Weighting the total skill points to be used in calculation of the XP Points     
-    print("earnedSkillPoints: ", earnedSkillPoints)              
-    weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
     
     # Return the xp and/or required variables rounded to 1 decimal place
     xp = 0
@@ -1459,7 +1465,10 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         print("serious ran")
     if gradeActivity:
         xp += weightedActivityPoints
-    if not gradeSerious and not gradeWarmup and not gradeActivity:
+    if gradeSkills:
+        xp += weightedSkillPoints
+
+    if not gradeSerious and not gradeWarmup and not gradeActivity and not gradeSkills:
         xp += weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints
     
     xp = round(xp, 1)
@@ -1475,16 +1484,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
     result["numOfCalloutLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=879).count()
         
     result['xp'] = xp
-    result['weightedSeriousChallengePoints'] = weightedSeriousChallengePoints
-    result['weightedWarmupChallengePoints'] = weightedWarmupChallengePoints
-    result['weightedActivityPoints'] = weightedActivityPoints
-    result['weightedSkillPoints'] = weightedSkillPoints
-    result['earnedSeriousChallengePoints'] = earnedSeriousChallengePoints
-    result['earnedWarmupChallengePoints'] = earnedWarmupChallengePoints
-    result['earnedActivityPoints'] = earnedActivityPoints
-    result['earnedSkillPoints'] = earnedSkillPoints
-    result['totalPointsSeriousChallenges'] = totalPointsSeriousChallenges
-    result['totalPointsActivities'] = totalPointsActivities
+    
 
     return result
 

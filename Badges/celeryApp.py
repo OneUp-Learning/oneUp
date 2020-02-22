@@ -6,7 +6,7 @@ from logstash_async.handler import AsynchronousLogstashHandler
 from logstash_async.formatter import DjangoLogstashFormatter
 
 
-def initialize_logstash(logger=None, loglevel=logging.DEBUG, **kwargs):
+def initialize_logstash(logger=None, loglevel=logging.DEBUG, message_type='celery', **kwargs):
     handler = AsynchronousLogstashHandler(
         host=settings.LOGSTASH_HOST,
         port=settings.LOGSTASH_PORT,
@@ -14,9 +14,9 @@ def initialize_logstash(logger=None, loglevel=logging.DEBUG, **kwargs):
     )
     handler.setLevel(loglevel)
     formatter = DjangoLogstashFormatter(
-        message_type='celery',
+        message_type=message_type,
         extra={
-            'application': 'Celery',
+            'application': message_type,
             'environment': 'dev'
         }
     )
