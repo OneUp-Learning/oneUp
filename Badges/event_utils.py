@@ -9,7 +9,7 @@ def updateLeaderboard(course):
     currentTime = utcDate()
 
     for studentrc in studentrcs:
-        result = studentScore(studentrc.studentID, course, 0, result_only=True)
+        result = studentScore(studentrc.studentID, course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
         xp = result['xp']
         # get all the students that have xp
         if xp > 0:
