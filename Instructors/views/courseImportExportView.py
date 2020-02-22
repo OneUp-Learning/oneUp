@@ -1644,7 +1644,7 @@ def vc_rules_to_json(vc_rules, vc_rule_type, current_course, post_request=None, 
 
                 # Get the vc rule details
                 automatic_vc_rule_details = rule_model_to_json(automatic_vc_rule)
-
+                automatic_vc_rule_details['vcRuleAmount'] = ActionArguments.objects.get(ruleID=automatic_vc_rule).argumentValue
                 # Check to see if the conditions & specifier object ids are being exported as well
                 if post_request:
                     validate_rule_json(automatic_vc_rule_details, post_request, root_json=root_json, messages=messages)
