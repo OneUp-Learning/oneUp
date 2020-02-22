@@ -113,11 +113,13 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		students = StudentRegisteredCourses.objects.filter(courseID= current_course, studentID__isTestStudent=False)
 		for student in students:
 			# Get latest data
-			data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
 		
-			response['xp'] += data['xp']
+			
 			if for_student == student.studentID:
+				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=False, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 				response['data'] = data
+			else:
+				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 
 			currentEarnedPoints = data['earnedSeriousChallengePoints'] + data['earnedActivityPoints']
 			currentTotalPoints = data['totalPointsSeriousChallenges'] + data['totalPointsActivities']
@@ -134,6 +136,7 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 			response['missedPoints'] += missedPoints
 			response['projectedEarnedPoints'] += projectedEarnedPoints
 			response['remainingPointsToEarn'] += remainingPointsToEarn
+			response['xp'] += data['xp']
 
 		if metric_average and students:
 			response['xp'] = response['xp'] / len(students)
@@ -144,12 +147,12 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		
 		response['progressBarTotalPoints'] = progressBarTotalPoints
 		if response['data'] == 0:
-			data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
+			data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 			response['data'] = data
 		
 	else:
 		# Get latest data
-		data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
+		data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 	
 		response['xp'] = data['xp']
 		response['data'] = data

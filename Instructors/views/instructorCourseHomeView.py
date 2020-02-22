@@ -19,8 +19,6 @@ from datetime import timedelta
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
 import inspect
-logger = logging.getLogger(__name__)
-
 
 def lineno():
     """Returns the current line number in our program."""
@@ -115,6 +113,6 @@ def instructorCourseHome(request):
         currentCourse, context_dict)
     context_dict['course_Name'] = currentCourse.courseName
     context_dict['course_id'] = currentCourse.courseID
-    
+
     context_dict = courseLeaderboard(currentCourse, context_dict)
     return render(request, 'Instructors/InstructorCourseHome.html', context_dict)
