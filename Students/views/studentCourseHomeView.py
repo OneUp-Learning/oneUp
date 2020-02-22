@@ -44,7 +44,7 @@ def StudentCourseHome(request):
 	context_dict['progressBarTotalPoints'] = progress_data['progressBarTotalPoints']
 	context_dict['remainingPointsToEarn'] = progress_data['remainingPointsToEarn']
 
-	context_dict['studentXP_range'] = progress_data['xp']
+	context_dict['studentXP_range'] = progress_data['data']['xp']
 	context_dict['totalWCEarnedPoints'] = progress_data['data']['totalWCEarnedPoints']
 	context_dict['totalWCPossiblePoints'] = progress_data['data']['totalWCPossiblePoints']
 
@@ -113,7 +113,7 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		students = StudentRegisteredCourses.objects.filter(courseID= current_course, studentID__isTestStudent=False)
 		for student in students:
 			# Get latest data
-			data = studentScore(student.studentID, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+			data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
 		
 			response['xp'] += data['xp']
 			if for_student == student.studentID:
@@ -144,12 +144,12 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		
 		response['progressBarTotalPoints'] = progressBarTotalPoints
 		if response['data'] == 0:
-			data = studentScore(for_student, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+			data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
 			response['data'] = data
 		
 	else:
 		# Get latest data
-		data = studentScore(for_student, current_course, 0, TimePeriods.timePeriods[1503], 0, result_only=True)
+		data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
 	
 		response['xp'] = data['xp']
 		response['data'] = data
@@ -172,8 +172,6 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		response['remainingPointsToEarn'] = remainingPointsToEarn
 
 	response['status'] = "success"
-
-	
 
 	return response
 

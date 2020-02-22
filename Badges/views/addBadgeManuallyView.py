@@ -15,62 +15,88 @@ def addBadgeManuallyView(request):
     if 'currentCourseID' in request.session:
         if request.method == 'GET':
             students = StudentRegisteredCourses.objects.filter(courseID = course).order_by("studentID__user__last_name")
-            studentID = []
-            studentName= []
+            
+            students_details = []
+            test_students_details = []
             for studentobj in students:
-                studentID.append(studentobj.studentID)
                 name = studentobj.studentID.user.get_full_name()
                 if studentobj.studentID.isTestStudent:
-                    name += " (Test Student)"
-                studentName.append(name)
+                    test_students_details.append({'id': studentobj.studentID, 'name': f'{name} (Test Student)'})
+                else:
+                    students_details.append({'id': studentobj.studentID, 'name': name})
+                
+            test_students_details = sorted(test_students_details, key=lambda x: x['name'].casefold())
             
             badges = BadgesInfo.objects.filter(courseID = course)
-            customRules = [r for r in badges]
             
-            ##get thecustom made badge
-            allBadgeID = []
-            allBadgeDecripName = []
-            for badge in customRules:
-                allBadgeID.append(badge.badgeID)
-                allBadgeDecripName.append(badge.badgeDescription)
+            manual_badges = []
+            automatic_badges = []
+            periodic_badges = []
+            for badge in badges:
+                if badge.manual == True:
+                    manual_badges.append({'id': badge.badgeID, 'name': badge.badgeName, 'description': badge.badgeDescription})
+                elif badge.manual == False and badge.isPeriodic == False:
+                    automatic_badges.append({'id': badge.badgeID, 'name': badge.badgeName, 'description': badge.badgeDescription})
+                elif badge.isPeriodic == True:
+                    periodic_badges.append({'id': badge.badgeID, 'name': badge.badgeName, 'description': badge.badgeDescription})
                 
-            context_dict['students'] = list(zip(studentID, studentName))
-            context_dict['badges'] = list(zip(allBadgeID, allBadgeDecripName))
+            context_dict['students'] = students_details
+            context_dict['test_students'] = test_students_details
+            context_dict['manual_badges'] = manual_badges
+            context_dict['automatic_badges'] = automatic_badges
+            context_dict['periodic_badges'] = periodic_badges
             
+            student_badges_details = []
+            for student in students_details:
+                studentBadges = StudentBadges.objects.filter(studentID=student['id'], badgeID__courseID=course)
+                if studentBadges.exists():
+                    badges = []
+                    for badge in studentBadges:
+                        badges.append({'id': badge.studentBadgeID, 'name': badge.badgeID.badgeName, 'image': badge.badgeID.badgeImage})
+                    student_badges_details.append({'student': student, 'badges': badges})
             
+            for student in test_students_details:
+                studentBadges = StudentBadges.objects.filter(studentID=student['id'], badgeID__courseID=course)
+                if studentBadges.exists():
+                    badges = []
+                    for badge in studentBadges:
+                        badges.append({'id': badge.studentBadgeID, 'name': badge.badgeID.badgeName, 'image': badge.badgeID.badgeImage})
+                    student_badges_details.append({'student': student, 'badges': badges})
             
-            studentNames = []
-            studentAwardedBadgesZipList = []
+            context_dict['student_badges'] = student_badges_details
+
+            # studentNames = []
+            # studentAwardedBadgesZipList = []
             
-            ##for each student object in students models
-            for studentObjects in students:
-                    ##append each full student name to the student names list
-                    studentNames.append(studentObjects.studentID.user.get_full_name())
+            # ##for each student object in students models
+            # for studentObjects in students:
+            #         ##append each full student name to the student names list
+            #         studentNames.append(studentObjects.studentID.user.get_full_name())
                     
-                    ##filter the student badges objects, by selecting where studentID matches studentObjets
-                    ##studentID
-                    studentBadges = StudentBadges.objects.filter(studentID = studentObjects.studentID, badgeID__courseID=course)
+            #         ##filter the student badges objects, by selecting where studentID matches studentObjets
+            #         ##studentID
+            #         studentBadges = StudentBadges.objects.filter(studentID = studentObjects.studentID, badgeID__courseID=course)
                     
                     
-                    ##we must blank this out on each iteration so it will load in only what maches the studentID
-                    studentBadgeID = []
-                    studentBadgeName = []
-                    studentBadgeImage = []
-                    if studentBadges == None:##if we dont have any badges match our students, load in blank list
-                        studentAwardedBadgesZipList.append(list(zip(studentBadgeID, studentBadgeName, studentBadgeImage)))
-                    else:##otherwise for each student badgeobject, grab the id name and image    
-                        for studentBadge in studentBadges:
-                            badgeInfo = BadgesInfo.objects.get(badgeID = studentBadge.badgeID.badgeID)
+            #         ##we must blank this out on each iteration so it will load in only what maches the studentID
+            #         studentBadgeID = []
+            #         studentBadgeName = []
+            #         studentBadgeImage = []
+            #         if studentBadges == None:##if we dont have any badges match our students, load in blank list
+            #             studentAwardedBadgesZipList.append(list(zip(studentBadgeID, studentBadgeName, studentBadgeImage)))
+            #         else:##otherwise for each student badgeobject, grab the id name and image    
+            #             for studentBadge in studentBadges:
+            #                 badgeInfo = BadgesInfo.objects.get(badgeID = studentBadge.badgeID.badgeID)
                             
-                            studentBadgeID.append(studentBadge.studentBadgeID)
-                            studentBadgeName.append(studentBadge.badgeID.badgeName)
-                            studentBadgeImage.append(studentBadge.badgeID.badgeImage)
-                        #print(studentBadgeImage)
-                        ##at the end of  the for, append the things into the list
-                        studentAwardedBadgesZipList.append(list(zip(studentBadgeID, studentBadgeName, studentBadgeImage)))
+            #                 studentBadgeID.append(studentBadge.studentBadgeID)
+            #                 studentBadgeName.append(studentBadge.badgeID.badgeName)
+            #                 studentBadgeImage.append(studentBadge.badgeID.badgeImage)
+            #             #print(studentBadgeImage)
+            #             ##at the end of  the for, append the things into the list
+            #             studentAwardedBadgesZipList.append(list(zip(studentBadgeID, studentBadgeName, studentBadgeImage)))
                         
-            ##append to the context dictionary, the student names, and student awardedbadges list
-            context_dict['studentBadges'] = list(zip(studentNames, studentAwardedBadgesZipList))
+            # ##append to the context dictionary, the student names, and student awardedbadges list
+            # context_dict['studentBadges'] = list(zip(studentNames, studentAwardedBadgesZipList))
 
             return render(request, 'Badges/AddBadgeManually.html', context_dict)
         elif request.method == 'POST':

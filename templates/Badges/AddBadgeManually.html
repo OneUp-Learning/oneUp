@@ -3,29 +3,6 @@
    <head>
       {% include 'scripts.html' %}
       <script>
-         function validate()
-         {
-          var student = document.getElementById("badgeOption");
-          var badge = document.getElementById("studentOption");
-         
-          var studentSelectedValue = student.options[badge.selectedIndex].value;
-             if (studentSelectedValue == "option")
-             {
-              alert("Please select the student!");
-              return false;
-             }
-             
-             var badgeSelectedValue = badge.options[student.selectedIndex].value;
-             if (badgeSelectedValue == "option")
-            {
-             alert("Please select the badge!");
-             return false;
-            }
-             
-         }
-         
-      </script>
-      <script>
          function validateCheckBox(){
           var checkBoxes = document.getElementsByName( 'checkboxes' );
           var isChecked = false;
@@ -41,10 +18,54 @@
                       return false;
                   }   
           }
+          $(document).ready(function() {
+            $('select[required]').css({
+               display: 'inline',
+               position: 'absolute',
+               float: 'left',
+               padding: 0,
+               margin: 0,
+               border: '1px solid rgba(255,255,255,0)',
+               height: 0, 
+               width: 0,
+               top: '2em',
+               left: '3em',
+               opacity: 0,
+               pointerEvents: 'none'
+            });
+         });
+         function toggleCheckBox(badge_id, student_id){
+            var checkbox = document.getElementById(badge_id);
+            checkbox.checked = !checkbox.checked;
+            document.getElementById(badge_id+"-blip").classList.toggle("hide");
+            
+            var counter = document.getElementById(student_id+"-count")
+            if(checkbox.checked){
+               var value = parseInt(counter.innerHTML) + 1;
+               counter.classList.remove("hide");
+               if(isNaN(value)) value = 1;
+               counter.innerHTML = value;
+            } else {
+               var value = parseInt(counter.innerHTML) - 1;
+               if(value <= 0){
+                  value = 0;
+                  counter.classList.add("hide");
+               }
+               counter.innerHTML = value;
+
+            }
+         }
       </script>
       <style>
-         #badge {
-         display: inline-block;
+         .blip {
+            position: absolute;;
+            padding:5px 9px;
+            background-color: #b1dcfb;
+            color: #3f51b5;
+            top: -8px;
+            left: -8px;
+            border-radius: 50%;
+            cursor: pointer;
          }
       </style>
    </head>
@@ -59,50 +80,69 @@
          <div class="row">
             <div class="col s12 m10 offset-m1">
                <div class="card">
-                  <form id="update" name="update" onsubmit="return validate()" action="/oneUp/badges/AddBadgeManually" method="post">
+                  <form name="update" action="/oneUp/badges/AddBadgeManually" method="POST">
+                     {% csrf_token %}
                      <div class="card-content">
-                        {% csrf_token %}
-                        <table>
-                           <th>Student</th>
-                           <th> Badge</th>
-                           <tbody>
-                              <tr>
-                                 <td>
-                                    <div class="select-wrapper">
-                                       <select id="studentOption" name="userID" >
-                                          <option value="option" selected>Select Student</option>
-                                          {% for userID, studentName in students %}
-                                          <option id="userID"  value="{{userID}}">{{studentName}}</option>
-                                          {% endfor %}
-                                       </select>
-                                 </td>
-                                 <td>
-                                 <select id="badgeOption" name="badgeID" >
-                                 <option value="option"selected>Select Badge</option>
-                                 {% for badgeID, badgeDescrip in badges %}
-                                 <option id="badgeID"  value="{{badgeID}}">{{badgeDescrip}}</option>
-                                 {% endfor %}
-                                 </select>
-                                 </div>
-                                 </td>
-                                 <td></td>
-                              </tr>
-                           </tbody>
-                        </table>
+                        <div class="row" style="margin-bottom: 0;">
+                           <div class="input-field col s12 m4">
+                              <select id="student-select" name="userID" required>
+                                 <option value="" disabled selected>Select Student</option>
+                                 {% if students %}
+                                 <optgroup label="Students">
+                                    {% for student in students %}
+                                       <option value="{{student.id}}">{{student.name}}</option>
+                                    {% endfor %}
+                                 </optgroup>
+                                 {% endif %}
+                                 {% if test_students %}
+                                 <optgroup label="Test Students">
+                                    {% for student in test_students %}
+                                       <option value="{{student.id}}">{{student.name}}</option>
+                                    {% endfor %}
+                                 </optgroup>
+                                 {% endif %}
+                              </select>
+                              <label for="student-select">Student</label>
+                           </div>
+                           <div class="input-field col s12 m8">
+                              <select id="badge-select" name="badgeID" required>
+                                 <option value="" disabled selected>Select Badge</option>
+                                 {% if manual_badges %}
+                                 <optgroup label="Manual Badges">
+                                    {% for badge in manual_badges %}
+                                    <option value="{{badge.id}}">{{badge.name}}</option>
+                                    {% endfor %}
+                                 </optgroup>
+                                 {% endif %}
+                                 {% if automatic_badges %}
+                                 <optgroup label="Automatic Badges">
+                                    {% for badge in automatic_badges %}
+                                    <option value="{{badge.id}}">{{badge.name}}</option>
+                                    {% endfor %}
+                                 </optgroup>
+                                 {% endif %}
+                                 {% if periodic_badges %}
+                                 <optgroup label="Periodic Badges">
+                                    {% for badge in periodic_badges %}
+                                    <option value="{{badge.id}}">{{badge.name}}</option>
+                                    {% endfor %}
+                                 </optgroup>
+                                 {% endif %}
+                              </select>
+                              <label for="badge-select">Badge</label>
+                           </div>
+                         </div>
                      </div>
                      <div class="card-action right-align">
-                        <div class="row">
-                           <div class="col s12">
-                              <button class="btn waves-effect waves-light" type="submit">Assign Badge
-                              <i class="material-icons right">send</i>
-                              </button>
-                           </div>
-                        </div>
+                        <button class="btn waves-effect waves-light" type="submit">Assign Badge
+                           <i class="material-icons right">send</i>
+                        </button>
                      </div>
                   </form>
                </div>
             </div>
          </div>
+         {% if student_badges|length > 0 %}
          <div class="row center-align">
             <div class="col s12">
                <h5>Remove Badges From Students</h5>
@@ -110,41 +150,37 @@
          </div>
          <div class="row">
             <div class="col s12 m10 offset-m1">
-               <div class="card">
-                  <form onsubmit="return validateCheckBox()" action="/oneUp/badges/AddBadgeManually" method="post">
-                     <div class="card-content">
-                        {% csrf_token %}
-                        {%for studentName, earnedBadges in studentBadges%}
-                        <div style="padding-bottom: .5em;">
-                           <br>
-                           <!-- if the student has no earned badges, dont display the student name GGM -->
-                           {% if earnedBadges %}
-                           <p><b>{{studentName}}</b></p>
-                           {%for badgeId, badgeName, badgeImage in earnedBadges %}
-                           <div id="badge" style="padding-right: 2em;">
-                              <input type="checkbox" style="padding:0;" name="checkboxes" value="{{badgeId}}" id="{{badgeId}}" />
-                              <label id="badge" for="{{badgeId}}" style="padding:.5em;"></label>
-                              <img src="/{{badgeImage}}" width="46px" height="46px">
-                              <figcaption>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{badgeName}}</figcaption>
-                           </div>
-                           {% endfor %}
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-                     </div>
-                     <div class="card-action right-align">
-                        <div class="row">
-                           <div class="col s12">
-                              <button class="btn waves-effect waves-light" type="submit">Delete Badge
-                              <i class="material-icons right">send</i>
-                              </button>
+               <form onsubmit="return validateCheckBox()" action="/oneUp/badges/AddBadgeManually" method="POST">
+                  {% csrf_token %}
+                  <ul class="collapsible" data-collapsible="expandable">
+                     {% for item in student_badges %}
+                     
+                     <li>
+                        <div class="collapsible-header active"><i class="material-icons">person</i>{{item.student.name}} <span id="{{item.student.id}}-count" class="new badge hide" data-badge-caption="selected"></span></div>
+                        <div class="collapsible-body">
+                           <div style="display: flex; flex-wrap: wrap;">
+                              {% for student_badge in item.badges %}
+                              <div style="height: 64px; width: fit-content; margin: 2px; position: relative;">
+                                 <input type="checkbox" name="checkboxes" value="{{student_badge.id}}" id="{{student_badge.id}}" />
+                                 <small id="{{student_badge.id}}-blip" class="blip hide" onclick="toggleCheckBox('{{student_badge.id}}', '{{item.student.id}}')"><i class="tiny material-icons" style="vertical-align: middle;">check</i></small>
+                                 <img class="tooltipped" src="/{{student_badge.image}}" alt="Badge Image" width="64px" style="cursor: pointer;"
+                                    height="64px" data-position="top" data-delay="50" data-tooltip="{{student_badge.name}}" onclick="toggleCheckBox('{{student_badge.id}}', '{{item.student.id}}')"/>
+                              </div>
+                              {% endfor %}
                            </div>
                         </div>
+                     </li>
+                     {% endfor %}
+                  </ul>
+                     <div class="right-align">
+                     <button class="btn waves-effect waves-light" type="submit">Delete Badge(s)
+                        <i class="material-icons right">send</i>
+                     </button>
                      </div>
-                  </form>
-               </div>
+               </form>
             </div>
          </div>
+         {% endif %}
       </main>
       <!-- Footer -->
       {% include 'footer.html' %}
