@@ -19,8 +19,6 @@ from datetime import timedelta
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
 import inspect
-import logging
-import time
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +27,7 @@ def lineno():
     return inspect.currentframe().f_back.f_lineno
 
 
-def courseLeaderboard(currentCourse, context_dict, timer=None):
+def courseLeaderboard(currentCourse, context_dict):
 
     # Check if there are students in this course
     students_registered_in_course = StudentRegisteredCourses.objects.filter(
@@ -94,12 +92,9 @@ def courseLeaderboard(currentCourse, context_dict, timer=None):
 
             # user range here is comprised of zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)
             # leaderboard rankings is also a zip #GGM
-            start_elapsed = time.perf_counter()
-            print(f"[Course LDB] Start Elapsed Time {start_elapsed}")
 
             context_dict['leaderboard_range'] = generateLeaderboards(
-                currentCourse, True, timer=start_elapsed)
-            print(f"[Course LDB] End Elapsed Time {time.perf_counter()-start_elapsed}")
+                currentCourse, True)
             generateSkillTable(currentCourse, context_dict)
 
         else:
@@ -120,9 +115,6 @@ def instructorCourseHome(request):
         currentCourse, context_dict)
     context_dict['course_Name'] = currentCourse.courseName
     context_dict['course_id'] = currentCourse.courseID
-
-    timer = time.perf_counter()
-    print(f"[Course Home] Start Time {timer}")
-    context_dict = courseLeaderboard(currentCourse, context_dict, timer)
-    print(f"[Course Home] End Elapsed Time {time.perf_counter()-timer}")
+    
+    context_dict = courseLeaderboard(currentCourse, context_dict)
     return render(request, 'Instructors/InstructorCourseHome.html', context_dict)

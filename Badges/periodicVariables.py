@@ -98,11 +98,8 @@ def get_periodic_variable_results(variable_index, period_index, course_id):
     students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     rank = []
     # Evaluate each student based on periodic variable function
-    elapsed_time = time.perf_counter()
-    print(f"[Periodic Calls] Start Elapsed Time {elapsed_time}")
     for student_in_course in students:
         rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, result_only=True))
-    print(f"[Periodic Calls] End Elapsed Time {time.perf_counter() - elapsed_time}")
     return rank
 
 def delete_periodic_task(unique_id, variable_index, award_type, course):
@@ -1286,7 +1283,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         
         # Weighting the total serious challenge points to be used in calculation of the XP Points  
         weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
-        logger.debug("total score points serious", weightedSeriousChallengePoints)
+        logger.debug(f"total score points serious {weightedSeriousChallengePoints}")
         
         
         totalPointsSeriousChallenges = sum(total)
