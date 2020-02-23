@@ -11,7 +11,7 @@ from Students.models import StudentCourseSkills, StudentChallenges, StudentBadge
 from Badges.models import CourseConfigParams
 from Students.views import classResults
 from Students.views.utils import studentInitialContextDict
-from Students.models import StudentConfigParams
+from Students.models import StudentConfigParams, StudentEventLog
 
 from Badges.periodicVariables import studentScore, TimePeriods
 from Students.views.studentCourseHomeView import progress_bar_data
@@ -67,15 +67,14 @@ def achievements(request):
 	context_dict['nondefskill_range'] = data['nondefskill_range']
 	context_dict['skillWithAverage_range'] = data['skillWithAverage_range']
 
-	context_dict["challengeClassmates"] = data["challengeClassmates"] 
-	context_dict["numOfDuelSent"] = data["numOfDuelSent"]
-	context_dict["numOfDuelAccepted"] = data["numOfDuelAccepted"] 
-	context_dict["numOfDuelWon"] = data["numOfDuelWon"] 
-	context_dict["numOfDuelLost"] = data["numOfDuelLost"] 
-	context_dict["numOfCalloutSent"] = data["numOfCalloutSent"] 
-	context_dict["numOfCalloutRequest"] = data["numOfCalloutRequest"] 
-	context_dict["numOfCalloutWon"] = data["numOfCalloutWon"]
-	context_dict["numOfCalloutLost"] = data["numOfCalloutLost"]
+	context_dict["numOfDuelSent"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=872).count()
+	context_dict["numOfDuelAccepted"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=873).count()
+	context_dict["numOfDuelWon"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=874).count()
+	context_dict["numOfDuelLost"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=875).count()
+	context_dict["numOfCalloutSent"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=876).count()
+	context_dict["numOfCalloutRequest"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=877).count()
+	context_dict["numOfCalloutWon"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=878).count()
+	context_dict["numOfCalloutLost"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=879).count()
 
 	# Extract Badges data for the current student
 	badgeId = []
