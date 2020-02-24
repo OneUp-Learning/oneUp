@@ -49,7 +49,6 @@ class CourseConfigMiddleware:
             
         # If request in paths to check and user is not fully logged out..
         if request.path in self.paths and not request.user == AnonymousUser:
-            
             # Get current course
             if 'currentCourseID' in request.session:
                 course = Courses.objects.get(pk=int(request.session['currentCourseID']))
@@ -68,7 +67,7 @@ class CourseConfigMiddleware:
             # Get the latest course and student config parameters
             self.update_params(course, student)
             # ccparams, scparams = self.update_params_constant(course, student)
-            
+            # print(self.course_config_params, self.student_config_params)
             # We check the configs fields to see if this request is valid
             if self.validate_request(request.path, ccparams=self.course_config_params, scparams=self.student_config_params) is False:
                 if course:
