@@ -241,9 +241,10 @@ def get_transactions(context_dict, course, student, t_type='all'):
             transactionID.append(None)
             challenges.append(None)
 
-    # Sort by status (Request -> In Progress -> Complete)
+    # Sort by status (Request -> In Progress -> Complete) then datetime 
+    status_order = ['Complete', 'Reverted', 'In Progress', 'Requested']
     transactions = sorted(zip(transactionID, name, description, date, total, status,
-                              challenges, transaction_type), key=lambda s: (s[5], s[3]), reverse=True)
+                              challenges, transaction_type), key=lambda s: (status_order.index(s[5]), s[3]), reverse=True)
 
     # Need to format the datetime object to be like it shows in the html file
     # This will mimick what django does to render dates on the frontend
