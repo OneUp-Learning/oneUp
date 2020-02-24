@@ -116,10 +116,10 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		
 			
 			if for_student == student.studentID:
-				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=False, gradeSerious=True, gradeActivity=True, gradeSkills=False)
+				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 				response['data'] = data
 			else:
-				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
+				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=False, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 
 			currentEarnedPoints = data['earnedSeriousChallengePoints'] + data['earnedActivityPoints']
 			currentTotalPoints = data['totalPointsSeriousChallenges'] + data['totalPointsActivities']
