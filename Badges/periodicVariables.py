@@ -19,7 +19,6 @@ from billiard.connection import CHALLENGE
 from oneUp.logger import logger
 
 from django.conf import settings
-import time
 
 
 LOCK_EXPIRE = 60 * 5 # lock expire in 5 minutes
@@ -333,8 +332,9 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
 
     from notify.signals import notify  
     from Students.models import StudentBadges, StudentRegisteredCourses, StudentVirtualCurrency
-    from Badges.models import BadgesInfo, VirtualCurrencyPeriodicRule
+    from Badges.models import BadgesInfo, VirtualCurrencyPeriodicRule, BadgesVCLog
     from Instructors.views.utils import utcDate
+    from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
     from Badges.enums import Event
     from Badges.events import register_event_simple
 
@@ -353,6 +353,15 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
             studentBadge.objectID = 0
             studentBadge.timestamp = utcDate() - timedelta(hours=4)
             studentBadge.save()
+
+            # Record this trasaction in the log to show that the system awarded this badge
+            studentAddBadgeLog = BadgesVCLog()
+            studentAddBadgeLog.courseID = course
+            log_data = create_badge_vc_log_json("System", studentBadge, "Badge", "Time-Period")
+            studentAddBadgeLog.log_data = json.dumps(log_data)
+            studentAddBadgeLog.timestamp = utcDate() - timedelta(hours=4)
+            studentAddBadgeLog.save()
+
             mini_req = {
                 'currentCourseID': course.pk,
                 'user': student.user.username,
@@ -378,6 +387,14 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
                 transaction.vcDescription = periodicVC.vcRuleDescription
                 transaction.value = virtual_currency_amount
                 transaction.save()
+
+                # Record this trasaction in the log to show that the system awarded this badge
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = course
+                log_data = create_badge_vc_log_json("System", transaction, "VC", "Time-Period")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.timestamp = utcDate() - timedelta(hours=4)
+                studentAddBadgeLog.save()
                 
                 mini_req = {
                     'currentCourseID': course.pk,
@@ -1212,8 +1229,8 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         
     
     
-    print("Course: {}".format(course))
-    print("Student: {}".format(studentId))
+    # print("Course: {}".format(course))
+    # print("Student: {}".format(studentId))
     
     # Specify if the xp should be calculated based on max score or first attempt
     xpSeriousMaxScore = True 
@@ -1349,7 +1366,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 
         # Weighting the total warmup challenge points to be used in calculation of the XP Points  
         weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
-        print("points warmup chal xp weighted", weightedWarmupChallengePoints) 
+        # print("points warmup chal xp weighted", weightedWarmupChallengePoints) 
 
         
         totalWCEarnedPoints = sum(warmUpSumScore)
@@ -1389,9 +1406,9 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         # Weighting the total activity points to be used in calculation of the XP Points  
         weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
         totalPointsActivities = sum(total)
-        print("activity points earned", earnedActivityPoints)
-        print("activity points total weighted", weightedActivityPoints)
-        print("activity points total", totalPointsActivities)
+        # print("activity points earned", earnedActivityPoints)
+        # print("activity points total weighted", weightedActivityPoints)
+        # print("activity points total", totalPointsActivities)
        
         result['weightedActivityPoints'] = weightedActivityPoints
         result['earnedActivityPoints'] = earnedActivityPoints
@@ -1413,7 +1430,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
             skill_Name.append(skill.skillName)
             
             sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
-            print ("Skill Points Records", sp)
+            # print ("Skill Points Records", sp)
             
             if not sp.exists():  
                 skill_Points.append(0)                     
@@ -1441,7 +1458,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
             zip(range(1, len(skill_Name)+1), skill_Name, skill_ClassAvg))
 
         # Weighting the total skill points to be used in calculation of the XP Points     
-        print("earnedSkillPoints: ", earnedSkillPoints)              
+        # print("earnedSkillPoints: ", earnedSkillPoints)              
         weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
 
         result['weightedSkillPoints'] = weightedSkillPoints
@@ -1454,10 +1471,10 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
     xp = 0
     if gradeWarmup:
         xp += weightedWarmupChallengePoints
-        print("warmup ran")
+        # print("warmup ran")
     if gradeSerious:
         xp += weightedSeriousChallengePoints
-        print("serious ran")
+        # print("serious ran")
     if gradeActivity:
         xp += weightedActivityPoints
     if gradeSkills:

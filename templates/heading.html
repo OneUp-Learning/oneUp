@@ -451,7 +451,7 @@
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentAttendanceReport">Student Attendance</a></li>
                     {% if ccparams.gamificationUsed %}
                     {% if ccparams.badgesUsed or ccparams.virtualCurrencyUsed%}
-                    <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/whoAddedBadgeAndVC">Badge and VC Log</a></li>
+                    <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/whoAddedBadgeAndVC">Badge & VC Log</a></li>
                     {% endif %}
                     {% endif %}
                     {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed  %}
@@ -608,6 +608,11 @@
                                 {% endif %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/studentSummary">Students Summary</a></li>                                                              
                                 <li><a class="waves-effect" href="/oneUp/instructors/studentAttendance">Student Attendance</a></li>
+                                {% if ccparams.gamificationUsed %}
+                                {% if ccparams.badgesUsed or ccparams.virtualCurrencyUsed%}
+                                <li><a class="waves-effect" href="/oneUp/instructors/whoAddedBadgeAndVC">Badge & VC Log</a></li>
+                                {% endif %}
+                                {% endif %}
                                 {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed  %}
                                 <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="visualization-mobile">Visualization<i class="material-icons right">more_vert</i></a></li>
                                 {% endif %}

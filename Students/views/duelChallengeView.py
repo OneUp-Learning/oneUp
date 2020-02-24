@@ -6,7 +6,7 @@ Created on Nov 2, 2018
 from django.shortcuts import render, redirect
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.utils import utcDate
-from Badges.models import CourseConfigParams
+from Badges.models import CourseConfigParams, BadgesVCLog
 from Students.models import StudentRegisteredCourses, DuelChallenges, StudentChallenges, Winners, StudentConfigParams, StudentVirtualCurrency, Callouts, Student, CalloutParticipants, StudentEventLog
 from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
 from random import randint
@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 from celery import Celery
 import json
 from Instructors.views.courseInfoView import courseInformation
+from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Students.views.calloutsView import call_out_list
 from Instructors.constants import unspecified_topic_name, default_time_str
 from Badges.enums import Event
@@ -131,6 +132,13 @@ def automatic_evaluator(duel_id, course_id):
                     w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                     w_student_vc.save()
 
+                    # Record this trasaction in the log to show that the system awarded this vc
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = duel_challenge.courseID
+                    log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
+
                     # Register event that the student earned VC
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, winner.studentID, objectId=2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const)
                 
@@ -163,6 +171,13 @@ def automatic_evaluator(duel_id, course_id):
                     l_student_vc.vcName = duel_challenge.duelChallengeName
                     l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
                     l_student_vc.save()
+
+                    # Record this trasaction in the log to show that the system awarded this vc
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = duel_challenge.courseID
+                    log_data = create_badge_vc_log_json("System", l_student_vc, "VC", "Duel")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
 
                     
                     # Register event that the student earned VC - Participated
@@ -204,6 +219,13 @@ def automatic_evaluator(duel_id, course_id):
                     w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                     w_student_vc.save()
 
+                    # Record this trasaction in the log to show that the system awarded this vc
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = duel_challenge.courseID
+                    log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
+
                     # Register event that the student earned VC
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, winner.studentID, objectId=2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const)
                     
@@ -237,7 +259,13 @@ def automatic_evaluator(duel_id, course_id):
                     l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
                     l_student_vc.save()
 
-                    
+                    # Record this trasaction in the log to show that the system awarded this vc
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = duel_challenge.courseID
+                    log_data = create_badge_vc_log_json("System", l_student_vc, "VC", "Duel")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
+
                     # Register event that the student earned VC - Participated
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, challengee_challenge.studentID, objectId=virtualCurrencyAmount)
                         
@@ -303,6 +331,13 @@ def automatic_evaluator(duel_id, course_id):
                         w_student_vc.vcName = duel_challenge.duelChallengeName
                         w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                         w_student_vc.save()
+
+                        # Record this trasaction in the log to show that the system awarded this vc
+                        studentAddBadgeLog = BadgesVCLog()
+                        studentAddBadgeLog.courseID = duel_challenge.courseID
+                        log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                        studentAddBadgeLog.log_data = json.dumps(log_data)
+                        studentAddBadgeLog.save()
                     
                     winner2 = challenger_challenge.studentID
                     vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
@@ -320,6 +355,13 @@ def automatic_evaluator(duel_id, course_id):
                         w_student_vc.vcName = duel_challenge.duelChallengeName
                         w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                         w_student_vc.save()
+
+                        # Record this trasaction in the log to show that the system awarded this vc
+                        studentAddBadgeLog = BadgesVCLog()
+                        studentAddBadgeLog.courseID = duel_challenge.courseID
+                        log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                        studentAddBadgeLog.log_data = json.dumps(log_data)
+                        studentAddBadgeLog.save()
                     
                     winner = Winners()
                     winner.DuelChallengeID = duel_challenge
@@ -1457,6 +1499,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                     w_student_vc.save()
 
+                    # Record this trasaction in the log to show that the system awarded this vc
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = duel_challenge.courseID
+                    log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
+
                 duel_challenge.hasEnded = True
                 duel_challenge.save()
 
@@ -1541,6 +1590,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 w_student_vc.vcName = duel_challenge.duelChallengeName
                 w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                 w_student_vc.save()
+
+                # Record this trasaction in the log to show that the system awarded this vc
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = duel_challenge.courseID
+                log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.save()
             
             # Notify winner
             notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
@@ -1577,6 +1633,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
                 l_student_vc.save()
 
+                # Record this trasaction in the log to show that the system awarded this vc
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = duel_challenge.courseID
+                log_data = create_badge_vc_log_json("System", l_student_vc, "VC", "Duel")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.save()
+
                 # Register event that the student earned VC - Participated
                 register_event_simple(Event.virtualCurrencyEarned, mini_req, challengee_challenge.studentID, objectId=virtualCurrencyAmount)
 
@@ -1609,6 +1672,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 w_student_vc.vcName = duel_challenge.duelChallengeName
                 w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                 w_student_vc.save()
+
+                # Record this trasaction in the log to show that the system awarded this vc
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = duel_challenge.courseID
+                log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.save()
 
             # Notify winner
             notify.send(None, recipient=winner_s.user, actor=challenger_challenge.studentID.user,
@@ -1644,6 +1714,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 l_student_vc.vcName = duel_challenge.duelChallengeName
                 l_student_vc.vcDescription = "You have participated in the duel, " + duel_challenge.duelChallengeName
                 l_student_vc.save()
+
+                # Record this trasaction in the log to show that the system awarded this vc
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = duel_challenge.courseID
+                log_data = create_badge_vc_log_json("System", l_student_vc, "VC", "Duel")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.save()
                 
                 # Register event that the student earned VC - Participated
                 register_event_simple(Event.virtualCurrencyEarned, mini_req, challenger_challenge.studentID, objectId=virtualCurrencyAmount)
@@ -1709,6 +1786,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     w_student_vc.vcName = duel_challenge.duelChallengeName
                     w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                     w_student_vc.save()
+
+                    # Record this trasaction in the log to show that the system awarded this vc
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = duel_challenge.courseID
+                    log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
                 
                 winner2 = challenger_challenge.studentID
                 vc_winner2 = StudentRegisteredCourses.objects.get(studentID=winner2, courseID=current_course)
@@ -1726,6 +1810,13 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     w_student_vc.vcName = duel_challenge.duelChallengeName
                     w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
                     w_student_vc.save()
+
+                    # Record this trasaction in the log to show that the system awarded this vc
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = duel_challenge.courseID
+                    log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
                 
                 winner = Winners()
                 winner.DuelChallengeID = duel_challenge

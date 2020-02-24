@@ -7,7 +7,8 @@ from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Students.models import StudentRegisteredCourses, Student, StudentBadges, StudentFile, User
 from Badges.systemVariables import logger
 from pytz import reference
-
+from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
+import json
 
 @login_required
 def addBadgeManuallyView(request):
@@ -122,8 +123,8 @@ def addBadgeManuallyView(request):
 
                 studentAddBadgeLog = BadgesVCLog()
                 studentAddBadgeLog.courseID = course
-                studentAddBadgeLog.studentBadges = studentBadge
-                studentAddBadgeLog.issuer = request.user
+                log_data = create_badge_vc_log_json(request.user, studentBadge, "Badge", "Manual")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
                 studentAddBadgeLog.save()
 
                 # Register even that a badge was earned
