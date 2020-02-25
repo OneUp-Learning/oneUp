@@ -23,9 +23,15 @@ def whoAddedBadgeAndVC(request):
         logObjectList = []
         loggedObjects = BadgesVCLog.objects.filter(courseID=currentCourse).order_by('-timestamp')
         ccParam = CourseConfigParams.objects.get(courseID = currentCourse)
-        
+
+        view_type = request.GET['type']
         for loggedObject in loggedObjects:
             data = json.loads(loggedObject.log_data)
+            if view_type == 'badge' and ('vc' in data or not ccParam.badgesUsed):
+                continue
+            if view_type == 'vc' and  ('badge' in data or not ccParam.virtualCurrencyUsed):
+                continue
+
             result = {}
             if data['issuer'] == "System":
                 result['issuer'] = data['issuer']
@@ -35,15 +41,16 @@ def whoAddedBadgeAndVC(request):
             result['student'] = f"{data['student']['first_name']} {data['student']['last_name']}"
             result['time'] = loggedObject.timestamp
 
-            if 'badge' in data and ccParam.badgesUsed:
+            if 'badge' in data:
                 result['badge'] = data['badge'] 
 
-            if 'vc' in data and ccParam.virtualCurrencyUsed:
+            if 'vc' in data:
                 result['vc'] = data['vc']
             
             logObjectList.append(result)
 
         context_dict['loggedObjects'] = logObjectList
+        context_dict['type'] = view_type
 
     return render(request, 'Instructors/WhoAddedBadgeAndVC.html', context_dict)
 
