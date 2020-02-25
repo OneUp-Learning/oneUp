@@ -116,7 +116,7 @@ def activityAssignPointsView(request):
                 register_event(Event.participationNoted, request,
                                studentRC.studentID, activity.activityID)
                 # Update student xp
-                refresh_xp(context_dict['student_registered_course'])
+                refresh_xp(studentRC)
                 print("Registered Event: Participation Noted Event, Student: " +
                       str(studentRC.studentID) + ", Activity Assignment: " + str(activity))
 
