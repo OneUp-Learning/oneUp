@@ -263,55 +263,15 @@
 	{% include 'heading.html' %}
 
 	<main>
-		<div class="row center-align">
-			<div class="col s12">
-				<h3>Badge & Virtual Currency Awarded</h3>
-			</div>
-		</div>
-		<div class="row">
+		<div class="row" style="padding-top: 32px;">
 			<div class="col s12 m10 offset-m1">
-				<div class="card">
-					<div class="card-content">
-						<table>
-							<thead>
-								<th>Student</th>
-								<th>Type</th>
-								<th>Awarded By</th>
-								<th>Badge or VC Name</th>
-								<th>VC Awarded</th>
-								<th>Time awarded</th>
-							</thead>
-							<tbody>
-								{% for loggedObject in loggedObjects %}
-								<tr>
-									<td>{{loggedObject.student}}</td>
-									{% if 'badge' in loggedObject %}
-									<td>{{loggedObject.badge.type}} Badge</td>
-									{% elif 'vc' in loggedObject %}
-									<td>{{loggedObject.vc.type}} VC</td>
-									{% endif %}
-									<td>{{loggedObject.issuer}}</td>
-									{% if 'badge' in loggedObject %}
-									<td>{{loggedObject.badge.name}}</td>
-									<td>-</td>
-									{% elif 'vc' in loggedObject %}
-									<td>{{loggedObject.vc.name}}</td>
-									<td>{{loggedObject.vc.value}}</td>
-									{% endif %}
-									<td>{{loggedObject.time}}</td>
-								</tr>
-								{% empty %}
-								<tr>
-									<td class="center-align" colspan="8"><i>No Badges or VC Awarded</i></td>
-								</tr>
-								{% endfor %}
-							</tbody>
-						</table>
-					</div>
-				</div>
 				<div class="card material-table">
 					<div class="table-header">
-						<span class="table-title">Badge & Virtual Currency Awarded</span>
+						{% if type == 'badge' %}
+						<span class="table-title">Badge Awarded</span>
+						{% elif type == 'vc' %}
+						<span class="table-title">Virtual Currency Awarded</span>
+						{% endif %}
 						<div class="actions">
 							<div href="#" class="search-toggle waves-effect btn-flat nopadding"><i
 									class="material-icons">search</i></div>
@@ -325,7 +285,9 @@
 								<th>Type</th>
 								<th>Awarded By</th>
 								<th>Badge or VC Name</th>
+								{% if type == 'vc' %}
 								<th>VC Awarded</th>
+								{% endif %}
 								<th>Time awarded</th>
 							</tr>
 						</thead>
@@ -333,15 +295,17 @@
 							{% for loggedObject in loggedObjects %}
 								<tr>
 									<td>{{loggedObject.student}}</td>
+
 									{% if 'badge' in loggedObject %}
 									<td>{{loggedObject.badge.type}} Badge</td>
 									{% elif 'vc' in loggedObject %}
 									<td>{{loggedObject.vc.type}} VC</td>
 									{% endif %}
+
 									<td>{{loggedObject.issuer}}</td>
+
 									{% if 'badge' in loggedObject %}
 									<td alt="{{loggedObject.badge.name}}" title="{{loggedObject.badge.name}}">{{loggedObject.badge.name}}</td>
-									<td>-</td>
 									{% elif 'vc' in loggedObject %}
 									<td alt="{{loggedObject.vc.name}}" title="{{loggedObject.vc.name}}">{{loggedObject.vc.name}}</td>
 									<td>{{loggedObject.vc.value}}</td>
@@ -360,6 +324,7 @@
 			</div>
 		</div>
 		<script>
+			/* Taken from public codepen: https://codepen.io/pauloofmeta/pen/YxNWxm under MIT license (https://blog.codepen.io/legal/licensing/) */
 			(function(window, document, undefined) {
 
 				var factory = function($, DataTable) {
@@ -538,7 +503,11 @@
 			$(document).ready(function() {
 				$('#datatable').dataTable({
 					"responsive": true,
+					{% if type == 'vc' %}
 					"order": [[ 5, "desc" ]],
+					{% else %}
+					"order": [[ 4, "desc" ]],
+					{% endif %}
 					"oLanguage": {
 						"sStripClasses": "",
 						"sSearch": "",
