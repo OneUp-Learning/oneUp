@@ -228,7 +228,8 @@ def ChallengeResults(request):
                                studentId, challengeId)
                 register_event(Event.leaderboardUpdate,
                                request, studentId, challengeId)
-                updateLeaderboard(course)
+#                updateLeaderboard(course)
+#                ^^^^^ removed for the moment due to being terribly slow.  Should be off-lined or eliminated.
 
                 print("studentChallege ", studentChallenge)
                 print("studentId ", studentId)
