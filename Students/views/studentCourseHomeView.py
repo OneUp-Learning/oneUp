@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 
 from Instructors.models import Courses
-from Students.models import StudentConfigParams,Student,StudentRegisteredCourses, StudentBadges
+from Students.models import StudentConfigParams,Student,StudentRegisteredCourses, StudentBadges, StudentEventLog
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
 from Instructors.views.dynamicLeaderboardView import generateLeaderboards
@@ -27,6 +27,7 @@ import json
 @login_required
 def StudentCourseHome(request):
 	context_dict, currentCourse = studentInitialContextDict(request)
+	student = context_dict['student']
 
 	if context_dict['is_test_student']:
 		context_dict["username"] = "Test Student"
@@ -36,7 +37,7 @@ def StudentCourseHome(request):
 	context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
 	context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
 
-	progress_data = progress_bar_data(currentCourse, context_dict['ccparams'], for_student=context_dict['student'])
+	progress_data = progress_bar_data(currentCourse, context_dict['ccparams'], for_student=student)
 
 	context_dict['currentEarnedPoints'] = progress_data['currentEarnedPoints']
 	context_dict['missedPoints'] = progress_data['missedPoints']
@@ -48,18 +49,17 @@ def StudentCourseHome(request):
 	context_dict['totalWCEarnedPoints'] = progress_data['data']['totalWCEarnedPoints']
 	context_dict['totalWCPossiblePoints'] = progress_data['data']['totalWCPossiblePoints']
 
-	context_dict["challengeClassmates"] = progress_data['data']["challengeClassmates"] 
-	context_dict["numOfDuelSent"] = progress_data['data']["numOfDuelSent"] 
-	context_dict["numOfDuelAccepted"] = progress_data['data']["numOfDuelAccepted"] 
-	context_dict["numOfDuelWon"] = progress_data['data']["numOfDuelWon"] 
-	context_dict["numOfDuelLost"] = progress_data['data']["numOfDuelLost"] 
-	context_dict["numOfCalloutSent"] = progress_data['data']["numOfCalloutSent"] 
-	context_dict["numOfCalloutRequest"] = progress_data['data']["numOfCalloutRequest"] 
-	context_dict["numOfCalloutWon"] = progress_data['data']["numOfCalloutWon"]
-	context_dict["numOfCalloutLost"] = progress_data['data']["numOfCalloutLost"]
+	context_dict["numOfDuelSent"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=872).count()
+	context_dict["numOfDuelAccepted"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=873).count()
+	context_dict["numOfDuelWon"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=874).count()
+	context_dict["numOfDuelLost"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=875).count()
+	context_dict["numOfCalloutSent"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=876).count()
+	context_dict["numOfCalloutRequest"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=877).count()
+	context_dict["numOfCalloutWon"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=878).count()
+	context_dict["numOfCalloutLost"] = StudentEventLog.objects.filter(student=student, course=currentCourse, event=879).count()
 	
 	context_dict['badgesInfo'] = studentBadges(currentCourse)
-	context_dict['studentBadges'] = studentBadges(currentCourse, student=context_dict['student'])
+	context_dict['studentBadges'] = studentBadges(currentCourse, student=student)
 	context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True) 
 	
 	#Trigger Student login event here so that it can be associated with a particular Course
@@ -113,11 +113,13 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		students = StudentRegisteredCourses.objects.filter(courseID= current_course, studentID__isTestStudent=False)
 		for student in students:
 			# Get latest data
-			data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
 		
-			response['xp'] += data['xp']
+			
 			if for_student == student.studentID:
+				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 				response['data'] = data
+			else:
+				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=False, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 
 			currentEarnedPoints = data['earnedSeriousChallengePoints'] + data['earnedActivityPoints']
 			currentTotalPoints = data['totalPointsSeriousChallenges'] + data['totalPointsActivities']
@@ -134,6 +136,7 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 			response['missedPoints'] += missedPoints
 			response['projectedEarnedPoints'] += projectedEarnedPoints
 			response['remainingPointsToEarn'] += remainingPointsToEarn
+			response['xp'] += data['xp']
 
 		if metric_average and students:
 			response['xp'] = response['xp'] / len(students)
@@ -144,7 +147,7 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 		
 		response['progressBarTotalPoints'] = progressBarTotalPoints
 		if response['data'] == 0:
-			data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
+			data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
 			response['data'] = data
 		
 	else:

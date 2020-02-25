@@ -281,29 +281,35 @@
             function exportCourse(json) {
                 // console.log('Exporting');
                 var exported_json = JSON.stringify(json);
-                // Download the json file
-                download(exported_json, 'course-{{course_Name}}-{{version}}.json', 'text/plain');
 
-                // Uncomment for exporting to media folder
-                // $.ajax({
-                //     type: "POST",
-                //     url: "/oneUp/instructors/exportCourse",
-                //     data:  {'exported-json': exported_json},
-                //     success: function () {
-                //         // console.log("Success!");
-                //         location.reload();
-                //     }
-                // });
+                // Download course zip file
+                $.ajax({
+                    type: "POST",
+                    url: "/oneUp/instructors/exportCourse",
+                    data:  {'exported-json': exported_json},
+                    xhrFields:{
+                        responseType: 'blob'
+                    },
+                    success: function (res, status, xhr) {
+                        // console.log("Success!");
+                        var disposition = xhr.getResponseHeader('Content-Disposition');
+                        if (disposition && disposition.indexOf('attachment') !== -1) {
+                            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                            var matches = filenameRegex.exec(disposition);
+                            if (matches != null && matches[1]) var filename = matches[1].replace(/['"]/g, '');
+                            download(res, filename, 'application/zip');
+                        }
+                        
+                    }
+                });
             }
-            function download(content, fileName, contentType) {
+            function download(file, fileName, contentType) {
                 var a = document.createElement("a");
-                var file = new Blob([content], {type: contentType});
                 a.href = URL.createObjectURL(file);
                 a.download = fileName;
                 a.click();
                 URL.revokeObjectURL(a.href);
                 Materialize.toast("Course Exported!", 4000);
-                // setTimeout(() => { location.reload();}, 4000)
             }
         </script>
     </main>

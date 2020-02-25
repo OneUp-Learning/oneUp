@@ -5,9 +5,10 @@ Created on Apr 2, 2019
 from django.shortcuts import render, redirect
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.utils import utcDate
-from Badges.models import CourseConfigParams
+from Badges.models import CourseConfigParams, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Callouts, StudentChallenges, CalloutParticipants, StudentConfigParams, StudentVirtualCurrency, CalloutStats, DuelChallenges, Student
 from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
+from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from notify.signals import notify
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
@@ -66,6 +67,25 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
                 call_out.challengeID.challengeName
             w_student_vc.save()
 
+            # Record this trasaction in the log to show that the system awarded this vc
+            studentAddBadgeLog = BadgesVCLog()
+            studentAddBadgeLog.courseID = current_course
+            log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
+            studentAddBadgeLog.log_data = json.dumps(log_data)
+            studentAddBadgeLog.save()
+
+            # Notify sender about the call out
+            notify.send(None, recipient=call_out.sender.user, actor=call_out.sender.user,
+                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course)}))
+
+            # mini req for calloutSent event
+            mini_req = {
+                'currentCourseID': current_course.pk,
+                'user': call_out.sender.user.username,
+            }
+            # register event
+            register_event_simple(Event.virtualCurrencyEarned, mini_req, objectId=sender_stat.calloutVC)
+
     # If the warmup challenge has been taken by participant
     # check if participant has performed the same or better
     # if yes, then reward participant and terminate participation,
@@ -111,6 +131,13 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
                 w_student_vc.vcDescription = "You have perfomed the same as or better than the sender in the call out, " + \
                     call_out.challengeID.challengeName
                 w_student_vc.save()
+
+                # Record this trasaction in the log to show that the system awarded this vc
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = current_course
+                log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.save()
 
             # Check if any participant has participated in the class call out
             if not call_out.isIndividual:
@@ -186,7 +213,14 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
                     call_out.challengeID.challengeName
                 w_student_vc.save()
 
-             # Check if any participant has participated in the class call out
+                # Record this trasaction in the log to show that the system awarded this vc
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = current_course
+                log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.save()
+
+            # Check if any participant has participated in the class call out
             if not call_out.isIndividual:
                 stats = CalloutStats.objects.filter(calloutID=call_out, courseID=current_course)
                 # only reward sender once when there is only one participant and the sender the callout stats table

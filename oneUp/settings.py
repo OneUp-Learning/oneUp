@@ -108,6 +108,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'easy_timezones.middleware.EasyTimezoneMiddleware',
+    'oneUp.middleware.CourseConfigMiddleware.CourseConfigMiddleware'
 ]
 
 ROOT_URLCONF = 'oneUp.urls'

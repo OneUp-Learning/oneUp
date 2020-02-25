@@ -19,9 +19,6 @@ from billiard.connection import CHALLENGE
 from oneUp.logger import logger
 
 from django.conf import settings
-import time
-
-from Students.models import StudentEventLog
 
 
 LOCK_EXPIRE = 60 * 5 # lock expire in 5 minutes
@@ -98,11 +95,8 @@ def get_periodic_variable_results(variable_index, period_index, course_id):
     students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
     rank = []
     # Evaluate each student based on periodic variable function
-    elapsed_time = time.perf_counter()
-    print(f"[Periodic Calls] Start Elapsed Time {elapsed_time}")
     for student_in_course in students:
         rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, result_only=True))
-    print(f"[Periodic Calls] End Elapsed Time {time.perf_counter() - elapsed_time}")
     return rank
 
 def delete_periodic_task(unique_id, variable_index, award_type, course):
@@ -338,8 +332,9 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
 
     from notify.signals import notify  
     from Students.models import StudentBadges, StudentRegisteredCourses, StudentVirtualCurrency
-    from Badges.models import BadgesInfo, VirtualCurrencyPeriodicRule
+    from Badges.models import BadgesInfo, VirtualCurrencyPeriodicRule, BadgesVCLog
     from Instructors.views.utils import utcDate
+    from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
     from Badges.enums import Event
     from Badges.events import register_event_simple
 
@@ -358,6 +353,15 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
             studentBadge.objectID = 0
             studentBadge.timestamp = utcDate() - timedelta(hours=4)
             studentBadge.save()
+
+            # Record this trasaction in the log to show that the system awarded this badge
+            studentAddBadgeLog = BadgesVCLog()
+            studentAddBadgeLog.courseID = course
+            log_data = create_badge_vc_log_json("System", studentBadge, "Badge", "Time-Period")
+            studentAddBadgeLog.log_data = json.dumps(log_data)
+            studentAddBadgeLog.timestamp = utcDate() - timedelta(hours=4)
+            studentAddBadgeLog.save()
+
             mini_req = {
                 'currentCourseID': course.pk,
                 'user': student.user.username,
@@ -383,6 +387,14 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
                 transaction.vcDescription = periodicVC.vcRuleDescription
                 transaction.value = virtual_currency_amount
                 transaction.save()
+
+                # Record this trasaction in the log to show that the system awarded this badge
+                studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.courseID = course
+                log_data = create_badge_vc_log_json("System", transaction, "VC", "Time-Period")
+                studentAddBadgeLog.log_data = json.dumps(log_data)
+                studentAddBadgeLog.timestamp = utcDate() - timedelta(hours=4)
+                studentAddBadgeLog.save()
                 
                 mini_req = {
                     'currentCourseID': course.pk,
@@ -1217,14 +1229,14 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         
     
     
-    print("Course: {}".format(course))
-    print("Student: {}".format(studentId))
+    # print("Course: {}".format(course))
+    # print("Student: {}".format(studentId))
     
     # Specify if the xp should be calculated based on max score or first attempt
     xpSeriousMaxScore = True 
     xpWarmupMaxScore = True
     challengeClassmates = False
-    if len(ccparamsList) > 0:
+    if ccparamsList.exists():
         cparams = ccparamsList[0]
         xpWeightSP = cparams.xpWeightSP
         xpWeightSChallenge = cparams.xpWeightSChallenge
@@ -1246,7 +1258,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         total = []
         challavg = []
 
-        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition')
+        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition').only('challengeID', 'challengeName')
         for challenge in courseChallenges:
             seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
 
@@ -1254,7 +1266,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
 
             # Ignore challenges that have invalid total scores
-            if seriousChallenge and seriousChallenge[0].challengeID.totalScore < 0:
+            if seriousChallenge.exists() and seriousChallenge[0].challengeID.totalScore < 0:
                 continue
             # Get the scores for this challenge then either add the max score
             # or the first score to the earned points variable
@@ -1273,7 +1285,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 challavg.append(classResults.classAverChallengeScore(
                         course, challenge.challengeID))
 
-                if seriousChallenge and gradeID:
+                if seriousChallenge.exists() and gradeID:
                     if xpSeriousMaxScore:
                         score.append(max(gradeID))
                     else:
@@ -1286,7 +1298,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         
         # Weighting the total serious challenge points to be used in calculation of the XP Points  
         weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
-        logger.debug("total score points serious", weightedSeriousChallengePoints)
+        logger.debug(f"total score points serious {weightedSeriousChallengePoints}")
         
         
         totalPointsSeriousChallenges = sum(total)
@@ -1311,7 +1323,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         warmUpSumScore = []
         warmUpSumPossibleScore = []
         
-        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False)
+        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False).only('challengeID', 'challengeName')
         for challenge in courseChallenges:
             
             warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
@@ -1320,7 +1332,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
 
             # Ignore challenges that have invalid total scores
-            if warmupChallenge and warmupChallenge[0].challengeID.totalScore < 0:
+            if warmupChallenge.exists() and warmupChallenge[0].challengeID.totalScore < 0:
                 continue
 
             # Get the scores for this challenge then either add the max score
@@ -1335,7 +1347,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 earnedWarmupChallengePoints += float(warmupChallenge.first().testScore)
 
             # Setup data for rendering this challenge in html (bar graph stuff)
-            if warmupChallenge:
+            if warmupChallenge.exists():
                 chall_Name.append(challenge.challengeName)
                 # total possible points for challenge
                 total.append(warmupChallenge[0].challengeID.totalScore)
@@ -1354,7 +1366,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 
         # Weighting the total warmup challenge points to be used in calculation of the XP Points  
         weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
-        print("points warmup chal xp weighted", weightedWarmupChallengePoints) 
+        # print("points warmup chal xp weighted", weightedWarmupChallengePoints) 
 
         
         totalWCEarnedPoints = sum(warmUpSumScore)
@@ -1374,7 +1386,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         earnedActivityPoints = 0
         total = []
 
-        courseActivities = Activities.objects.filter(courseID=course, isGraded=True)
+        courseActivities = Activities.objects.filter(courseID=course, isGraded=True).only('activityID')
         for activity in courseActivities:
             studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
             if not startOfTime and studentActivities.exists():
@@ -1394,9 +1406,9 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         # Weighting the total activity points to be used in calculation of the XP Points  
         weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
         totalPointsActivities = sum(total)
-        print("activity points earned", earnedActivityPoints)
-        print("activity points total weighted", weightedActivityPoints)
-        print("activity points total", totalPointsActivities)
+        # print("activity points earned", earnedActivityPoints)
+        # print("activity points total weighted", weightedActivityPoints)
+        # print("activity points total", totalPointsActivities)
        
         result['weightedActivityPoints'] = weightedActivityPoints
         result['earnedActivityPoints'] = earnedActivityPoints
@@ -1418,9 +1430,9 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
             skill_Name.append(skill.skillName)
             
             sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
-            print ("Skill Points Records", sp)
+            # print ("Skill Points Records", sp)
             
-            if not sp:  
+            if not sp.exists():  
                 skill_Points.append(0)                     
             else:    
                 # Get the scores for this challenge then add the max score
@@ -1446,7 +1458,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
             zip(range(1, len(skill_Name)+1), skill_Name, skill_ClassAvg))
 
         # Weighting the total skill points to be used in calculation of the XP Points     
-        print("earnedSkillPoints: ", earnedSkillPoints)              
+        # print("earnedSkillPoints: ", earnedSkillPoints)              
         weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
 
         result['weightedSkillPoints'] = weightedSkillPoints
@@ -1459,10 +1471,10 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
     xp = 0
     if gradeWarmup:
         xp += weightedWarmupChallengePoints
-        print("warmup ran")
+        # print("warmup ran")
     if gradeSerious:
         xp += weightedSeriousChallengePoints
-        print("serious ran")
+        # print("serious ran")
     if gradeActivity:
         xp += weightedActivityPoints
     if gradeSkills:
@@ -1472,20 +1484,8 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         xp += weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints
     
     xp = round(xp, 1)
-
-    result["challengeClassmates"] = challengeClassmates
-    result["numOfDuelSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=872).count()
-    result["numOfDuelAccepted"] = StudentEventLog.objects.filter(student=studentId, course=course, event=873).count()
-    result["numOfDuelWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=874).count()
-    result["numOfDuelLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=875).count()
-    result["numOfCalloutSent"] = StudentEventLog.objects.filter(student=studentId, course=course, event=876).count()
-    result["numOfCalloutRequest"] = StudentEventLog.objects.filter(student=studentId, course=course, event=877).count()
-    result["numOfCalloutWon"] = StudentEventLog.objects.filter(student=studentId, course=course, event=878).count()
-    result["numOfCalloutLost"] = StudentEventLog.objects.filter(student=studentId, course=course, event=879).count()
-        
     result['xp'] = xp
     
-
     return result
 
 def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='*', month_of_year='*', tz=settings.TIME_ZONE):

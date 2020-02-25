@@ -1,5 +1,5 @@
 from Badges.models import Rules, ActionArguments, Conditions, BadgesInfo, Badges,\
-    ActivitySet, VirtualCurrencyRuleInfo, RuleEvents
+    ActivitySet, VirtualCurrencyRuleInfo, RuleEvents, BadgesVCLog
 from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet, ProgressiveUnlocking
 from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
     AwardFrequency
@@ -9,6 +9,7 @@ from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
 from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
 from Instructors.views.utils import utcDate
+from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses, Topics
@@ -489,6 +490,14 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                     studentBadge.objectID = objID
                     studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
                     studentBadge.save()
+
+                    # Record this trasaction in the log to show that the system awarded this badge
+                    studentAddBadgeLog = BadgesVCLog()
+                    studentAddBadgeLog.courseID = courseID
+                    log_data = create_badge_vc_log_json("System", studentBadge, "Badge", "Automatic")
+                    studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.save()
+
                     print("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
             except OperationalError as e:
                 if e.__cause__.__class__ == TransactionRollbackError:
@@ -569,6 +578,14 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                             studVCRec.objectID = objID
                         studVCRec.vcRuleID = vcRule
                         studVCRec.save()
+
+                        # Record this trasaction in the log to show that the system awarded this vc
+                        studentAddBadgeLog = BadgesVCLog()
+                        studentAddBadgeLog.courseID = courseID
+                        log_data = create_badge_vc_log_json("System", studVCRec, "VC", "Automatic")
+                        studentAddBadgeLog.log_data = json.dumps(log_data)
+                        studentAddBadgeLog.save()
+
                         print("[TEST4] StudentVirtualCurrencyRuleBased object was saved.")
             except OperationalError as e:
                 if e.__cause__.__class__ == TransactionRollbackError:

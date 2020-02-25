@@ -9,6 +9,8 @@ from notify.signals import notify
 import json
 from Badges.events import register_event
 from Badges.enums import Event
+from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
+
 
 
 @login_required
@@ -92,23 +94,17 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 studentVC.courseID = course
                 studentVC.studentID = studentobj.studentID
                 studentVC.vcRuleID = ruleCustom
-                
-                if accumulative_type == 'set':
-                    studentVC.value = vcAmount - prev_amount
-                else:
-                    studentVC.value = vcAmount
+                studentVC.value = vcAmount
                 studentVC.save()
 
                 
                 studentAddBadgeLog = BadgesVCLog()
                 studentAddBadgeLog.courseID = course
-                studentAddBadgeLog.studentVirtualCurrency = studentVC
-                studentAddBadgeLog.issuer = request.user
+                vc_award_type = "Add" if accumulative_type == 'combine' else "Set"
+                log_data = create_badge_vc_log_json(request.user, studentVC, "VC", "Manual", vc_award_type=vc_award_type)
+                studentAddBadgeLog.log_data = json.dumps(log_data)
                 studentAddBadgeLog.save()
-
-
                 
-
                 virtual_currency_amount = abs(vcAmount)
                 if accumulative_type == 'set':
                     virtual_currency_amount = abs(prev_amount - studentobj.virtualCurrencyAmount)

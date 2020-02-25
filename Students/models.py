@@ -224,7 +224,7 @@ class StudentEventLog(models.Model):
             eventName = Event.events[self.event]["name"]
         else:
             eventName = "Unknown Event"
-        return 'Event '+eventName+'('+str(self.event)+') at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course)
+        return 'Event '+eventName+'('+str(self.event)+') at '+str(self.timestamp)+':'+str(self.event)+' happened to '+str(self.student)+' in course '+str(self.course) + ' obj id ' + str(self.objectID)
     
 class StudentVirtualCurrencyTransactions(models.Model):
     transactionID = models.AutoField(primary_key=True)

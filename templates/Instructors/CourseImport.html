@@ -92,7 +92,7 @@
 							<div class="file-field input-field">
                               <div class="btn">
                                  <span>Select File</span>
-                                 <input name="course" type="file" accept=".json" required>
+                                 <input name="course" type="file" accept=".zip" required>
                               </div>
                               <div class="file-path-wrapper">
                                  <input class="file-path validate" type="text" placeholder="Select File to Upload">
@@ -115,8 +115,8 @@
 				 </ul>
 			</div>
 			<div class="modal-footer">
-					<button id="close-messages" type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="close-messages" style="color: #00bcd4">Close
-					</button>
+				<button id="close-messages" type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="close-messages" style="color: #00bcd4">Close
+				</button>
 			</div>
 	  </div>
 		<script>
@@ -150,11 +150,11 @@
 
 			var csrftoken = getCookie('csrftoken');
 			$.ajaxSetup({
-				 beforeSend: function (xhr, settings) {
-							if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-								 xhr.setRequestHeader("X-CSRFToken", csrftoken);
-							}
-				 }
+				beforeSend: function (xhr, settings) {
+					if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+							xhr.setRequestHeader("X-CSRFToken", csrftoken);
+					}
+				}
 			});
 
 			function importCourse() {
@@ -166,19 +166,20 @@
 					data: new FormData($("#import-course")[0]),
 					contentType: false,
 					processData:false,
-					success: function (response) {    
+					success: function (response) {   
+						// console.log(response); 
 						import_complete();                 
-						// Unbind all event listeners in case the user decides to fix errors/warnings
-						// and export again
+						// Unbind all event listeners
 						$("#close-messages").unbind();
 						// Set onclick listener for the continue button in the popup
-						$("#close-messages").click(function(){location.reload();});
+						$("#close-messages").click(function(){ location.reload();});
 
 						let messages = response['messages'];
 						
 						// If there are no warning or error messages just go ahead and export the course json
 						if (messages.length == 0){
-							$("#close-messages").click();
+							Materialize.toast("Course Imported!", 4000);
+							setTimeout(() => { $("#close-messages").click(); }, 2000)
 							return;
 						}
 				

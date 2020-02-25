@@ -481,12 +481,11 @@ class AttendanceStreakConfiguration(models.Model):
 class BadgesVCLog(models.Model):
     badgesVCLogID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
-    studentBadges = models.ForeignKey('Students.StudentBadges',null=True, default=None, on_delete=models.CASCADE)
-    studentVirtualCurrency = models.ForeignKey('Students.StudentVirtualCurrencyRuleBased', default=None, null=True, on_delete=models.CASCADE)
-    issuer = models.ForeignKey(User, on_delete=models.CASCADE)#user who issued
+    log_data = models.TextField(blank=True, default='{}', verbose_name='Log Data',
+            help_text='JSON encoded data (Example: {"badge": {"name": "badge name", "type": "automatic, manual, periodic"},})')
     timestamp = models.DateTimeField(default=datetime.now, blank=True)#when it was issued
     def __str__(self):              
-        return "Badge#"+str(self.badgeID)+":"+str(self.badgeNam)
+        return f"ID: {self.badgesVCLogID} : Course: {self.courseID} : Data: {self.log_data}"
 
 class CeleryTaskLog(models.Model):
     ''' Log of ran celery tasks (as of now periodic ones) that can be used to check
