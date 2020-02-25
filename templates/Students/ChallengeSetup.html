@@ -137,6 +137,7 @@
                {% endif %}
                <div class="card">
                   <div class="card-content">
+                     
                      {% for i,q in question_range %}
                      {% include "../question.html" with graded=False instructorview=False showcorrect=False %}
                      {% endfor %}
@@ -189,22 +190,17 @@
    </main>
    <!-- Footer -->
    {% include 'footer.html' %}
-   <!-- <script>
-             $('#TakeTest').on('keyup keypress', function(e) {
-                var keyCode = e.keyCode || e.which;
-                if (keyCode === 13) { 
-                   e.preventDefault();
-                   //value = false;
-                }
-             });
-   </script> -->
    <script>
-         document.getElementById("TakeTest").onkeypress = function(e) {
+         /*document.getElementById("TakeTest").onkeypress = function(e) {
             var key = e.charCode || e.keyCode || 0;     
             if (key == 13) {
                e.preventDefault();
             }
-         }
+         }*/
+
+         $(document).on("keydown", ":input:not(textarea)", function(event) {
+            return event.key != "Enter";
+         });
    </script>
 
    <script>
