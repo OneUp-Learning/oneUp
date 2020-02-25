@@ -275,6 +275,12 @@
                 alignment: 'right' // Displays dropdown with edge aligned to the left of button
                 }
             );
+            $('.dropdown-button-logs').dropdown({
+                hover: true, // Activate on hover
+                gutter: $("#coursereports").width() * 2, // Spacing from edge
+                alignment: 'right' // Displays dropdown with edge aligned to the left of button
+                }
+            );
             
         });	
         
@@ -329,6 +335,14 @@
         {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills</a></li>  
         {% endif %}
+        {% endif %}
+    </ul>
+    <ul id="logs" class="dropdown-content">
+        {% if ccparams.badgesUsed%}
+        <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/whoAddedBadgeAndVC?type=badge">Badge Log</a></li>
+        {% endif %}
+        {% if ccparams.virtualCurrencyUsed%}
+        <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/whoAddedBadgeAndVC?type=vc">VC Log</a></li>
         {% endif %}
     </ul>
     <ul id="import-export" class="dropdown-content">
@@ -449,11 +463,13 @@
                     {% endif %}
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentSummary">Student Summary</a></li>
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/studentAttendanceReport">Student Attendance</a></li>
+                    
                     {% if ccparams.gamificationUsed %}
-                    {% if ccparams.badgesUsed or ccparams.virtualCurrencyUsed%}
-                    <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/whoAddedBadgeAndVC">Badge & VC Log</a></li>
+                    {% if ccparams.badgesUsed or ccparams.virtualCurrencyUsed  %}
+                    <li><a class="dropdown-button-logs nav-dropdown-link" style="background-color: white !important; cursor: default !important;" href="#!" data-activates="logs">Logs</a></li>
                     {% endif %}
                     {% endif %}
+                    
                     {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed  %}
                     <li><a class="dropdown-button-visualization nav-dropdown-link" style="background-color: white !important; cursor: default !important;" href="#!" data-activates="visualization">Visualization</a></li>
                     {% endif %}
@@ -609,8 +625,11 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/studentSummary">Students Summary</a></li>                                                              
                                 <li><a class="waves-effect" href="/oneUp/instructors/studentAttendance">Student Attendance</a></li>
                                 {% if ccparams.gamificationUsed %}
-                                {% if ccparams.badgesUsed or ccparams.virtualCurrencyUsed%}
-                                <li><a class="waves-effect" href="/oneUp/instructors/whoAddedBadgeAndVC">Badge & VC Log</a></li>
+                                {% if ccparams.badgesUsed%}
+                                <li><a class="waves-effect" href="/oneUp/instructors/whoAddedBadgeAndVC?type=badge">Badge Log</a></li>
+                                {% endif %}
+                                {% if ccparams.virtualCurrencyUsed%}
+                                <li><a class="waves-effect" href="/oneUp/instructors/whoAddedBadgeAndVC?type=vc">VC Log</a></li>
                                 {% endif %}
                                 {% endif %}
                                 {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed  %}

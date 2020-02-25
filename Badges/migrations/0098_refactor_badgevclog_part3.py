@@ -34,13 +34,20 @@ def migrate_badgesvclog(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Badges', '0095_courseconfigparams_displayachievementpage'),
+        ('Badges', '0097_refactor_badgevclog_part2'),
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.RemoveField(
             model_name='badgesvclog',
-            name='log_data',
-            field=models.TextField(blank=True, default='{}', help_text='JSON encoded data (Example: {"badge": {"name": "badge name", "type": "automatic, manual, periodic"},})', verbose_name='Log Data'),
+            name='issuer',
+        ),
+        migrations.RemoveField(
+            model_name='badgesvclog',
+            name='studentBadges',
+        ),
+        migrations.RemoveField(
+            model_name='badgesvclog',
+            name='studentVirtualCurrency',
         ),
     ]
