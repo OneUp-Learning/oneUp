@@ -1192,7 +1192,8 @@ def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_
 def studentScore(studentId, course, unique_id, result_only=False, last_ran=None, gradeWarmup=False, gradeSerious=False, gradeActivity=False, gradeSkills=False):
     
     from Badges.models import CourseConfigParams, LeaderboardsConfig
-    from Instructors.models import Challenges, Activities, CoursesSkills, Skills
+    from Instructors.models import Challenges, Activities, CoursesSkills, Skills, ActivitiesCategory
+    from Instructors.constants import uncategorized_activity
     from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
     from Students.views import classResults
 
@@ -1392,6 +1393,9 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
             if not startOfTime and studentActivities.exists():
                 studentActivities = studentActivities.filter(timestamp=date_time)
             
+            xpWeightCategory = 1
+            if activity.category.name != uncategorized_activity:
+                xpWeightCategory = activity.category.xpWeight
             # Get the scores for this challenge then add the max score
             # to the earned points variable
             gradeID  = []                            
@@ -1399,7 +1403,8 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 gradeID.append(float(studentActivity.getScoreWithBonus())) 
                                 
             if gradeID:
-                earnedActivityPoints += max(gradeID)
+                earnedActivityPoints += max(gradeID) * xpWeightCategory
+
             if studentActivities.exists():
                 total.append(float(studentActivities[0].activityID.points))
 

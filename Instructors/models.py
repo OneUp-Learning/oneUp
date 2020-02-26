@@ -257,8 +257,9 @@ class ActivitiesCategory(models.Model):
     categoryID = models.AutoField(primary_key=True)
     name = models.CharField(max_length=75)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    xpWeight = models.DecimalField(decimal_places=3, max_digits=6, default=1) # This is a multiplier that is used when calculating XP for each category
     def __str__(self):
-        return str(self.categoryID)+":"+self.name
+        return str(self.categoryID)+":"+self.name + ":" + str(self.xpWeight)
 
 class Activities(models.Model):
     activityID = models.AutoField(primary_key=True)
