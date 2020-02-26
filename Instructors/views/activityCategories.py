@@ -67,6 +67,8 @@ def activityCatDelete(request):
                 defaultCat.name = uncategorized_activity
                 defaultCat.courseID = cat.courseID
                 defaultCat.save()
+            else:
+                defaultCat = defaultCat.first()
 
             linkedActs = Activities.objects.filter(category=cat)
             for act in linkedActs:
