@@ -27,6 +27,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
     activitiesInCategory = []
     cats = []
     categoryNames = []
+    categoryWeights = []
 
     if(ActivitiesCategory.objects.filter(name=uncategorized_activity).first() == None):
         defaultCat = ActivitiesCategory()
@@ -51,6 +52,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
         for cat in categories:
             cat_activities = category_activities(count, cat, currentCourse)
             categoryNames.append(cat.name)
+            categoryWeights.append(cat.xpWeight)
             activitiesInCategory.append(cat_activities)
             count += Activities.objects.filter(category=cat,
                                                courseID=currentCourse).count()
@@ -72,6 +74,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
             cat_activities = category_activities(count, cat, currentCourse)
             activitiesInCategory.append(cat_activities)
             categoryNames.append(cat.name)
+            categoryWeights.append(cat.xpWeight)
             activities = Activities.objects.filter(
                 category=filterCategory, courseID=currentCourse)
             for activity in activities:
@@ -82,7 +85,7 @@ def createContextForActivityList(request, context_dict, currentCourse):
             context_dict['currentCat'] = cat
 
     context_dict["categories"] = cats
-    context_dict["categories_range"] = zip(activitiesInCategory, categoryNames)
+    context_dict["categories_range"] = zip(activitiesInCategory, categoryNames, categoryWeights)
 
     # The range part is the index numbers.
     context_dict['activity_range'] = zip(
