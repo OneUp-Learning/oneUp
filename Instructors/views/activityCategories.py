@@ -37,6 +37,7 @@ def activityCatCreate(request):
             
         currentCat.name = request.POST['catName']
         currentCat.courseID = currentCourse
+        currentCat.xpWeight = request.POST['xpWeight']
         currentCat.save()
         
         return redirect('/oneUp/instructors/activityCats')
@@ -47,8 +48,10 @@ def activityCatCreate(request):
         
         context_dict['catID'] = catID
         context_dict['catName'] = cat.name
+        context_dict['xpWeight'] = cat.xpWeight
     else:
         context_dict['acts'] = Activities.objects.filter(courseID=currentCourse)
+        context_dict['xpWeight'] = 1
         
     return render(request, 'Instructors/ActivityCategoryCreateForm.html', context_dict)
 
@@ -57,13 +60,19 @@ def activityCatCreate(request):
 def activityCatDelete(request):
     if request.POST:
         cat = ActivitiesCategory.objects.filter(pk=request.POST['catID']).first()
-        defaultCat = ActivitiesCategory.objects.filter(name=uncategorized_activity).first()
-        if cat is not None and defaultCat is not None:
+        if cat is not None:
+            defaultCat = ActivitiesCategory.objects.filter(name=uncategorized_activity, courseID=cat.courseID)
+            if not defaultCat.exists():
+                defaultCat = ActivitiesCategory()
+                defaultCat.name = uncategorized_activity
+                defaultCat.courseID = cat.courseID
+                defaultCat.save()
+
             linkedActs = Activities.objects.filter(category=cat)
             for act in linkedActs:
                 act.category = defaultCat
                 act.save()
-        cat.delete()
+            cat.delete()
 
     return redirect('/oneUp/instructors/activityCats')
     

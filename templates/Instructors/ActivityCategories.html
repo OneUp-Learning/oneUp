@@ -26,12 +26,14 @@
                         <thead>
                             <tr>
                                 <th>Category Name</th>
+                                <th>Category XP Weight</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for cat in cats %}
                             <tr>
                                 <td>{{cat.name}}</td>
+                                <td>{{cat.xpWeight}}</td>
                                 <td>
                                     <a class="dropdown-button tooltipped secondary-content" href="#!"
                                         data-constrainwidth="false" data-beloworigin="true" data-activates='{{cat.categoryID}}'
