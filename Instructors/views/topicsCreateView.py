@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Topics, CoursesTopics
 from Instructors.views import utils
@@ -17,14 +17,15 @@ def topicsCreateView(request):
         topics = Topics.objects.filter(topicName=request.POST['topicName'])
         if topics:
             topic = topics[0]
-        elif "topicID" in request.POST:
-            topic = Topics.objects.get(topicID=request.POST['topicID'])
-            topic.topicName = request.POST['topicName']
-            topic.save()
         else:
-            topic = Topics()
-            topic.topicName = request.POST['topicName']
-            topic.save()
+            try:
+                topic = Topics.objects.get(topicID=request.POST['topicID'])
+                topic.topicName = request.POST['topicName']
+                topic.save()
+            except:
+                topic = Topics()
+                topic.topicName = request.POST['topicName']
+                topic.save()
 
         courseTopics = CoursesTopics.objects.filter(
             topicID=topic, courseID=currentCourse)
@@ -37,6 +38,8 @@ def topicsCreateView(request):
 
         courseTopic.topicPos = int(request.POST['topicPos'])
         courseTopic.save()
+
+        return redirect("/oneUp/instructors/topicsList")
 
     #################################
     #  get request
