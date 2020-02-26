@@ -16,7 +16,7 @@
                  placeholder: 'Enter a tag'
              });
          });
-         //function checks if a parson's is selected and displays warnign
+         /* function checks if a parson's is selected and displays warning
          function parsonsCheck(challengeType){
         	 var isSerious = "{{serious}}";
         	 if(!!isSerious){
@@ -24,7 +24,8 @@
         	 	alert("Warning: Adding Parson's Problems to a Serious Challenge is not recommended.");
         	 	}
         	 }
-         }
+         }*/
+         
       </script>
       <style>
       .custom-badge::after {
@@ -60,7 +61,7 @@
                      <div class="row">
                         <div class="input-field col s12 m10 offset-m1">
                            {% if challenge %} 
-                           <select id="create-type" onchange="parsonsCheck(this)">
+                           <select id="create-type">   
                               <option value="" disabled selected>Select Problem Type</option>
                               <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False</option>
                               <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
