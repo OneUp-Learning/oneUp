@@ -1403,7 +1403,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 gradeID.append(float(studentActivity.getScoreWithBonus())) 
                                 
             if gradeID:
-                earnedActivityPoints += max(gradeID) * xpWeightCategory
+                earnedActivityPoints += max(gradeID) * float(xpWeightCategory)
 
             if studentActivities.exists():
                 total.append(float(studentActivities[0].activityID.points))

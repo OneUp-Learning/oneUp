@@ -70,10 +70,10 @@
                <div class="card-panel">
                   
                   <ul class="collapsible"  data-collapsible="expandable">
-                     {% for activities, categoryName in categories_range %}
+                     {% for activities, categoryName, xpWeight in categories_range %}
                      <li>
                         <div class="collapsible-header"><i class="material-icons">layers</i>{{categoryName}}&nbsp;&nbsp;
-                        
+                          <span class="new badge" data-badge-caption="{{xpWeight}}">XP Weight</span>
                         </div>
                         <div class="collapsible-body">
                            <table class="responsive-table">

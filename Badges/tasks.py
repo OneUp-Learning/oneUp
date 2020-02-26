@@ -94,6 +94,7 @@ def calculate_xp(student_reg_course, gradeWarmup=False, gradeSerious=False, grad
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills
     from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
     from Students.views import classResults
+    from Instructors.constants import uncategorized_activity
 
     xp = 0  
     xpWeightSP = 0
@@ -184,6 +185,10 @@ def calculate_xp(student_reg_course, gradeWarmup=False, gradeSerious=False, grad
     for activity in courseActivities:
         studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
         
+        xpWeightCategory = 1
+        if activity.category.name != uncategorized_activity:
+            xpWeightCategory = activity.category.xpWeight
+
         # Get the scores for this challenge then add the max score
         # to the earned points variable
         gradeID  = []                            
@@ -191,7 +196,7 @@ def calculate_xp(student_reg_course, gradeWarmup=False, gradeSerious=False, grad
             gradeID.append(float(studentActivity.getScoreWithBonus())) 
                                
         if gradeID:
-            earnedActivityPoints += max(gradeID)
+            earnedActivityPoints += max(gradeID) * float(xpWeightCategory)
 
     # Weighting the total activity points to be used in calculation of the XP Points  
     weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
