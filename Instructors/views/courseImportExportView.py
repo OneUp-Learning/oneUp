@@ -857,8 +857,13 @@ def exportCourse(request):
         root_json = json.loads(request.POST.get('exported-json', ''))
         # Only export json if the json contains items other than the version number
         if 'version' in root_json and len(root_json) > 1:
+            file_name = 'media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION)
             ensure_directory('media/textfiles/course/json/')
-            with zipfile.ZipFile('media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION), 'a') as zip_file:
+            try:
+                os.remove(file_name)
+            except:
+                print("File doesn't exist ", file_name)
+            with zipfile.ZipFile(file_name, 'a') as zip_file:
                 # Add the json for course
                 zip_file.writestr('course.json', json.dumps(root_json).encode('utf-8'))
                 
@@ -869,7 +874,7 @@ def exportCourse(request):
 
                 # print(zip_file.printdir())
 
-            response = HttpResponse(open('media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION), 'rb'), content_type='application/zip')
+            response = HttpResponse(open(file_name, 'rb'), content_type='application/zip')
             response['Content-Disposition'] = 'attachment; filename=course-{}-{}.zip'.format(current_course.courseName, VERSION)
 
             return response
@@ -912,7 +917,6 @@ def validateCourseExport(request):
                 messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options will be set to Course Start Date, Course End Date, and Course End Date respectively automatically'})
 
             post_request = dict(request.POST)
-
             # Versioning
             root_json['version'] = VERSION
 
@@ -996,7 +1000,6 @@ def validateCourseExport(request):
             response['messages'] = messages
             
             response['exported-json'] = root_json
-
             # Debug messages
             # ensure_directory('media/textfiles/course/json/')
             # with open('media/textfiles/course/json/export-log.json', 'w') as export_stream:
