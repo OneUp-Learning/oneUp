@@ -280,14 +280,22 @@
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>
+                                        <label>
+                                            Skill Leaderboard Displayed
+                                            {% if skillLeaderboardDisplayed %}
+                                            <input name="skillLeaderboardDisplayed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="skillLeaderboardDisplayed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
                                     </div>
-                                    <div class="row">
+                                    <div>
                                         <div class="input-field col s12">
                                             <input value="{{numStudentBestSkillsDisplayed}}"
                                                 name="numStudentBestSkillsDisplayed" id="skills_top_students"
                                                 maxlength="3" type="number" min="0" max="100" required>
-                                            <label for="skills_top_students">Number of top students to be displayed for
-                                                each skill</label>
+                                                <p>Number of top students displayed on skill leaderboard</p>
                                         </div>
                                     </div>
                                 </div>

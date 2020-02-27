@@ -207,6 +207,7 @@ def preferencesView(request):
 
             # Skills
             context_dict["classSkillsDisplayed"] = ccparams.classSkillsDisplayed
+            context_dict["skillLeaderboardDisplayed"] = ccparams.skillLeaderboardDisplayed
             context_dict["studCanChangeClassSkillsVis"] = ccparams.studCanChangeClassSkillsVis
             context_dict["numStudentBestSkillsDisplayed"] = ccparams.numStudentBestSkillsDisplayed
 

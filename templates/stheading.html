@@ -290,7 +290,7 @@
 						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Announcements">Announcements</a></li>	
 						{% endif %}
 						<!-- GGM added leaderboard to navigation bar -->
-						{%if ccparams.gamificationUsed and ccparams.leaderboardUsed and scparams.displayLeaderBoard %}
+						{%if  ccparams.leaderboardUsed and scparams.displayLeaderBoard %}
 						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/Leaderboard">Course Leaderboard</a></li>
 						<li><a class="waves-effect nav-dropdown-link" href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
 						{% endif %}						
@@ -405,7 +405,7 @@
 									<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>	
 									{% endif %}
 									
-									{% if ccparams.gamificationUsed and ccparams.leaderboardUsed and scparams.displayLeaderBoard %}
+									{% if ccparams.leaderboardUsed and scparams.displayLeaderBoard %}
 									<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Leaderboard</a></li>
 									<li><a class="waves-effect" href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
 									{% endif %}						

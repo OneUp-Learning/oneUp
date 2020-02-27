@@ -28,6 +28,7 @@ def LeaderboardView(request):
       
     #Redirects students from leaderboard page if leaderboard not enabled
     ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
+    
     leaderboardEnabled=ccparams.leaderboardUsed
     if not leaderboardEnabled:
         return redirect('/oneUp/students/StudentCourseHome')
@@ -51,34 +52,16 @@ def LeaderboardView(request):
         context_dict['course_Name'] = currentCourse.courseName
         st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)
 
-        context_dict["gamificationUsed"] = ccparams.gamificationUsed
-        context_dict["badgesUsed"]=ccparams.badgesUsed
-        context_dict["leaderboardUsed"]=ccparams.leaderboardUsed
-        context_dict["classSkillsDisplayed"]=ccparams.classSkillsDisplayed
-        context_dict["numStudentsDisplayed"]=ccparams.numStudentsDisplayed
-        context_dict["numStudentBestSkillsDisplayed"] = ccparams.numStudentBestSkillsDisplayed
-        context_dict["numBadgesDisplayed"]=ccparams.numBadgesDisplayed
-
         context_dict['avatar'] =  checkIfAvatarExist(st_crs)  
-   
         context_dict['is_test_student'] = sID.isTestStudent
-                      
         context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, False)  
         
         generateSkillTable(currentCourse, context_dict)
-               
                   
         scparams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)    
-        context_dict["displayLeaderBoard"]=scparams.displayLeaderBoard
-        context_dict["displayBadges"]=scparams.displayBadges
-        context_dict["displayClassSkills"]=scparams.displayClassSkills
-            
-        
         context_dict['ccparams'] = ccparams
         ##GGM determine if student has leaderboard enabled
-        studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
-        context_dict['studentLeaderboardToggle'] = studentConfigParams.displayLeaderBoard
-        context_dict["classSkillsDisplayed"]= studentConfigParams.displayClassSkills
+        context_dict['scparams'] = StudentConfigParams.objects.get(courseID=currentCourse, studentID=sID)
         context_dict['courseBadges'] = studentBadges(currentCourse)
            
     #Trigger Student login event here so that it can be associated with a particular Course
