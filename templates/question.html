@@ -288,7 +288,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     {% endif %}
   </div>
   <div class="col s12">
-    <{% if q.feedback %} <p><b>Feedback: </b> {{q.feedback}}</p>
+    {% if q.feedback %} <p><b>Feedback: </b> {{q.feedback}}</p>
       {% endif %}
   </div>
 </div>
