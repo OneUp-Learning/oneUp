@@ -188,12 +188,10 @@ end
 local function tableShift(t)
   return function(shiftAmt)
     if(shiftAmt > 0)then
-      print("Going forwards.")
       for i = 1, shiftAmt do
         table.insert(t, 1, table.remove(t, #t))
       end
     else
-      print("Going backwards.")
       for i = -1, shiftAmt, -1 do
         table.insert(t, #t, table.remove(t, 1))
       end
