@@ -94,6 +94,8 @@ from Instructors.views.DuelReportView import duel_report, duel_challenge_report
 from Instructors.views.CalloutReportView import callout_report, callout_challenge_report
 
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
+
+from Instructors.views.reorderViews import reorderTopics, reorderChalls
 admin.autodiscover()
 urlpatterns = [
 
@@ -174,7 +176,8 @@ urlpatterns = [
     url(r'^imageUpload', imageUpload, name='imageUpload'),
     url(r'^importChallenges', importChallenges, name='importChallenges'),
     url(r'^importStudents', importStudents, name='importStudents'),
-    url(r'^saveImportStudentsPasswords', saveImportStudentsPasswords, name='saveImportStudentsPasswords'),
+    url(r'^saveImportStudentsPasswords', saveImportStudentsPasswords,
+        name='saveImportStudentsPasswords'),
     url(r'^instructorCourseHome', instructorCourseHome,
         name='instructorCourseHome'),
     url(r'^instructorHome', instructorHome, name='instructorHome'),
@@ -239,4 +242,6 @@ urlpatterns = [
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
+    url(r'^ReorderTopics', reorderTopics, name="reorderTopics"),
+    url(r'^ReorderChalls', reorderChalls, name="reorderChalls"),
 ]

@@ -36,10 +36,17 @@ def topicsCreateView(request):
             courseTopic.topicID = topic
             courseTopic.courseID = currentCourse
 
-        courseTopic.topicPos = int(request.POST['topicPos'])
+            positions = [courseTopic.topicPos for courseTopic in CoursesTopics.objects.filter(
+                courseID=currentCourse)]
+            if positions:
+                courseTopic.topicPos = min(positions) - 1
+            else:
+                courseTopic.topicPos = 0
         courseTopic.save()
-
-        return redirect("/oneUp/instructors/topicsList")
+        if 'warmupChall' in request.POST:
+            return redirect("/oneUp/instructors/warmUpChallengeList")
+        else:
+            return redirect("/oneUp/instructors/topicsList")
 
     #################################
     #  get request

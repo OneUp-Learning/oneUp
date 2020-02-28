@@ -2,6 +2,36 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %} 
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+      <script>
+         $( function() {
+         $( "#sortableTopics" ).sortable({
+
+            stop: function(event, ui) {
+
+            var itemOrder = $('#sortableTopics').sortable("toArray");
+
+            var idsPositions = []
+
+            for (var i = 0; i < itemOrder.length; i++) {
+               if (itemOrder[i]){
+                  console.log("Position: " + i + " ID: " + itemOrder[i]);
+                  idsPositions.push(String(itemOrder[i])+"---"+String(i));
+               }
+            }
+
+            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+            console.log(idsPositions)
+
+            $.post( "/oneUp/instructors/ReorderTopics", {topicIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
+               console.log(data)
+               });
+
+            }
+            });
+         });
+      </script>
    </head>
    <body>
       {% include 'heading.html' %}
@@ -13,54 +43,99 @@
          </div>
          <div class="row right-align">
             <div class="col s12 m10 offset-m1">
-               <a class="waves-effect waves-light btn" href="/oneUp/instructors/topicsCreate"><i class="material-icons left">add_circle</i>Add New Topic</a>
+               <a class="modal-trigger waves-effect waves-light btn" href="#modal-create-topic">
+						<i class="modal-trigger material-icons left">add_circle</i>Add A Topic</a>
+                  <div id="modal-create-topic" class="modal">
+                     <div class="modal-content">
+                        <div class="row center-align">
+                           <form name="question" action="/oneUp/instructors/topicsCreate" method="POST">
+                              {% csrf_token %}
+                              <div>
+                                 <h4>Create a topic</h4>
+                              </div>
+                              <div class="row center-align" style="margin-top: 50px;">
+                                 <label class="left" for="topicName"><span class= "red-text">*</span> Topic Name</label>
+                                 <input value="{{topicName}}" name="topicName" id="topicName" type="text" class="validate" pattern=".*\S+.*" required>
+                              </div>
+                           
+                              <div class="modal-footer">
+                                 <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                 <button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
+                                 </button>
+                              </div>
+                           </form>
+                        </div>
+                     </div>
+                  </div>
             </div>
          </div>
-         <div class="row">
-            <div class="col s12 m10 offset-m1">
-               <div class="card-panel">
-                  <table>
-                     <thead>
-                        <tr>
-                           <th>Topic Name</th>
-                           <th>Topic Position</th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        {% for i,topicID,topicName,topicPos in topic_range %}
-                        <tr>
-                           <td>{{topicName}}</td>
-                           <td>{{topicPos}}</td>
-                           <td>
-                              <form action="/oneUp/instructors/deleteTopic" method="POST">
-                                 {% csrf_token %} 
-                                 <input type="hidden" name="topicID" value="{{topicID}}">
-                                 <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                 <ul id='dropdown-{{i}}' class='dropdown-content'>
-                                    <li><a href="/oneUp/instructors/topicsCreate?topicID={{topicID}}">Edit</a></li>
-                                    <li class="divider"></li>
-                                    <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
-                                 </ul>
-                                 <div id="modal_delete-{{i}}" class="modal">
-                                    <div class="modal-content">
-                                       <h5>Are you sure you want to delete?</h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
-                                       </button>                                        
-                                    </div>
-                                 </div>
-                              </form>
-                           </td>
-                        </tr>
+        <div class="row">
+				<div class="col s12 m10 offset-m1">
+					<div class="card-panel">
+                  <ul id="sortableTopics">
+                     {% for i,topic_ID,topic_Name,topic_Pos in topic_range %}
+                        {% csrf_token %}
+                        <input type="hidden" name="topicID" value="{{topic_ID}}">
+                        <li class="row" id={{topic_ID}}>
+                           <div> <span><b>:-:&nbsp;&nbsp;&nbsp;</b></span> {{topic_Name}} 
+                              <span class="no-padding" >
+												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+														data-beloworigin="true" data-activates='dropdown-{{topic_ID}}' data-position="right" data-delay="50"
+														data-tooltip="Options">
+															<i class="material-icons">more_vert</i>
+														</a>
+														<ul id='dropdown-{{topic_ID}}' class='dropdown-content'>
+															<li>
+																<a class="modal-trigger" href="#modal-edit-topic-{{topic_ID}}">Edit</a>
+															</li>
+															<li class="divider"></li>
+															<li>
+																<a class="modal-trigger" href="#modal_delete-topic-{{topic_ID}}">Delete</a>
+															</li>
+														</ul>
+														<div id="modal-edit-topic-{{topic_ID}}" class="modal">
+																<div class="modal-content">
+																	<div class="row center-align">
+																		<form name="question" action="/oneUp/instructors/topicsCreate" method="POST">
+																			{% csrf_token %}
+																			<div>
+																				<h4>Create a topic</h4>
+																			</div>
+																			<div class="row center-align" style="margin-top: 50px;">
+																				<input type="hidden" name="topicID" id="topicID" value="{{topic_ID}}">
+																				<label class="left" for="topicName"><span class= "red-text">*</span> Topic Name</label>
+																				<input value="{{topic_Name}}" name="topicName" id="topicName" type="text" class="validate" pattern=".*\S+.*" required>
+																			</div>
+																		
+																			<div class="modal-footer">
+																				<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+																				<button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
+																				</button>
+																			</div>
+																		</form>
+																	</div>
+																</div>
+															</div>
+														<div id="modal_delete-topic-{{topic_ID}}" class="modal">
+															<div class="modal-content">
+																<h5>Are you sure you want to delete?</h5>
+															</div>
+															<div class="modal-footer">
+																<form action="/oneUp/instructors/deleteTopic" method="POST">
+																	{% csrf_token %}
+																 	<input type="hidden" name="topicID" value="{{topic_ID}}">
+																	<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+																	<button class="btn waves-effect waves-light" type="submit" name="submit"> delete </button>
+																</form>
+															</div>
+														</div>
+                                    </span>
+									</div>
+                        </li>
                         {% empty %}
-                        <tr>
-                           <td class="center-align" colspan="5"><i>No Topics</i></td>
-                        </tr>
+                           <li class="center-align" colspan="5">No Topics</li>
                         {% endfor %}
-                     </tbody>
-                  </table>
+                     </ul>
                </div>
             </div>
          </div>
