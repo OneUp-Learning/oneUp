@@ -144,7 +144,7 @@ end
 -- Not yet sent to oneUp
 
 local function charToAlphaIndex( chr )
-  assert( type(chr)=="string", "bad argument #1 for 'ind', number expected got "..type(chr))
+  assert( type(chr)=="string", "bad argument #1 for 'index', number expected got "..type(chr))
   
   return function()
     local Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -158,7 +158,7 @@ local function charToAlphaIndex( chr )
 end
 
 local function numToLetter( ind )
-  assert( type(ind)=="number", "bad argument #1 for 'ind', number expected got "..type(ind))
+  assert( type(ind)=="number", "bad argument #1 for 'index', number expected got "..type(ind))
   
   return function()
     if(ind < 1)then
@@ -187,8 +187,16 @@ end
 
 local function tableShift(t)
   return function(shiftAmt)
-    for i = 1, shiftAmt do
-      table.insert(t, 1, table.remove(t, #t))
+    if(shiftAmt > 0)then
+      print("Going forwards.")
+      for i = 1, shiftAmt do
+        table.insert(t, 1, table.remove(t, #t))
+      end
+    else
+      print("Going backwards.")
+      for i = -1, shiftAmt, -1 do
+        table.insert(t, #t, table.remove(t, 1))
+      end
     end
   end
 end
