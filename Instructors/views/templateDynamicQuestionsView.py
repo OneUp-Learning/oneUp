@@ -323,9 +323,9 @@ def templateToCodeSegments(setupCode, templateArray):
         _evaluate_answer = function(part)
             return function(answers)
                 results = {}
-                for inputName in python.iter(answers) do
+                for inputName,value in next, answers do --python.iter(answers) do
                     results[inputName] = _answer_checkers[part][inputName](
-                        answers[inputName],_pts[part][inputName])
+                        value,_pts[part][inputName])
                 end
                 return results
             end
