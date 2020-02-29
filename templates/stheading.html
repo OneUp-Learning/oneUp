@@ -367,7 +367,7 @@
 				</li>
 				{% if is_test_student %}
 		           <li>
-		                <a id='switchview' class='dropdown-button tooltipped' data-tooltip="Switch to instructor view"  href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >
+		                <a id='switchview' class='tooltipped' data-tooltip="Switch to instructor view"  href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >
 		                    <i class='material-icons'>visibility</i> 
 		                </a>
 		            </li>
@@ -486,7 +486,7 @@
 						</li>
 						{% if is_test_student %}
 				           <li>
-				                <a id='switchview'  style="padding-left: 16px !important" class='dropdown-button tooltipped' data-tooltip="Switch to instructor view"  href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >
+				                <a id='switchview'  style="padding-left: 16px !important" class="collapsible-header waves-effect" href="/oneUp/students/switchView?student=true&courseId={{courseID}}" >Switch to Student View
 				                    <i class='material-icons'>visibility</i> 
 				                </a>
 				            </li>
