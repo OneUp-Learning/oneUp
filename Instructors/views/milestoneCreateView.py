@@ -1,7 +1,8 @@
 #
 # Created on  10/30/2015
 # Dillon Perry
-#
+#Page unemployed 2/28/20
+"""
 from django.template import RequestContext
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -68,3 +69,4 @@ def milestoneCreateView(request):
                     context_dict[attr]=getattr(milestone,attr)
 
     return render(request,'Instructors/MilestoneCreateForm.html', context_dict)
+    """
