@@ -9,23 +9,20 @@ def classAverChallengeScore(course, challenge):
 
     count = 0
     totalChall = 0
-
-    users = []
     # Students from the current class
     stud_course = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
+
     for sc in stud_course:
-        users.append(sc.studentID)
-
-    for user in users:
-        if StudentChallenges.objects.filter(studentID=user, courseID=course, challengeID=challenge):
-            # get all attempts for this student for this challenge
-            studentChallenges = StudentChallenges.objects.filter(
-                studentID=user, courseID=course, challengeID=challenge)
+        # get all attempts for this student for this challenge
+        attempts = StudentChallenges.objects.filter(studentID=sc.studentID, courseID=course, challengeID=challenge)
+        if attempts.exists():
+            
             chall_score = []
-            for attempt in studentChallenges:
-                chall_score.append(attempt.getScore())
+            max_score = 0
+            for attempt in attempts:
+                max_score = max(max_score, attempt.getScore())
 
-            totalChall += max(chall_score)
+            totalChall += max_score
             count += 1
 
     if (count > 0):
