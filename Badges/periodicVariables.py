@@ -1302,7 +1302,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         
         # Weighting the total serious challenge points to be used in calculation of the XP Points  
         weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
-        logger.debug(f"total score points serious {weightedSeriousChallengePoints}")
+        # logger.debug(f"total score points serious {weightedSeriousChallengePoints}")
         
         
         totalPointsSeriousChallenges = sum(total)

@@ -30,7 +30,6 @@ def classAverChallengeScore(course, challenge):
     else:
         avgChall = 0
 
-    print("avgchall  "+str(avgChall))
     return avgChall
 
 # Skills
