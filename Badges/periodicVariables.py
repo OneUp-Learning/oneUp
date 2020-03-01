@@ -1393,7 +1393,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         # ACTIVITIES
         # Get the earned points
         earnedActivityPoints = 0
-        total = []
+        totalPointsActivities = 0
 
         courseActivities = Activities.objects.filter(courseID=course, isGraded=True).values('activityID', 'points', 'category__xpWeight', 'category__name')
         for activity in courseActivities:
@@ -1412,14 +1412,10 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
                 # to the earned points variable
                 score = float(studentActivity.getScoreWithBonus())
                 earnedActivityPoints += score * xpWeightCategory
-                total.append(float(activity['points']))
+                totalPointsActivities += float(activity['points'])
 
         # Weighting the total activity points to be used in calculation of the XP Points  
         weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
-        totalPointsActivities = sum(total)
-        # print("activity points earned", earnedActivityPoints)
-        # print("activity points total weighted", weightedActivityPoints)
-        # print("activity points total", totalPointsActivities)
        
         result['weightedActivityPoints'] = weightedActivityPoints
         result['earnedActivityPoints'] = earnedActivityPoints
@@ -1477,6 +1473,258 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
 
 
     
+    
+    # Return the xp and/or required variables rounded to 1 decimal place
+    xp = 0
+    if gradeWarmup:
+        xp += weightedWarmupChallengePoints
+        # print("warmup ran")
+    if gradeSerious:
+        xp += weightedSeriousChallengePoints
+        # print("serious ran")
+    if gradeActivity:
+        xp += weightedActivityPoints
+    if gradeSkills:
+        xp += weightedSkillPoints
+
+    if not gradeSerious and not gradeWarmup and not gradeActivity and not gradeSkills:
+        xp += weightedSeriousChallengePoints + weightedWarmupChallengePoints  + weightedActivityPoints + weightedSkillPoints
+    
+    xp = round(xp, 1)
+    result['xp'] = xp
+    
+    return result
+
+def classStudentScore(course, unique_id, result_only=False, last_ran=None, gradeWarmup=False, gradeSerious=False, gradeActivity=False, gradeSkills=False):
+    
+    from Badges.models import CourseConfigParams, LeaderboardsConfig
+    from Instructors.models import Challenges, Activities, CoursesSkills, Skills, ActivitiesCategory
+    from Instructors.constants import uncategorized_activity
+    from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills, StudentRegisteredCourses
+    from Students.views import classResults
+
+    result = {}
+
+    xp = 0  
+    xpWeightSP = 0
+    xpWeightSChallenge = 0
+    xpWeightWChallenge = 0
+    xpWeightAPoints = 0
+    ccparamsList = CourseConfigParams.objects.filter(courseID=course)
+    
+    # If result only, we only want to search from the start of the course
+    # else, we will search based on howFarBack (see below)
+    if result_only:
+        startOfTime = True
+    else:
+        date_time = last_ran 
+        
+        if not date_time:
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course.courseID)
+            backwardsTime = periodic_leaderboard.howFarBack
+            
+            if backwardsTime == 1500:
+                date_time = date.today() - timedelta(1)
+                
+            elif backwardsTime == 1501:
+                date_time = date.today() - timedelta(7)
+                
+            else:
+                date_time = None
+            
+        startOfTime = False
+        
+    
+    
+    # print("Course: {}".format(course))
+    # print("Student: {}".format(studentId))
+    
+    # Specify if the xp should be calculated based on max score or first attempt
+    xpSeriousMaxScore = True 
+    xpWarmupMaxScore = True
+    challengeClassmates = False
+    if ccparamsList.exists():
+        cparams = ccparamsList[0]
+        xpWeightSP = cparams.xpWeightSP
+        xpWeightSChallenge = cparams.xpWeightSChallenge
+        xpWeightWChallenge = cparams.xpWeightWChallenge
+        xpWeightAPoints = cparams.xpWeightAPoints
+        xpSeriousMaxScore = cparams.xpCalculateSeriousByMaxScore 
+        xpWarmupMaxScore = cparams.xpCalculateWarmupByMaxScore
+
+        if cparams.classmatesChallenges:
+            challengeClassmates = True
+       
+    if gradeSerious:
+        # SERIOUS CHALLENGES
+        # Get the earned points
+        earnedSeriousChallengePoints = 0 
+        totalPointsSeriousChallenges = 0
+
+        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition').values('challengeID', 'challengeName', 'totalScore', 'manuallyGradedScore')
+        for challenge in courseChallenges:
+            students = StudentRegisteredCourses.objects.filter(courseID= course, studentID__isTestStudent=False)
+            for student in students:
+                if not startOfTime:
+                    seriousChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID'], endTimestamp__gte=date_time).order_by('studentChallengeID')
+                else:
+                    seriousChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID']).order_by('studentChallengeID')
+
+                # Ignore challenges that have invalid total scores
+                if seriousChallengeAttempts.exists() and challenge['totalScore'] < 0:
+                    continue
+
+                # Get the scores for this challenge then either add the max score
+                # or the first score to the earned points variable
+                max_score = 0
+                first_attempt = -1
+                for attempt in seriousChallengeAttempts:
+                    value = float(attempt.getScoreWithBonus())
+                    if first_attempt == -1:
+                        first_attempt = value
+
+                    max_score = max(max_score, value)
+                    # gradeID.append(float(serious.getScoreWithBonus())) # get the score + adjustment + bonus + curve
+
+                # Setup data for rendering this challenge in html (bar graph stuff)
+                if first_attempt != -1:
+                    if xpSeriousMaxScore:                           
+                        earnedSeriousChallengePoints += max_score   
+                    else:
+                        earnedSeriousChallengePoints += first_attempt
+
+                    # Total possible points for challenge
+                    combined_score = challenge['totalScore'] + challenge['manuallyGradedScore']
+                    totalPointsSeriousChallenges += float(combined_score) if combined_score > 0 else 1
+            
+        # Weighting the total serious challenge points to be used in calculation of the XP Points  
+        weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
+    
+        result['weightedSeriousChallengePoints'] = weightedSeriousChallengePoints
+        result['earnedSeriousChallengePoints'] = earnedSeriousChallengePoints
+        result['totalPointsSeriousChallenges'] = totalPointsSeriousChallenges
+
+    
+    if gradeWarmup:
+        # WARMUP CHALLENGES
+        # Get the earned points
+        earnedWarmupChallengePoints = 0 
+        totalWCPossiblePoints = 0
+        totalWCEarnedPoints = 0
+        
+        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False).values('challengeID', 'challengeName', 'totalScore', 'manuallyGradedScore')
+        for challenge in courseChallenges:
+
+            students = StudentRegisteredCourses.objects.filter(courseID= course, studentID__isTestStudent=False)
+            for student in students:
+            
+                if not startOfTime and warmupChallenge.exists():
+                    warmupChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID'], endTimestamp__gte=date_time)
+                else:
+                    warmupChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID'])
+
+                # Ignore challenges that have invalid total scores
+                if warmupChallengeAttempts.exists() and challenge['totalScore'] < 0:
+                    continue
+
+                # Get the scores for this challenge then either add the max score
+                # or the first score to the earned points variable
+                scores = []
+                first_attempt = -1
+
+                for attempt in warmupChallengeAttempts:
+                    value = float(attempt.testScore)
+                    if first_attempt == -1:
+                        first_attempt = value
+
+                    scores.append(value)
+
+                # Setup data for rendering this challenge in html (bar graph stuff)
+                if first_attempt != -1:
+                    max_score = max(scores)
+
+                    if xpWarmupMaxScore:                          
+                        earnedWarmupChallengePoints += max_score
+                    else:
+                        earnedWarmupChallengePoints += first_attempt
+
+                    
+                    warmup_attempts_count = warmupChallengeAttempts.count()
+                    # Total possible points for all attempts for this challenge
+                    totalWCEarnedPoints += sum(scores)
+                    totalWCPossiblePoints += challenge['totalScore'] * warmup_attempts_count
+                
+        # Weighting the total warmup challenge points to be used in calculation of the XP Points  
+        weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
+
+        result['totalWCEarnedPoints'] = totalWCEarnedPoints
+        result['totalWCPossiblePoints'] = totalWCPossiblePoints
+
+        result['weightedWarmupChallengePoints'] = weightedWarmupChallengePoints
+        result['earnedWarmupChallengePoints'] = earnedWarmupChallengePoints
+
+    if gradeActivity:
+        # ACTIVITIES
+        # Get the earned points
+        earnedActivityPoints = 0
+        totalPointsActivities = 0
+
+        courseActivities = Activities.objects.filter(courseID=course, isGraded=True).values('activityID', 'points', 'category__xpWeight', 'category__name')
+        for activity in courseActivities:
+            students = StudentRegisteredCourses.objects.filter(courseID= course, studentID__isTestStudent=False)
+            for student in students:
+                if not startOfTime:
+                    studentActivity = StudentActivities.objects.get(studentID=student.studentID, courseID=course, activityID=activity, timestamp__gte=date_time)
+                else:
+                    studentActivity = StudentActivities.objects.get(studentID=student.studentID, courseID=course, activityID=activity)
+                
+                if studentActivity:
+                    xpWeightCategory = 1
+                    if activity['category__name'] != uncategorized_activity:
+                        xpWeightCategory = float(activity['category__xpWeight'])
+
+                    # Get the scores for this challenge then add the max score
+                    # to the earned points variable
+                    score = float(studentActivity.getScoreWithBonus())
+                    earnedActivityPoints += score * xpWeightCategory
+                    totalPointsActivities += float(activity['points'])
+
+        # Weighting the total activity points to be used in calculation of the XP Points  
+        weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
+       
+        result['weightedActivityPoints'] = weightedActivityPoints
+        result['earnedActivityPoints'] = earnedActivityPoints
+        result['totalPointsActivities'] = totalPointsActivities
+
+    if gradeSkills:
+        # SKILL POINTS
+        # Get the earned points
+        earnedSkillPoints = 0
+
+        cskills = CoursesSkills.objects.filter(courseID=course)
+        for sk in cskills:
+            
+            skill = Skills.objects.get(skillID=sk.skillID.skillID)
+
+            students = StudentRegisteredCourses.objects.filter(courseID= course, studentID__isTestStudent=False)
+            for student in students:
+            
+                sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=student.studentID, skillID = skill)
+                
+                if sp.exists():  
+                    # Get the scores for this challenge then add the max score
+                    # to the earned points variable               
+                    score = 0
+                    for p in sp:
+                        score += int(p.skillPoints)
+                    
+                    earnedSkillPoints += score
+
+        # Weighting the total skill points to be used in calculation of the XP Points     
+        weightedSkillPoints = earnedSkillPoints * xpWeightSP / 100   
+
+        result['weightedSkillPoints'] = weightedSkillPoints
+        result['earnedSkillPoints'] = earnedSkillPoints
     
     # Return the xp and/or required variables rounded to 1 decimal place
     xp = 0
