@@ -7,6 +7,7 @@ from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCur
 from Badges.enums import Event, OperandTypes, Action
 from Badges.systemVariables import SystemVariable
 from datetime import datetime
+from django.utils.timezone import now
 from distutils.command.upload import upload
 from django.template.defaultfilters import default
 from django.conf.global_settings import MEDIA_URL
@@ -56,7 +57,7 @@ class StudentRegisteredCourses(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     avatarImage= models.CharField(max_length=200, default='')    
     virtualCurrencyAmount = models.IntegerField(default=0)
-    attendanceStreakStartDate = models.DateTimeField(default = datetime.now)
+    attendanceStreakStartDate = models.DateTimeField(default=now)
     xp = models.DecimalField(decimal_places=2, max_digits=100, default=0)
     def __str__(self):
         return str(self.studentID) + "," + str(self.courseID)
@@ -128,7 +129,7 @@ class StudentBadges(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     badgeID = models.ForeignKey(BadgesInfo, on_delete=models.CASCADE, verbose_name="the badge", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a badge
-    timestamp = models.DateTimeField(default=datetime.now, blank=True) # AV # Timestamp for badge assignment date
+    timestamp = models.DateTimeField(default=now, blank=True) # AV # Timestamp for badge assignment date
     def __str__(self):              
         return str(self.studentBadgeID) +"," + str(self.studentID) +"," + str(self.badgeID) +"," + str(self.timestamp)
 
@@ -167,7 +168,7 @@ class StudentActivities(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, on_delete=models.CASCADE, verbose_name="the related activity", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)      
-    timestamp = models.DateTimeField(default= datetime.now, verbose_name="Grading Timestamp") # represents when the activity was graded (if it has been)
+    timestamp = models.DateTimeField(default= now, verbose_name="Grading Timestamp") # represents when the activity was graded (if it has been)
     activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
     bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
@@ -183,7 +184,7 @@ class StudentAttendance(models.Model):
     studentAttendanceID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)      
-    timestamp = models.DateTimeField(default= datetime.now)
+    timestamp = models.DateTimeField(default= now)
     isPresent = models.BooleanField(default=False)
     def __str__(self):              
         return str(self.studentAttendanceID) +"," + str(self.studentID)    
@@ -198,7 +199,7 @@ class StudentFile(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     activity = models.ForeignKey(StudentActivities, on_delete=models.CASCADE, verbose_name= 'the related activity')
-    timestamp = models.DateTimeField(default=datetime.now)
+    timestamp = models.DateTimeField(default=now)
     file = models.FileField(max_length=500,upload_to= fileUploadPath)
     fileName = models.CharField(max_length=200, default='')
     latest = models.BooleanField(default = True)
