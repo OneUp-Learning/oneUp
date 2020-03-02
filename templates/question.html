@@ -174,7 +174,11 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     /* Firefox */
     break-inside: avoid;
   }
-
+  .cards-container:after {
+  content: ' ';
+  display: block;
+  height: 100px; /* 5px + 5px = 10px */
+}
   .card .select-wrapper,
   .card .select-wrapper .caret {
     color: white;
@@ -212,9 +216,10 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 {% if graded %}
 <div class="row">
 
-  <div class="col s12 cards-container">
+  <div style="display: flex; flex-wrap: wrap;">
+  
     {% for match in q.matches %}
-
+    <div class="col s12 m6" style="display: flex; margin: 0">
     <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
       <div class="card-content white-text">
         <span class="card-title">Choice {{match.current_pos}}</span>
@@ -229,6 +234,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         {% endfor %}
       </div>
     </div>
+    </div>
     {% endfor %}
   </div>
 
@@ -236,8 +242,9 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 {% else %}
 <div class="row">
 
-  <div class="col s12 cards-container">
+  <div style="display: flex; flex-wrap: wrap;">
     {% for match in q.matches %}
+    <div class="col s12 m6" style="display: flex; margin: 0">
     <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
       <div class="card-content white-text">
         <span class="card-title">Choice {{match.current_pos}}</span>
@@ -250,6 +257,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
           {% endfor %}
         </select>
       </div>
+    </div>
     </div>
     {% endfor %}
   </div>
@@ -265,8 +273,9 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     <blockquote>
       <div class="row">
 
-        <div class="col s12 cards-container">
+        <div style="display: flex; flex-wrap: wrap;">
           {% for match in q.matches %}
+          <div class="col s12 m6" style="display: flex; margin: 0">
           <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
             <div class="card-content white-text">
               <span class="card-title">Choice {{match.current_pos}}</span>
@@ -276,6 +285,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
               <span class="card-title">Correct Answer</span>
               <p>{{match.answerText}}</p>
             </div>
+          </div>
           </div>
           {% endfor %}
         </div>
@@ -288,7 +298,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     {% endif %}
   </div>
   <div class="col s12">
-    <{% if q.feedback %} <p><b>Feedback: </b> {{q.feedback}}</p>
+    {% if q.feedback %} <p><b>Feedback: </b> {{q.feedback}}</p>
       {% endif %}
   </div>
 </div>
