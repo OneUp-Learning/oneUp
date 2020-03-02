@@ -137,10 +137,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = '/OneUp/'  # You may find this is already defined as such.
 
-CKEDITOR_BASEPATH = os.path.join(STATIC_ROOT, 'ThirdParty/ckeditor/ckeditor')
+CKEDITOR_BASEPATH = os.path.join(STATIC_PATH, 'ThirdParty/ckeditor/ckeditor')
 
-STATICFILES_DIRS = (
-)
+STATICFILES_DIRS = []
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -285,6 +284,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_IMPORTS = ['Badges.periodicVariables']
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
+DJANGO_CELERY_BEAT_TZ_AWARE = True
 # Turns celery on or off in oneUp code.
 # Note that this is not automatic, but enabled by statements in our
 # code which check its value.  Turning it on or off will only effect
