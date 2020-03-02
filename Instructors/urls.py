@@ -49,8 +49,8 @@ from Instructors.views.instructorQA import instructorQA
 from Instructors.views.instructorNotifications import instructorNotifications, updateNotificationTable
 
 from Instructors.views.matchingView import matchingForm
-from Instructors.views.milestoneCreateView import milestoneCreateView
-from Instructors.views.milestoneListView import milestoneList
+#from Instructors.views.milestoneCreateView import milestoneCreateView
+#from Instructors.views.milestoneListView import milestoneList
 from Instructors.views.multipleAnswersView import multipleAnswersForm
 from Instructors.views.multipleChoiceView import multipleChoiceForm
 from Instructors.views.parsonsView import parsonsForm
@@ -135,7 +135,7 @@ urlpatterns = [
         name='validateCourseExport'),
     url(r'^importCourse', importCourse, name='importCourse'),
     url(r'^courseInformation', courseInformation, name='courseInformation'),
-    url(r'^createMilestone', milestoneCreateView, name='milestoneCreateView'),
+    #url(r'^createMilestone', milestoneCreateView, name='milestoneCreateView'),
     url(r'^createStudentList', createStudentListView,
         name='createStudentListView'),
     url(r'^createStudent', createStudentViewUnchecked, name='createStudentView'),
@@ -182,7 +182,7 @@ urlpatterns = [
         name='instructorCourseHome'),
     url(r'^instructorHome', instructorHome, name='instructorHome'),
     url(r'^instructorQA', instructorQA, name='instructorQA'),
-    url(r'^milestonesList', milestoneList, name='milestoneList'),
+    #url(r'^milestonesList', milestoneList, name='milestoneList'),
     url(r'^NotificationPage', instructorNotifications,
         name='instructorNotifications'),
     url(r'^NotificationPageUpdate', updateNotificationTable,

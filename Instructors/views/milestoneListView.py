@@ -1,8 +1,9 @@
+#Page unemployed 2/28/20
 '''
 Created on October, 2015
 
 @author: Dillon Perry
-'''
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Milestones
@@ -35,3 +36,4 @@ def milestoneList(request):
     context_dict = createContextForMilestoneList(request, context_dict, currentCourse)
 
     return render(request,'Instructors/MilestonesList.html', context_dict)
+    '''
