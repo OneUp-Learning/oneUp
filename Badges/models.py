@@ -1,4 +1,6 @@
 from datetime import datetime
+from django.utils.timezone import now
+
 from django.db import models
 from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
 from Badges.enums import Event, OperandTypes, Action, AwardFrequency
@@ -175,7 +177,7 @@ class PeriodicBadges(BadgesInfo):
     threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
-    lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    lastModified = models.DateTimeField(default=now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
@@ -215,7 +217,7 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
-    lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    lastModified = models.DateTimeField(default=now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
@@ -288,7 +290,7 @@ class LeaderboardsConfig(models.Model):
     periodicVariable = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
     timePeriodUpdateInterval = models.IntegerField(default=0000)                  # The Time Period index set for updating this leaderboard
     displayOnCourseHomePage = models.BooleanField(default=False)       # true=display on course home page; false=display on leaderbordas page 
-    lastModified = models.DateTimeField(default=datetime.now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    lastModified = models.DateTimeField(default=now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     howFarBack = models.IntegerField(default=0000)
     def delete(self, *args, **kwargs):
@@ -484,7 +486,7 @@ class BadgesVCLog(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     log_data = models.TextField(blank=True, default='{}', verbose_name='Log Data',
             help_text='JSON encoded data (Example: {"badge": {"name": "badge name", "type": "automatic, manual, periodic"},})')
-    timestamp = models.DateTimeField(default=datetime.now, blank=True)#when it was issued
+    timestamp = models.DateTimeField(default=now, blank=True)#when it was issued
     def __str__(self):              
         return f"ID: {self.badgesVCLogID} : Course: {self.courseID} : Data: {self.log_data}"
 

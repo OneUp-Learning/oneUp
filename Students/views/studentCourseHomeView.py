@@ -111,48 +111,45 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
 
 	if class_scores:
 		students = StudentRegisteredCourses.objects.filter(courseID= current_course, studentID__isTestStudent=False)
-		for student in students:
-			# Get latest data
+
+		# Get class data
+		data = studentScore(None, current_course, 0, result_only=True, gradeWarmup=False, gradeSkills=False, for_class=True)
+
+		currentEarnedPoints = data['earnedSeriousChallengePoints'] + data['earnedActivityPoints']
+		currentTotalPoints = data['totalPointsSeriousChallenges'] + data['totalPointsActivities']
+		missedPoints = currentTotalPoints - currentEarnedPoints
 		
-			
-			if for_student == student.studentID:
-				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
-				response['data'] = data
-			else:
-				data = studentScore(student.studentID, current_course, 0, result_only=True, gradeWarmup=False, gradeSerious=True, gradeActivity=True, gradeSkills=False)
+		if not currentTotalPoints == 0:
+			projectedEarnedPoints = round(
+				currentEarnedPoints * progressBarTotalPoints/currentTotalPoints)
+		else:
+			projectedEarnedPoints = 0
+		remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
 
-			currentEarnedPoints = data['earnedSeriousChallengePoints'] + data['earnedActivityPoints']
-			currentTotalPoints = data['totalPointsSeriousChallenges'] + data['totalPointsActivities']
-			missedPoints = currentTotalPoints - currentEarnedPoints
-			
-			if not currentTotalPoints == 0:
-				projectedEarnedPoints = round(
-					currentEarnedPoints * progressBarTotalPoints/currentTotalPoints)
-			else:
-				projectedEarnedPoints = 0
-			remainingPointsToEarn = progressBarTotalPoints - currentTotalPoints
+		response['currentEarnedPoints'] = currentEarnedPoints
+		response['missedPoints'] = missedPoints
+		response['projectedEarnedPoints'] = projectedEarnedPoints
+		response['remainingPointsToEarn'] = remainingPointsToEarn
+		response['xp'] = data['xp']
 
-			response['currentEarnedPoints'] += currentEarnedPoints
-			response['missedPoints'] += missedPoints
-			response['projectedEarnedPoints'] += projectedEarnedPoints
-			response['remainingPointsToEarn'] += remainingPointsToEarn
-			response['xp'] += data['xp']
-
-		if metric_average and students:
-			response['xp'] = response['xp'] / len(students)
-			response['currentEarnedPoints'] = response['currentEarnedPoints'] / len(students)
-			response['missedPoints'] = response['missedPoints'] / len(students)
-			response['projectedEarnedPoints'] = response['projectedEarnedPoints'] / len(students)
-			response['remainingPointsToEarn'] = response['remainingPointsToEarn'] / len(students)
+		if metric_average and students.exists():
+			count = students.count()
+			response['xp'] = response['xp'] / count
+			response['currentEarnedPoints'] = response['currentEarnedPoints'] / count
+			response['missedPoints'] = response['missedPoints'] / count
+			response['projectedEarnedPoints'] = response['projectedEarnedPoints'] / count
+			response['remainingPointsToEarn'] = response['remainingPointsToEarn'] / count
 		
 		response['progressBarTotalPoints'] = progressBarTotalPoints
-		if response['data'] == 0:
-			data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=False)
+
+		# Get student specific data
+		if for_student:
+			data = studentScore(for_student, current_course, 0, result_only=True)
 			response['data'] = data
 		
 	else:
 		# Get latest data
-		data = studentScore(for_student, current_course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)
+		data = studentScore(for_student, current_course, 0, result_only=True)
 	
 		response['xp'] = data['xp']
 		response['data'] = data
