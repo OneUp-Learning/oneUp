@@ -35,7 +35,8 @@ SECRET_KEY = '6l1(5i-qm34-eb!@un9gc%(g$o^=rgw8l++0!o9t6-^($qi6&k'
 DEBUG = True
 # Logging Levels: DEBUG(Everything) : INFO(Except DEBUG) : WARNING(Except INFO & DEBUG) : ERROR(CRITICAL & ERROR) : CRITICAL(ONLY)
 LOGGING_LEVEL = 'DEBUG'
-
+LOGSTASH_HOST = 'localhost'
+LOGSTASH_PORT = 5959 # Default value: 5959
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -43,6 +44,14 @@ LOGGING = {
         'simple': {
             'format': '[%(levelname)s] %(message)s'
         },
+        'logstash': {
+            '()': 'logstash_async.formatter.DjangoLogstashFormatter',
+            'message_type': 'django',
+            'fqdn': False, # Fully qualified domain name. Default value: false.
+            'extra': {
+                'environment': 'dev'
+            }
+      },
     },
     'handlers': {
         'console': {
@@ -50,12 +59,23 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        'logstash': {
+            'level': 'DEBUG',
+            'class': 'logstash_async.handler.AsynchronousLogstashHandler',
+            'formatter': 'logstash',
+            'transport': 'logstash_async.transport.TcpTransport',
+            'host': LOGSTASH_HOST,
+            'port': LOGSTASH_PORT, 
+            'database_path': None,
+        },
     },
     'root': {
-        'handlers': ['console'],
-        'level': LOGGING_LEVEL
+        'handlers': ['console', 'logstash'],
+        'level': LOGGING_LEVEL,
+        'propagate': True,
     },
 }
+
 ALLOWED_HOSTS = [
     #     'oneup.wssu.edu'
 ]
@@ -285,6 +305,8 @@ CELERY_IMPORTS = ['Badges.periodicVariables']
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 DJANGO_CELERY_BEAT_TZ_AWARE = True
+CELERY_ENABLE_UTC = False
+CELERY_TIMEZONE = TIME_ZONE
 # Turns celery on or off in oneUp code.
 # Note that this is not automatic, but enabled by statements in our
 # code which check its value.  Turning it on or off will only effect

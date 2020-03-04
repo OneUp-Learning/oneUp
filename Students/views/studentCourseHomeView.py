@@ -24,13 +24,21 @@ from Badges.periodicVariables import studentScore, TimePeriods
 from collections import defaultdict
 import json
 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 @login_required
 def StudentCourseHome(request):
+	
 	context_dict, currentCourse = studentInitialContextDict(request)
 	student = context_dict['student']
 
 	if context_dict['is_test_student']:
 		context_dict["username"] = "Test Student"
+
+	logger.debug(f"Student {student.user.get_full_name()} is loading course home page")
 	
 	context_dict['course_Bucks'] = str(context_dict['student_registered_course'].virtualCurrencyAmount)  
 
@@ -66,6 +74,8 @@ def StudentCourseHome(request):
 	register_event(Event.userLogin, request, None, None)
 	print("User Login event was registered for the student in the request")
 	
+	logger.debug(f"Student {student.user.get_full_name()} finished loading course home page")
+
 	if context_dict['ccparams'].displayStudentStartPageSummary == True:
 		return render(request,'Students/StudentCourseHomeSummary.html', context_dict)
 	else:          

@@ -73,7 +73,7 @@
                                   {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %} 
                                   <div style="padding-right: 16px">                                                       
                                   <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px" height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
-                                  <img class="tooltipped" alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50">
+                                  <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50">
                                   </div>
                                   {% empty %}
                                   <i class="center-align" style="flex: 1;">No badges earned</i>
