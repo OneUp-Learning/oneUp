@@ -15,7 +15,7 @@ channels-rabbitmq==0.0.11
 constantly==15.1.0
 daphne==2.2.3
 Django==2.1.2
-django-celery-beat==1.4.0
+django-celery-beat==1.5.0
 django-ckeditor==5.4.0
 django-debug-toolbar==1.9.1
 django-easy-timezones==0.8.0
@@ -43,6 +43,7 @@ pygeoip==0.3.2
 PyHamcrest==1.9.0
 pyparsing==2.2.0
 pytz==2016.6
+selenium==3.141.0
 six==1.11.0
 sqlparse==0.2.4
 Twisted==18.9.0

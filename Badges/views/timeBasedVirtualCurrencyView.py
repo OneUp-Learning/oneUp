@@ -14,6 +14,11 @@ from django.shortcuts import redirect
 from Students.models import StudentRegisteredCourses
 import random
 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 @login_required
 def timeBasedVirtualCurrencyView(request):
  

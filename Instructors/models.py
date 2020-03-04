@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.template.defaultfilters import default
 from datetime import datetime
+from django.utils.timezone import now
 from Instructors.constants import uncategorized_activity, default_time_str
 
 from django.conf.global_settings import MEDIA_URL
@@ -177,11 +178,11 @@ class Challenges(models.Model):
     challengeAuthor = models.CharField(max_length=75)
     challengeDifficulty = models.CharField(max_length=45, default="")
     isVisible = models.BooleanField(default=True)
-    startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
-    endTimestamp = models.DateTimeField(default=datetime.now, blank=True)
+    startTimestamp = models.DateTimeField(default=now, blank=True)
+    endTimestamp = models.DateTimeField(default=now, blank=True)
     challengePassword = models.CharField(default='',max_length=30) # Empty string represents no password required.
     challengePosition = models.IntegerField(default = 0)
-    dueDate = models.DateTimeField(default=datetime.now, blank=True)
+    dueDate = models.DateTimeField(default=now, blank=True)
     
     def __str__(self):              
         return str(self.challengeID)+","+self.challengeName       
@@ -272,9 +273,9 @@ class Activities(models.Model):
     uploadAttempts = models.IntegerField(default=0)
     instructorNotes = models.CharField(max_length=300, default="")
     author = models.CharField(max_length=100) 
-    startTimestamp = models.DateTimeField(default=datetime.now, blank=True)
-    endTimestamp = models.DateTimeField(default=datetime.now, blank=True )
-    deadLine = models.DateTimeField(default=datetime.now, blank=True)
+    startTimestamp = models.DateTimeField(default=now, blank=True)
+    endTimestamp = models.DateTimeField(default=now, blank=True )
+    deadLine = models.DateTimeField(default=now, blank=True)
     category = models.ForeignKey(ActivitiesCategory,on_delete=models.CASCADE, verbose_name = "Activities Category", db_index=True, default = 1)
     activityPosition = models.IntegerField(default = 0)
     def __str__(self):              
@@ -312,7 +313,7 @@ class CoursesSubTopics(models.Model):
     subTopicPos = models.IntegerField(default=0)
     thresholdXP = models.IntegerField(default=0)
     thresholdSP = models.IntegerField(default=0)
-    displayDate = models.DateTimeField(default=datetime.now, blank=True)
+    displayDate = models.DateTimeField(default=now, blank=True)
     
     def __str__(self):              
         return str(self.courseID)+","+str(self.topicID)+","+str(self.subTopicID)

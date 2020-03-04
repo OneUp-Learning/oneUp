@@ -36,6 +36,7 @@ def courseConfigurationView(request):
         ccparams.seriousChallengesUsed = "seriousUsed" in request.POST
         ccparams.gradebookUsed = "gradebookUsed" in request.POST
         ccparams.activitiesUsed = "activitiesUsed" in request.POST
+        ccparams.streaksUsed = 'attendanceUsed' in request.POST
         ccparams.skillsUsed = "skillsUsed" in request.POST
         ccparams.announcementsUsed = "announcementsUsed" in request.POST
         logger.debug(request.POST['courseStartDate'])
@@ -66,7 +67,7 @@ def courseConfigurationView(request):
             context_dict['warmupsUsed'] = ccparams.warmupsUsed
             context_dict['seriousUsed'] = ccparams.seriousChallengesUsed
             context_dict['gradebookUsed'] = ccparams.gradebookUsed
-            
+            context_dict['attendanceUsed'] = ccparams.streaksUsed
             context_dict['skillsUsed'] = ccparams.skillsUsed
             context_dict['announcementsUsed'] = ccparams.announcementsUsed
             context_dict['activitiesUsed'] = ccparams.activitiesUsed
