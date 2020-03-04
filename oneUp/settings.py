@@ -37,6 +37,13 @@ DEBUG = True
 LOGGING_LEVEL = 'DEBUG'
 LOGSTASH_HOST = 'localhost'
 LOGSTASH_PORT = 5959 # Default value: 5959
+
+ENABLE_LOGSTASH = False
+if ENABLE_LOGSTASH:
+    handlers = ['console', 'logstash']
+else:
+    handlers = ['console']
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -70,7 +77,7 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['console', 'logstash'],
+        'handlers': handlers,
         'level': LOGGING_LEVEL,
         'propagate': True,
     },
