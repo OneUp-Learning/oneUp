@@ -499,7 +499,7 @@ class CeleryTaskLog(models.Model):
             help_text='The Unique Task ID. (Example: "unique_warmups_123_badge")')
     parameters = models.TextField(blank=True, default='{}', verbose_name='Task Parameters',
             help_text='JSON encoded keyword arguments of celery parameters. (Example: {"argument": "value"})')
-    timestamp = models.DateTimeField(auto_now=True, verbose_name='Task Timestamp',
+    timestamp = models.DateTimeField(default=now, verbose_name='Task Timestamp',
             help_text='The last time the celery task has run completely and was recorded')
     def __str__(self):
         return "Task ID: {} - Updated: {}".format(self.taskID, self.timestamp)

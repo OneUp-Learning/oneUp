@@ -16,9 +16,13 @@ import _cffi_backend
 from _datetime import datetime
 from dateutil.utils import today
 from billiard.connection import CHALLENGE
-from oneUp.logger import logger
 
 from django.conf import settings
+
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 LOCK_EXPIRE = 60 * 5 # lock expire in 5 minutes
@@ -187,39 +191,16 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     
     
     time_range = time_period['datetime']()
-
+    
     # Double check if the time period is of beginning_of_time. There should be no log for this type
     if not time_range is None and last_ran:
         # If not, call periodic_task with parameters (entry log will get updated by this call, hopefully)
         if last_ran.replace(microsecond=0, second=0) > time_range.replace(microsecond=0, second=0):
+            print(f"Now: {timezone.now()}")
+            print(f"Last: {last_ran.replace(microsecond=0, second=0)}")
+            print(f"Max for Last: {time_range.replace(microsecond=0, second=0)}")
             print("SKIP PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
             return
-   
-    # total_runs = periodic_task.total_run_count
-    # print("TOTAL RUNS {} ({})".format(total_runs, task_id))
-    # # Handle beginning of time period
-    # if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
-    #     # If it has ran once then return and set it not to run anymore
-    #     if total_runs >= 1:
-    #         periodic_task.enabled = False
-    #         periodic_task.save()
-    #         PeriodicTasks.changed(periodic_task)
-    #         print("END COMPLETE PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
-    #         return
-
-    # Check for frequency to see handle every N days/month/week etc
-    # ex. biweekly
-    # (day 1) total_runs = 0 , frequency = 2, task will run
-    # (day 7) total_runs = 1 , frequency = 2, task will not run
-    # (day 14) total_runs = 2 , frequency = 2, task will run
-    # ...
-    
-    # if total_runs % time_period['frequency'] != 0:
-    #     print("SKIP PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
-    #     periodic_task.total_run_count += 1
-    #     periodic_task.save()
-    #     PeriodicTasks.changed(periodic_task)
-    #     return
 
     # Get all the students in this course, exclude test student
     students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
@@ -279,6 +260,7 @@ def update_celery_log_entry(task_id, parameters):
         celery_log_entry.taskID = task_id
 
     celery_log_entry.parameters = json.dumps(parameters)
+    celery_log_entry.timestamp = timezone.now()
     celery_log_entry.save()
 
 def filter_students(students, number_of_top_students, threshold, operator_type, is_random):
@@ -1533,8 +1515,7 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
 class TimePeriods:
     ''' TimePeriods enum starting at 1500.
         schedule: crontab of when to run
-        datetime: used for results only to look back a time period
-        frequency: rate at which to run the task. ex. frequency 2 (daily) will run every other day
+        datetime: used for range when task should run only once
     '''
     daily = 1500 # Runs every day at midnight
     weekly = 1501 # Runs every Sunday at midnight
@@ -1551,7 +1532,6 @@ class TimePeriods:
                         minute='59', hour='23', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.now() - timedelta(days=1),
-            'frequency': 1,
         },
         weekly:{
             'index': weekly,
@@ -1559,7 +1539,6 @@ class TimePeriods:
             'displayName': 'Weekly on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="59", hour="23", day_of_week='0'),
             'datetime': lambda: timezone.now() - timedelta(days=7),
-            'frequency': 1,
         },
         biweekly:{
             'index': biweekly,
@@ -1567,7 +1546,6 @@ class TimePeriods:
             'displayName': 'Every Two Weeks on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="59", hour="23", day_of_week='0'),
             'datetime': lambda: timezone.now() - timedelta(days=14),
-            'frequency': 2,
         },
         beginning_of_time:{
             'index': beginning_of_time,
@@ -1575,7 +1553,6 @@ class TimePeriods:
             'displayName': 'Only once at Midnight',
             'schedule': get_or_create_schedule(minute="59", hour="23"),
             'datetime': lambda: None,
-            'frequency': 1,
         }
     }
     if __debug__:
@@ -1587,7 +1564,6 @@ class TimePeriods:
                         minute='59', hour='23', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.now() - timedelta(days=2),
-            'frequency': 2,
         }
         timePeriods[minute_test] = {
             'index': minute_test,
@@ -1596,7 +1572,6 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='*'),
             'datetime': lambda: timezone.now() - timedelta(minutes=2),
-            'frequency': 1,
         }
 class PeriodicVariables:
     '''PeriodicVariables enum starting at 1400.'''
