@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.generic.base import RedirectView
 import django.views.static
 from django.views.generic import TemplateView
 
@@ -33,6 +34,7 @@ else:
         path('service-worker.js',(TemplateView.as_view(
             template_name="Chat/service-worker.js",
             content_type='application/javascript')), name='service-worker.js'),
+        url(r'^$', RedirectView.as_view(url="/oneUp/home"))
     ]
 
 
