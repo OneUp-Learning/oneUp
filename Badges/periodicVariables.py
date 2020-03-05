@@ -1393,18 +1393,18 @@ def studentScore(for_student, course, unique_id, result_only=False, last_ran=Non
         for activity in courseActivities:
             for student in students:
                 if not startOfTime:
-                    studentActivity = StudentActivities.objects.get(studentID=student.studentID, courseID=course, activityID=activity, timestamp__gte=date_time)
+                    studentActivity = StudentActivities.objects.filter(studentID=student.studentID, courseID=course, activityID=activity['activityID'], timestamp__gte=date_time)
                 else:
-                    studentActivity = StudentActivities.objects.get(studentID=student.studentID, courseID=course, activityID=activity)
+                    studentActivity = StudentActivities.objects.filter(studentID=student.studentID, courseID=course, activityID=activity['activityID'])
                 
-                if studentActivity:
+                if studentActivity.exists():
                     xpWeightCategory = 1
                     if activity['category__name'] != uncategorized_activity:
                         xpWeightCategory = float(activity['category__xpWeight'])
 
                     # Get the scores for this challenge then add the max score
                     # to the earned points variable
-                    score = float(studentActivity.getScoreWithBonus())
+                    score = float(studentActivity.first().getScoreWithBonus())
                     earnedActivityPoints += score * xpWeightCategory
                     totalPointsActivities += float(activity['points'])
 
