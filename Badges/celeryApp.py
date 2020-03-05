@@ -14,9 +14,8 @@ def initialize_logstash(logger=None, loglevel=logging.DEBUG, **kwargs):
     )
     handler.setLevel(loglevel)
     formatter = DjangoLogstashFormatter(
-        message_type='Celery',
+        message_type='celery',
         extra={
-            'application': 'celery',
             'environment': 'dev'
         }
     )

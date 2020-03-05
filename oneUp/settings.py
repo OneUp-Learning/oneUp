@@ -47,6 +47,14 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 # Logging Levels: DEBUG(Everything) : INFO(Except DEBUG) : WARNING(Except INFO & DEBUG) : ERROR(CRITICAL & ERROR) : CRITICAL(ONLY)
 LOGGING_LEVEL = 'DEBUG'
+LOGSTASH_HOST = 'localhost'
+LOGSTASH_PORT = 5959 # Default value: 5959
+
+ENABLE_LOGSTASH = False
+if ENABLE_LOGSTASH:
+    handlers = ['console', 'logstash']
+else:
+    handlers = ['console']
 
 LOGGING = {
     'version': 1,
@@ -55,6 +63,14 @@ LOGGING = {
         'simple': {
             'format': '[%(levelname)s] %(message)s'
         },
+        'logstash': {
+            '()': 'logstash_async.formatter.DjangoLogstashFormatter',
+            'message_type': 'django',
+            'fqdn': False, # Fully qualified domain name. Default value: false.
+            'extra': {
+                'environment': 'dev'
+            }
+      },
     },
     'handlers': {
         'console': {
@@ -62,12 +78,23 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        'logstash': {
+            'level': 'DEBUG',
+            'class': 'logstash_async.handler.AsynchronousLogstashHandler',
+            'formatter': 'logstash',
+            'transport': 'logstash_async.transport.TcpTransport',
+            'host': LOGSTASH_HOST,
+            'port': LOGSTASH_PORT, 
+            'database_path': None,
+        },
     },
     'root': {
-        'handlers': ['console'],
-        'level': LOGGING_LEVEL
+        'handlers': handlers,
+        'level': LOGGING_LEVEL,
+        'propagate': True,
     },
 }
+
 LOGSTASH_HOST = 'localhost'
 LOGSTASH_PORT = 5959
 
@@ -86,6 +113,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
     'Instructors',
     'Students',
     'Badges',
@@ -93,7 +121,6 @@ INSTALLED_APPS = (
     'Chat',
     'notify',
     'easy_timezones',
-    'django_celery_beat',
     'rest_framework',
     'channels',
     'ckeditor',
@@ -157,10 +184,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = '/static/' # You may find this is already defined as such.
 
-CKEDITOR_BASEPATH = os.path.join(STATIC_ROOT, 'ThirdParty/ckeditor/ckeditor')
+CKEDITOR_BASEPATH = os.path.join(STATIC_PATH, 'ThirdParty/ckeditor/ckeditor')
 
-STATICFILES_DIRS = (
-)
+STATICFILES_DIRS = []
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -305,6 +331,9 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_IMPORTS = ['Badges.periodicVariables']
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
+DJANGO_CELERY_BEAT_TZ_AWARE = True
+CELERY_ENABLE_UTC = False
+CELERY_TIMEZONE = TIME_ZONE
 # Turns celery on or off in oneUp code.
 # Note that this is not automatic, but enabled by statements in our
 # code which check its value.  Turning it on or off will only effect
