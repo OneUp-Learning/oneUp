@@ -36,8 +36,9 @@ crypto.replaceInString = function(String) --> to Index then substitute, then to 
     
     for i = 1,String:len() do
       local currentChar = string.sub(String, i, i)
-      local newStr = crypto.numToLetter(subFunc(crypto.letterToNum(currentChar)))
-      
+    local n1 = crypto.letterToNum(currentChar)();
+    local n2 = subFunc(n1)
+        local newStr = crypto.numToLetter(n2)()
       rtn = rtn .. newStr;
     end
   return rtn
