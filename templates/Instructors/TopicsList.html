@@ -72,13 +72,13 @@
         <div class="row">
 				<div class="col s12 m10 offset-m1">
 					<div class="card-panel">
-                  <ul id="sortableTopics">
+                  <ul id="sortableTopics" class="collapsible" data-collapsible="expandable">
                      {% for i,topic_ID,topic_Name,topic_Pos in topic_range %}
                         {% csrf_token %}
                         <input type="hidden" name="topicID" value="{{topic_ID}}">
-                        <li class="row" id={{topic_ID}}>
-                           <div> <span><b>:-:&nbsp;&nbsp;&nbsp;</b></span> {{topic_Name}} 
-                              <span class="no-padding" >
+                        <li id={{topic_ID}}>
+                           <div class="collapsible-header" > <i class="material-icons">reorder</i> {{topic_Name}} &nbsp;&nbsp;
+                              <span class="badge" >
 												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 														data-beloworigin="true" data-activates='dropdown-{{topic_ID}}' data-position="right" data-delay="50"
 														data-tooltip="Options">

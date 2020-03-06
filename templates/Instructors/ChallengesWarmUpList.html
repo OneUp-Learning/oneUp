@@ -88,7 +88,7 @@
 							{% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
 							<input type="hidden" name="topicID" value="{{topic_ID}}">
 							<li id={{topic_ID}}>
-									<div class="collapsible-header" ><span><b>:-:&nbsp;&nbsp;&nbsp;</b></span><i class="material-icons">layers</i> {{topic_Name}}&nbsp;&nbsp;
+									<div class="collapsible-header" ><i class="material-icons">reorder</i><i class="material-icons">layers</i> {{topic_Name}}&nbsp;&nbsp;
 										{% if all_challenges != '0' and challenges_count > 0 %}
 										<span class="badge">{{challenges_count}}</span>
 										{% else %}
@@ -172,15 +172,16 @@
 											{% for j, chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
 											<input type="hidden" name="challengeID" value="{{chall_ID}}">
 											<li class="row" id={{chall_ID}}> 
-											   <div class="no-padding" > 
-												<span><b>:-:&nbsp;&nbsp;&nbsp;</b></span>
+											   <div class="no-padding collapsible-header" > 
+												<i class="material-icons">reorder</i>
 												{{chall_Name}}
 												
 												<!--<td class="no-padding">
 														<input placeholder="Points" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4"
 														 type="number" class="validate" min="0" required>
 												</td>-->
-												<span class="badge">
+												<span class="badge right-align">{{chall_visible}}</span>
+												<span class="badge right-align">
 													<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 													 data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50"
 													 data-tooltip="Options">
@@ -213,7 +214,7 @@
 														</div>
 													</div>
 												</span>
-												<span class="badge">{{chall_visible}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+												
 												</div>
 											</li>
 											{% empty %}
