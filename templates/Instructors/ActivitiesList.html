@@ -3,6 +3,7 @@
 
 <head>
   {% include 'scripts.html' %}
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <body>
@@ -36,15 +37,39 @@
       </div>
       
     </div>
-    <form name="activityOrder" action="/oneUp/instructors/reorderActivities" method="POST">
     <div class="row right-align">
 				<div class="col s12 m10 offset-m1">
           <a class="waves-effect waves-light btn" href="/oneUp/instructors/createActivity"><i class="material-icons left">toys</i>Add
-            New Activity</a> 
-
-
-            <a id="submit" class="waves-effect waves-light btn modal-trigger"
-            href="#modal_confirm"><i class="material-icons right">reorder</i>Reorder Activities</a>
+            AN Activity</a> 
+            <a class="modal-trigger waves-effect waves-light btn" href="#modal-create-cat">
+						<i class="modal-trigger material-icons left">add_circle</i>Add A Category</a>
+                  <div id="modal-create-cat" class="modal">
+                     <div class="modal-content">
+                        <div class="row center-align">
+                           <form name="question" action="/oneUp/instructors/activityCatsCreate" method="POST">
+                              {% csrf_token %}
+                              <div>
+                                 <h4>Create a category</h4>
+                              </div>
+                              <input value="True" name="activityList" id="activityList" type="hidden" />
+                              <div class="row center-align" style="margin-top: 50px;">
+                                <label class="left" for="cat_name"><span class="red-text">*</span> Category Name</label>
+                                 <input placeholder="Name" value="{{catName}}" name="catName" id="cat_name" type="text" class="validate" pattern=".*\S+.*" required>
+                              </div>
+                              <div class="row center-align">
+                                <label class="left" for="xp_weight_multiplier"> <span class="red-text">*</span>Category XP Weight (to be used in calculating XP for activities of this category)</label>
+                                <input value="{{xpWeight}}" name="xpWeight" id="xp_weight_multiplier" maxlength="3" type="number" min="0" max="999" step="any" required>
+                              </div>
+                           
+                              <div class="modal-footer">
+                                 <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                 <button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
+                                 </button>
+                              </div>
+                           </form>
+                        </div>
+                     </div>
+                  </div>
             <div id="modal_confirm" class="modal">
                 <div class="modal-content left-align">
                    <h5>Are you sure you want to submit?</h5>
@@ -69,30 +94,23 @@
             <div class="col s12 m10 offset-m1">
                <div class="card-panel">
                   
-                  <ul class="collapsible"  data-collapsible="expandable">
-                     {% for activities, categoryName, xpWeight in categories_range %}
-                     <li>
-                        <div class="collapsible-header"><i class="material-icons">layers</i>{{categoryName}}&nbsp;&nbsp;
-                          <span class="new badge" data-badge-caption="{{xpWeight}}">XP Weight</span>
+                  <ul id="sortableCats" class="collapsible"  data-collapsible="expandable">
+                     {% for activities, categoryId, categoryName, xpWeight in categories_range %}
+                     <li id="{{categoryId}}">
+                        <div class="collapsible-header"><i class="material-icons">reorder</i><i class="material-icons">layers</i>{{categoryName}}&nbsp;&nbsp;
+                          <span class="new badge" data-badge-caption="{{xpWeight}}"> XP Weight</span>
                         </div>
                         <div class="collapsible-body">
-                           <table class="responsive-table">
-                           
-                           <tbody>
+                    <ul id="sortable{{categoryId}}">
 			              {% for i, activityID, activityName, description, points, activityPosition in activities %}
-			              <tr>
-			                <td class="no-padding"><div class="col s12">{{activityName}}</div></td>
-			                <td class="no-padding"><div class="col s12">{{description}}</div></td>
-			                <td class="no-padding"><div class="col s12">{{points}} Points</div></td>
-					<td class="no-padding">
-					  <div class="col s12">
-					    <input placeholder="Position" value="{{activityPosition}}" name="activityPositions[]" id="chall_position" maxlength="4"
-						   type="number" class="validate" min="0" required>
-					    <input type="hidden" value="{{activityID}}" name="activityID[]">
-					  </div>
-					</td>
+			              <li class="row" id="{{activityID}}">
+                      <div class="no-padding collapsible-header">
+			                <i class="material-icons">reorder</i> {{activityName}}
+			                <span class="badge no-padding"><div class="col s12">{{description}}</div></span>
+			                <span class=" badge no-padding"><div class="col s12">{{points}} Points</div></span>
+                
 
-			                <td class="no-padding">
+			                <span class="badge right-align">
 			                  <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 			                    data-beloworigin="true" data-activates='activity{{activityID}}' data-position="right" data-delay="50"
 			                    data-tooltip="Options"><i class="material-icons">more_vert</i></a>
@@ -115,21 +133,79 @@
 			                        </button>
 			                      </div>
 			                    </div>
-			                </td>
-			              </tr>
+			                </span>
+                      </div>
+			              </li>
 			              
 			              {% empty %}
-			              <tr>
-			                <td class="center-align" colspan="4"><i>No Activities Created</i></td>
-			              </tr>
+			              <li>
+			                <div class="center-align" colspan="4"><i>There are no activities for this category</i></div>
+			              </li>
 			              {% endfor %}
-			            </tbody>
-                     </table>
+                    </ul>
+                    <script>
+                    $( function() {
+                      $( "#sortable{{categoryId}}" ).sortable({
+
+                        stop: function(event, ui) {
+
+                        var itemOrder = $('#sortable{{categoryId}}').sortable("toArray");
+
+                        var idsPositions = []
+
+                        for (var i = 0; i < itemOrder.length; i++) {
+                          if (itemOrder[i]){
+                            console.log("Position: " + i + " ID: " + itemOrder[i]);
+                            idsPositions.push(String(itemOrder[i])+"---"+String(i));
+                          }
+                        }
+
+                        var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+                        console.log(idsPositions)
+
+                        $.post( "/oneUp/instructors/ReorderActivities", {activityIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
+                          console.log(data)
+                        });
+
+                        }
+                        });
+                      });
+                    </script>
                </div>
               
                
                {% endfor %}
                </ul>
+               <script>
+                $( function() {
+                  $( "#sortableCats" ).sortable({
+
+                    stop: function(event, ui) {
+
+                    var itemOrder = $('#sortableCats').sortable("toArray");
+
+                    var idsPositions = []
+
+                    for (var i = 0; i < itemOrder.length; i++) {
+                      if (itemOrder[i]){
+                        console.log("Position: " + i + " ID: " + itemOrder[i]);
+                        idsPositions.push(String(itemOrder[i])+"---"+String(i));
+                      }
+                    }
+
+                    var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+                    console.log(idsPositions)
+
+                    $.post( "/oneUp/instructors/ReorderCategories", {catIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
+                      console.log(data)
+                    });
+
+                    }
+                    });
+                  });
+                </script>
                <div class="card-action right-align">   
                      <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome?userID={{user}}"><i class="material-icons left">navigate_before</i>Back</a>
                      
@@ -138,7 +214,6 @@
             
          </div>
          </div>
-         </form>
   </main>
   {% include 'footer.html' %}
 </body>

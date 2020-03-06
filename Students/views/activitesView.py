@@ -43,13 +43,10 @@ def ActivityList(request):
         ulockingDescript = []
 
         studentId = context_dict['student']  # get student
-        categories = ActivitiesCategory.objects.filter(courseID=current_course)
-        categories_l = []
-        if categories:
-            categories_l = list(categories)[1:] + \
-                list(categories)[0:1]
+        categories = ActivitiesCategory.objects.filter(
+            courseID=current_course).order_by('catPosition')
 
-        for cat in categories_l:
+        for cat in categories:
             cats.append(cat)
 
         # Displaying the list of challenges from database
@@ -65,7 +62,7 @@ def ActivityList(request):
             else:
                 context_dict['currentCat'] = "all"
 
-        for category in categories_l:
+        for category in categories:
             print("cat name")
             print(category.name)
             cat_activities = category_activities(

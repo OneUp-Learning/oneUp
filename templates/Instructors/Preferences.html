@@ -550,19 +550,18 @@
                                         <span class="lever secondary-content"></span>
                                     </label>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="switch col s12">
-                                    <label>
-                                        Enable student to call out classmates after solving a <br />warmup correctly on
-                                        the first attempt
-                                        {% if calloutAfterWarmup %}
-                                        <input name="calloutAfterWarmup" type="checkbox" checked>
-                                        {% else %}
-                                        <input name="calloutAfterWarmup" type="checkbox">
-                                        {% endif %}
-                                        <span class="lever secondary-content"></span>
-                                    </label>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Call out after solving a warmup correctly on the first attempt
+                                            {% if calloutAfterWarmup %}
+                                            <input name="calloutAfterWarmup" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="calloutAfterWarmup" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">

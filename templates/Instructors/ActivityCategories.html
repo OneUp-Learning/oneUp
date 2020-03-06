@@ -3,6 +3,7 @@
 
 <head>
     {% include 'scripts.html' %}
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <body>
@@ -15,39 +16,87 @@
         </div>
         <div class="row right-align">
             <div class="col s12 m10 offset-m1">
-                <a class="waves-effect waves-light btn" href="/oneUp/instructors/activityCatsCreate"><i class="material-icons left">create_new_folder</i>Add
-                    New Category</a>
+
+                <a class="modal-trigger waves-effect waves-light btn" href="#modal-create-cat">
+						<i class="modal-trigger material-icons left">add_circle</i>Add A Category</a>
+                  <div id="modal-create-cat" class="modal">
+                     <div class="modal-content">
+                        <div class="row center-align">
+                           <form name="question" action="/oneUp/instructors/activityCatsCreate" method="POST">
+                              {% csrf_token %}
+                              <div>
+                                 <h4>Create a category</h4>
+                              </div>
+                              <div class="row center-align" style="margin-top: 50px;">
+                                <label class="left" for="cat_name"><span class="red-text">*</span> Category Name</label>
+                                 <input placeholder="Name" value="{{catName}}" name="catName" id="cat_name" type="text" class="validate" pattern=".*\S+.*" required>
+                              </div>
+                              <div class="row center-align">
+                                <label class="left" for="xp_weight_multiplier"> <span class="red-text">*</span>Category XP Weight (to be used in calculating XP for activities of this category)</label>
+                                <input value="{{xpWeight}}" name="xpWeight" id="xp_weight_multiplier" maxlength="3" type="number" min="0" max="999" step="any" required>
+                              </div>
+                           
+                              <div class="modal-footer">
+                                 <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                 <button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
+                                 </button>
+                              </div>
+                           </form>
+                        </div>
+                     </div>
+                  </div>
             </div>
         </div>
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <div class="card-panel">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Category Name</th>
-                                <th>Category XP Weight</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for cat in cats %}
-                            <tr>
-                                <td>{{cat.name}}</td>
-                                <td>{{cat.xpWeight}}</td>
-                                <td>
+                    <ul id="sortableCats" class="collapsible" >
+                        {% for cat in cats %}
+                            <li id="{{cat.categoryID}}">
+                                <div class="collapsible-header">  <i class="material-icons">reorder</i>{{cat.name}}
+                                <span class="badge">{{cat.xpWeight}} XP Weight</span>
+                                <span class="badge right-align">
                                     <a class="dropdown-button tooltipped secondary-content" href="#!"
-                                        data-constrainwidth="false" data-beloworigin="true" data-activates='{{cat.categoryID}}'
+                                        data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{cat.categoryID}}'
                                         data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>
-                                    <form action="/oneUp/instructors/activityCatsDelete" method="POST">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="catID" value="{{cat.categoryID}}">
-                                        <ul id='{{cat.categoryID}}' class='dropdown-content'>
-                                            <li><a href="/oneUp/instructors/activityCatsCreate?catID={{cat.categoryID}}"><i
-                                                        class="material-icons">edit</i>Edit</a></li>
+                                        <ul id='dropdown-{{cat.categoryID}}' class='dropdown-content'>
+                                            <li><a class="modal-trigger" href="#modal-edit-cat-{{cat.categoryID}}">Edit</a></li>
+                                        
                                             <li class="divider"></li>
                                             <li><a class="modal-trigger" href="#modal_delete{{cat.categoryID}}">Delete</a></li>
                                         </ul>
+                                             <div id="modal-edit-cat-{{cat.categoryID}}" class="modal">
+                                                <div class="modal-content">
+                                                    <div class="row center-align">
+                                                    <form name="question" action="/oneUp/instructors/activityCatsCreate" method="POST">
+                                                        {% csrf_token %}
+                                                        <div>
+                                                            <h4>Create a category</h4>
+                                                        </div>
+                                                        <div class="row center-align" style="margin-top: 50px;">
+                                                            <input type="hidden" name="catID" id="{{cat.categoryID}}" value="{{cat.categoryID}}">
+                                                            <label class="left" for="cat_name"><span class="red-text">*</span> Category Name</label>
+                                                            <input placeholder="Name" value="{{cat.name}}" name="catName" id="cat_name" type="text" class="validate" pattern=".*\S+.*" required>
+                                                        </div>
+                                                        <div class="row center-align">
+                                                            <label class="left" for="xp_weight_multiplier"> <span class="red-text">*</span>Category XP Weight (to be used in calculating XP for activities of this category)</label>
+                                                            <input value="{{cat.xpWeight}}" name="xpWeight" id="xp_weight_multiplier" maxlength="3" type="number" min="0" max="999" step="any" required>
+                                                        </div>
+                                                    
+                                                        <div class="modal-footer">
+                                                            <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                                            <button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         <div id="modal_delete{{cat.categoryID}}" class="modal">
+                                            <form action="/oneUp/instructors/activityCatsDelete" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="catID" value="{{cat.categoryID}}">
                                             <div class="modal-content">
                                                 <h5>Are you sure you want to delete?</h5>
                                             </div>
@@ -58,20 +107,48 @@
                                                     type="submit" name="submit" value="Delete">Delete
                                                 </button>
                                             </div>
+                                            </form>
                                         </div>
-                                    </form>
-                                </td>
-                            </tr>
+                                    </span>
+                                </div>
+                            </li>
                             {% empty %}
-                            <tr>
-                                <td class="center-align" colspan="4"><i>No Categories Created</i></td>
-                            </tr>
+                            <li>
+                                <div class="center-align" colspan="4"><i>No Categories Created</i></div>
+                            </li>
                             {% endfor %}
-                        </tbody>
-                    </table>
+                        </ul>
+                       <script>
+                        $( function() {
+                        $( "#sortableCats" ).sortable({
+
+                            stop: function(event, ui) {
+
+                            var itemOrder = $('#sortableCats').sortable("toArray");
+
+                            var idsPositions = []
+
+                            for (var i = 0; i < itemOrder.length; i++) {
+                            if (itemOrder[i]){
+                                console.log("Position: " + i + " ID: " + itemOrder[i]);
+                                idsPositions.push(String(itemOrder[i])+"---"+String(i));
+                            }
+                            }
+
+                            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+                            console.log(idsPositions)
+
+                            $.post( "/oneUp/instructors/ReorderCategories", {catIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
+                            console.log(data)
+                            });
+
+                            }
+                            });
+                        });
+                        </script>
                 </div>
             </div>
-        </div>
         </div>
     </main>
     {% include 'footer.html' %}
