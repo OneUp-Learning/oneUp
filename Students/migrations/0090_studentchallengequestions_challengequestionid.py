@@ -8,7 +8,11 @@ def migrate_student_challenge_questions(apps, schema_editor):
     StudentChallengeQuestions = apps.get_model("Students","StudentChallengeQuestions")
     ChallengesQuestions = apps.get_model("Instructors","ChallengesQuestions")
 
-    defaultCQ = ChallengesQuestions.objects.all()[0]
+    defaultCQ = ChallengesQuestions.objects.all()
+    if defaultCQ.exists():
+        defaultCQ = defaultCQ[0]
+    else:
+        return
     student_challenge_questions = StudentChallengeQuestions.objects.all()
     for student_challenge_question in student_challenge_questions:
         challenge_question = ChallengesQuestions.objects.filter(challengeID=student_challenge_question.studentChallengeID.challengeID, questionID=student_challenge_question.questionID)

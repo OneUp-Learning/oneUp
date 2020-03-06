@@ -16,9 +16,13 @@ import _cffi_backend
 from _datetime import datetime
 from dateutil.utils import today
 from billiard.connection import CHALLENGE
-from oneUp.logger import logger
 
 from django.conf import settings
+
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 LOCK_EXPIRE = 60 * 5 # lock expire in 5 minutes
@@ -79,6 +83,22 @@ def setup_periodic_variable(unique_id, unique_str, variable_index, course, perio
         crontab=TimePeriods.timePeriods[period_index]['schedule'],
     )
     return periodic_task
+
+def get_periodic_variable_results_for_student(variable_index, period_index, course_id, student):
+    ''' This function will get any periodic variable results without the use of celery.
+        The time period is used for how many days/minutes to go back from now.
+        Ex. Time Period: Weekly - Return results within 7 days ago
+        
+        Returns list of tuples: [(student, value), (student, value),...]
+    '''
+    from Students.models import StudentRegisteredCourses
+    periodic_variable = PeriodicVariables.periodicVariables[variable_index]
+    time_period = TimePeriods.timePeriods[period_index]
+    # Get the course object and periodic variable
+    course = get_course(course_id)
+    # Evaluate student based on periodic variable function
+    return periodic_variable['function'](course, student, periodic_variable, time_period, result_only=True)
+
 def get_periodic_variable_results(variable_index, period_index, course_id):
     ''' This function will get any periodic variable results without the use of celery.
         The time period is used for how many days/minutes to go back from now.
@@ -96,7 +116,7 @@ def get_periodic_variable_results(variable_index, period_index, course_id):
     rank = []
     # Evaluate each student based on periodic variable function
     for student_in_course in students:
-        rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, result_only=True))
+        rank.append(get_periodic_variable_results_for_student(variable_index, period_index, course_id, student_in_course.studentID))
     return rank
 
 def delete_periodic_task(unique_id, variable_index, award_type, course):
@@ -187,39 +207,16 @@ def periodic_task(unique_id, variable_index, course_id, period_index, number_of_
     
     
     time_range = time_period['datetime']()
-
+    
     # Double check if the time period is of beginning_of_time. There should be no log for this type
     if not time_range is None and last_ran:
         # If not, call periodic_task with parameters (entry log will get updated by this call, hopefully)
         if last_ran.replace(microsecond=0, second=0) > time_range.replace(microsecond=0, second=0):
+            print(f"Now: {timezone.now()}")
+            print(f"Last: {last_ran.replace(microsecond=0, second=0)}")
+            print(f"Max for Last: {time_range.replace(microsecond=0, second=0)}")
             print("SKIP PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
             return
-   
-    # total_runs = periodic_task.total_run_count
-    # print("TOTAL RUNS {} ({})".format(total_runs, task_id))
-    # # Handle beginning of time period
-    # if time_period == TimePeriods.timePeriods[TimePeriods.beginning_of_time]:
-    #     # If it has ran once then return and set it not to run anymore
-    #     if total_runs >= 1:
-    #         periodic_task.enabled = False
-    #         periodic_task.save()
-    #         PeriodicTasks.changed(periodic_task)
-    #         print("END COMPLETE PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
-    #         return
-
-    # Check for frequency to see handle every N days/month/week etc
-    # ex. biweekly
-    # (day 1) total_runs = 0 , frequency = 2, task will run
-    # (day 7) total_runs = 1 , frequency = 2, task will not run
-    # (day 14) total_runs = 2 , frequency = 2, task will run
-    # ...
-    
-    # if total_runs % time_period['frequency'] != 0:
-    #     print("SKIP PV - {} - {} - {}".format(task_id, time_period['name'], course.courseName))
-    #     periodic_task.total_run_count += 1
-    #     periodic_task.save()
-    #     PeriodicTasks.changed(periodic_task)
-    #     return
 
     # Get all the students in this course, exclude test student
     students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
@@ -279,6 +276,7 @@ def update_celery_log_entry(task_id, parameters):
         celery_log_entry.taskID = task_id
 
     celery_log_entry.parameters = json.dumps(parameters)
+    celery_log_entry.timestamp = timezone.now()
     celery_log_entry.save()
 
 def filter_students(students, number_of_top_students, threshold, operator_type, is_random):
@@ -786,6 +784,7 @@ def streakProvider(unique_id, course, student, streakTypeNum):
         studentStreak.streakType = streakTypeNum
         studentStreak.objectID = unique_id
         studentStreak.currentStudentStreakLength = 0
+        studentStreak.save()
     return studentStreak
 
 def calculate_student_attendance_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
@@ -795,7 +794,7 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     #should be set before the start of a week, week defined as 7 days. 
     from Students.models import StudentStreaks, StudentAttendance
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, CourseConfigParams
-    from Instructors.models import AttendanceStreakConfiguration
+    from Badges.models import AttendanceStreakConfiguration
     from datetime import datetime, timedelta
     import ast
             
@@ -926,23 +925,23 @@ def calculate_student_xp_rankings(course, student, periodic_variable, time_perio
     return (student, xp)
     
 def calculate_warmup_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=True, gradeSerious=False, gradeActivity=False, gradeSkills=True)
+    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeSerious=False, gradeActivity=False)
     xp = result['xp']
     return (student, xp)
     
 def calculate_serious_challenge_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=True, gradeActivity=False, gradeSkills=True)
+    result = studentScore(student, course, unique_id, last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeActivity=False)
     xp = result['xp']
     return (student, xp)
     
 def calculate_serious_challenge_and_activity_rankings(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
-    result = studentScore(student, course, unique_id , last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False, gradeActivity=True, gradeSkills=True)
+    result = studentScore(student, course, unique_id , last_ran=last_ran, result_only=result_only, gradeWarmup=False, gradeSerious=False)
     xp = result['xp']
     return (student, xp)
 
 def calculate_student_challenge_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type="leaderboard", result_only=False):
     print("Calculating student challenge streak") 
-    from Students.models import StudentStreaks, StudentChallenges
+    from Students.models import StudentStreaks, StudentChallenges, StudentRegisteredCourses
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
     from datetime import datetime
 
@@ -953,6 +952,7 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
         else:
             last_ran = None
            
+    print(last_ran)
     threshold = 0
     resetStreak = False 
     streakTypeNum = None
@@ -976,13 +976,16 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     # Cases when threshold is passed as max or avg or as number
     # Need to calculate the avg of all students totals and find max of all students
 
-    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
+    students = StudentRegisteredCourses.objects.filter(courseID=course.courseID, studentID__isTestStudent=False)
     max_total = 0
     avg_total = 0
     for s in students:
         stud = s.studentID
         total = 0
-        challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+        if last_ran:
+            challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+        else:
+            challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID))
         #figure out how many challenges have been completed by the student
         if StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud, streakType=0).exists():
             streak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud)[0]
@@ -1030,6 +1033,13 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     elif student_total == threshold and not resetStreak:
         student_total = threshold
         
+    # Check if required values are None. see https://stackoverflow.com/questions/9991708/django-south-migration-doesnt-set-default
+    if studentStreak.streakType is None:
+        studentStreak.streakType = 0
+    if studentStreak.objectID is None:
+        studentStreak.objectID = 0
+    if studentStreak.currentStudentStreakLength is None:
+        studentStreak.currentStudentStreakLength = 0
     studentStreak.save()
     
     print("Course: {}".format(course))
@@ -1189,13 +1199,12 @@ def calculate_warmup_challenge_greater_or_equal_to_70(course, student, periodic_
 def calculate_warmup_challenge_greater_or_equal_to_40(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
     return calculate_student_challenge_streak_for_percentage(40,course, student, periodic_variable, time_period, last_ran, unique_id, award_type, result_only)
 
-def studentScore(studentId, course, unique_id, result_only=False, last_ran=None, gradeWarmup=False, gradeSerious=False, gradeActivity=False, gradeSkills=False):
+def studentScore(for_student, course, unique_id, result_only=False, last_ran=None, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True, for_class=False):
     
     from Badges.models import CourseConfigParams, LeaderboardsConfig
     from Instructors.models import Challenges, Activities, CoursesSkills, Skills, ActivitiesCategory
     from Instructors.constants import uncategorized_activity
-    from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills
-    from Students.views import classResults
+    from Students.models import StudentChallenges, StudentActivities, StudentCourseSkills, StudentRegisteredCourses
 
     result = {}
 
@@ -1231,7 +1240,7 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
     
     
     # print("Course: {}".format(course))
-    # print("Student: {}".format(studentId))
+    # print("Student: {}".format(for_student))
     
     # Specify if the xp should be calculated based on max score or first attempt
     xpSeriousMaxScore = True 
@@ -1248,61 +1257,78 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
 
         if cparams.classmatesChallenges:
             challengeClassmates = True
+    
+    if for_class:
+        students = StudentRegisteredCourses.objects.filter(courseID= course, studentID__isTestStudent=False)
+    else:
+        students = StudentRegisteredCourses.objects.filter(courseID= course, studentID=for_student)
        
     if gradeSerious:
         # SERIOUS CHALLENGES
         # Get the earned points
         earnedSeriousChallengePoints = 0 
+        totalPointsSeriousChallenges = 0
         
         chall_name = []
         score = []
         total = []
         challavg = []
 
-        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition').only('challengeID', 'challengeName')
+        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition').values('challengeID', 'challengeName', 'totalScore', 'manuallyGradedScore')
         for challenge in courseChallenges:
-            seriousChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-
-            if not startOfTime and seriousChallenge.exists():
-                seriousChallenge = seriousChallenge.filter(endTimestamp__gte=date_time)
-
-            # Ignore challenges that have invalid total scores
-            if seriousChallenge.exists() and seriousChallenge[0].challengeID.totalScore < 0:
-                continue
-            # Get the scores for this challenge then either add the max score
-            # or the first score to the earned points variable
-            gradeID  = []    
-            for serious in seriousChallenge:
-                gradeID.append(float(serious.getScoreWithBonus())) # get the score + adjustment + bonus
-
-            if xpSeriousMaxScore and gradeID:                           
-                earnedSeriousChallengePoints += max(gradeID)           
-            elif gradeID:
-                earnedSeriousChallengePoints += float(seriousChallenge.first().getScoreWithBonus())
-
-            # Setup data for rendering this challenge in html (bar graph stuff)
-            if gradeID:
-                chall_name.append(challenge.challengeName)
-                challavg.append(classResults.classAverChallengeScore(
-                        course, challenge.challengeID))
-
-                if seriousChallenge.exists() and gradeID:
-                    if xpSeriousMaxScore:
-                        score.append(max(gradeID))
-                    else:
-                        score.append(gradeID[0])
-                    # Total possible points for challenge
-                    total.append(float(seriousChallenge[0].challengeID.getCombinedScore()))
+            count = 0
+            classAvgChallengeScore = 0
+            for student in students:
+                if not startOfTime:
+                    seriousChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID'], endTimestamp__gte=date_time).order_by('studentChallengeID')
                 else:
-                    score.append(0)
-                    total.append(0)
+                    seriousChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID']).order_by('studentChallengeID')
+
+                # Ignore challenges that have invalid total scores
+                if seriousChallengeAttempts.exists() and challenge['totalScore'] < 0:
+                    continue
+
+                # Get the scores for this challenge then either add the max score
+                # or the first score to the earned points variable
+                max_score = 0
+                max_basic_score = 0
+                first_attempt = -1
+                for attempt in seriousChallengeAttempts:
+                    value = float(attempt.getScoreWithBonus())
+                    if first_attempt == -1:
+                        first_attempt = value
+
+                    max_score = max(max_score, value)
+                    max_basic_score = max(max_basic_score, float(attempt.getScore()))
+
+                # Setup data for rendering this challenge in html (bar graph stuff)
+                if first_attempt != -1:
+                    count += 1
+                    classAvgChallengeScore += max_basic_score
+
+                    if xpSeriousMaxScore:                           
+                        earnedSeriousChallengePoints += max_score   
+                        score.append(max_score)        
+                    else:
+                        earnedSeriousChallengePoints += first_attempt
+                        score.append(first_attempt)
+
+                    chall_name.append(challenge['challengeName'])
+                        
+                    # Total possible points for challenge
+                    combined_score = challenge['totalScore'] + challenge['manuallyGradedScore']
+                    totalPointsSeriousChallenges += float(combined_score) if combined_score > 0 else 1
+             
+            if count > 0:
+                classAvgChallengeScore = classAvgChallengeScore/count
+                for _ in range(count):
+                    challavg.append(classAvgChallengeScore)
         
         # Weighting the total serious challenge points to be used in calculation of the XP Points  
         weightedSeriousChallengePoints = earnedSeriousChallengePoints * xpWeightSChallenge / 100
-        logger.debug(f"total score points serious {weightedSeriousChallengePoints}")
+        # logger.debug(f"total score points serious {weightedSeriousChallengePoints}")
         
         
-        totalPointsSeriousChallenges = sum(total)
         result['challenge_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total))
         result['challengeWithAverage_range'] = list(zip(range(1, len(chall_name)+1), chall_name, score, total, challavg))
 
@@ -1315,6 +1341,8 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         # WARMUP CHALLENGES
         # Get the earned points
         earnedWarmupChallengePoints = 0 
+        totalWCPossiblePoints = 0
+        totalWCEarnedPoints = 0
 
         chall_Name = []
         total = []
@@ -1324,54 +1352,56 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         warmUpSumScore = []
         warmUpSumPossibleScore = []
         
-        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False).only('challengeID', 'challengeName')
+        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=False).values('challengeID', 'challengeName', 'totalScore', 'manuallyGradedScore')
         for challenge in courseChallenges:
-            
-            warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-
-            if not startOfTime and warmupChallenge.exists():
-                warmupChallenge = warmupChallenge.filter(endTimestamp__gte=date_time)
-
-            # Ignore challenges that have invalid total scores
-            if warmupChallenge.exists() and warmupChallenge[0].challengeID.totalScore < 0:
-                continue
-
-            # Get the scores for this challenge then either add the max score
-            # or the first score to the earned points variable
-            gradeID  = []         
-            for warmup in warmupChallenge:
-                gradeID.append(float(warmup.testScore))   
-
-            if xpWarmupMaxScore and gradeID:                          
-                earnedWarmupChallengePoints += max(gradeID)
-            elif gradeID:
-                earnedWarmupChallengePoints += float(warmupChallenge.first().testScore)
-
-            # Setup data for rendering this challenge in html (bar graph stuff)
-            if warmupChallenge.exists():
-                chall_Name.append(challenge.challengeName)
-                # total possible points for challenge
-                total.append(warmupChallenge[0].challengeID.totalScore)
-                noOfAttempts.append(warmupChallenge.count())
-                # Total possible points for all attempts for this challenge
-                warmUpSumPossibleScore.append(warmupChallenge[0].challengeID.totalScore*warmupChallenge.count())
-                
-                if gradeID:
-                    warmUpMaxScore.append(max(gradeID))
-                    warmUpMinScore.append(min(gradeID))
-                    warmUpSumScore.append(sum(gradeID))
+            for student in students:
+                if not startOfTime and warmupChallenge.exists():
+                    warmupChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID'], endTimestamp__gte=date_time)
                 else:
-                    warmUpMaxScore.append(0)
-                    warmUpMinScore.append(0)
-                    warmUpSumScore.append(0)
+                    warmupChallengeAttempts = StudentChallenges.objects.filter(studentID=student.studentID, courseID=course,challengeID=challenge['challengeID'])
+
+                # Ignore challenges that have invalid total scores
+                if warmupChallengeAttempts.exists() and challenge['totalScore'] < 0:
+                    continue
+
+                # Get the scores for this challenge then either add the max score
+                # or the first score to the earned points variable
+                scores = []
+                first_attempt = -1
+
+                for attempt in warmupChallengeAttempts:
+                    value = float(attempt.testScore)
+                    if first_attempt == -1:
+                        first_attempt = value
+
+                    scores.append(value)
+
+                # Setup data for rendering this challenge in html (bar graph stuff)
+                if first_attempt != -1:
+                    max_score = max(scores)
+
+                    if xpWarmupMaxScore:                          
+                        earnedWarmupChallengePoints += max_score
+                    else:
+                        earnedWarmupChallengePoints += first_attempt
+
+                    chall_Name.append(challenge['challengeName'])
+                    # total possible points for challenge
+                    total.append(challenge['totalScore'])
+                    warmup_attempts_count = warmupChallengeAttempts.count()
+                    noOfAttempts.append(warmup_attempts_count)
+                    # Total possible points for all attempts for this challenge
+                    warmUpSumPossibleScore.append(challenge['totalScore'] * warmup_attempts_count)
+                    totalWCPossiblePoints += challenge['totalScore'] * warmup_attempts_count
+                    
+                    warmUpMaxScore.append(max_score)
+                    warmUpMinScore.append(min(scores))
+                    totalWCEarnedPoints += sum(scores)
                 
         # Weighting the total warmup challenge points to be used in calculation of the XP Points  
         weightedWarmupChallengePoints = earnedWarmupChallengePoints * xpWeightWChallenge / 100      # max grade for this challenge
-        # print("points warmup chal xp weighted", weightedWarmupChallengePoints) 
 
         
-        totalWCEarnedPoints = sum(warmUpSumScore)
-        totalWCPossiblePoints = sum(warmUpSumPossibleScore)
         result['warmUpContainerHeight'] = 100+60*len(chall_Name)
         result['studentWarmUpChallenges_range'] = list(zip(range(1, len(
             chall_Name)+1), chall_Name, total, noOfAttempts, warmUpMaxScore, warmUpMinScore))
@@ -1385,35 +1415,29 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
         # ACTIVITIES
         # Get the earned points
         earnedActivityPoints = 0
-        total = []
+        totalPointsActivities = 0
 
-        courseActivities = Activities.objects.filter(courseID=course, isGraded=True).only('activityID')
+        courseActivities = Activities.objects.filter(courseID=course, isGraded=True).values('activityID', 'points', 'category__xpWeight', 'category__name')
         for activity in courseActivities:
-            studentActivities = StudentActivities.objects.filter(studentID=studentId, courseID=course,activityID=activity)
-            if not startOfTime and studentActivities.exists():
-                studentActivities = studentActivities.filter(timestamp=date_time)
-            
-            xpWeightCategory = 1
-            if activity.category.name != uncategorized_activity:
-                xpWeightCategory = activity.category.xpWeight
-            # Get the scores for this challenge then add the max score
-            # to the earned points variable
-            gradeID  = []                            
-            for studentActivity in studentActivities:
-                gradeID.append(float(studentActivity.getScoreWithBonus())) 
-                                
-            if gradeID:
-                earnedActivityPoints += max(gradeID) * float(xpWeightCategory)
+            for student in students:
+                if not startOfTime:
+                    studentActivity = StudentActivities.objects.filter(studentID=student.studentID, courseID=course, activityID=activity['activityID'], timestamp__gte=date_time)
+                else:
+                    studentActivity = StudentActivities.objects.filter(studentID=student.studentID, courseID=course, activityID=activity['activityID'])
+                
+                if studentActivity.exists():
+                    xpWeightCategory = 1
+                    if activity['category__name'] != uncategorized_activity:
+                        xpWeightCategory = float(activity['category__xpWeight'])
 
-            if studentActivities.exists():
-                total.append(float(studentActivities[0].activityID.points))
+                    # Get the scores for this challenge then add the max score
+                    # to the earned points variable
+                    score = float(studentActivity.first().getScoreWithBonus())
+                    earnedActivityPoints += score * xpWeightCategory
+                    totalPointsActivities += float(activity['points'])
 
         # Weighting the total activity points to be used in calculation of the XP Points  
         weightedActivityPoints = earnedActivityPoints * xpWeightAPoints / 100
-        totalPointsActivities = sum(total)
-        # print("activity points earned", earnedActivityPoints)
-        # print("activity points total weighted", weightedActivityPoints)
-        # print("activity points total", totalPointsActivities)
        
         result['weightedActivityPoints'] = weightedActivityPoints
         result['earnedActivityPoints'] = earnedActivityPoints
@@ -1433,27 +1457,31 @@ def studentScore(studentId, course, unique_id, result_only=False, last_ran=None,
             
             skill = Skills.objects.get(skillID=sk.skillID.skillID)
             skill_Name.append(skill.skillName)
+            userCount = 0
+            classAvgSkill = 0
             
-            sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId,skillID = skill)
-            # print ("Skill Points Records", sp)
-            
-            if not sp.exists():  
-                skill_Points.append(0)                     
-            else:    
-                # Get the scores for this challenge then add the max score
-                # to the earned points variable               
-                gradeID  = []
+            for student in students:
+                sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=student.studentID,skillID = skill)
+                # print ("Skill Points Records", sp)
                 
-                for p in sp:
-                    gradeID.append(int(p.skillPoints))
-                    print("skillPoints", p.skillPoints)   
-                
-                sumSkillPoints = sum(gradeID,0)                
-                earnedSkillPoints += sumSkillPoints
+                if not sp.exists():  
+                    skill_Points.append(0)                     
+                else:    
+                    # Get the scores for this challenge then add the max score
+                    # to the earned points variable                 
+                    score = 0
+                    for p in sp:
+                        score += int(p.skillPoints)
+                    
+                    earnedSkillPoints += score
 
-                skill_Points.append(sumSkillPoints)
-                skill_ClassAvg.append(classResults.skillClassAvg(
-                    skill.skillID, course))
+                    skill_Points.append(score)
+                    userCount += 1
+            
+            if userCount > 0:
+                classAvgSkill = earnedSkillPoints/userCount
+                for _ in range(userCount):
+                    skill_ClassAvg.append(classAvgSkill)
         
         result['skill_range'] = list(
             zip(range(1, len(skill_Name)+1), skill_Name, skill_Points))
@@ -1515,8 +1543,7 @@ def get_or_create_schedule(minute='*', hour='*', day_of_week='*', day_of_month='
 class TimePeriods:
     ''' TimePeriods enum starting at 1500.
         schedule: crontab of when to run
-        datetime: used for results only to look back a time period
-        frequency: rate at which to run the task. ex. frequency 2 (daily) will run every other day
+        datetime: used for range when task should run only once
     '''
     daily = 1500 # Runs every day at midnight
     weekly = 1501 # Runs every Sunday at midnight
@@ -1533,7 +1560,6 @@ class TimePeriods:
                         minute='59', hour='23', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.now() - timedelta(days=1),
-            'frequency': 1,
         },
         weekly:{
             'index': weekly,
@@ -1541,7 +1567,6 @@ class TimePeriods:
             'displayName': 'Weekly on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="59", hour="23", day_of_week='0'),
             'datetime': lambda: timezone.now() - timedelta(days=7),
-            'frequency': 1,
         },
         biweekly:{
             'index': biweekly,
@@ -1549,7 +1574,6 @@ class TimePeriods:
             'displayName': 'Every Two Weeks on Sundays at Midnight',
             'schedule': get_or_create_schedule(minute="59", hour="23", day_of_week='0'),
             'datetime': lambda: timezone.now() - timedelta(days=14),
-            'frequency': 2,
         },
         beginning_of_time:{
             'index': beginning_of_time,
@@ -1557,7 +1581,6 @@ class TimePeriods:
             'displayName': 'Only once at Midnight',
             'schedule': get_or_create_schedule(minute="59", hour="23"),
             'datetime': lambda: None,
-            'frequency': 1,
         }
     }
     if __debug__:
@@ -1569,7 +1592,6 @@ class TimePeriods:
                         minute='59', hour='23', day_of_week='*', 
                         day_of_month='*', month_of_year='*'),
             'datetime': lambda: timezone.now() - timedelta(days=2),
-            'frequency': 2,
         }
         timePeriods[minute_test] = {
             'index': minute_test,
@@ -1578,7 +1600,6 @@ class TimePeriods:
             'schedule': get_or_create_schedule(
                         minute='*'),
             'datetime': lambda: timezone.now() - timedelta(minutes=2),
-            'frequency': 1,
         }
 class PeriodicVariables:
     '''PeriodicVariables enum starting at 1400.'''

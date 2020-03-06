@@ -49,8 +49,8 @@ from Instructors.views.instructorQA import instructorQA
 from Instructors.views.instructorNotifications import instructorNotifications, updateNotificationTable
 
 from Instructors.views.matchingView import matchingForm
-from Instructors.views.milestoneCreateView import milestoneCreateView
-from Instructors.views.milestoneListView import milestoneList
+#from Instructors.views.milestoneCreateView import milestoneCreateView
+#from Instructors.views.milestoneListView import milestoneList
 from Instructors.views.multipleAnswersView import multipleAnswersForm
 from Instructors.views.multipleChoiceView import multipleChoiceForm
 from Instructors.views.parsonsView import parsonsForm
@@ -94,6 +94,8 @@ from Instructors.views.DuelReportView import duel_report, duel_challenge_report
 from Instructors.views.CalloutReportView import callout_report, callout_challenge_report
 
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
+
+from Instructors.views.reorderViews import reorderTopics, reorderChalls
 admin.autodiscover()
 urlpatterns = [
 
@@ -133,7 +135,7 @@ urlpatterns = [
         name='validateCourseExport'),
     url(r'^importCourse', importCourse, name='importCourse'),
     url(r'^courseInformation', courseInformation, name='courseInformation'),
-    url(r'^createMilestone', milestoneCreateView, name='milestoneCreateView'),
+    #url(r'^createMilestone', milestoneCreateView, name='milestoneCreateView'),
     url(r'^createStudentList', createStudentListView,
         name='createStudentListView'),
     url(r'^createStudent', createStudentViewUnchecked, name='createStudentView'),
@@ -174,12 +176,13 @@ urlpatterns = [
     url(r'^imageUpload', imageUpload, name='imageUpload'),
     url(r'^importChallenges', importChallenges, name='importChallenges'),
     url(r'^importStudents', importStudents, name='importStudents'),
-    url(r'^saveImportStudentsPasswords', saveImportStudentsPasswords, name='saveImportStudentsPasswords'),
+    url(r'^saveImportStudentsPasswords', saveImportStudentsPasswords,
+        name='saveImportStudentsPasswords'),
     url(r'^instructorCourseHome', instructorCourseHome,
         name='instructorCourseHome'),
     url(r'^instructorHome', instructorHome, name='instructorHome'),
     url(r'^instructorQA', instructorQA, name='instructorQA'),
-    url(r'^milestonesList', milestoneList, name='milestoneList'),
+    #url(r'^milestonesList', milestoneList, name='milestoneList'),
     url(r'^NotificationPage', instructorNotifications,
         name='instructorNotifications'),
     url(r'^NotificationPageUpdate', updateNotificationTable,
@@ -239,4 +242,6 @@ urlpatterns = [
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
+    url(r'^ReorderTopics', reorderTopics, name="reorderTopics"),
+    url(r'^ReorderChalls', reorderChalls, name="reorderChalls"),
 ]
