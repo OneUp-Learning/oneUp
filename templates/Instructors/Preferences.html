@@ -5,9 +5,11 @@
     {% include 'scripts.html' %}
     <style>
         .cards-container {
-            -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
-			page-break-inside: avoid; /* Firefox */
-			break-inside: avoid;
+            -webkit-column-break-inside: avoid;
+            /* Chrome, Safari, Opera */
+            page-break-inside: avoid;
+            /* Firefox */
+            break-inside: avoid;
             column-gap: 0;
         }
 
@@ -75,7 +77,7 @@
                         </div>
                     </div>
 
-                    <div class="col s12" 
+                    <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
@@ -95,9 +97,10 @@
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Total points on the Progress Bar</p>
                                         <input value="{{progressBarTotalPoints}}" name="progressBarTotalPoints"
-                                            id="progressBarTotalPoints" maxlength="3" type="number" min="0" max="999999">
-                                        <label for="progressBarTotalPoints">Total points on the Progress Bar</label>
+                                            id="progressBarTotalPoints" maxlength="3" type="number" min="0"
+                                            max="999999">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -138,7 +141,7 @@
                         </div>
                     </div>
 
-                    <div class="col s12" 
+                    <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
@@ -148,13 +151,15 @@
                                         <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
                                             id="displayStudentStartPageClass" value="False"
                                             {% if displayStudentStartPageSummary == False %} checked {%endif%} />
-                                        <label for="displayStudentStartPageClass">Display only class/group achievements</label>
+                                        <label for="displayStudentStartPageClass">Display only class/group
+                                            achievements</label>
                                     </p>
                                     <p>
                                         <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
                                             value="True" id="displayStudentStartPageSummary"
                                             {% if displayStudentStartPageSummary == True %} checked {%endif%} />
-                                        <label for="displayStudentStartPageSummary">Display summary of student achievements</label>
+                                        <label for="displayStudentStartPageSummary">Display summary of student
+                                            achievements</label>
                                     </p>
                                 </div>
                             </div>
@@ -183,39 +188,40 @@
                         </div>
                     </div>
 
-                    <div class="col s12" 
+                    <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
                                 <span class="card-title">Calculating Total XP Points</span>
                                 <div class="row">
                                     <div class="input-field col s10">
+                                        <p style="font-size: 0.8rem;">Weight of <i>serious challenge points (in %)</i>
+                                        </p>
                                         <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge"
                                             id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
-                                        <label for="s_challenge_weight">Weight of <i>serious challenge points (in %
-                                                )</i></label>
+
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Weight of <i>warmup challenge points (in % )</i>
+                                        </p>
                                         <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge"
                                             id="w_challenge_weight" maxlength="3" type="number" min="0" max="100">
-                                        <label for="w_challenge_weight">Weight of <i>warmup challenge points (in %
-                                                )</i></label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Weight of <i>skill points (in % )</i></p>
                                         <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight"
                                             maxlength="3" type="number" class="validate" min="0" max="100">
-                                        <label for="s_points_weight">Weight of <i>skill points (in % )</i></label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Weight of <i>activity points (in % )</i></p>
                                         <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight"
                                             maxlength="3" type="number" min="0" max="100">
-                                        <label for="a_points_weight">Weight of <i>activity points (in % )</i></label>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -280,6 +286,10 @@
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
                                         <label>
                                             Skill Leaderboard Displayed
                                             {% if skillLeaderboardDisplayed %}
@@ -290,20 +300,23 @@
                                             <span class="lever secondary-content"></span>
                                         </label>
                                     </div>
-                                    <div>
-                                        <div class="input-field col s12">
-                                            <input value="{{numStudentBestSkillsDisplayed}}"
-                                                name="numStudentBestSkillsDisplayed" id="skills_top_students"
-                                                maxlength="3" type="number" min="0" max="100" required>
-                                                <p>Number of top students displayed on skill leaderboard</p>
-                                        </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Number of top students displayed on skill
+                                            leaderboard</p>
+                                        <input value="{{numStudentBestSkillsDisplayed}}"
+                                            name="numStudentBestSkillsDisplayed" id="skills_top_students" maxlength="3"
+                                            type="number" min="0" max="100" required>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                
 
-  <!--moved to course config as 'attendance streaks'
+                <!--moved to course config as 'attendance streaks'
   				    <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -325,350 +338,351 @@
                             </div>
                         </div>
                     </div> -->
-                    
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Student Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change leaderboard visibility
-                                            {% if leaderboardUsed and studCanChangeLeaderboardVis %}
-                                            <input name="studCanChangeLeaderboardVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeLeaderboardVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Student Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change leaderboard visibility
+                                        {% if leaderboardUsed and studCanChangeLeaderboardVis %}
+                                        <input name="studCanChangeLeaderboardVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeLeaderboardVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change skill points visibility
-                                            {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
-                                            <input name="studCanChangeClassSkillsVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeClassSkillsVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change skill points visibility
+                                        {% if classSkillsDisplayed and studCanChangeClassSkillsVis %}
+                                        <input name="studCanChangeClassSkillsVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeClassSkillsVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change recent badge visibility
-                                            {% if badgesUsed and studCanChangeBadgeVis %}
-                                            <input name="studCanChangeBadgeVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeBadgeVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change recent badge visibility
+                                        {% if badgesUsed and studCanChangeBadgeVis %}
+                                        <input name="studCanChangeBadgeVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeBadgeVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Students can change class average visibility on achievement page
-                                            {% if classAverageUsed and studCanChangeclassAverageVis %}
-                                            <input name="studCanChangeclassAverageVis" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="studCanChangeclassAverageVis" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Students can change class average visibility on <br />achievement page
+                                        {% if classAverageUsed and studCanChangeclassAverageVis %}
+                                        <input name="studCanChangeclassAverageVis" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="studCanChangeclassAverageVis" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Display class average on student achievement page
-                                            {% if classAverageUsed %}
-                                            <input name="classAverageUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="classAverageUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Display class average on student achievement page
+                                        {% if classAverageUsed %}
+                                        <input name="classAverageUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="classAverageUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
-                    </div>  
+                    </div>
+                </div>
 
-                    <!-- <div class="col s12" style="height: 5px;"><br /></div> -->
+                <!-- <div class="col s12" style="height: 5px;"><br /></div> -->
 
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">XP Leaderboard</span>
-                                <div class="row">
-                                    <div class="input-field col s12">
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">XP Leaderboard</span>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <p style="font-size: 0.8rem;">Leaderboard Description</p>
                                     <input id="leaderboardDescription" value="{{leaderboardDescription}}"
                                         name="leaderboardDescription" type="text" class="validate">
-                                    <label for="leaderboardDescription"
-                                        >Leaderboard Description</label>
-                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <p style="font-size: 0.8rem;">Number of Students Shown</p>
+                                    <input id="studentsShown" value="{{numStudentsDisplayed}}"
+                                        name="numStudentsDisplayed" type="number" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Badges Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable the use of badges
+                                        {% if badgesUsed %}
+                                        <input name="badgesUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="badgesUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                    <input id="studentsShown" value="{{numStudentsDisplayed}}" name="numStudentsDisplayed" type="number" min="0">
-                                    <label for="studentsShown" >Number of Students Shown</label>
+                                        <p style="font-size: 0.8rem;">Number of recent badges to be displayed on the
+                                            leaderboard</p>
+                                        <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed"
+                                            id="badges_recent" maxlength="3" type="number" min="0" max="100" required>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Badges Configuration</span>
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Thresholds for Challenge Difficulty</span>
+                            <div class="row">
                                 <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable the use of badges
-                                            {% if badgesUsed %}
-                                            <input name="badgesUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="badgesUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
+                                    <div class="col s12">
+                                        <p>From <i>easy</i> to <i>medium</i></p>
                                     </div>
-                                    <div class="row">
-                                        <div class="input-field col s12">
-                                            <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed"
-                                                id="badges_recent" maxlength="3" type="number" min="0" max="100"
-                                                required>
-                                            <label for="badges_recent">Number of recent badges to be displayed on the
-                                                leaderboard</label>
-                                        </div>
+                                </div>
+                                <div class="input-field col s12 inline">
+                                    <p style="font-size: 0.8rem;">Threshold</p>
+                                    <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium"
+                                        id="threshold_1" maxlength="3" type="number" min="0" max="100" required>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="row">
+                                    <div class="col s12">
+                                        <p>From <i>medium</i> to <i>high</i></p>
                                     </div>
+                                </div>
+                                <div class="input-field col s12 inline">
+                                    <p style="font-size: 0.8rem;">Threshold</p>
+                                    <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty"
+                                        id="threshold_2" maxlength="3" type="number" min="0" max="100" required>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Thresholds for Challenge Difficulty</span>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>From <i>easy</i> to <i>medium</i></p>
-                                        </div>
-                                    </div>
-                                    <div class="input-field col s12 inline">
+                </div>
 
-                                        <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium"
-                                            id="threshold_1" maxlength="3" type="number" min="0" max="100" required>
-
-                                        <label for="threshold_1">Threshold</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>From <i>medium</i> to <i>high</i></p>
-                                        </div>
-                                    </div>
-                                    <div class="input-field col s12 inline">
-                                        <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty"
-                                            id="threshold_2" maxlength="3" type="number" min="0" max="100" required>
-                                        <label for="threshold_2">Threshold</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>    
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Virtual Currency Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Virtual Currency
-                                            {% if virtualCurrencyUsed %}
-                                            <input name="virtualCurrencyUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="virtualCurrencyUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                    <div class="row">
-                                        <div class="input-field col s12">
-                                            <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3"
-                                                type="number" min="0" max="100" required>
-                                            <label for="vc_added">Increase the virtual currency of all students by
-                                                ($$)</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Classmates Challenges</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable the use of duels and call-outs
-                                            {% if classmatesChallenges %}
-                                            <input name="classmatesChallenges" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="classmatesChallenges" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable student to call out classmates after solving a warmup correctly on the first attempt
-                                            {% if calloutAfterWarmup %}
-                                            <input name="calloutAfterWarmup" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="calloutAfterWarmup" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Allow students to bet virtual currency in duels
-                                            {% if betVC %}
-                                            <input name="betVC" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="betVC" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Virtual Currency Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Virtual Currency
+                                        {% if virtualCurrencyUsed %}
+                                        <input name="virtualCurrencyUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="virtualCurrencyUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <input value="{{vc_duel}}" name="vc_duel" id="vc_duel" maxlength="7"
+                                        <p style="font-size: 0.8rem;">Increase the virtual currency of all students by
+                                            ($$)</p>
+                                        <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3"
                                             type="number" min="0" max="100" required>
-                                        <label for="vc_due">Amount of virtual currency rewarded to duel winners</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input value="{{vc_duel_participants}}" name="vc_duel_participants"
-                                            id="vc_duel_participants" maxlength="7" type="number" min="0" max="100"
-                                            required>
-                                        <label for="vc_due_participants">Amount of virtual currency rewarded to duel
-                                            participants</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input value="{{vc_duel_max_bet}}" name="vc_duel_max_bet" id="vc_duel_max_bet"
-                                            maxlength="7" type="number" min="0" max="100" required>
-                                        <label for="vc_duel_max_bet">Maximum amount of virtual currency allowed for
-                                            betting</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7"
-                                            type="number" min="0" max="100" required>
-                                        <label for="vc_callout">Amount of virtual currency rewarded to call-outs
-                                            participants</label>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Avatars Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable the use of Avatars
-                                            {% if avatarUsed %}
-                                            <input name="avatarUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="avatarUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Classmates Challenges</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable the use of duels and call-outs
+                                        {% if classmatesChallenges %}
+                                        <input name="classmatesChallenges" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="classmatesChallenges" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable student to call out classmates after solving a <br />warmup correctly on
+                                        the first attempt
+                                        {% if calloutAfterWarmup %}
+                                        <input name="calloutAfterWarmup" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="calloutAfterWarmup" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Allow students to bet virtual currency in duels
+                                        {% if betVC %}
+                                        <input name="betVC" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="betVC" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <p style="font-size: 0.8rem;">Amount of virtual currency rewarded to duel winners
+                                    </p>
+                                    <input value="{{vc_duel}}" name="vc_duel" id="vc_duel" maxlength="7" type="number"
+                                        min="0" max="100" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <p style="font-size: 0.8rem;">Amount of virtual currency rewarded to duel
+                                        participants</p>
+                                    <input value="{{vc_duel_participants}}" name="vc_duel_participants"
+                                        id="vc_duel_participants" maxlength="7" type="number" min="0" max="100"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <p style="font-size: 0.8rem;">Maximum amount of virtual currency allowed for
+                                        betting</p>
+                                    <input value="{{vc_duel_max_bet}}" name="vc_duel_max_bet" id="vc_duel_max_bet"
+                                        maxlength="7" type="number" min="0" max="100" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <p style="font-size: 0.8rem;">Amount of virtual currency rewarded to call-outs
+                                        participants</p>
+                                    <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7"
+                                        type="number" min="0" max="100" required>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-		    
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Content Unlocking</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                          Enable Content Unlocking Menu
-                                            {% if contentUnlockingDisplayed %}
-                                            <input name="contentUnlockingDisplayed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="contentUnlockingDisplayed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                </div>
+
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Avatars Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable the use of Avatars
+                                        {% if avatarUsed %}
+                                        <input name="avatarUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="avatarUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-		            <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Debug System Variables Displayed</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Display Menu to Debug System Variables
-                                            {% if debugSystemVariablesDisplayed %}
-                                            <input name="debugSystemVariablesDisplayed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="debugSystemVariablesDisplayed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Content Unlocking</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Content Unlocking Menu
+                                        {% if contentUnlockingDisplayed %}
+                                        <input name="contentUnlockingDisplayed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="contentUnlockingDisplayed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- <div class="col s12" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                <div class="col s12"
+                    style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Debug System Variables Displayed</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Display Menu to Debug System Variables
+                                        {% if debugSystemVariablesDisplayed %}
+                                        <input name="debugSystemVariablesDisplayed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="debugSystemVariablesDisplayed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="col s12" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                             <div class="card" style="transform: translateZ(0);">
                                 <div class="card-content">
                                     <span class="card-title">Leveling Configuration</span>
@@ -688,7 +702,7 @@
                                 </div>
                             </div>
                         </div> -->
-                </div>
+            </div>
             </div>
             <div class="row">
                 <div class="col s12 m6 offset-m6 right-align" style="padding-right: 1.50rem">
