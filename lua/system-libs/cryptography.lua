@@ -1,4 +1,8 @@
-local function charToAlphaIndex( chr )
+
+
+local crypto = {};
+
+crypto.letterToNum = function( chr )
   assert( type(chr)=="string", "bad argument #1 for 'index', number expected got "..type(chr))
   
   return function()
@@ -12,7 +16,7 @@ local function charToAlphaIndex( chr )
   end
 end
 
-local function numToLetter( ind )
+crypto.numToLetter = function( ind )
   assert( type(ind)=="number", "bad argument #1 for 'index', number expected got "..type(ind))
   
   return function()
@@ -26,13 +30,13 @@ local function numToLetter( ind )
   end
 end
 
-local function replaceInString(String) --> to Index then substitute, then to Letter
-  return function(f1, f2, subFunc)
+crypto.replaceInString = function(String) --> to Index then substitute, then to Letter
+  return function(subFunc)
     local rtn = "";
     
     for i = 1,String:len() do
       local currentChar = string.sub(String, i, i)
-      local newStr = f2(subFunc(f1(currentChar)))
+      local newStr = crypto.numToLetter(subFunc(crypto.letterToNum(currentChar)))
       
       rtn = rtn .. newStr;
     end
@@ -40,6 +44,7 @@ local function replaceInString(String) --> to Index then substitute, then to Let
   end
 end
 
+-- tableshift is meant to be used internally
 local function tableShift(t)
   return function(shiftAmt)
     if(shiftAmt > 0)then
