@@ -133,7 +133,7 @@ def templateDynamicQuestionForm(request):
                 # Delete challenge question (even duplicates)                     
                 challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
                 for chall_question in challenge_questions:
-                    positions.append(chall_question.questionPosition)
+                    positions.append((chall_question.pk, chall_question.questionPosition, chall_question.points))
                 
                 challenge_questions.delete()
 
@@ -141,8 +141,10 @@ def templateDynamicQuestionForm(request):
             challenge = Challenges.objects.get(pk=int(challengeID))
             if positions:
                 # Recreate challenge question (and duplicates)
-                for pos in positions:
-                    ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), pos)
+                for pk, pos, points in positions:
+                    if pk == int(request.POST['challengeQuestionID']):
+                        points = Decimal(request.POST['points'])
+                    ChallengesQuestions.addQuestionToChallenge(question, challenge, points, pos)
             else:
                 ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
 
@@ -185,6 +187,9 @@ def templateDynamicQuestionForm(request):
 
         if Challenges.objects.filter(challengeID=request.GET['challengeID'], challengeName=unassigned_problems_challenge_name):
             context_dict["unassign"] = 1
+
+        if 'challengeQuestionID' in request.GET:
+            context_dict['challengeQuestionID'] = request.GET['challengeQuestionID']
 
         if 'challengeID' in request.GET:
             context_dict['challengeID'] = request.GET['challengeID']
@@ -230,8 +235,7 @@ def templateDynamicQuestionForm(request):
 
             if 'challengeID' in request.GET:
                 # get the challenge points for this problem to display
-                challenge_questions = ChallengesQuestions.objects.filter(
-                    challengeID=request.GET['challengeID']).filter(questionID=request.GET['questionId'])
+                challenge_questions = ChallengesQuestions.objects.filter(pk=int(request.GET['challengeQuestionID']))
                 context_dict['points'] = challenge_questions[0].points
 
                 # set default skill points - 1
@@ -323,9 +327,9 @@ def templateToCodeSegments(setupCode, templateArray):
         _evaluate_answer = function(part)
             return function(answers)
                 results = {}
-                for inputName in python.iter(answers) do
+                for inputName,value in next, answers do --python.iter(answers) do
                     results[inputName] = _answer_checkers[part][inputName](
-                        answers[inputName],_pts[part][inputName])
+                        value,_pts[part][inputName])
                 end
                 return results
             end

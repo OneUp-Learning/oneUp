@@ -83,6 +83,22 @@ def setup_periodic_variable(unique_id, unique_str, variable_index, course, perio
         crontab=TimePeriods.timePeriods[period_index]['schedule'],
     )
     return periodic_task
+
+def get_periodic_variable_results_for_student(variable_index, period_index, course_id, student):
+    ''' This function will get any periodic variable results without the use of celery.
+        The time period is used for how many days/minutes to go back from now.
+        Ex. Time Period: Weekly - Return results within 7 days ago
+        
+        Returns list of tuples: [(student, value), (student, value),...]
+    '''
+    from Students.models import StudentRegisteredCourses
+    periodic_variable = PeriodicVariables.periodicVariables[variable_index]
+    time_period = TimePeriods.timePeriods[period_index]
+    # Get the course object and periodic variable
+    course = get_course(course_id)
+    # Evaluate student based on periodic variable function
+    return periodic_variable['function'](course, student, periodic_variable, time_period, result_only=True)
+
 def get_periodic_variable_results(variable_index, period_index, course_id):
     ''' This function will get any periodic variable results without the use of celery.
         The time period is used for how many days/minutes to go back from now.
@@ -100,7 +116,7 @@ def get_periodic_variable_results(variable_index, period_index, course_id):
     rank = []
     # Evaluate each student based on periodic variable function
     for student_in_course in students:
-        rank.append(periodic_variable['function'](course, student_in_course.studentID, periodic_variable, time_period, result_only=True))
+        rank.append(get_periodic_variable_results_for_student(variable_index, period_index, course_id, student_in_course.studentID))
     return rank
 
 def delete_periodic_task(unique_id, variable_index, award_type, course):
@@ -768,6 +784,7 @@ def streakProvider(unique_id, course, student, streakTypeNum):
         studentStreak.streakType = streakTypeNum
         studentStreak.objectID = unique_id
         studentStreak.currentStudentStreakLength = 0
+        studentStreak.save()
     return studentStreak
 
 def calculate_student_attendance_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type=None, result_only=False):
@@ -777,7 +794,7 @@ def calculate_student_attendance_streak(course, student, periodic_variable, time
     #should be set before the start of a week, week defined as 7 days. 
     from Students.models import StudentStreaks, StudentAttendance
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, CourseConfigParams
-    from Instructors.models import AttendanceStreakConfiguration
+    from Badges.models import AttendanceStreakConfiguration
     from datetime import datetime, timedelta
     import ast
             
@@ -924,7 +941,7 @@ def calculate_serious_challenge_and_activity_rankings(course, student, periodic_
 
 def calculate_student_challenge_streak(course, student, periodic_variable, time_period, last_ran=None, unique_id=None, award_type="leaderboard", result_only=False):
     print("Calculating student challenge streak") 
-    from Students.models import StudentStreaks, StudentChallenges
+    from Students.models import StudentStreaks, StudentChallenges, StudentRegisteredCourses
     from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
     from datetime import datetime
 
@@ -935,6 +952,7 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
         else:
             last_ran = None
            
+    print(last_ran)
     threshold = 0
     resetStreak = False 
     streakTypeNum = None
@@ -958,13 +976,16 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     # Cases when threshold is passed as max or avg or as number
     # Need to calculate the avg of all students totals and find max of all students
 
-    students = StudentRegisteredCourses.objects.filter(courseID=course, studentID__isTestStudent=False)
+    students = StudentRegisteredCourses.objects.filter(courseID=course.courseID, studentID__isTestStudent=False)
     max_total = 0
     avg_total = 0
     for s in students:
         stud = s.studentID
         total = 0
-        challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+        if last_ran:
+            challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID, endTimestamp__range=(datetime.now().strftime("%Y-%m-%d"), last_ran.strftime("%Y-%m-%d"))))
+        else:
+            challengeCount = len(StudentChallenges.objects.filter(studentID=stud, courseID=course.courseID))
         #figure out how many challenges have been completed by the student
         if StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud, streakType=0).exists():
             streak = StudentStreaks.objects.filter(courseID=course.courseID, studentID=stud)[0]
@@ -1012,6 +1033,13 @@ def calculate_student_challenge_streak(course, student, periodic_variable, time_
     elif student_total == threshold and not resetStreak:
         student_total = threshold
         
+    # Check if required values are None. see https://stackoverflow.com/questions/9991708/django-south-migration-doesnt-set-default
+    if studentStreak.streakType is None:
+        studentStreak.streakType = 0
+    if studentStreak.objectID is None:
+        studentStreak.objectID = 0
+    if studentStreak.currentStudentStreakLength is None:
+        studentStreak.currentStudentStreakLength = 0
     studentStreak.save()
     
     print("Course: {}".format(course))

@@ -19,12 +19,14 @@
 
       $.post( "/oneUp/instructors/getObjsForSysVar", {sysVarIndex : sysVar} ,function( data ) {
         var count = 0;
-        for (obj in data) {
+        for (obj in data['objects']) {
           objIndex = obj;
-          objName = data[obj];
+          objName = data['objects'][obj];
             $('#objectSelect').append('<option value='+obj+'>'+objName+'</option>');
           $("#objectSelect").material_select('update');
         }
+        console.table(data)
+        $("#time_period_selector").css("display", data['is_periodic'] == true ? 'block' : 'none');
     });
     //$( "#debugForm" ).submit();
     };
@@ -48,6 +50,7 @@
         <form name="debugForm" id="debugForm" enctype="multipart/form-data" action="/oneUp/instructors/debugSysVars"
           method="POST">
           {% csrf_token %}
+          <div style="display: flex;">
           <div class="input-field col s4" id="student">
             <select name="student" form="debugForm" id="studentSelect" onchange="this.form.submit()">
               <option value="all" name="student">All</option>
@@ -66,42 +69,54 @@
           <div class="input-field col s4" id="eventSelector">
             <select name="sysVar" form="debugForm" id="sysVar" onchange="updateObjects()">
                 <option disabled selected value> Select a System Variable </option>
+                
+                <optgroup label="System Variables">
                 {% for i, sysVarNumber, sysVarName in sysVars %}
-              {% if sysVarNumber == currenSysVar %}
-              <option value={{sysVarNumber}} name="sysVar" selected>{{sysVarName}}</option>
-              {% else %}
-              <option value={{sysVarNumber}} name="sysVar">{{sysVarName}}</option>
-              {% endif %}
-              {% endfor %}
+                  <option value={{sysVarNumber}}  {% if sysVarNumber == currenSysVar %}selected {% endif %}>{{sysVarName}}</option>
+                {% endfor %}
+                </optgroup>
+                <optgroup label="Periodic Variables">
+                  {% for var in periodic_variables %}
+                    <option value={{var.index}} {% if var.index == currenSysVar %} selected {% endif %}>{{var.displayName}}</option>
+                  {% endfor %}
+                </optgroup>
             </select>
             <label for="studentDebug">Filter by System Variable</label>
           </div>
+          <div class="input-field col s4" id="time_period_selector" {% if not periodic_var_selected %}style="display: none;"{% endif %}>
+            <select name="time_period" form="debugForm" onchange="updateObjects()">
+                <option disabled selected value> Select a Time Period </option>
+                {% for var in time_periods %}
+                  <option value={{var.index}} {% if var.index == current_tp %} selected {% endif %}>{{var.displayName}}</option>
+                {% endfor %}
+            </select>
+            <label for="studentDebug">Filter by a Time Period</label>
+          </div>
+          
 
           <div class="input-field col s4" id="objectSelector">
             <select name="objectType" form="debugForm" id="objectSelect" onchange="this.form.submit()">
               <option disabled selected value> Select an Object Type </option>
               {% if isAll %}
-                <option value="all" name="objectType" selected>All</option>
+                <option value="all" selected>All</option>
               {% else %}
-                <option value="all" name="objectType">All</option>
+                <option value="all">All</option>
               {% endif %}
               {% for i, obj, objName in objects %}
               {% if obj == currentObj %}
-              <option value={{obj}} name="objectType" selected>{{objName}}</option>
+              <option value={{obj}} selected>{{objName}}</option>
               {% else %}
-              <option value={{obj}} name="objectType">{{objName}}</option>
+              <option value={{obj}}>{{objName}}</option>
               {% endif %}
               {% endfor %}
             </select>
             <label for="studentDebug">Filter by Object Type</label>
           </div>
+        </div>
         </form>
 
 
-        <br />
-        <br />
-        <br />
-        <br />
+        
         <div class="card">
           <div class="card-content">
             <table>

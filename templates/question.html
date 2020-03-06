@@ -12,27 +12,27 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 {% endif %}
 {% if q.type != questionTypes.dynamic and q.type != questionTypes.templatedynamic %}
 {% if q.type == questionTypes.multipleChoice %}
-<div class="row">
+<div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Multiple Choice)</h4>
   <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.multipleAnswers %}
-<div class="row">
+<div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Multiple Answer)</h4>
   <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.matching %}
-<div class="row">
+<div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Matching)</h4>
   <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.trueFalse %}
-<div class="row">
+<div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (True/False)</h4>
   <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.parsons %}
-<div class="row">
+<div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Parsons)</h4>
   <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>

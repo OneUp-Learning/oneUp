@@ -474,6 +474,25 @@ else:
             if runtime is None:
                 print("ERROR: no runtime")
                 return False
+            
+            conv_code= 'function(L)\n'
+            conv_code+= 'local t= {};\n'
+            conv_code+= 'for item in python.iter(L) do\n'
+            conv_code+= 't[item] = L[item];\n'
+            conv_code+= 'end\n'
+            conv_code+= 'return t\n'
+            conv_code+= 'end\n'
+            
+             
+            (success,conv_res) = runtime.eval(conv_code)
+            if not success:
+                self.setError(conv_res,conv_code)
+                self.updateRuntime(runtime)
+                
+            answer_dict = conv_res(answer_dict);
+            success,dpt=runtime.eval("_debug_print_table")
+            dpt(answer_dict)
+             
             (success,evalAnswerFunc) = runtime.eval('evaluate_answer_'+str(n))
             if not success:
                 self.updateRuntime(runtime)
