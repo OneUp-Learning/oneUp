@@ -3,7 +3,8 @@ Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 .ck-view {
-    overflow: overlay;
+	overflow: overlay;
+	overflow-wrap: break-word;
 }
 /* .ck-view img:not([width]) {
     width: 100%;

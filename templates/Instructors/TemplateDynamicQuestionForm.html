@@ -258,6 +258,9 @@ var testResultsVar;
                     {% csrf_token %} {% if questionId %}
                     <input type="hidden" name="questionId" id="questionId" value="{{questionId}}"> {% endif %} {% if challengeID %}
                     <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}"> {% endif %}
+                    {% if challengeQuestionID %}
+                    <input type="hidden" name="challengeQuestionID" value="{{challengeQuestionID}}">
+                    {% endif %}
                     <input type="hidden" name="numParts" style="display: none;" />
 
                     <div class="card">
