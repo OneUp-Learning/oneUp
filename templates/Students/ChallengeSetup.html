@@ -56,12 +56,99 @@
          document.getElementById("TakeTest").submit();
       };
 
+      var problem_ids = [{% for i in question_ids %} {{i}}, {% endfor %}];
+      var current_problem_id = 0;
+      
+      function next_problem(){
+         // Scrolls to next problem
+         if (current_problem_id == problem_ids.length-1) return;
+
+         var next_id = (current_problem_id + 1) % problem_ids.length;
+         
+         current_problem_id = next_id;
+         var id = `scrollspy-${problem_ids[current_problem_id]}`
+         // Scroll
+         $('html, main').animate({
+            scrollTop: $(`#${id}`).offset().top - 84
+         }, 1000);
+
+         // Update problem counter and buttons
+         $("#current-problem").text(`${problem_ids[current_problem_id]}`)
+         toggle_buttons();
+      }
+      function previous_problem(){
+         if (current_problem_id == 0) return;
+
+         var next_id = (current_problem_id - 1) % problem_ids.length;
+         // circular
+         // if (next_id == -1) next_id = problem_ids.length-1;
+
+         current_problem_id = next_id;
+         var id = `scrollspy-${problem_ids[current_problem_id]}`
+
+         // If we are going to the first problem scroll all the way up
+         var offset = $(`#${id}`).offset().top - 84;
+         if (next_id == 0) offset = 0;
+         
+         // Scroll
+         $('html, main').animate({
+            scrollTop: offset
+         }, 1000);
+
+         // Update problem counter and buttons
+         $("#current-problem").text(`${problem_ids[current_problem_id]}`)
+         toggle_buttons();
+      }
+      function toggle_buttons(){
+         if (current_problem_id == 0){
+            // At the top of the page
+            $("#prev-problem-button").addClass('disabled')
+            $("#next-problem-button").removeClass('disabled')
+         } else if (current_problem_id == problem_ids.length -1 ){
+            // At the bottom of the page
+            $("#prev-problem-button").removeClass('disabled')
+            $("#next-problem-button").addClass('disabled')
+         } else {
+            $("#prev-problem-button").removeClass('disabled')
+            $("#next-problem-button").removeClass('disabled')
+         }
+      }
+
       $(document).ready(function () {
             $('#menu').pushpin({
             top: $('#menu').offset().top,
          });
-      });
+         if(problem_ids.length == 1){
+            $("#problem-buttons").hide();
+         } else {
+            $(window).scroll(function() {
+               var problem_id = undefined;
+               
+               $('.scrollspy').each(function(){
+                  var problem = $(this);
+                  // 128 for the navbars space (2 each being 64px)
+                  var top = problem.offset().top - 128;
+                  var height = problem.outerHeight() - 128;
+                  // Get ids that were scrolled passed
+                  if($(window).scrollTop() > (top + height)){
+                     problem_id = problem.attr('id').substring(problem.attr('id').indexOf("-")+1);
+                  }
 
+               })
+               var index = problem_ids.findIndex((el) => el == problem_id)
+               if (index != current_problem_id){
+                  // Update problem counter and buttons
+                  current_problem_id = index;
+                  // console.log(`Scrolled past ${problem_id}`);
+                  $("#current-problem").text(`${problem_ids[current_problem_id]}`)
+                  toggle_buttons();
+               }
+               
+            });
+         }
+      });
+      
+      
    </script>
 </head>
 
@@ -70,13 +157,12 @@
    <main>
       <div style="height: 64px">
          <nav id="menu" data-target="menu" style="z-index: 1;">
-            <div class="row" style="max-height: 100%; ">
+            <div class="row" style="max-height: 100%; display: flex;">
                <div class="col s12 m10 offset-m1" style="display: flex; justify-content: space-between; max-height: 100%;">
                   
                      <div style="text-align: left; white-space: nowrap;"><b>Start Time: </b>{{startTime}}</div>
                      <div style="white-space: nowrap; margin-left: 12px; margin-right: 12px; font-size: 1.8em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">{{challengeName}}</div>
                      
-
                      {% if isduration %}
                      <div style="text-align: right; white-space: nowrap;" id="count_down"></div>
                      <script>
@@ -117,7 +203,12 @@
                         }, 1000);
                      </script>
                      {% endif %}
-                  </div>
+               </div>
+               <div id="problem-buttons" class="col m1" style="display: flex; align-items: center; justify-content: space-evenly;">
+                  <div><a id="next-problem-button" class="waves-effect waves-circle waves-light tooltipped" onclick="next_problem()" data-tooltip="go to next problem"><i class="material-icons" style="line-height: unset;">arrow_downward</i></a></div>
+                  <div><p id="current-problem">1</p></div>
+                  <div><a id="prev-problem-button" class="waves-effect waves-circle waves-light tooltipped disabled" onclick="previous_problem()" data-tooltip="go to previous problem"><i class="material-icons" style="line-height: unset;">arrow_upward</i></a></div>
+               </div>
             </div>
          </nav>
       </div>

@@ -14,6 +14,7 @@ from Instructors.constants import default_time_str
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog, Student
 from Badges.enums import Event, ObjectTypes
 from Badges.systemVariables import SystemVariable, calculate_system_variable
+from Badges.periodicVariables import PeriodicVariables, TimePeriods, get_periodic_variable_results_for_student
 from Students.views.avatarView import checkIfAvatarExist
 from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
@@ -44,7 +45,6 @@ def debugSysVars(request):
 
     # Help display all system vars
     for var in sysVars:
-        print(sysVars[var]["name"])
         sysVarsName.append(sysVars[var]["displayName"])
 
     for o in objectType:
@@ -60,7 +60,6 @@ def debugSysVars(request):
 
         # Event info
         sysVarDeBugTable = []
-        sysVarNamesDebugTable = []
         allDebugEvents = []
 
         # Object info
@@ -80,29 +79,40 @@ def debugSysVars(request):
                 userIdDebugTable.append(currentStudent.studentID)
                 context_dict['currentStudet'] = currentStudent.studentID
 
+        current_time_period = None
         if 'sysVar' in request.POST:
-            sysVarIndex = request.POST['sysVar']
-            if sysVarIndex == "all":
-                sysVarDeBugTable = sysVars
-                sysVarNamesDebugTable = sysVarsName
-            else:
-                currentVar = sysVars[int(sysVarIndex)]
+            var_index = int(request.POST['sysVar'])
+            context_dict['currenSysVar'] = int(var_index)
+            if var_index in sysVars:
+                currentVar = sysVars[var_index]
                 sysVarDeBugTable.append(currentVar)
-                sysVarNamesDebugTable.append(currentVar['name'])
-                context_dict['currenSysVar'] = int(sysVarIndex)
+                
                 objectType, objectTypeNames = getObjsForSysVarLocal(currentVar)
+            else:
+                currentVar = PeriodicVariables.periodicVariables[var_index]
+                sysVarDeBugTable.append(currentVar)
+                objectType, objectTypeNames = get_object_type_for_periodic_var(currentVar)
+                context_dict['periodic_var_selected'] = True
+
+            if 'time_period' in request.POST:
+                context_dict['current_tp'] = int(request.POST['time_period'])
+                current_time_period = context_dict['current_tp']
 
             if 'objectType' in request.POST:
-                object = request.POST['objectType']
-                if object == "all":
-                    objectTypeDeBugTable = getObjsForSysVarLocal(currentVar)[0]
-                    print(objectTypeDeBugTable)
+                object_id = request.POST['objectType']
+                if object_id == "all":
+                    if var_index in sysVars:
+                        objectTypeDeBugTable = getObjsForSysVarLocal(currentVar)[0]
+                    else:
+                        objectTypeDeBugTable = get_object_type_for_periodic_var(currentVar)[0]
+
+                    # print(objectTypeDeBugTable)
                     context_dict['isAll'] = True
                 else:
-                    print("OBJECT:" + str(object))
-                    currentObject = ObjectTypes.objectTypes[int(object)]
-                    objectTypeDeBugTable.append(object)
-                    context_dict['currentObj'] = int(object)
+                    print("OBJECT:" + str(object_id))
+                    currentObject = ObjectTypes.objectTypes[int(object_id)]
+                    objectTypeDeBugTable.append(object_id)
+                    context_dict['currentObj'] = int(object_id)
 
         # Get all the events for each student for each event in each object
         displayData = []
@@ -115,7 +125,7 @@ def debugSysVars(request):
                         varIndex = var
 
                     displayData.extend(getSysValues(
-                        studentID, varIndex, obj, currentCourse))
+                        studentID, varIndex, obj, currentCourse, current_time_period))
 
         context_dict['debugData'] = displayData
 
@@ -123,6 +133,12 @@ def debugSysVars(request):
     context_dict['user_range'] = sorted(list(zip(range(1, courseStudents.count()+1), userID, first_Name, last_Name, user_Avatar, )), key=lambda x: (x[2].casefold(), x[3].casefold()))
     context_dict['sysVars'] = sorted(
         list(zip(range(1, len(sysVars)+1), sysVars, sysVarsName, )), key=lambda x: x[2])
+    exclude_periodic_variables = [PeriodicVariables.challenge_streak, PeriodicVariables.attendance_streak, 
+            PeriodicVariables.warmup_challenge_greater_or_equal_to_40, PeriodicVariables.warmup_challenge_greater_or_equal_to_70]
+    context_dict['periodic_variables'] = sorted([ x for i, x in PeriodicVariables.periodicVariables.items() if i not in exclude_periodic_variables ], key=lambda x: x['displayName'])
+
+    context_dict['time_periods'] = [x for i,x in TimePeriods.timePeriods.items()]
+    # print(context_dict['time_periods'])
     context_dict['objects'] = sorted(list(zip(
         range(1, len(objectType)+1), objectType, objectTypeNames, )), key=lambda x: x[2])
 
@@ -162,6 +178,9 @@ def getObjsForSysVarLocal(sysVar):
 
     return objIndex, objNames
 
+def get_object_type_for_periodic_var(variable):
+    return [ObjectTypes.none], [ObjectTypes.objectTypes[ObjectTypes.none]]
+
 
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
@@ -169,21 +188,24 @@ def getObjsForSysVar(request):
     objectTypes = ObjectTypes.objectTypes  # enum of system objects
     sysVars = SystemVariable.systemVariables  # enums of system vars
     objects = {}
-
+    is_periodic = False
     if request.POST:
-        sysVarIndex = request.POST['sysVarIndex']
-        var = sysVars[int(sysVarIndex)]
-        objIndex = list(var['functions'].keys())
-        objNames = []
-
+        var_index = int(request.POST['sysVarIndex'])
+        if var_index in sysVars:
+            var = sysVars[int(var_index)]
+            objIndex = list(var['functions'].keys())
+        else:
+            objIndex = [ObjectTypes.none]
+            is_periodic = True
+        
         for i in objIndex:
             currentObj = objectTypes[i]
             objects[i] = currentObj
 
-    return JsonResponse(objects)
+    return JsonResponse({'objects': objects, 'is_periodic': is_periodic})
 
 
-def getSysValues(student, sysVar, objectType, currentCourse):
+def getSysValues(student, sysVar, objectType, currentCourse, time_period=None):
     values = []
     disaplyData = []
 
@@ -227,10 +249,18 @@ def getSysValues(student, sysVar, objectType, currentCourse):
                 student, sysVar, objectType, val, x.topicID.topicName, currentCourse))
 
     elif objString == 'global':
-        val = calculate_system_variable(
-            sysVar, currentCourse, student, int(objectType), 0)
-        disaplyData.append(prepForDisplay(
-            student, sysVar, objectType, val, 0, currentCourse))
+        if sysVar in SystemVariable.systemVariables:
+            val = calculate_system_variable(
+                sysVar, currentCourse, student, int(objectType), 0)
+            disaplyData.append(prepForDisplay(
+                student, sysVar, objectType, val, 0, currentCourse))
+        else:
+            if not time_period:
+                time_period = TimePeriods.beginning_of_time
+            print(time_period)
+            val = get_periodic_variable_results_for_student(sysVar, time_period, currentCourse.courseID, student)
+            disaplyData.append(prepForDisplay(
+                student, sysVar, objectType, val[1], 0, currentCourse))
 
     return disaplyData
 
@@ -242,7 +272,10 @@ def prepForDisplay(student, sysVar, object, value, assignment, currentCourse):
     avatarImage = checkIfAvatarExist(StudentRegisteredCourses.objects.get(
         studentID=student, courseID=currentCourse))
     objectName = ObjectTypes.objectTypes[int(object)]
-    sysVarName = SystemVariable.systemVariables[int(sysVar)]['name']
+    if sysVar in SystemVariable.systemVariables:
+        sysVarName = SystemVariable.systemVariables[int(sysVar)]['name']
+    else:
+        sysVarName = PeriodicVariables.periodicVariables[int(sysVar)]['name']
     if objectName == 'global':
         assignment = "N/A"
     if type(value) == str and "Error" in value:

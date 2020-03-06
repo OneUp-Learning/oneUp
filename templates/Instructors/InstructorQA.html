@@ -91,7 +91,7 @@
                   </span>
                 </div>
               </li>
-              <li>
+              <!-- <li>
                 <div class="collapsible-header">
                   <i class="material-icons">question_answer</i>What are Course Milestones?
                 </div>
@@ -111,7 +111,7 @@
                     You can do that by going to the Course Information menu and select Course Configuration.
                     Then disable the Progress Bar by turning the switch off.</span>
                 </div>
-              </li>
+              </li> -->
               <li>
                 <div class="collapsible-header">
                   <i class="material-icons">question_answer</i>How are Students Added to Courses?</div>
@@ -160,16 +160,42 @@
                 <div class="collapsible-body">
                   <span>In the Course Information menu, select Course Configuration to view the variety of options
                     available for configuring the course.
+                    <br>
+                    <br>
                     Course Availability makes the course available to students and is enabled by default.
+                    <br>
+                    <br>
                     The Set Duration option is used to set the start and end date of the course.
                     Once the Course End Date has passed, the course will no longer be available to students, even if
                     Course Availability is enabled.
+                    <br>
+                    <br>
+                    Warmup Challenges allows enabling students to practice problems created by the instructor.
+                    <br>
+                    <br>
+                    Serious Challenges allows enabling students to complete serious challenges in which they will perform graded work.
+                    <br>
+                    <br>
                     The option Display Serious Challenges by Topics simply groups the challenges by Topics instead of
                     the order in which they were created.
-                    The Progress Bar is used to track students progress in the course that works in tandem with Course
+                    <br>
+                    <br>
+                    The Set Activities option allows enabling activities in the course. Activities are graded manually.
+                    <br>
+                    <br>
+                    The Set Skills option allows enabling Skills in the course. Skills need to be added to problems. From Course-Content, then Problems.
+                    <br>
+                    <br>
+                    The Set Gradebook option allows enabling the Gradebook in the course. Grades will be tracked automatically. This option is enabled automatically.
+                    <br>
+                    <br>
+                    The Set Announcements option allows enabling the Announcements in the course.
+                    <br>
+                    <br>
+                    <!-- The Progress Bar is used to track students progress in the course that works in tandem with Course
                     Milestones.
                     If no Course Milestones are defined, then the Progress Bar has no purpose, thus the option for it
-                    shall be disabled.
+                    shall be disabled. -->
                     Course Gamification is a completely optional feature to instructors that is disabled by default.
                     Once enabled, a Game Features drop-down menu will appear in the instructor’s main menu which will
                     allow you to configure the desired gamification features.</span>
@@ -182,16 +208,21 @@
                 <div class="collapsible-body">
                   <span>A streak is a concept for informing users (through a number or other indicator) how many
                     consecutive days they have completed a targeted action.
+                    <br>
+                    <br>
                     OneUp supports streaks and the instructor can define class attendance streaks by setting what are
                     the course 'consecutive' dates when the students have to be in attendance.
-                    To set an Attendance Streak, go to the Course Information menu and select Attendance Streaks. Note
-                    that this option is displayed only if you have enabled Streak Configuration in the Course
-                    Gamification Configuration page (under the Game Features menu).
-                    On the Student Attendance Streak Configuration page first select the days of the class and click the
+                    To set an <b>Attendance Streak</b>, go to the <b>Course Information</b> menu and select <b>Attendance Streaks</b>. Note
+                    that this option is displayed only if you have enabled <b>Streak Configuration</b> in the <b>Course
+                    Gamification Configuration</b> page (under the Game Features menu).
+                    <br>
+                    <br>
+                    On the <b>Student Attendance Streak Configuration</b> page first select the days of the class and click the
                     Submit button under the list of days.
                     On the displayed calendar, you will see class dates added to the attendance streak. You can further
                     adjust the streak dates by un-selecting specific dates during the semester on which there will be no
                     classes.
+                    <br>
                     The calendar will update with the days you selected/unselected and will now have a streak label.
                     Now click the Submit button under the calendar to create the streak.</span>
                 </div>
@@ -773,7 +804,7 @@
                 </div>
               </li>
 
-              <li>
+              <!-- <li>
                 <div class="collapsible-header">
                   <i class="material-icons">question_answer</i>What is OneUp Chat and How It Works?</div>
                 <div class="collapsible-body">
@@ -806,7 +837,7 @@
                     Yo!</p>
                   </span>
                 </div>
-              </li>
+              </li> -->
             </ul>
           </div>
         </div>
@@ -893,98 +924,146 @@
             <ul class="collapsible expandable">
               <li>
                 <div class="collapsible-header">
-                  <i class="material-icons">question_answer</i>How is Gamification Implemented and What are Rules?
-                </div>
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Course Gamification?</div>
                 <div class="collapsible-body">
-                  <span>
-                    <p style="text-indent:40px">The OneUp platform includes a game engine which is responsible for
-                      executing Rules defined by the instructor.
-                      The Rules specify under what Conditions (based on challenges, activities and skills) specific game
-                      elements will be applied.
-                      The Rules have the format <i>IF condition THEN action </i>, for example, <i>IF a student completes
-                        more than 20 challenges THEN award her a badge</i>.</p>
-                    <p style="text-indent:40px">After a student's interaction with OneUp, the game engine checks the
-                      rules to see if specific conditions are met.
-                      If they are, then the corresponding actions specified by the Instructor occur.
-                      These actions can vary: a Badge is awarded, Virtual Currency is awarded, a new Challenge is
-                      unlocked, etc.
-                      While sounding complex and intimidating, creating Rule Conditions can be simply thought of as
-                      specifying a Boolean expression.</p>
-                  </span>
-                </div>
-              </li>
-              <li>
-                <div class="collapsible-header">
-                  <i class="material-icons">question_answer</i>How do I Create a Rule?</div>
-                <div class="collapsible-body">
-                  <span>
-                    <p style="text-indent:40px">If you are creating a Badge, setting Virtual Currency Earning Rules, or
-                      configuring Progressive Unlocking, you will need to specify the Rule Conditions.
-                      The Rule Conditions section is always found at the bottom of the page.
-                      A simple Rule Condition (Atom Condition) consists of two parts, which will be compared.
-                      For example, a Condition would read like this: <i>The percent of student score for Challenge X is
-                        more than or equal to 75</i>. </p>
-                        <br />
-                    <p style="text-indent:40px">The Rule Conditions section is a drag-and-drop interface: drag a
-                      condition type (Atom, OR, or Forall) into the dotted rectangle to begin modifying it.
-                      Note the small <b>AND</b> followed by another dotted rectangle.
-                      This is for when you want multiple conditions to be true in order for the rule to fire (i.e. x = 2
-                      AND y = 3).
-                      There are three condition types: <b>Atom, OR,</b> and <b>Forall.</b> </p>
-                      <br />
-                    <p style="text-indent:40px">The <b>Atom</b> condition is a single conditional statement (i.e. if (x
-                      = 5) would only be true if x = 5).
-                      Atom is the primary condition type, for they can apply to most situations.
-                      By default, an Atom condition type is the first condition in the Rule Conditions section.
-                      The Atom condition has three parameters: the Variable, the Operator, and the Threshold.
-                      The Variable is the specific condition that is being checked (i.e. student percentage score on a
-                      challenge).
-                      The Operator can be one of five options: greater than (>), less than (<), equal to (=), greater
-                        than or equal to (>=), and less than or equal to (<=). The operators function just as they do
-                          mathematically. The Threshold simply specifies the value to which the Variable will be
-                          compared. By default, the Threshold is a number, but if the Value checkbox is unchecked, the
-                          Instructor can choose another variable to compare to the first. </p> <p
-                          style="text-indent:40px">The <b>OR</b> condition specifies that when one of two or more
-                          conditions are true then the entire condition would be true (i.e. the statement if (x < 2) OR
-                            (x> 4) would be true if x = 1 or 5).
-                            OR is useful if the Instructor desires multiple ways to satisfy a condition. </p>
+                  <ul>
+                    <li style="padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What is Gamification?</b><br />
+                      <span>
+                        <p style="text-indent:40px">The OneUp platform includes a game engine which is responsible for
+                          executing Rules defined by the instructor.
+                          The Rules specify under what Conditions (based on challenges, activities and skills) specific game
+                          elements will be applied.
+                          The Rules have the format <i>IF condition THEN action </i>, for example, <i>IF a student completes
+                            more than 20 challenges THEN award her a badge</i>.</p>
+                        <p style="text-indent:40px">After a student's interaction with OneUp, the game engine checks the
+                          rules to see if specific conditions are met.
+                          If they are, then the corresponding actions specified by the Instructor occur.
+                          These actions can vary: a Badge is awarded, Virtual Currency is awarded, a new Challenge is
+                          unlocked, etc.
+                          While sounding complex and intimidating, creating Rule Conditions can be simply thought of as
+                          specifying a Boolean expression.</p>
+                      </span>
+                    </li>
+                    <div class="divider"></div>
+                    <li style="padding-top: 12px; padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How can I create a rule?</b><br />
+                      <span>
+                        <p style="text-indent:40px">If you are creating a Badge, setting Virtual Currency Earning Rules, or
+                          configuring Progressive Unlocking, you will need to specify the Rule Conditions.
+                          The Rule Conditions section is always found at the bottom of the page.
+                          A simple Rule Condition (Atom Condition) consists of two parts, which will be compared.
+                          For example, a Condition would read like this: <i>The percent of student score for Challenge X is
+                            more than or equal to 75</i>. </p>
                             <br />
-                    <p style="text-indent:40px">The <b>Forall</b> condition allows Instructors to specify how broad the
-                      rule is.
-                      There are three selectors in Forall: For, Of the following, and Items to add.
-                      The 'Of the following' selector allows the Instructor to select the objects to be considered for
-                      the condition: Challenges, Activities, Topics, and Categories (Activity Categories).
-                      The 'Items to add' selector allows the Instructor to add one or more items of the type specified
-                      in the 'Of the following' selector.
-                      The checkbox next to the 'Items to add' selector will select all of the items of the selected type
-                      if checked (i.e All Activities).
-                      The For selector simply specifies whether <b>each</b> or <b>all</b> of the specified selections
-                      shall be considered.
-                      At the bottom of the Forall condition is included a dotted rectangle.
-                      You have to drag an Atom or OR condition there. The dragged Atom or OR condition will work just
-                      the same, but with the added restrictions set by the Instructor.
-                      Once an Atom condition is placed, the available variables in the drop-down menu become more
-                      specific depending on the item type selected in the 'Of the following' selector.</p>
-                      <br />
-                    <p style="text-indent:40px">To remove a condition from the area, drag it to the <b>Trash</b> box at
-                      the upper left of the section.</p>
-                  </span>
-                </div>
+                        <p style="text-indent:40px">The Rule Conditions section is a drag-and-drop interface: drag a
+                          condition type (Atom, OR, or Forall) into the dotted rectangle to begin modifying it.
+                          Note the small <b>AND</b> followed by another dotted rectangle.
+                          This is for when you want multiple conditions to be true in order for the rule to fire (i.e. x = 2
+                          AND y = 3).
+                          There are three condition types: <b>Atom, OR,</b> and <b>Forall.</b> </p>
+                          <br />
+                        <p style="text-indent:40px">The <b>Atom</b> condition is a single conditional statement (i.e. if (x
+                          = 5) would only be true if x = 5).
+                          Atom is the primary condition type, for they can apply to most situations.
+                          By default, an Atom condition type is the first condition in the Rule Conditions section.
+                          The Atom condition has three parameters: the Variable, the Operator, and the Threshold.
+                          The Variable is the specific condition that is being checked (i.e. student percentage score on a
+                          challenge).
+                          The Operator can be one of five options: greater than (>), less than (<), equal to (=), greater
+                            than or equal to (>=), and less than or equal to (<=). The operators function just as they do
+                              mathematically. The Threshold simply specifies the value to which the Variable will be
+                              compared. By default, the Threshold is a number, but if the Value checkbox is unchecked, the
+                              Instructor can choose another variable to compare to the first. </p> <p
+                              style="text-indent:40px">The <b>OR</b> condition specifies that when one of two or more
+                              conditions are true then the entire condition would be true (i.e. the statement if (x < 2) OR
+                                (x> 4) would be true if x = 1 or 5).
+                                OR is useful if the Instructor desires multiple ways to satisfy a condition. </p>
+                                <br />
+                        <p style="text-indent:40px">The <b>Forall</b> condition allows Instructors to specify how broad the
+                          rule is.
+                          There are three selectors in Forall: For, Of the following, and Items to add.
+                          The 'Of the following' selector allows the Instructor to select the objects to be considered for
+                          the condition: Challenges, Activities, Topics, and Categories (Activity Categories).
+                          The 'Items to add' selector allows the Instructor to add one or more items of the type specified
+                          in the 'Of the following' selector.
+                          The checkbox next to the 'Items to add' selector will select all of the items of the selected type
+                          if checked (i.e All Activities).
+                          The For selector simply specifies whether <b>each</b> or <b>all</b> of the specified selections
+                          shall be considered.
+                          At the bottom of the Forall condition is included a dotted rectangle.
+                          You have to drag an Atom or OR condition there. The dragged Atom or OR condition will work just
+                          the same, but with the added restrictions set by the Instructor.
+                          Once an Atom condition is placed, the available variables in the drop-down menu become more
+                          specific depending on the item type selected in the 'Of the following' selector.</p>
+                          <br />
+                        <p style="text-indent:40px">To remove a condition from the area, drag it to the <b>Trash</b> box at
+                          the upper left of the section.</p>
+                      </span>
+                    </li>
+                  </ul>
+                  </div>
               </li>
               <li>
                 <div class="collapsible-header">
-                  <i class="material-icons">question_answer</i>How to change layout of Student Course Home Pages?</div>
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Course Leaderboards?</div>
                 <div class="collapsible-body">
                   <ul>
                     <li>
-                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are the possible layouts?</b><br />
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are leaderboards?</b><br />
                       <span>
-                        <p style="padding-left:40px">The student course home page can be changed to feature two designs: <b>Display class/achievements</b> or 
-                          <b>Display summary of student achievements.</b><br/>
-                          Displaying the class/achievements will show the annoucnments, upcoming challenges, latest badges earned from the class, and XP leaderboard.<br/>
-                          Displaying the summary of student achievements will show the progress bar, the student earned badges, latest badges earned from the class, and XP leaderboard.<br/><br/>
-
-                          These options can be set in the Gamification Configuration.
+                        <p style="padding-left:40px">There are two types of course leaderboards  that enable students to compete for ranking on leaderboards. Students will move up the leaderboard via specific criteria dependent on each board.</b><br/>
+                          <br>
+                          <b>XP Leaderboards</b>: XP leaderboards are generated from student ranking via weighted points from Serious Challeges, Warm-up Challenges, Activities, and Skills.
+                          These options can be set in the <b>Gamification Configuration.</b>
+                          <br>
+                          <br>
+                          <b>Dynamic Leaderboards</b>: Dynmaic leaderboards are specifically created by the instructor based off criteria they choose.
+                          <br>
+                          These leaderboards can be created under the <b>Game Features</b> menu, in the <b>Leaderboards</b> page.
+                        </p>
+                        <br>
+                      </span>
+                    </li>
+                    <div class="divider"></div>
+                    <li style="padding-top: 12px; padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How can I modify the XP Leaderboard?</b><br />
+                      <span>
+                        <p style="padding-left:40px">The XP leaderboard can be modified in the <b>Gamification Configuration</b>. In the configuration the weights for point calculation can be
+                        changed for the XP leaderboard. Points can be derrived from <b>Serious Challenges</b> 25% <b>Warm-up Challenges</b> 25% <b>Activities</b> 25% and </b> <b>Skills</b> 25%
+                        <br>
+                        <br>
+                        <p style="padding-left:40px">For <b>Serious Challenges</b> and <b>Warm-up Challenges</b> we can calculate the XP via the <b>max score</b>, or via the <b>first attempt</b>.</p>
+                        <p style="padding-left:40px">The <b>XP Leaderboard</b> can be modified by changing it's <b>Description</b> and <b>Number of Students Shown</b>.</p>
+                        <br>
+                        </p>
+                        <br>
+                      </span>
+                    </li>
+                    <div class="divider"></div>
+                    <li style="padding-top: 12px; padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How can I modify the Dynamic leaderboards?</b><br />
+                      <span>
+                        <p style="padding-left:40px">The Dynamic leaderboard can be modified in <b>Game Features</b> menu, in the <b>Leaderboards</b> page. Click the <b>Add Leaderboards</b> button to generate a new leaderboard
+                          then enter the <b>Leaderboard Name</b> and <b>Leaderboard Description</b>.
+                          <br>
+                          Select the number of students that will be at the top of the leaderboard.
+                          <br>
+                          There is also a checkbox to determine if you want the leaderboard on the <b>Student Homepage</b> or
+                          on the Student's <b>Leaderboards Page</b>.
+                          <br>
+                          <br>
+                          Finally, select the conditions for which the leaderboard will be updated.
+                          <br>
+                          <b>Continously</b> or <b>Daily(Midnight)</b> or <b>Every Two Weeks</b>
+                          <br>
+                          With how far back to update the leaderboard, meaning which timespan backwards.
+                          Options available are <b>Day</b>, <b>Week</b>, or even from the <b>Start of the Semester</b>.
+                          <br>
+                          Next, we can update the leaderboard off a predefined variable. For example: Students that have <b>Unique Warmup Challenges Completed (greater than or equal to 70% correct)</b>
+                          <br>
+                          <br>
+                          <b>Don't forget you can have more than one!</b>
                         </p>
                       </span>
                     </li>
@@ -993,7 +1072,7 @@
               </li>
               <li>
                 <div class="collapsible-header">
-                  <i class="material-icons">question_answer</i>What do I need to know about Progress Bar?</div>
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about the Progress Bar?</div>
                 <div class="collapsible-body">
                   <ul>
                     <li style="padding-bottom: 12px;">
@@ -1031,7 +1110,99 @@
               </li>
               <li>
                 <div class="collapsible-header">
-                  <i class="material-icons">question_answer</i>What Do I need to know about Badges?</div>
+                  <i class="material-icons">question_answer</i>How Can I Change Layout of Student Course Home Pages?</div>
+                <div class="collapsible-body">
+                  <ul>
+                    <li>
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are the possible layouts?</b><br />
+                      <span>
+                        <p style="padding-left:40px">The student course home page can be changed to feature two designs: <b>Display only class/achievements</b> or 
+                          <b>Display summary of student achievements.</b><br/>
+                          <br>
+                          <b>Displaying the class/achievements</b> will show the annoucnments, upcoming challenges, latest badges earned from the class, and XP leaderboard.<br/>
+
+                          <br>
+                          <b>Displaying the summary of student achievements</b> will show the progress bar, the student earned badges, latest badges earned from the class, and XP leaderboard.<br/><br/>
+
+                          These options can be set in the <b>Gamification Configuration.</b>
+                        </p>
+                      </span>
+                    </li>
+                  </ul>
+                  </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Achivements?</div>
+                <div class="collapsible-body">
+                  <ul>
+                    <li style="padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are achivements?</b><br />
+                      <span>
+                        <p style="padding-left:40px">The <b>Achivements</b> page is shown to students and presents information about <b>Experience</b> points earned, <b>Practice</b> points earned, and <b>Course Bucks</b> earned.
+                          Below that is the <b>Progress Bar</b>, showing students how many points are available in the course, and their current performance in the course.
+                          Below the <b>Progress Bar</b> is the <b>Skills</b> menu. 
+                          <br>
+                          <br>
+                          Finally, student's <b>Warm-Up</b> challenges are shown. Information per each challenge is shown and reveals <b>Max</b>, <b>Min</b>, and <b>Max Possible</b> scores per challenge.
+                        </p>
+                      </span>
+                    </li>
+                  </ul>
+                  </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>How is XP Calculated?
+                </div>
+                <div class="collapsible-body">
+                  <span>
+                    <p>XP is calculated from <b>Serious Challenges</b> 25% <b>Warm-up Challenges</b> 25% <b>Activities</b> 25% and </b> <b>Skills</b> 25%</p>
+                  </span>
+                </div>
+              </li>
+              <li>
+                <li>
+                  <div class="collapsible-header">
+                    <i class="material-icons">question_answer</i>How are Skills Configured?
+                  </div>
+                  <div class="collapsible-body">
+                    <span>
+                      <p><b>Skills</b> can be configured in the <b>Course Gamification Configuration</b> page. From there you can elect to have <b>Skill Points</b> displayed on the leaderboard.
+                      <br>
+                      <br>
+                        You can also enable the <b>Skill Leaderboard</b> to be displayed or not for <b>Students</b>.
+                      <br>
+                      <br>
+                      Finally, if the <b>Leaderboards</b> are enabled, you can opt for a specified <b>number of top students</b> to be displayed on the <b>Skill Leaderboard</b>.
+                      </p>
+                    </span>
+                  </div>
+                </li>
+                <li>
+                  <div class="collapsible-header">
+                    <i class="material-icons">question_answer</i>What Do I Need to Know about Student Configuration?</div>
+                  <div class="collapsible-body">
+                    <ul>
+                      <li style="padding-bottom: 12px;">
+                        <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What is Student Configuration?</b><br />
+                        <span>
+                          <p style="text-indent:40px">Instructors can modify the OneUp gamification configuration to grant flexibility to the <b>students</b> to modify the appearance of the system.</p>
+                        </span>
+                      </li>
+                      <div class="divider"></div>
+                      <li style="padding-top: 12px; padding-bottom: 12px;">
+                        <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What can I allow students to hide?</b><br />
+                        <span>
+                          <p style="text-indent:40px"><b>Leaderboards</b>, <b>Skill Points</b>, <b>Badge Visibility</b>, <b>Class Averages</b> can be toggled, allowing for Instructors to give <b>students</b> the option of hiding the leaderboard in <b>Student Configuration</b>.</p>
+                        </span>
+                      </li>
+                    </ul>
+                    </div>
+                </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Badges?</div>
                 <div class="collapsible-body">
                   <ul>
                     <li>
@@ -1408,7 +1579,7 @@
               </li>
               <li>
                 <div class="collapsible-header">
-                  <i class="material-icons">question_answer</i>What Do I Need to Know about Call Out?
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Call Outs?
                 </div>
                 <div class="collapsible-body">
                   <ul>
@@ -1493,6 +1664,82 @@
                           The option for challenging students will now appear on the students’ side.</p>
                       </span>
                 </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Avatars?</div>
+                <div class="collapsible-body">
+                  <ul>
+                    <li style="padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are avatars?</b><br />
+                      <span>
+                        <p style="padding-left:40px"><b>Avatars</b> are icons used to represent the students in various interfaces like <b>Leaderboards</b> and <b>Skill Leaderboards</b>.
+                        They are used in place of usernames, or emails as they provide some privacy to the students. The use of <b>Avatars</b> can be enabled or disabled for the course.</p>
+                        <br>
+                        <p style="padding-left:40px">Only one <b>student</b> may have each avatar per course.</p>
+                      </span>
+                    </li>
+                    <div class="divider"></div>
+                    <li style="padding-top: 12px; padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How can students modify their avatars?</b><br />
+                      <span>
+                        <p style="padding-left:40px"> Students can use the navigation menu and under <b>Tools</b> <b>Avatar Selection</b> will provide students with access to the avatars.</p>
+                      </span>
+                    </li>
+                  </ul>
+                  </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Content Unlocking?</div>
+                <div class="collapsible-body">
+                  <ul>
+                    <li style="padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What is content unlocking?</b><br/>
+                      <span>
+                        <p style="padding-left:40px"><b>Content Unlocking</b> enables Instructors to temporarily block access to certain <b>Challenges</b> and prohibit students from taking them.
+                         The purpose of prohibiting students from accessing certain <b>Challenges</b> is to ensure they meet an instructor specified criteria.</p>
+                      </span>
+                    </li>
+                    <div class="divider"></div>
+                    <li style="padding-top: 12px; padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How can I configure content unlocking?</b><br />
+                      <span>
+                        <p style="padding-left:40px">To configure a <b>Content Unlocking</b>, go into the <b>Navigation Menu</b> and under <b>Game Features</b> Select <b>Content Unlocking</b>.</p>
+                        <br>
+                        <p style="padding-left:40px">From this interface instructors can configure the <b>Content Unlocking</b>.</p>
+                      </span>
+                    </li>
+                  </ul>
+                  </div>
+              </li>
+              <li>
+                <div class="collapsible-header">
+                  <i class="material-icons">question_answer</i>What Do I Need to Know about Debugging System Variables?</div>
+                <div class="collapsible-body">
+                  <ul>
+                    <li style="padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">What are System Variables?</b><br />
+                      <span>
+                        <p style="padding-left:40px"><b>System Variables</b> are pre-built "functions" that will generate values or results from a pre-determined criteria.
+                        For example, "Total Score For Warmup Challenges", will return the total score for a particular challenge.</p>
+                        <br>
+                        <p style="padding-left:40px">Debugging <b>System Variables</b> can become frustrating, which is why we have removed the frustration
+                        by creating an interface which should remove the frustration by allowing instructors to view the results of <b>System Variables</b>
+                        and determine their effectiveness for a desired purpose.</p>
+                      </span>
+                    </li>
+                    <div class="divider"></div>
+                    <li style="padding-top: 12px; padding-bottom: 12px;">
+                      <i class="material-icons" style="vertical-align: middle;">question_answer</i>&nbsp;&nbsp;&nbsp;<b style="vertical-align: middle;">How can I debug them?</b><br />
+                      <span>
+                        <p style="padding-left:40px">To Debug a <b>System Variable</b>, go into the <b>Navigation Menu</b> and under <b>Game Features</b> Select <b>Debug System Variables.</b></p>
+                        <br>
+                        <p style="padding-left:40px">From this interface instructors can debug <b>System Variables</b>.</p>
+                      </span>
+                    </li>
+                  </ul>
+                  </div>
               </li>
             </ul>
           </div>

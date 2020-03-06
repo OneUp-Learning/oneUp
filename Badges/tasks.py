@@ -78,7 +78,10 @@ def schedule_celery_task_checker():
 
 
 def refresh_xp(student_reg_course):
-    celery_calculate_xp.delay(student_reg_course.pk)
+    if settings.CELERY_ENABLED:
+        celery_calculate_xp.delay(student_reg_course.pk)
+    else:
+        celery_calculate_xp(student_reg_course.pk)
 
 @app.task
 def celery_calculate_xp(student_reg_course_id):

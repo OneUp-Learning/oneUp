@@ -163,6 +163,7 @@ def ChallengeSetup(request):
             context_dict['attemptId'] = attemptId
             context_dict['question_range'] = zip(
                 range(1, len(questionObjects)+1), qlist)
+            context_dict['question_ids'] = [i for i in range(1, len(questionObjects)+1)]
 
         register_event(Event.startChallenge, request, None, challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)

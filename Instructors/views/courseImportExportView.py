@@ -2460,6 +2460,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
             # Create the condition to hold the children conditions
             condition_fields_to_save = {'courseID': current_course,
                                         'operand1Type': OperandTypes.conditionSet,
+                                        'operation': condition_json['type'],
                                         'operand1Value': 0,
                                         'operand2Type': OperandTypes.noOperand,
                                         'operand2Value': 0}
