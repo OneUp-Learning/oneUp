@@ -84,7 +84,7 @@ def StudentHome(request):
                                 break
                         
                     
-    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name, course_available)), key=lambda tup: -tup[3])
+    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name, course_available)), key=lambda tup: (-tup[3], tup[2].casefold()))
     context_dict['num_announcements'] = num_announcements
     context_dict['announcement_range'] = zip(range(1,num_announcements+1),announcement_ID,announcement_course,start_timestamp,subject,message)
     context_dict['challenge_range'] = zip(range(1,num_challenges+1), chall_ID, chall_course, chall_Name, start_Timestamp, due_date)
