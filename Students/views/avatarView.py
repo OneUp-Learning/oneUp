@@ -23,14 +23,15 @@ def avatar(request):
 		extractPaths(context_dict, currentCourse, sID)
 	
 	if request.POST: 
-		avatarImage = request.POST['avatar'] # The Chosen Avatar Image Name
-		print("avatar image: "+str(avatarImage))
+		if 'avatar' in request.POST:
+			avatarImage = request.POST['avatar'] # The Chosen Avatar Image Name
+			print("avatar image: "+str(avatarImage))
 	
-		st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	 
-		st_crs.avatarImage = avatarImage
-		st_crs.save()
+			st_crs = StudentRegisteredCourses.objects.get(studentID=sID,courseID=currentCourse)	 
+			st_crs.avatarImage = avatarImage
+			st_crs.save()
 		
-		context_dict['avatar'] = avatarImage	
+			context_dict['avatar'] = avatarImage	
 		return redirect('/oneUp/students/StudentCourseHome', context_dict)
 
 	return render(request, 'Students/Avatar.html', context_dict)
