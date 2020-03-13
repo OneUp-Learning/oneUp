@@ -92,7 +92,7 @@ def preferencesView(request):
                     leaderboardID=request.POST['xpLeaderboardID'])
             else:
                 leaderboard = createXPLeaderboard(currentCourse, request)
-            leaderboard.leaderboardDescription = request.POST['leaderboardDescription']
+            #leaderboard.leaderboardDescription = request.POST['leaderboardDescription']
             # numStudentsDisplayed seems redundant as it is in ccparams
             leaderboard.numStudentsDisplayed = int(
                 request.POST['numStudentsDisplayed'])
