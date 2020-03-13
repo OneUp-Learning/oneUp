@@ -33,12 +33,12 @@
 								<input type="hidden" name="challengeID" value="{{chall_ID}}">
 								<li  id={{chall_ID}}> 
 									<div class="collapsible-header" >
-										<i class="material-icons">reorder</i>  {{chall_Name}}
+										<i class="material-icons">swap_vert</i>  <span style="max-width: 30%;min-width: 30%"> {{chall_Name}} </span>
 										<!--<span style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;"> <span><b>:-:&nbsp;&nbsp;&nbsp;</b></span> {{chall_Name}} &nbsp;&nbsp;</span>-->
-										<span class="badge right-align"> {{chall_visible}}</span>
-										<span class="badge right-align"> {% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</span>
-										<span class="badge right-align"> {% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</span>
-										<span class="badge right-align"> {% if due_date|default_date %} Due at {{due_date|default_date}} {% endif %}</span>
+										<span class="badge right-align" style="max-width: 5%;min-width: 5%"> {{chall_visible}}</span>
+										<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</span>
+										<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</span>
+										<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if due_date|default_date %} Due at {{due_date|default_date}} {% endif %}</span>
 										<!--<span>
 											<div class="input-field col s12">
 												<input placeholder="Position" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4"
@@ -114,7 +114,7 @@
 							{% for j,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
 							<input type="hidden" name="topicID" value="{{topic_ID}}">
 							<li id={{topic_ID}}>
-								<div class="collapsible-header"><i class="material-icons">reorder</i><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
+								<div class="collapsible-header"><i class="material-icons">swap_vert</i><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
 									{% if all_challenges != '0' and challenges_count > 0 %}
 									<span class="badge">{{challenges_count}}</span>
 									{% else %}
@@ -126,14 +126,14 @@
 											{% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp, due_date, chall_position in all_challenges %}
 											<input type="hidden" name="challengeID" value="{{chall_ID}}">
 											<li class="row" id={{chall_ID}}> 
-											<div class="no-padding collapsible-header">
-												<i class="material-icons">reorder</i> {{chall_Name}}
-												<!--<span style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;"> <span><b>:-:&nbsp;&nbsp;&nbsp;</b></span> {{chall_Name}} &nbsp;&nbsp;</span>-->
-												<span class="badge right-align"> {{chall_visible}}</span>
-												<span class="badge right-align"> {% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</span>
-												<span class="badge right-align"> {% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</span>
-												<span class="badge right-align"> {% if due_date|default_date %} Due at {{due_date|default_date}} {% endif %}</span>
-										
+											<div class="no-padding collapsible-header">  &nbsp&nbsp&nbsp&nbsp&nbsp
+												<i class="material-icons">swap_vert</i>  <span style="max-width: 30%;min-width: 30%"> {{chall_Name}} </span>
+										<!--<span style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;"> <span><b>:-:&nbsp;&nbsp;&nbsp;</b></span> {{chall_Name}} &nbsp;&nbsp;</span>-->
+												<span class="badge right-align" style="max-width: 5%;min-width: 5%"> {{chall_visible}}</span>
+												<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</span>
+												<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</span>
+												<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if due_date|default_date %} Due at {{due_date|default_date}} {% endif %}</span>
+												
 												<span class="badge right-align">
 													<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 													data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50" data-tooltip="Options"><i
