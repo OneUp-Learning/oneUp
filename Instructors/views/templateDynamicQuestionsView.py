@@ -235,8 +235,11 @@ def templateDynamicQuestionForm(request):
 
             if 'challengeID' in request.GET:
                 # get the challenge points for this problem to display
-                challenge_questions = ChallengesQuestions.objects.filter(pk=int(request.GET['challengeQuestionID']))
-                context_dict['points'] = challenge_questions[0].points
+                if 'challengeQuestionID' in request.GET:
+                    challenge_questions = ChallengesQuestions.objects.filter(pk=int(request.GET['challengeQuestionID']))
+                    context_dict['points'] = challenge_questions[0].points
+                else:
+                    context_dict['points'] = 0
 
                 # set default skill points - 1
                 context_dict['q_skill_points'] = int('1')
