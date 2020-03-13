@@ -28,7 +28,7 @@ def leaderboardInfoView(request):
         
         for leaderboard in leaderboards:
             if(leaderboard.isXpLeaderboard):
-                leaderboard_range.append((leaderboard.leaderboardName, "This XP leaderboard is composed from the following weights. Skill points:" + str(xpPercentage) +"% Serious Challenges: " +  str(xpSerious) + "% Warmup Challenges: " + str(xpWarmup) + "% Activity Points: " + str(xpActivity) +"%"))
+                leaderboard_range.append((leaderboard.leaderboardName, "The ranking in this leaderboard is based on the experience points(XP). The XP score is composed of Skill points: " + str(xpPercentage) +"% Serious Challenges: " +  str(xpSerious) + "% Warmup Challenges: " + str(xpWarmup) + "% Activity Points: " + str(xpActivity) +"%"))
             else:
                 leaderboard_range.append((leaderboard.leaderboardName, leaderboard.leaderboardDescription))
             
