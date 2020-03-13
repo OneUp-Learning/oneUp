@@ -366,7 +366,7 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
             }
             register_event_simple(Event.badgeEarned, mini_req, student, badge_id)
             # Notify student of badge award 
-            notify.send(None, recipient=student.user, actor=student.user, verb='You won the '+badge.badgeName+' badge', nf_type='Badge', extra=json.dumps({"course": str(course.courseID)}))
+            notify.send(None, recipient=student.user, actor=student.user, verb='You won the '+badge.badgeName+' badge', nf_type='Badge', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
             
         # Give award of virtual currency
         if virtual_currency_amount:
@@ -400,7 +400,7 @@ def award_students(students, course, unique_id, badge_id=None, virtual_currency_
                 }
                 register_event_simple(Event.virtualCurrencyEarned, mini_req, student, virtual_currency_amount)
                 # Notify student of VC award 
-                notify.send(None, recipient=student.user, actor=student.user, verb='You won '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
+                notify.send(None, recipient=student.user, actor=student.user, verb='You won '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
 
 def get_last_ran(unique_id, variable_index, award_type, course_id):
     ''' Retrieves the last time a periodic task has ran. 

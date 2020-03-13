@@ -48,12 +48,12 @@ def challengeAdjustmentView(request):
                     register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
 
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
+                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName)}))
                 if studentChallenge.bonusPointsAwarded != bonusScore:
                     studentChallenge.bonusPointsAwarded = bonusScore
                     studentChallenge.save()
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
+                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName)}))
             else:
                 
                 if not adjustmentScore == 0 or not bonusScore == 0:
@@ -67,11 +67,11 @@ def challengeAdjustmentView(request):
                         register_event(Event.adjustment,request,studentRC.studentID,challengeId)
                         register_event(Event.leaderboardUpdate,request,studentRC.studentID, challengeId)
                         notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
+                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName)}))
                         if not bonusScore == 0:
                             studentChallenge.bonusPointsAwarded = bonusScore
                             notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId)}))
+                                verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName)}))
                         else:
                             studentChallenge.bonusPointsAwarded = 0
                     

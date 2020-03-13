@@ -110,10 +110,10 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                     virtual_currency_amount = abs(prev_amount - studentobj.virtualCurrencyAmount)
 
                 if prev_amount > studentobj.virtualCurrencyAmount:
-                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You lost '+str(virtual_currency_amount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
+                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You lost '+str(virtual_currency_amount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
                 elif prev_amount < studentobj.virtualCurrencyAmount:
                     register_event(Event.virtualCurrencyEarned, request, studentobj.studentID, objectId=virtual_currency_amount)
-                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You earned '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID)}))
+                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You earned '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
                 
             
             return redirect('AddVirtualCurrency.html')
