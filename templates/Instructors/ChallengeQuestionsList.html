@@ -129,7 +129,7 @@
                               <td class="no-padding" style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{q_preview}}</td>
                               <td class="no-padding">{{q_type_displayName}}</td>                              
                               <td class="no-padding">
-                              <div class="input-field col s12">
+                              <div class="input-field col s12" style="margin:0">
                                     <input value="{{q_position}}" name="{{q_ID}}" maxlength="4" type="number" min="0" required>
                               </div>
                                 </td>
@@ -166,7 +166,7 @@
                                        <li class="divider"></li>
                                        <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
                                     </ul>
-                                    <div id="modal_delete-{{i}}" class="modal">
+                                    <div id="modal_delete-{{i}}" class="modal no-padding">
                                        <div class="modal-content">
                                           <h5>Are you sure you want to delete?</h5>
                                           {% if q_duplicate.0 %}

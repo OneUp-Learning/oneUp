@@ -79,13 +79,13 @@
                   </thead>
                   <tbody>
                      {% for i,userID,first_Name,last_Name,user_Email,user_Action, user_Avatar, pk in user_range %}
-                     <tr>
-                        <td><img alt="Avatar Image" class="circle" width="35" height="35" src="{{user_Avatar}}"></td>
-                        <td>{{first_Name}}</td>
-                        <td>{{last_Name}}</td>
-                        <td>{{user_Email}}</td>
-                        <td>{{user_Action}}</td>
-                        <td>
+                     <tr class="no-padding">
+                        <td class="no-padding"><img alt="Avatar Image" class="circle" width="35" height="35" src="{{user_Avatar}}"></td>
+                        <td class="no-padding">{{first_Name}}</td>
+                        <td class="no-padding">{{last_Name}}</td>
+                        <td class="no-padding">{{user_Email}}</td>
+                        <td class="no-padding">{{user_Action}}</td>
+                        <td class="no-padding">
                            <form action="/oneUp/instructors/deleteStudent" method="POST">
                               {% csrf_token %}
                               <input type="hidden" name="userID" value="{{userID}}">
