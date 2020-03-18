@@ -95,7 +95,7 @@ from Instructors.views.CalloutReportView import callout_report, callout_challeng
 
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
 
-from Instructors.views.reorderViews import reorderTopics, reorderChalls, reorderActivities, reorderCategories
+from Instructors.views.reorderViews import reorderTopics, reorderChalls, reorderActivities, reorderCategories, reorderQuestions, reorderBadges, reorderVCRules
 admin.autodiscover()
 urlpatterns = [
 
@@ -246,6 +246,7 @@ urlpatterns = [
     url(r'^ReorderChalls', reorderChalls, name="reorderChalls"),
     url(r'^ReorderActivities', reorderActivities, name="reorderActivities"),
     url(r'^ReorderCategories', reorderCategories, name="reorderCategories"),
-
-
+    url(r'^ReorderQuestions', reorderQuestions, name="reorderQuestions"),
+    url(r'^ReorderBadges', reorderBadges, name="reorderBadges"),
+    url(r'^ReorderVCRules', reorderVCRules, name="reorderVCRules"),
 ]
