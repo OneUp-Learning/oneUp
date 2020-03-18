@@ -284,9 +284,12 @@
 								<th>Student</th>
 								<th>Type</th>
 								<th>Awarded By</th>
-								<th>Badge or VC Name</th>
+								
 								{% if type == 'vc' %}
+								<th>VC Name</th>
 								<th>VC Awarded</th>
+								{% else %}
+								<th>Badge Name</th>
 								{% endif %}
 								<th>Time awarded</th>
 							</tr>
