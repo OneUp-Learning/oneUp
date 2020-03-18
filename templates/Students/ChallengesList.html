@@ -40,18 +40,18 @@
                         </thead>
                         <tbody>
                            {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate, isUnlocked in challenge_range %}
-                           <tr>
+                           <tr style="padding-bottom: .1em;">
                                 <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
-                                <td>{{challDueDate|default_date}}</td>
-                                <td>{{grade}}</td>
+                                <td style="padding-bottom: .1em;">{{challDueDate|default_date}}</td>
+                                <td style="padding-bottom: .1em;">{{grade}}</td>
                                 {% if numberOfAttempts == 99999 %}
-                                <td>Unlimited</td>
+                                <td style="padding-bottom: .1em;">Unlimited</td>
                                 {% else %}
-                                <td>{{numberOfAttempts}}</td>
+                                <td style="padding-bottom: .1em;">{{numberOfAttempts}}</td>
                                 {% endif %}		
-                                <td>{{adjusmentReason}}</td>
+                                <td style="padding-bottom: .1em;">{{adjusmentReason}}</td>
                               {% if isUnlocked.isFullfilled %}
-                              <td class="right-align">
+                              <td class="right-align" style="padding-bottom: .1em;">
                                  {% if is_teacher %} 
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
                                  {% else %}
@@ -64,7 +64,7 @@
                                  {% endif %}
                               </td>
                               {% else %}
-                              <td class="right-align">
+                              <td class="right-align" style="padding-bottom: .1em;">
                                  {% if not is_teacher %}
                                     <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a> 
                                     <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
@@ -75,7 +75,7 @@
                               {% endif %}
                            </tr>
                            {% empty %}
-                           <tr>
+                           <tr style="padding-bottom: .1em;">
                               <td class="center-align" colspan="4"><i>No Challenges</i></td>
                            </tr>
                            {% endfor %}
