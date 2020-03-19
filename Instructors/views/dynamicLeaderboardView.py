@@ -266,7 +266,6 @@ def generateSkillTable(currentCourse, context_dict):
                     context_dict['skills'].append(skillInfo) 
         
 def generateLeaderboards(currentCourse, displayHomePage):
-    
     if displayHomePage:
         leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=True)
     else:
@@ -316,6 +315,13 @@ def generateLeaderboards(currentCourse, displayHomePage):
         leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
         leaderboardNames.append(leaderboard.leaderboardName)
         leaderboardDescriptions.append(leaderboard.leaderboardDescription)
+
+    ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
+    if(len(leaderboardsConfigs)):
+        ccparams.customLeaderboardsUsed = True
+    else:
+        ccparams.customLeaderboardsUsed = False
+    ccparams.save()
 
     return zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)  
 def createTimePeriodContext(context_dict):

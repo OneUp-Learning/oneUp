@@ -362,6 +362,8 @@ class CourseConfigParams(models.Model):
     courseEndDate=models.DateField(default=datetime.min)              ##
     leaderboardUpdateFreq=models.IntegerField(default=1)
     skillLeaderboardDisplayed = models.BooleanField(default=False)         ## Frequency in days, minimum 1 and maximum 365 days
+    customLeaderboardsUsed = models.BooleanField(default=False)
+
     ##XP Weights CalcualtionFields
     xpWeightSP = models.IntegerField(default=0)                       ## XP Weights for Skill Points
     xpWeightSChallenge = models.IntegerField(default=0)               ## XP Weights for Serious Challenges
