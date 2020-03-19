@@ -144,15 +144,13 @@
 				return;
 			}
 			// console.log(json)
-			$(`#course-name-${id}`).html(json['name'])
-        }
-        function updateNotificationsPageLink(){
-            $(".notification-link").each((i, e) => {
-                $(e).click(()=>{
+            $(`#course-name-${id}`).html(json['name'])
+            $(`#notification-link-${id}`).click(() => {
+                if('related_link' in json)
+                    window.location = json['related_link']
+                else
                     window.location = '/oneUp/instructors/NotificationPage?ID=1'
-                })
-                
-            })
+            });
         }
         function limitNotifications(limit, size){
             if(size == 0) return;
@@ -178,7 +176,6 @@
             limitNotificationsInBox(notification_box_mobile);
         }
         function countNotifications(){
-            updateNotificationsPageLink();
 
             var all_notifications_count = $('nav .notification-box-list').children().length / 2;
 
