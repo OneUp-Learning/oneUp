@@ -12,10 +12,14 @@
          }
       }
       function validateAvatar(){
-         if(document.getElementsByName('avatar').value == null){
-            alert("Please select an avatar.");
-            return false;
+         //console.log(document.getElementsByName('avatar')[0].value);
+         var avatars = document.getElementsByName('avatar');
+         for(var i = 0; i < avatars.length; i++){
+            if(document.getElementsByName('avatar')[i].checked)
+               return true;
          }
+         alert("Please select an avatar.");
+         return false;
       }
    </script>
 </head>

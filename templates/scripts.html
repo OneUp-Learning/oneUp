@@ -29,6 +29,8 @@
     $( document ).ready(function(){
       $(".button-collapse").sideNav();
       $('select').not('.browser-default').material_select();
+      // Stops materialize select from having to click twice (https://stackoverflow.com/a/56725559)
+      document.querySelectorAll('.select-wrapper').forEach(t => t.addEventListener('click', e=>e.stopPropagation()))
       Materialize.updateTextFields();
       $('.modal').modal();
     }); 

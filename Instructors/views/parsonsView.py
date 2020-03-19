@@ -247,15 +247,20 @@ def parsonsForm(request):
             
             if 'challengeID' in request.GET:
                 # get the challenge points for this problem to display
-                challenge_questions = ChallengesQuestions.objects.filter(pk=int(request.GET['challengeQuestionID']))
-                if challenge_questions:
-                    context_dict['points'] = challenge_questions[0].points
-                    
-                    # set default skill points - 1
-                    context_dict['q_skill_points'] = int('1')
-    
-                    # Extract the skill                                        
-                    context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)   
+                if 'challengeQuestionID' in request.GET:
+                    challenge_questions = ChallengesQuestions.objects.filter(pk=int(request.GET['challengeQuestionID']))
+                    if challenge_questions:
+                        context_dict['points'] = challenge_questions[0].points
+                        
+                        # set default skill points - 1
+                        context_dict['q_skill_points'] = int('1')
+        
+                        # Extract the skill                                        
+                        context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)   
+                else:
+                    context_dict['points'] = 0
+
+                
 
             #print("loaded feedback")
             context_dict['incorrectAnswerFeedback'] = question.correctAnswerFeedback

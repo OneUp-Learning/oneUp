@@ -50,7 +50,9 @@
                     if(notification_data['course'] == course_id){
                         notification_box_desktop.prepend(notification.html);
 						notification_box_mobile.prepend(notification.html);
-
+						
+						// $(`#course-name-${notification.id}`).html(notification_data['name'])
+						updateNotificationsCourseName(notification.id)
                     }
                 });
 
@@ -127,6 +129,15 @@
 			
 			if(notification_div_page)
 				removeDupes(notification_div_page);
+		}
+		function updateNotificationsCourseName(id){
+			try{
+				var json = JSON.parse($(`#course-name-${id}`).html())
+			} catch {
+				return;
+			}
+			// console.log(json)
+			$(`#course-name-${id}`).html(json['name'])
         }
 		function limitNotifications(limit, size){
 			if(size == 0) return;
@@ -188,9 +199,11 @@
                     } else {
                         notifications[i].remove();
                         if(removed_empty == false)
-                            all_notifications_count--;
+							all_notifications_count--;
+						continue;
                     }
-                }
+				}
+				updateNotificationsCourseName($(notifications[i]).attr('data-nf-id'));
             }
             
             // Limit the number of notifications 

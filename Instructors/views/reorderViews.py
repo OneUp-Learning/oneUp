@@ -5,7 +5,8 @@ Created on February 27, 2020
 '''
 
 from django.http import JsonResponse
-from Instructors.models import CoursesTopics, Challenges, Activities, ActivitiesCategory
+from Instructors.models import CoursesTopics, Challenges, Activities, ActivitiesCategory, ChallengesQuestions
+from Badges.models import BadgesInfo, VirtualCurrencyCustomRuleInfo
 import json
 from Instructors.views import utils
 
@@ -96,6 +97,72 @@ def reorderActivities(request):
                     activityID=int(idPos[0]), courseID=currentCourse)
                 activity.activityPosition = int(idPos[1])
                 activity.save()
+            except:
+                continue
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+
+def reorderQuestions(request):
+    ''' This view is called by an ajax function to reorder questions'''
+
+    context_dict, currentCourse = utils.initialContextDict(request)
+
+    if request.POST:
+        questionIdsPositions = request.POST.getlist("questionIdsPositions[]")
+        for questionIdPos in questionIdsPositions:
+            idPos = questionIdPos.split("---")
+
+            try:
+                question = ChallengesQuestions.objects.get(
+                    questionID__questionID=int(idPos[0]), challengeID__courseID=currentCourse)
+                question.questionPosition = int(idPos[1])
+                question.save()
+            except:
+                continue
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+
+def reorderBadges(request):
+    ''' This view is called by an ajax function to reorder badges'''
+
+    context_dict, currentCourse = utils.initialContextDict(request)
+
+    if request.POST:
+        badgeIdsPositions = request.POST.getlist("badgeIdsPositions[]")
+        for badgeIdPos in badgeIdsPositions:
+            idPos = badgeIdPos.split("---")
+
+            try:
+                badge = BadgesInfo.objects.get(
+                    badgeID=int(idPos[0]), courseID=currentCourse)
+                badge.badgePosition = int(idPos[1])
+                badge.save()
+            except:
+                continue
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+
+def reorderVCRules(request):
+    ''' This view is called by an ajax function to reorder VCRules'''
+
+    context_dict, currentCourse = utils.initialContextDict(request)
+
+    if request.POST:
+        ruleIdsPositions = request.POST.getlist("ruleIdsPositions[]")
+        for ruleIdPos in ruleIdsPositions:
+            idPos = ruleIdPos.split("---")
+
+            try:
+                rule = VirtualCurrencyCustomRuleInfo.objects.get(
+                    vcRuleID=int(idPos[0]), courseID=currentCourse)
+                rule.vcRulePosition = int(idPos[1])
+                rule.save()
             except:
                 continue
 
