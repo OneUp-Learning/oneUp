@@ -6,6 +6,8 @@ from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInf
 from Badges.enums import Event, ObjectTypes
 from datetime import datetime
 from Instructors.models import Challenges, Activities
+from notify.signals import notify  
+import json
 #import logging
 
 @login_required
@@ -101,12 +103,17 @@ def updateVirtualCurrencyTransaction(request):
                     rule = VirtualCurrencyCustomRuleInfo.objects.filter(vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
                     student.virtualCurrencyAmount += rule.vcRuleAmount
                     student.save()
+
+                if transaction.status != request.POST['updateStatus']:
+                    notify.send(None, recipient=transaction.student.user, actor=request.user, verb=f'{transaction.name} VC transaction status has been updated', nf_type='VC Transaction', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
                     
                 # Save the transaction status and notes
                 transaction.status = request.POST['updateStatus']
                 transaction.instructorNote = request.POST['instructorNotes']
                 transaction.noteForStudent = request.POST['studentNotes']
                 transaction.save()
+
+                
                 
             return redirect('VirtualCurrencyTransactions.html')
                 
