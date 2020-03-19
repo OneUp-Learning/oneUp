@@ -146,6 +146,14 @@
 			// console.log(json)
 			$(`#course-name-${id}`).html(json['name'])
         }
+        function updateNotificationsPageLink(){
+            $(".notification-link").each((i, e) => {
+                $(e).click(()=>{
+                    window.location = '/oneUp/instructors/NotificationPage?ID=1'
+                })
+                
+            })
+        }
         function limitNotifications(limit, size){
             if(size == 0) return;
 			if(size <= limit) return;
@@ -170,19 +178,20 @@
             limitNotificationsInBox(notification_box_mobile);
         }
         function countNotifications(){
+            updateNotificationsPageLink();
 
             var all_notifications_count = $('nav .notification-box-list').children().length / 2;
 
             // Remove magic "no new notifications yet" element when there are no notifications and add a customized one
             let notifications = $('nav .notification-box-list').children();
             if(notifications.length == 0){
-                $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/students/NotificationPage">No notifications (View all)</a></li>');
+                $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/instructors/NotificationPage">No notifications (View all)</a></li>');
             }
             var empty = all_notifications_count == 1;
             var removed_empty = false;
             for(var i = notifications.length-1; i >= 0; i--){
                 // This is our custom one just set notification count to 0
-                if(notifications[i].innerHTML == '<a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/students/NotificationPage">No notifications (View all)</a>'){
+                if(notifications[i].innerHTML == '<a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/instructors/NotificationPage">No notifications (View all)</a>'){
                     if(all_notifications_count == 1 && empty){
                         all_notifications_count = 0;
                         break;
@@ -199,7 +208,7 @@
                         $('nav .notification-box-list').empty();
                         all_notifications_count = 0;
                         // Add "No notifications" for mobile and desktop
-                        $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/students/NotificationPage">No notifications (View all)</a></li>');
+                        $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect nav-dropdown-link" href="/oneUp/instructors/NotificationPage">No notifications (View all)</a></li>');
                         break;
                     } else {
                         notifications[i].remove();
