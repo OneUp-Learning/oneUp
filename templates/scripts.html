@@ -48,4 +48,21 @@
     html{
       background-color: #fafafa;
     }
+    [type="checkbox"].reset-checkbox,
+    [type="checkbox"].reset-checkbox:checked,
+    [type="checkbox"].reset-checkbox:not(checked) {
+      opacity: 1;
+      position: relative;
+    }
+
+    [type="checkbox"].reset-checkbox+label::before,
+    [type="checkbox"].reset-checkbox+label::after,
+    [type="checkbox"].reset-checkbox:checked+label::before,
+    [type="checkbox"].reset-checkbox:checked+label::after {
+      display: none;
+    }
+
+    [type="checkbox"].reset-checkbox+label:not(.lever) {
+      padding-left: 10px;
+    }
 </style>
