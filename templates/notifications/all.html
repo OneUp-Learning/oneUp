@@ -76,6 +76,7 @@
 								<tr>
 									<th>Notification Description</th>
 									<th>Notification Timestamp</th>
+									<th>Course</th>
 									<th style="padding-left: 100px">Options</th>
 								</tr>
 								</thead>
@@ -97,10 +98,22 @@
 
 				</div>
 			</div>
-
+		
 		</div>
 	</main>
 	{% include 'footer.html' %}
 </body>
-
+<script>
+	$(document).ready(()=>{
+		$(".course-name").each((i, el) => {
+			try{
+				var json = JSON.parse($(el).html())
+			} catch {
+				return;
+			}
+			// console.log(json)
+            $(el).html(json['name'])
+		})
+	})
+</script>
 </html>

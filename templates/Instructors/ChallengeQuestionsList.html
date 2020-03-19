@@ -115,19 +115,15 @@
                   
                         <ul id="sortableQuestions"  class="collapsible">
                            {% for i,q_ID, challenge_question_id, q_preview,q_type_name,q_type_displayName,q_difficulty, q_position, q_duplicate in question_range %}
-                           <li  id={{q_ID}}> 
-                           <div class="collapsible-header" >
-                              <span style="left: 0px" >
-                                 <i class="material-icons">swap_vert</i>
-                              </span>
-                              <span class="left-align" style="max-width: 40%;min-width: 40%; left: 0px"> {{q_preview}}</span>
-                              <span class="badge right-align" style="max-width: 20%;min-width: 20%">{{q_type_displayName}}</span>                              
+                           <li id={{q_ID}}> 
+                           <div  class="collapsible-header"><i  class="material-icons">swap_vert</i><span class="left-align" style="max-width: 30%;min-width: 30%; padding-left: 0px"> {{q_preview}}</span>
+                              <span class="badge right-align" style="max-width: 20%;min-width: 20%;">{{q_type_displayName}}</span>                              
                                 <span class="badge right-align" style="max-width: 20%;min-width: 20%">
-                                 {% if q_duplicate.0 %}
-                                 <span class="new badge indigo custom-badge tooltipped" data-position="top" data-tooltip="Editing will override duplicates">duplicate</span>
-                              {% endif %}
+                              {% if q_duplicate.0 %}
+                                 <span class="badge right-align" style="max-width: 20%;min-width: 20%" data-position="top" data-tooltip="Editing will override duplicates">duplicate</span>
+                             {% endif %}
                                 </span>
-                              <span class="badge">
+                              <span class="badge right-align" style="max-width: 10%;min-width: 10%;">
                                     <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
                                     <ul id='dropdown-{{i}}' class='dropdown-content'>
                                        {% csrf_token %} 
@@ -175,6 +171,7 @@
                                     </div>
                               </span>
                            </div>
+                           
                            </li>
                            {% empty %}
                            <li>

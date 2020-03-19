@@ -55,7 +55,10 @@ def createContextForActivityList(request, context_dict, currentCourse):
             cat_activities = category_activities(count, cat, currentCourse)
             categoryNames.append(cat.name)
             categoryIds.append(cat.categoryID)
-            categoryWeights.append(cat.xpWeight)
+            if context_dict['ccparams'].xpWeightAPoints > 0:
+                categoryWeights.append(cat.xpWeight)
+            else:
+                categoryWeights.append(None)
             activitiesInCategory.append(cat_activities)
             count += Activities.objects.filter(category=cat,
                                                courseID=currentCourse).count()
@@ -78,7 +81,10 @@ def createContextForActivityList(request, context_dict, currentCourse):
             activitiesInCategory.append(cat_activities)
             categoryNames.append(cat.name)
             categoryIds.append(cat.categoryID)
-            categoryWeights.append(cat.xpWeight)
+            if context_dict['ccparams'].xpWeightAPoints > 0:
+                categoryWeights.append(cat.xpWeight)
+            else:
+                categoryWeights.append(None)
             activities = Activities.objects.filter(
                 category=filterCategory, courseID=currentCourse)
             for activity in activities:

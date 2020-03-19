@@ -3,12 +3,13 @@ from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
-from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesInfo, BadgesVCLog
+from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesInfo, BadgesVCLog, PeriodicBadges, Badges
 from Students.models import StudentRegisteredCourses, Student, StudentBadges, StudentFile, User
 from Badges.systemVariables import logger
 from pytz import reference
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 import json
+from notify.signals import notify
 
 @login_required
 def addBadgeManuallyView(request):
@@ -114,6 +115,7 @@ def addBadgeManuallyView(request):
                 ##save it in
                 studentBadge = StudentBadges()
                 referencedBadge = BadgesInfo.objects.filter(badgeID=request.POST['badgeID']).first()
+
                 print(student)
                 print(request.POST['badgeID'])
                 print(referencedBadge)
@@ -127,8 +129,9 @@ def addBadgeManuallyView(request):
                 studentAddBadgeLog.log_data = json.dumps(log_data)
                 studentAddBadgeLog.save()
 
-                # Register even that a badge was earned
+                # Register event that a badge was earned                
                 register_event(Event.badgeEarned, request, student, referencedBadge.pk)
+                notify.send(None, recipient=student.user, actor=student.user, verb=f'You won the {referencedBadge.badgeName} badge', nf_type='Badge', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
                 
             ##we are sent checkboxes to remove from students    
             if 'checkboxes' in request.POST:

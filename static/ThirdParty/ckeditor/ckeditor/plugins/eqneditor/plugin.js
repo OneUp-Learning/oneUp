@@ -16,20 +16,21 @@ CKEDITOR.plugins.add( 'eqneditor', {
 	
 	init : function(editor)
 	{		
-	  var http = ('https:' == document.location.protocol ? 'https://' : 'http://');
+	  var host='latex.codecogs.com';
+	  var http=('https:' == document.location.protocol ? 'https://' : 'http://');
 			
 		// First make sure we have loaded the necessary scripts
   	CKEDITOR.scriptLoader.load( [
-		http+'latex.codecogs.com/js/eq_config.js', 
-		http+'latex.codecogs.com/js/eq_editor-lite-16.js',
+		http+host+'/js/eq_config.js', 
+		http+host+'/js/eq_editor-lite-17.js',
 		]);
 		
 		// Load Additional CSS 
 		var fileref=document.createElement("link");
 		fileref.setAttribute("rel", "stylesheet");
 		fileref.setAttribute("type", "text/css");
-		fileref.setAttribute("href", http+'latex.codecogs.com/css/equation-embed.css');
-		document.getElementsByTagName("head")[0].appendChild(fileref)	
+		fileref.setAttribute("href", http+host+'/eqneditor/css/equation-embed.css');
+		document.getElementsByTagName("head")[0].appendChild(fileref);
 	
 		var pluginCmd='eqneditorDialog';
 
@@ -46,6 +47,7 @@ CKEDITOR.plugins.add( 'eqneditor', {
 		editor.ui.addButton( 'EqnEditor', {
 			label : editor.lang.eqneditor.toolbar,
 			command : pluginCmd,
+			icon: this.path + 'icons/eqneditor.png',
 			toolbar: 'insert'
 		});
 

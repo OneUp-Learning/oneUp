@@ -24,6 +24,7 @@ def activityCatList(request):
     print("cats")
     print(categories)
     context_dict['cats'] = categories
+    context_dict['use_xp_weights'] = context_dict['ccparams'].xpWeightAPoints > 0
 
     return render(request, 'Instructors/ActivityCategories.html', context_dict)
 

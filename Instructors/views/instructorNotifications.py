@@ -29,7 +29,7 @@ def instructorNotifications(request):
         sID = Student.objects.filter(user=request.user).exists()
         if(sID):
             context_dict, currentCourse = studentInitialContextDict(request)
-            context_dict['is_teacher'] = False
+            context_dict["is_teacher"] = True
         else:
             context_dict, currentCourse = initialContextDict(request)
             context_dict['is_teacher'] = True
