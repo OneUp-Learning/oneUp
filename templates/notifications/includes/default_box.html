@@ -1,6 +1,6 @@
 <li data-nf-id="{{ notification.id }}" class="collection-item avatar notification list-group-item {{ notification.read|yesno:'read,unread' }} navNotifications">
     <a class='waves-effect truncate nav-dropdown-link' style="color: #616161 !important; display: flex;">
-        <div style="max-width: 100%;" style="cursor: pointer;" onclick="window.location='/oneUp/students/NotificationPage?ID=1'">
+        <div style="max-width: 100%; width: 100%" style="cursor: pointer;" onclick="window.location='/oneUp/students/NotificationPage?ID=1'">
         <div style="padding-right: 32px; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{ notification.verb }}</div>
         <div style="display: flex; justify-content: center;">
             <p id="course-name-{{ notification.id }}" style="text-overflow: ellipsis; overflow: auto; max-width: 200px; margin-top: 8px; margin-bottom: 0; margin-right: 8px;">{{notification.extra}}</p> 
