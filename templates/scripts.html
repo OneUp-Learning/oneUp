@@ -52,7 +52,7 @@
     [type="checkbox"].reset-checkbox:checked,
     [type="checkbox"].reset-checkbox:not(checked) {
       opacity: 1;
-      position: relative;
+      position: absolute;
     }
 
     [type="checkbox"].reset-checkbox+label::before,
@@ -64,5 +64,7 @@
 
     [type="checkbox"].reset-checkbox+label:not(.lever) {
       padding-left: 10px;
+      margin-left: 10px;
+    line-height: initial;
     }
 </style>
