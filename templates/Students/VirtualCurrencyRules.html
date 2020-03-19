@@ -23,9 +23,9 @@
                      <tbody>
                         {% for i,vcRuleID,vcRuleName, vcRuleDescription, vcAmount in vcEarningRuleInfo %}
                         <tr>
-                           <td>{{vcRuleName}}</td>
-                           <td>{{vcRuleDescription}}</td>
-                           <td>{% if vcAmount|add:"0" > 0 %}{{vcAmount}}{% else %}Varies{% endif %}</td> <!-- prevents automatic rules from display 'varies' -->
+                           <td style="padding-bottom: .1em;">{{vcRuleName}}</td>
+                           <td style="padding-bottom: .1em;">{{vcRuleDescription}}</td>
+                           <td style="padding-bottom: .1em;">{% if vcAmount|add:"0" > 0 %}{{vcAmount}}{% else %}Varies{% endif %}</td> <!-- prevents automatic rules from display 'varies' -->
                         </tr>
                         {% empty %}
                         <tr>
@@ -55,10 +55,10 @@
                      <tbody>
                         {% for i,vcRuleID,vcRuleName, vcRuleDescription, vcAmount, vcLimit in vcSpendingRuleInfo %}
                         <tr>
-                           <td>{{vcRuleName}}</td>
-                           <td>{{vcRuleDescription}}</td>
-                           <td>{{vcAmount}}</td>
-                           <td>{{vcLimit}}</td>
+                           <td style="padding-bottom: .1em;">{{vcRuleName}}</td>
+                           <td style="padding-bottom: .1em;">{{vcRuleDescription}}</td>
+                           <td style="padding-bottom: .1em;">{{vcAmount}}</td>
+                           <td style="padding-bottom: .1em;">{{vcLimit}}</td>
                         </tr>
                         {% empty %}
                         <tr>

@@ -39,7 +39,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     context_dict['challengeName'] = challenge.challengeName
                       
     # Get the questions for this challenge 
-    challenge_questions = ChallengesQuestions.objects.filter(challengeID=int(challengeId))
+    challenge_questions = ChallengesQuestions.objects.filter(challengeID=int(challengeId)).order_by('questionPosition')
          
     for challenge_question in challenge_questions:
         questionObjects.append(challenge_question.questionID)
@@ -61,13 +61,10 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
         q_type=question.type
         q_type_name.append(QuestionTypes.questionTypes[q_type]['name'])
         q_type_displayName.append(QuestionTypes.questionTypes[q_type]['displayName'])
-        q_difficulty.append(question.difficulty)
-        
-    
-                
+        q_difficulty.append(question.difficulty)               
         
     # The range part is the index numbers.
-    context_dict['question_range'] = sorted(list(zip(range(1,len(questionObjects)+1),q_ID,q_challenge_question_ids, q_preview,q_type_name,q_type_displayName, q_difficulty, q_position, q_duplicate)), key=lambda tup: tup[6])
+    context_dict['question_range'] = zip(range(1,len(questionObjects)+1),q_ID,q_challenge_question_ids, q_preview,q_type_name,q_type_displayName, q_difficulty, q_position, q_duplicate)
     
     return context_dict
 

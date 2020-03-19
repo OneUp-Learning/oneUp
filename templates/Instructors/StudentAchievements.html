@@ -23,11 +23,11 @@
                         </thead>
                         <tbody>
                             {% for i,first_Name,last_Name,user_Email,userID in user_range %}
-                            <tr>
-                                <td>{{first_Name}}</td>
-                                <td>{{last_Name}}</td>
-                                <td>{{user_Email}}</td>
-                                <td><a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons" >more_vert</i></a>
+                            <tr class="no-padding">
+                                <td class="no-padding" >{{first_Name}}</td>
+                                <td class="no-padding" >{{last_Name}}</td>
+                                <td class="no-padding">{{user_Email}}</td>
+                                <td class="no-padding"><a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons" >more_vert</i></a>
                                     <ul id='dropdown-{{i}}' class='dropdown-content'>
                                     {% if skillsUsed %}
                                         <li><a href="/oneUp/instructors/studentSkillsEarned?userID={{userID}}">Skills</a></li>

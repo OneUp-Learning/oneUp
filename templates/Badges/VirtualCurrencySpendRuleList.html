@@ -3,6 +3,7 @@
 
 <head>
       {% include 'scripts.html' %}
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <body>
@@ -20,43 +21,27 @@
                         <h3>Virtual Currency Spend Rules</h3>
                   </div>
             </div>
-      <form name="reorderBadges" action="/oneUp/badges/reorderVcSpendRuleList" method="POST">
+
             {% csrf_token %}
             <div class="row right-align">
                   <div class="col s12 m10 offset-m1">
 
                         <a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualCurrencySpendRule"><i
-                                    class="material-icons left">edit</i>Create Spending Rule</a>
-                        <button class="btn waves-effect waves-light" type="submit" name="submit">swap_vert Rules
-                              <i class="material-icons right">swap_vert</i>
-                        </button>
-
+                                    class="material-icons left">edit</i>Create a Spending Rule</a>
                   </div>
             </div>
             <div class="row">
-                  <div class="col s12 m10 offset-m1">
-                        <div class="card">
-                              <div class="card-content">
-                                    <table>
-                                          <thead>
-                                                <th>Name</th>
-                                                <th>Course Bucks</th>
-                                                <th>Limit</th>
-                                                <th>&nbsp; Rule Position</th>
-                                          </thead>
-                                          <tbody>
+                <div class="col s12 m10 offset-m1">
+                        <div class="card-content">
+                          <ul id="sortableRules" class="collapsible" >
                                                 {% for i,vcsRuleID,vcsRuleName,vcsAmount, limit, position in vcsRuleInfo %}
-                                                <tr>
-                                                      <td style="max-width: 80vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{vcsRuleName}}</td>
-                                                      <td>{{vcsAmount}}</td>
-                                                      <td>{{limit}}</td>
-                                                      <td>
-                                                            <div class="input-field col s6">
-                                                                  <input placeholder="Position" value="{{position}}" name="{{vcsRuleID}}" id="vcsRulePosition" maxlength="4"
-                                                                  type="number" class="validate" min="0" required>
-                                                            </div>
-                                                      </td>
-                                                      <td>
+                                                <li id={{vcsRuleID}}>
+                                                <div class="collapsible-header" > <i class="material-icons">swap_vert</i> 
+                                                      <span style="max-width: 24%;min-width: 24%;">{{vcsRuleName}}</span>
+                                                      <span style="max-width: 24%;min-width: 24%;">{{vcsAmount}}</span>
+                                                      <span style="max-width: 24%;min-width: 24%;">{{limit}}</span>
+                                                      
+                                                      <span class="right-align badge">
                                                             <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
                                                                   data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i
                                                                         class="material-icons">more_vert</i></a>
@@ -76,20 +61,47 @@
                                                                         </button>
                                                                   </div>
                                                             </div>
-                                                      </td>
-                                                </tr>
+                                                      </span>
+                                                </li>
                                                 {% empty %}
-                                                <tr>
-                                                      <td class="center-align" colspan="3"><i>No rules created</i></td>
-                                                </tr>
+                                                <li>
+                                                      <div class="center-align" colspan="3"><i>No rules created</i></div>
+                                                </li>
                                                 {% endfor %}
-                                          </tbody>
-                                    </table>
+                                          </ul>
+                                          <script>
+										$( function() {
+											$( "#sortableRules" ).sortable({
+
+												stop: function(event, ui) {
+
+												var itemOrder = $("#sortableRules").sortable("toArray");
+
+												var idsPositions = []
+
+												for (var i = 0; i < itemOrder.length; i++) {
+													if (itemOrder[i]){
+														idsPositions.push(String(itemOrder[i])+"---"+String(i));
+													}
+												}
+
+												var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+												console.log(idsPositions)
+
+												$.post( "/oneUp/instructors/ReorderVCRules", {ruleIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
+													console.log(data)
+												});
+
+												}
+												});
+											});
+										</script>
                               </div>
                         </div>
                   </div>
             </div>
-      </form>
+ 
       </main>
       {% include 'footer.html' %}
 </body>
