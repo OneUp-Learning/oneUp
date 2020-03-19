@@ -99,14 +99,15 @@
                </div>
                {% if not unassign %}
                <a class="waves-effect waves-light btn" href="/oneUp/instructors/search?challengeID={{challengeID}}"><i class="material-icons left">search</i>Search Problems</a>  
-               {% endif %}
+               
                
                   <br> <br>
-                  <div class="switch">
-                                <label>
-                                    Randomize Problems: {{isRandomized}}
-                                </label>
-            </div>
+                  {% if isRandomized %}
+                  <div class="chip" style="background-color: #3f51b5; color: white;">
+                     Problems are Randomized
+                  </div>
+                  {% endif %}
+               {% endif %}
          </div>
          
          <div class="row">
