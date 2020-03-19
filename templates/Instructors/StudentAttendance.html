@@ -83,11 +83,11 @@
                      </thead>
                      <tbody>
                         {% for student_ID, student_Avatars, first_name, last_name, isPresent in class %}
-                        <tr>
-                           <td style="width: 64px"><a><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></a></td>
+                        <tr class="no-padding">
+                           <td class="no-padding" style="width: 64px"><a><img class="circle" width="25px" height="25px" src="{{student_Avatars}}"></a></td>
                            
-                           <td style="vertical-align: middle;">{{first_name}} {{last_name}}</td>
-                           <td>
+                           <td class="no-padding" style="vertical-align: middle;">{{first_name}} {{last_name}}</td>
+                           <td class="no-padding">
                               {% if isPresent == "true" %}
                               <input class="checkbox" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" checked/>
                               {% else %}
@@ -99,7 +99,7 @@
                               </td>
                         </tr>
                         {% empty %}
-                        <tr>
+                        <tr class="no-padding">
                            <td class="center-align" colspan="4"><i>No Students Created</i></td>
                         </tr>
                         {% endfor %}

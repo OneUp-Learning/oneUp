@@ -75,29 +75,29 @@
                      <div class="table-wrap">
                         <table class="highlight main-table">
                            <thead>
-                              <th class="fixed-side"> Name</th>
-                              <th> Total</th>
+                              <th class="fixed-side no-padding"> Name</th>
+                              <th class="no-padding"> Total</th>
                               {% for i,chall_Name in challenge_range %}
-                              <th>{{chall_Name}} </th>
+                              <th class="no-padding" >{{chall_Name}} </th>
                               {% endfor %}
                            </thead>
                            <tbody>
                               {% for i,first_Name,last_Name,grade_range,allActivityGrade_range, gradeTotal in user_range %}
                               <!-- gave this classes and witdths GGM -->
-                              <tr>
-                                 <td class="fixed-side">{{first_Name}} {{last_Name}}</td>
-                                 <td>{{gradeTotal}}</td>
+                              <tr class="no-padding">
+                                 <td class="fixed-side no-padding">{{first_Name}} {{last_Name}}</td>
+                                 <td class="no-padding">{{gradeTotal}}</td>
                                  {% for grade,sc_user,sc_chall in grade_range %}
                                  <input type="hidden" name="challID" value="{{sc_user}}">
                                  <input type="hidden" name="challID" value="{{sc_chall}}">
                                  {% if grade !=  '-' %}
-                                     <td><a href="/oneUp/students/ChallengesTaken?challengeID={{sc_chall}}&userID={{sc_user}}&classAchievements">{{grade}}</a></td>
+                                     <td class="no-padding" ><a href="/oneUp/students/ChallengesTaken?challengeID={{sc_chall}}&userID={{sc_user}}&classAchievements">{{grade}}</a></td>
                                  {% else %}  
-                                     <td>{{grade}}</td>
+                                     <td class="no-padding">{{grade}}</td>
                                  {% endif %} 
                                       {% endfor %}
                                  {% for activityGrades in allActivityGrade_range %}
-                                 <td> {{activityGrades}}</td>
+                                 <td class="no-padding" > {{activityGrades}}</td>
                                  {% endfor %}
                               </tr>
                               {% endfor %}

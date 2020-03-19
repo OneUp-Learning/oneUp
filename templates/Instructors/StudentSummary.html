@@ -60,25 +60,25 @@
                      </thead>
                      <tbody>
                      {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_Action in user_range %}
-                     <tr>
-                           <td><img class="circle" alt="Avatar Image" width="36" height="36" src="{{user_Avatar}}"></td> 
-                           <td>{{first_Name}}</td>
-                           <td>{{last_Name}}</td>
+                     <tr class="no-padding">
+                           <td class="no-padding"><img class="circle" alt="Avatar Image" width="36" height="36" src="{{user_Avatar}}"></td> 
+                           <td class="no-padding">{{first_Name}}</td>
+                           <td class="no-padding">{{last_Name}}</td>
                            {% if seriousUsed %}
-                           <td>{{sc_totalStudentScore}} / {{sc_totalStudentPossibleScore}}</td>
+                           <td class="no-padding">{{sc_totalStudentScore}} / {{sc_totalStudentPossibleScore}}</td>
                            {% endif %}
                            {% if activitiesUsed %}
-                           <td>{{act_totalStudentScore}} / {{act_totalStudentPossibleScore}}</td>
+                           <td class="no-padding">{{act_totalStudentScore}} / {{act_totalStudentPossibleScore}}</td>
                            {% endif %}
                            {% if warmupsUsed %}
-                           <td>{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
+                           <td class="no-padding">{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
                            {% endif %}
-                           <td>{{user_XP}}</td>
-                           <td class='vc'>{{user_VC}}</td>
-                           <td>{{user_Action}}</td>
+                           <td class="no-padding">{{user_XP}}</td>
+                           <td class="vc no-padding">{{user_VC}}</td>
+                           <td class="no-padding">{{user_Action}}</td>
                      </tr>
                      {% empty %}
-                     <tr><td class="center-align" colspan="8"><i>No students enrolled</i></td></tr>
+                     <tr class="no-padding"><td class="center-align" colspan="8"><i>No students enrolled</i></td></tr>
                      {% endfor %}
                      </tbody>
                   </table>
