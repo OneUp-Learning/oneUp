@@ -74,6 +74,7 @@ def dynamicLeaderboardView(request):
         context_dict['num_tables'] = leaderboardCount
         print(leaderboardID ,isContinous, howFarBack,homePageCheckboxes,leaderboardName,leaderboardDescription, timePeriodUpdateInterval, periodicVariable, numStudentsDisplayed )
         context_dict['leaderboard'] = zip(range(0,leaderboardCount),leaderboardID ,isContinous, howFarBack,homePageCheckboxes,leaderboardName,leaderboardDescription, timePeriodUpdateInterval, periodicVariable, numStudentsDisplayed )            
+        updateCustomLeaderboardsCourseConfigBool(currentCourse)
                    
         return render(request,'Instructors/DynamicLeaderboard.html', context_dict)
     
@@ -83,7 +84,8 @@ def dynamicLeaderboardView(request):
         if 'delete[]' in request.POST:
             deleteLeaderboards = request.POST.getlist('delete[]')
             #print("deleteLeaderboards",deleteLeaderboards)
-            deleteLeaderboardConfigObjects(deleteLeaderboards)   
+            deleteLeaderboardConfigObjects(deleteLeaderboards)
+            updateCustomLeaderboardsCourseConfigBool(currentCourse)
         
         #now we need to cyle though the data for the dynamically generated tables
         
@@ -164,7 +166,7 @@ def dynamicLeaderboardView(request):
             index= index + 1
         
         createPeriodicTasksForObjects(leaderboardObjects, oldPeriodicVariableForLeaderboard)        
-
+        updateCustomLeaderboardsCourseConfigBool(currentCourse)
         return redirect('/oneUp/instructors/dynamicLeaderboard')
     
 def str2bool(v):
@@ -195,6 +197,7 @@ def deleteLeaderboardConfigObjects(leaderboards):
         if leaderboard.periodicVariable != 0:
             delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
         leaderboard.delete()
+
 def createXPLeaderboard(currentCourse, request):
     xpLeaderboard = LeaderboardsConfig()
     xpLeaderboard.courseID = currentCourse
@@ -266,7 +269,6 @@ def generateSkillTable(currentCourse, context_dict):
                     context_dict['skills'].append(skillInfo) 
         
 def generateLeaderboards(currentCourse, displayHomePage):
-    
     if displayHomePage:
         leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=True)
     else:
@@ -317,6 +319,8 @@ def generateLeaderboards(currentCourse, displayHomePage):
         leaderboardNames.append(leaderboard.leaderboardName)
         leaderboardDescriptions.append(leaderboard.leaderboardDescription)
 
+    updateCustomLeaderboardsCourseConfigBool(currentCourse)
+
     return zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)  
 def createTimePeriodContext(context_dict):
     context_dict['periodicVariables'] = [variable for _, variable in PeriodicVariables.periodicVariables.items()]
@@ -331,3 +335,12 @@ def createTimePeriodContext(context_dict):
     context_dict['timePeriods']= timePeriods
     timePeriods.reverse()
     return context_dict
+
+def updateCustomLeaderboardsCourseConfigBool(currentCourse):
+    ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
+    leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse).exclude(isXpLeaderboard=True)
+    if(len(leaderboardsConfigs)):
+        ccparams.customLeaderboardsUsed = True
+    else:
+        ccparams.customLeaderboardsUsed = False
+    ccparams.save()

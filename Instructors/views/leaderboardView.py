@@ -33,6 +33,7 @@ def LeaderboardInstructorsView(request):
         context_dict['course_Name'] = currentCourse.courseName
                       
         context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, False)
+        print("leaderboards stuff" ,context_dict['leaderboardRange'])
 
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
     return render(request,'Instructors/Leaderboard.html', context_dict)
