@@ -30,7 +30,7 @@ from Instructors.questionTypes import QuestionTypes
 from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields, operand_types_to_char, get_events_for_condition
 from Badges.periodicVariables import setup_periodic_badge, setup_periodic_vc, setup_periodic_leaderboard
 from Instructors.views.utils import initialContextDict, utcDate
-from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity
+from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity, unspecified_vc_manual_rule_name
 
 from decimal import Decimal
 
@@ -970,7 +970,10 @@ def validateCourseExport(request):
                 root_json['automatic-vc-rules'] = vc_rules_to_json(automatic_vc_rules, "automatic", current_course, post_request=post_request, root_json=root_json, messages=messages)
             
             if 'manual-vc-rules' in request.POST:
-                manual_vc_rules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=current_course, vcRuleType=True, isPeriodic=False)
+                # Get only the manual earning rules
+                manual_vc_rules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=current_course, vcRuleType=True, isPeriodic=False).exclude(vcRuleName=unspecified_vc_manual_rule_name)
+                manual_only_rules = [r.pk for r in manual_vc_rules if not hasattr(r, 'virtualcurrencyruleinfo') and not hasattr(r, 'virtualcurrencyperiodicrule')]
+                manual_vc_rules = VirtualCurrencyCustomRuleInfo.objects.filter(pk__in=manual_only_rules)
                 root_json['manual-vc-rules'] = vc_rules_to_json(manual_vc_rules, "manual", current_course, messages=messages)
             
             if 'periodic-vc-rules' in request.POST:
