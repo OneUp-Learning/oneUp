@@ -144,15 +144,13 @@
 				return;
 			}
 			// console.log(json)
-			$(`#course-name-${id}`).html(json['name'])
-        }
-        function updateNotificationsPageLink(){
-            $(".notification-link").each((i, e) => {
-                $(e).click(()=>{
+            $(`#course-name-${id}`).html(json['name'])
+            $(`#notification-link-${id}`).click(() => {
+                if('related_link' in json)
+                    window.location = json['related_link']
+                else
                     window.location = '/oneUp/instructors/NotificationPage?ID=1'
-                })
-                
-            })
+            });
         }
         function limitNotifications(limit, size){
             if(size == 0) return;
@@ -178,7 +176,6 @@
             limitNotificationsInBox(notification_box_mobile);
         }
         function countNotifications(){
-            updateNotificationsPageLink();
 
             var all_notifications_count = $('nav .notification-box-list').children().length / 2;
 
@@ -454,7 +451,7 @@
                     {% if ccparams.gamificationUsed and ccparams.streaksUsed %}
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/attendanceStreaks">Attendance Streaks</a></li>
                     {% endif %}
-                    {% if ccparams.gamificationUsed and ccparams.leaderboardUsed %}
+                    {% if ccparams.gamificationUsed and ccparams.leaderboardUsed and ccparams.customLeaderboardsUsed %}
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/instructorLeaderboard">Course Leaderboard</a></li>
                     {% endif %}
                     <li><a class="waves-effect nav-dropdown-link" href="/oneUp/instructors/courseConfiguration">Course Configuration</a></li>                    

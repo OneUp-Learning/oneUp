@@ -5,7 +5,11 @@
    	
    	<td>
     	<span class="timesince">{{ notification.created|timesince }} ago</span>
-    </td>
+	</td>
+	
+	<td>
+		<p class="course-name">{{notification.extra}}</p>
+	</td>
 
 	<td>
 		{% if notification.deleted == False %}
