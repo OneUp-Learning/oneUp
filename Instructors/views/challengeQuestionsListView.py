@@ -1,7 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.models import Challenges, Courses, CoursesSkills
+from Instructors.models import Challenges, Courses, CoursesSkills, ChallengesQuestions
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Instructors.views.searchResultsView import searchResults
 from Instructors.views.utils import initialContextDict
@@ -55,40 +55,49 @@ def challengeQuestionsListView(request):
  
     context_dict, currentCourse = initialContextDict(request)
     context_dict['lupa_available'] = lupa_available
-        
-    if 'challengeID' in request.GET:   
-        challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
-        
-        currentChallenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
-        isRandomized = currentChallenge.isRandomized 
-        context_dict['isRandomized'] = isRandomized    
-        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
-            context_dict["unassign"]= 1
-            context_dict['serious'] = False
-            context_dict['warmUp'] = False
-        else:
-            if challenge.isGraded:
-                context_dict['serious'] = True
-            else:
-                context_dict['warmUp'] = True
-        context_dict['challenge'] = True
-        context_dict['challengeID'] = request.GET['challengeID']
-        context_dict['challengeName'] = challenge.challengeName
 
-    if 'problems' in request.GET:
-        context_dict["unassign"]= 1
-        chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
-        challengeID = None
-        for challID in chall:
-            challengeID = (str(challID.challengeID)) 
-        if challengeID == None:
-            context_dict['question_range'] = None
+    if request.POST:
+        if 'deletion_checkboxes' in request.POST:
+            PerformDeletion(request.POST.getlist('deletion_checkboxes'))
+            return redirect("/oneUp/instructors/challengeQuestionsList?problems")
+        
+    if request.GET:
+        if 'challengeID' in request.GET:   
+            challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+            
+            currentChallenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+            isRandomized = currentChallenge.isRandomized 
+            context_dict['isRandomized'] = isRandomized    
+            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
+                context_dict["unassign"]= 1
+                context_dict['serious'] = False
+                context_dict['warmUp'] = False
+            else:
+                if challenge.isGraded:
+                    context_dict['serious'] = True
+                else:
+                    context_dict['warmUp'] = True
+            context_dict['challenge'] = True
+            context_dict['challengeID'] = request.GET['challengeID']
+            context_dict['challengeName'] = challenge.challengeName
+
+        if 'problems' in request.GET:
+            context_dict["unassign"]= 1
+            chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
+            challengeID = None
+            for challID in chall:
+                challengeID = (str(challID.challengeID)) 
+            if challengeID == None:
+                context_dict['question_range'] = None
+            else:
+                context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)      
         else:
-            context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)      
-    else:
-        context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
+            context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
 
     return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
 
-  
-
+def PerformDeletion(problems):
+    for problem in problems:
+        question = ChallengesQuestions.objects.get(questionID=int(problem))
+        print("question" + str(question))
+        question.delete()

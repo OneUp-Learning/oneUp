@@ -25,7 +25,28 @@
             }
           }
          }*/
-         
+      function selectAllCheckboxes(){
+         var checkboxes = document.getElementsByName('deletion_checkboxes');
+         for(var i = 0; i < checkboxes.length; i++){
+            checkboxes[i].checked = true;
+         }
+      }
+
+      function warnAboutDeletion(){
+         var areAnyChecked = false;
+         var checkboxes = document.getElementsByName('deletion_checkboxes');
+         for(var i = 0; i < checkboxes.length; i++){
+            if(checkboxes[i].checked){
+               areAnyChecked = true;
+               break;
+            }
+         }
+         if(areAnyChecked)
+            return confirm("Warning this will delete the problems. Please confirm.");
+         else
+            return false;
+      }
+
       </script>
       <style>
       .custom-badge::after {
@@ -50,6 +71,9 @@
             <input type="hidden" name="challengeID" value="{{challengeID}}">
          <div class="row right-align">
             <div class="col s12 m10 offset-m1">
+               {% if unassign %}
+               <button class="btn waves-effect waves-light" type="button" onclick="selectAllCheckboxes();">Select All</button>
+               {% endif %}
                <a class="modal-trigger waves-effect waves-light btn" href="#modal-create"><i class="material-icons left">add_circle</i>Add a Problem</a>  
                <div id="modal-create" class="modal modal-fixed-footer">
                   <div class="modal-content">
@@ -113,13 +137,18 @@
          <div class="row">
 				<div class="col s12 m10 offset-m1">
 					<div class="card-panel">
-                  
+                  <form action="/oneUp/instructors/challengeQuestionsList" onsubmit="return warnAboutDeletion()" method="POST">
                         <ul id="sortableQuestions"  class="collapsible">
                            {% for i,q_ID, challenge_question_id, q_preview,q_type_name,q_type_displayName,q_difficulty, q_position, q_duplicate in question_range %}
                            <li id={{q_ID}}> 
+         
                            <div  class="collapsible-header"><i  class="material-icons">swap_vert</i><span class="left-align" style="max-width: 30%;min-width: 30%; padding-left: 0px"> {{q_preview}}</span>
                               <span class="badge right-align" style="max-width: 20%;min-width: 20%;">{{q_type_displayName}}</span>                              
                                 <span class="badge right-align" style="max-width: 20%;min-width: 20%">
+                              {% if unassign %}
+                                 <input type="checkbox" name="deletion_checkboxes" id="{{q_ID}}_checkbox" value="{{q_ID}}"/>
+                              <label for="{{q_ID}}_checkbox">Delete</label>
+                              {% endif %}
                               {% if q_duplicate.0 %}
                                  <span class="badge right-align" style="max-width: 20%;min-width: 20%" data-position="top" data-tooltip="Editing will override duplicates">duplicate</span>
                              {% endif %}
@@ -180,6 +209,10 @@
                            </li>
                            {% endfor %}
                         </ul>
+                        {% if unassign %}
+                        <button class="btn waves-effect waves-light" type="submit" name="submit">Submit Checkboxes<i class="material-icons right">send</i>
+                        {% endif %}
+                        </form>
                         <script>
                               $( function() {
                                  $( "#sortableQuestions" ).sortable({
