@@ -105,12 +105,10 @@ def performDeletion(problems):
         challengeQuestion = ChallengesQuestions.objects.get(questionID=int(problem))
         if makeSureTheresNoStudentsUsingThatProblem(problem):
             errorList.append("Error: Student data found for problem: "+ challengeQuestion.questionID.preview)
-            print("data found",  challengeQuestion.questionID.preview)
         else:
             question = Questions.objects.get(questionID=int(problem))
             question.delete()
             challengeQuestion.delete()
-            print("deleted")
         
     return errorList
 @login_required
