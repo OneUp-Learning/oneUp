@@ -18,6 +18,19 @@ def leaderboardInfoView(request):
     xpSerious = ccparams.xpWeightSChallenge
     xpWarmup = ccparams.xpWeightWChallenge
     xpActivity = ccparams.xpWeightAPoints
+    ccparams.xpCalculateSeriousByMaxScore
+    ccparams.xpCalculateWarmupByMaxScore
+
+    XpCalculationString = ""
+    if(ccparams.xpCalculateWarmupByMaxScore):
+        xpCalculationString = " Warmup Challenges are calculated via Maximum score of each Challenge."
+    else:
+        xpCalculationString = " Warmup Challenges are calculated via First attempt of each Challenge."
+    if(ccparams.xpCalculateSeriousByMaxScore):
+        xpCalculationString += " Serious Challenges are calculated via Maxiumum score of each Challenge."
+    else:
+        xpCalculationString += " Serious Challenges are calculated via First attempt of each Challenge."
+    
     
     if request.method == 'GET':
         leaderboards = []
@@ -28,7 +41,7 @@ def leaderboardInfoView(request):
         
         for leaderboard in leaderboards:
             if(leaderboard.isXpLeaderboard):
-                leaderboard_range.append((leaderboard.leaderboardName, "The ranking in this leaderboard is based on the experience points(XP). The XP score is composed of " + str(xpPercentage) +"% Skill points, "  + str(xpSerious) +"% Serious Challenge points, "+ str(xpWarmup) + "% Warmup Challenge points, " + str(xpActivity) + "% Activity points."))
+                leaderboard_range.append((leaderboard.leaderboardName, "The ranking in this leaderboard is based on the experience points(XP). The XP score is composed of " + str(xpPercentage) +"% Skill points, "  + str(xpSerious) +"% Serious Challenge points, "+ str(xpWarmup) + "% Warmup Challenge points, " + str(xpActivity) + "% Activity points." + xpCalculationString))
             else:
                 leaderboard_range.append((leaderboard.leaderboardName, leaderboard.leaderboardDescription))
             
