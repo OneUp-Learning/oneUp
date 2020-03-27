@@ -24,11 +24,11 @@
                <form id="search" name="search" action="/oneUp/instructors/addStudentListView" method="GET">
 						{% csrf_token %}
 						<div class="card-panel">
-                     <div class="row">
+                     <div class="row" style="margin: 0">
                         <div class="input-field col s12 m12">
                            <input id="name" type="text" name="partial_name" class="validate">
 									<label for="name">Enter first name, last name, email, or username to search</label>
-									<div class="card-action right-align">
+									<div class="card-action right-align" style="margin-top: 8px;">
 											<button class="waves-effect waves-light btn" onclick="perform_name_search();" type="button" id="name_search"><i class="material-icons left">search</i>Search</button>
 									</div>
                         </div>
@@ -55,7 +55,7 @@
                         <tbody>
                            {% for student in students %}
                            <tr>
-                              <td><input type="checkbox" name="{{usernameprefix}}{{student.user.username}}" id="{{student.user.username}}-box" /><label for="{{student.user.username}}-box"></label></td>
+                              <td><input class="filled-in" type="checkbox" name="{{usernameprefix}}{{student.user.username}}" id="{{student.user.username}}-box" /><label for="{{student.user.username}}-box"></label></td>
                               <td>{{student.user.first_name}}</td>
                               <td>{{student.user.last_name}}</td>
                               <td>{{student.user.email}}</td>

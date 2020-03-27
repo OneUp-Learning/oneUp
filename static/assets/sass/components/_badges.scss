@@ -7,14 +7,14 @@ span.badge {
   font-size: 1rem;
   line-height: $badge-height;
   height: $badge-height;
-  color: color('grey', 'darken-1');
+  color: if($dark-mode, $secondary-color, #757575);
   float: right;
   box-sizing: border-box;
 
   &.new {
     font-weight: 300;
     font-size: 0.8rem;
-    color: #fff;
+    color: $badge-text-color;
     background-color: $badge-bg-color;
     border-radius: 2px;
   }

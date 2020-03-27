@@ -36,6 +36,7 @@ class Student(models.Model):
     # date_joined DateTime of creation 
     universityID = models.CharField(max_length=100)
     isTestStudent = models.BooleanField(default=False)  # indicates a student to be used by the instructor for testing purposes
+    displayDarkMode = models.BooleanField(default=False) # Enables dark theme for the student across courses
     def __str__(self):              
         #return str(self.studentID)+","+self.name+self.name
         if self.user is None:

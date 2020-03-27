@@ -43,7 +43,9 @@ def StudentHome(request):
 
     # get only the courses of the logged in user
     student = Student.objects.get(user=request.user) 
+    context_dict['student'] = student
     context_dict['is_test_student'] = student.isTestStudent
+    context_dict['is_student'] = True
     if student.isTestStudent:
         context_dict["username"]="Test Student"
     reg_crs = StudentRegisteredCourses.objects.filter(studentID=student)

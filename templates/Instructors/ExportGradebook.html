@@ -5,18 +5,28 @@
 {% include 'scripts.html' %}
 
 <script>
+	var checked = false;
+	var checkBoxes = document.getElementsByName('selected');
 
-function isSelected()
-	{
-		
-			//var x = document.getElementById('serious').checked;
-		   //if(x= false)
-			if(exportGradebook.checkbox.checked == false)
-			{
-				alert('You must select at least one or all categories to Download/Export!');
-				return false;
-			}
-		return true;
+	function ToggleAllCheckboxes(event) {
+
+		checked = !checked;
+		if (checked)
+			event.childNodes[0].textContent = "Deselect All"
+		else
+			event.childNodes[0].textContent = "Select All"
+
+		for (var i = 0; i < checkBoxes.length; i++) {
+			checkBoxes[i].checked = checked;
+		}
+	}
+	function validateCheckboxes(){
+         for(var i = 0; i < checkBoxes.length; i++){
+            if(checkBoxes[i].checked)
+               return true;
+         }
+         alert("You must select at least one or all categories to Download/Export!");
+         return false;
 	}
 </script>
 
@@ -35,7 +45,7 @@ function isSelected()
 				
 				<div class="row">
 					<div class="col s12 m10 offset-m1">
-							<form onsubmit="return isSelected();" name="exportGradebook" action="/oneUp/instructors/exportGradebook" method="POST">
+							<form onsubmit="return validateCheckboxes();" name="exportGradebook" action="/oneUp/instructors/exportGradebook" method="POST">
 							{% csrf_token %}
 							 
 							<select class="filled-in" name = "dropdown">
@@ -86,7 +96,6 @@ function isSelected()
 							
 										<button class="btn waves-effect waves-light" type="submit" name="submit" >Download/Export<i class="material-icons right">send</i></button>
 										<button class="btn waves-effect waves-light" type="reset" name="Reset">Clear<i class="material-icons right">clear_all</i></button>
-										<a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i class="material-icons left">navigate_before</i>Back</a>
 								</div>
 							</div>
 							

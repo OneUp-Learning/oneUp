@@ -9,8 +9,8 @@
     	<label for="awardFrequencySelect">Award Frequency</label>
     </div>
 </div>
-<div class="row" id="objectSpecifierLabel">
-	<div class="input-field col s12">
+<div class="row" id="objectSpecifierLabel" style="margin: 0">
+	<div class="col s12">
 		<h5><span class= "red-text">*</span> Specify Which Objects </h5>
 	</div>
 </div>
@@ -18,7 +18,7 @@
 	{% for specifiedObjectTypeNum,specifiedObjectStruct in chosenObjectSpecifierStruct.items %}
 	<div class="cond-specify-object-section" id="cond-{{specifiedObjectTypeNum}}-specifier-section" hidden>
 		Method for specifying {{specifiedObjectStruct.objectTypeStruct.plural}}:
-		<select class="browser-default" name="cond-{{specifiedObjectTypeNum}}-specification-selector" id="cond-{{specifiedObjectTypeNum}}-specification-selector"
+		<select class="browser-default" style="margin-bottom: 8px" name="cond-{{specifiedObjectTypeNum}}-specification-selector" id="cond-{{specifiedObjectTypeNum}}-specification-selector"
 				onchange="condChangeSpecifier(this);return true;" data-cond-object-type-num = "{{specifiedObjectTypeNum}}">
 			<option value="all" selected>include all {{specifiedObjectStruct.objectTypeStruct.plural}}</option>
 			{% for specifiername,specifierInfo in specifiedObjectStruct.specifiers.items %}
@@ -29,7 +29,7 @@
 			<div class="cond-specifier-specifier" id="cond-{{specifiedObjectTypeNum}}-by-{{specifiername}}-specifier" hidden data-cond-specifier-type="{{specifierInfo.selectionType}}">
 			{% if specifierInfo.selectionType == "object" %}
 				<div><div>
-					<select name="cond-specifier-object-list-select" class="cond-specifier-object-list-select browser-default" 
+					<select name="cond-specifier-object-list-select" style="margin-bottom: 8px" class="cond-specifier-object-list-select browser-default" 
 							onchange="condAddThingieToList(this);this.selectedIndex=0;return true;">
 						<option disabled selected value="0">select {{specifierInfo.objectInfo.plural}} to add</option>
 					{% for object in specifierInfo.objectInfo.objects %}
@@ -40,7 +40,7 @@
 				<div class="cond-specifier-object-selected-list" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-selected-list">
 				</div>
 			{% elif specifierInfo.selectionType == "list" %}
-				<select name="cond-specifier-list-select" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="cond-specifier-list-select browser-default">
+				<select name="cond-specifier-list-select" style="margin-bottom: 8px" id="cond-{{chosenObjectTypeNum}}-by-{{specifiername}}-list-select" class="cond-specifier-list-select browser-default">
 				{% for listItem in specifierInfo.list %}
 					<option value="{{listItem}}" {%if forloop.first%}selected{%endif%}>{{listItem}}</option>
 				{% endfor %}
@@ -65,7 +65,7 @@
 <style>
 	.cond-prototype {
 		display: none;
-	}
+    }
 	.cond-item {
 		border-style: solid;
 		border-width: 1px;
@@ -77,7 +77,11 @@
 		min-height: auto;
 		flex: none;
 		display: flex;
-	}
+    }
+    .cond-rhs-value {
+        color: black;
+        border-bottom: 1px solid #0000005c !important;
+    }
 	.cond-atom-helper {
 		display: flex;
 		flex-direction: row;
@@ -102,8 +106,13 @@
 		min-height: 0px;
 		width: 100%;
 		overflow-x: auto;
-		overflow-y: scroll;
-	}
+        overflow-y: scroll;
+        background-color: #fafafa;
+    }
+    .cond-container select {
+        background-color: white;
+        color: black;
+    }
 	.cond-icon-list {
 		display: flex;
 		flex-direction: row;
@@ -113,7 +122,9 @@
 		border-style: solid;
 		border-width: 1px;
 		border-radius: 6px;
-		padding: 6px;
+        padding: 6px;
+        margin-left: 4px;
+        margin-right: 4px;
 	}
 	.cond-trash {
 		margin-left: auto;
@@ -145,7 +156,8 @@
 	.cond-atom-option-group {
 	}
 	.cond-for {
-		background-color: #007bff61;
+        background-color: #007bff61;
+        color: black;
 		align-items: center;
 		display: flex;
 		flex-direction: column;
@@ -262,7 +274,7 @@
 						</select>
 					</div>
 					<div class="col s12 m2">
-						<input id="check-" type="checkbox" name="cond-value" class="cond-value" checked onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">
+						<input id="check-" type="checkbox" name="cond-value" class="cond-value filled-in" checked onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">
 						<label for="check-">Value</label>
                     </div>
 
@@ -318,7 +330,7 @@
 						</select>
 					</div>
 					<div class="col s12 m6" style="width: 200px">
-					    or<input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
+					    or<input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all filled-in" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
 						<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
 					</div>
 			</div>
@@ -747,8 +759,8 @@ function condAddThingieToListByNameAndId(list, name, id) {
     icon.style = "position: absolute; right: 4px;";
     icon.appendChild(document.createTextNode("close"));
     itemDiv.dataset.id = id;
-    itemDiv.className = "chip cond-for-list-item orange";
-    itemDiv.style = "color: white; text-overflow: ellipsis; max-width: 200px; white-space: nowrap; position: relative; overflow: hidden; padding-inline-end: 18px;";
+    itemDiv.className = "chip cond-for-list-item";
+    itemDiv.style = "text-overflow: ellipsis; max-width: 200px; white-space: nowrap; position: relative; overflow: hidden; padding-inline-end: 20px;";
     var name_text = document.createTextNode(name);
     itemDiv.appendChild(name_text);
     itemDiv.appendChild(icon);

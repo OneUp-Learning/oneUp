@@ -375,7 +375,7 @@
                                 {% endif %}
                             {% endif %}
                             
-                                <div id="modal_decline" class="modal">
+                                <div id="modal_decline" class="modal" style="text-align: center;">
                                 <div class="model-dialog">
                                         <div class="modal-content">
                                         
@@ -413,16 +413,13 @@
                                             </label>
                                           </h5>-->
                                           <h5>Are you sure you want to decline?</h5>
-                                        <h5>If you decline, the duel will be deleted and this action is not revertible.</h5>
+                                        <p>If you decline, the duel will be deleted and this action is not revertible.</p>
                                         
                      
                                         
                                         </div>
                                         <div class="modal-footer">
-                                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                                        <!-- <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit" name="submit"
-                                            value="Delete">Delete
-                                        </button>-->
+                                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
                                         <a class="modal-action modal-close waves-effect waves-light btn-flat" href="/oneUp/students/DuelChallengeDelete?duelChallengeID={{requested_duel_challenge.duelChallengeID}}&denial=True">Decline
                                     </a>
                                         </div>

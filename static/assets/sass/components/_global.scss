@@ -2,6 +2,7 @@
 
 html {
  box-sizing: border-box;
+ background-color: $background-color;
 }
 *, *:before, *:after {
  box-sizing: inherit;
@@ -86,7 +87,7 @@ a {
 .divider {
   height: 1px;
   overflow: hidden;
-  background-color: color("grey", "lighten-2");
+  background-color: if($dark-mode, #5d5d5d, color("grey", "lighten-2"));
 }
 
 
@@ -732,6 +733,64 @@ td, th{
   text-overflow: ellipsis;
 }
 
+.clone .fixed-side {
+  background:if($dark-mode, $surface-mid-color, #f9f9f9);
+  visibility:visible;
+}
+.table-scroll thead, .table-scroll tfoot {
+  background:if($dark-mode, $surface-mid-color, #f9f9f9);
+}
+div.material-table table th {
+  color: if($dark-mode, $primary-text-color, #757575);
+}
+div.material-table table th.sorting_asc,
+div.material-table table th.sorting_desc {
+  color: if($dark-mode, $secondary-color, black);
+}
+
+.ck-content {
+  color: if($dark-mode, black, black);
+  background-color: if($dark-mode, #fafafa, #fafafa);
+  padding: 8px;
+}
+// Attendance today bg color
+// .fc-unthemed td.fc-today{
+//   background: if($dark-mode, #18A7B5, #18A7B5) !important;
+// }
+.notification-badge {
+  background-color: if($dark-mode, #03bcd4, #ffffff);
+  color: if($dark-mode, #000000, #941e1e);
+}
 .no-padding {
   padding: 0 !important;
+}
+.cond-icon {
+  border-color: if($dark-mode, $primary-color, black);
+  color: if($dark-mode, $primary-color, black);
+}
+#duels-info, #callouts-info {
+  background-color: if($dark-mode, $surface-high-color, #039be50d)
+}
+#duels-drop-icon, #callouts-drop-icon {
+  color: if($dark-mode, $primary-text-surface-color, black);
+}
+
+
+.primary-color-dark {
+  background-color: if($dark-mode, $primary-color-dark, #3f51b5) !important;
+}
+.primary-color {
+  background-color: $primary-color !important;
+}
+.secondary-color {
+  background-color: $secondary-color !important;
+}
+.primary-colored-text {
+  color: $primary-color !important;
+}
+.secondary-colored-text {
+  color: $secondary-color !important;
+}
+.primary-surface-colored-text {
+  color: $primary-text-surface-color !important;
 }
