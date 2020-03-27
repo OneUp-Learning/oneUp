@@ -18,17 +18,24 @@ def courseUniversityView(request):
     if request.method == 'POST':
         name = request.POST['universityName']
         courses = []
+        universityTimezone = None
         if 'universityCourses' in request.POST:
             universityCoursesList = request.POST.getlist("universityCourses")
             print("fdjlsjfklds")
             print(universityCoursesList)
             courses = [Courses.objects.get(
                 courseName=courseName) for courseName in universityCoursesList]
+        
+        if 'universityTimezone' in request.POST:
+            universityTimezone = request.POST.get("universityTimezone")
+
 
         if 'universityID' in request.GET:  # Editing course
             university = Universities.objects.get(
                 universityID=int(request.GET['universityID']))
             university.universityName = name
+            if universityTimezone:
+                university.universityTimezone = universityTimezone
             university.save()
 
             # Add selected courses to university
@@ -51,6 +58,8 @@ def courseUniversityView(request):
             else:
                 university = Universities()
                 university.universityName = name
+                if universityTimezone:
+                    university.universityTimezone = universityTimezone
                 university.save()
 
                 # Add selected courses to university
@@ -69,12 +78,18 @@ def courseUniversityView(request):
     context_dict['qualified_courses'] = [
         course for course in Courses.objects.all() if not course in nonQualifiedCourses]
 
+    timezones = [{"value": "America/New_York", "name": "Eastern (EST)"}, {"value": "America/Chicago", "name": "Central (CST)"},
+                {"value": "America/Denver", "name": "Mountain (MST)"}, {"value": "America/Los_Angeles", "name": "Pacific (PST)"}]
+    context_dict['supported_timezones'] = timezones
+
     if 'universityID' in request.GET:
         university = Universities.objects.get(
             universityID=int(request.GET['universityID']))
         context_dict["universityName"] = university.universityName
+        context_dict['universityTimezone'] = university.universityTimezone
         universityCourses = UniversityCourses.objects.filter(
             universityID=university)
+        
         context_dict['universityCourses'] = [
             universityCourse.courseID.courseName for universityCourse in universityCourses]
         context_dict["editing"] = True
@@ -86,5 +101,6 @@ def courseUniversityView(request):
         print(nonQualifiedCourses)
         context_dict['qualified_courses'] = [
             course for course in Courses.objects.all() if not course in nonQualifiedCourses]
+        
 
     return render(request, 'Administrators/createUniversity.html', context_dict)
