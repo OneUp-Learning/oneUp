@@ -1,240 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      {% include 'scripts.html' %}
-      <script>
-         $(document).ready(function(){
-             $('#create').on('click', function(){
-                 var val = $('#create-type').find(':selected').val();
-                 if (val){
-                     top.location.href = val;
-                 }
-             });
-         
-             $('.chips').material_chip();
-             $('.chips-tags').material_chip({
-                 placeholder: 'Enter a tag'
-             });
+
+<head>
+   {% include 'scripts.html' %}
+   <script>
+      $(document).ready(function () {
+         $('#create').on('click', function () {
+            var val = $('#create-type').find(':selected').val();
+            if (val) {
+               top.location.href = val;
+            }
          });
-         /* function checks if a parson's is selected and displays warning
-         function parsonsCheck(challengeType){
-          var isSerious = "{{serious}}";
-          if(!!isSerious){
-          if(challengeType.options[challengeType.selectedIndex].text==="Parsons Problems"){
-            alert("Warning: Adding Parson's Problems to a Serious Challenge is not recommended.");
-            }
-          }
-         }*/
-         
-      </script>
-      <style>
+
+         $('.chips').material_chip();
+         $('.chips-tags').material_chip({
+            placeholder: 'Enter a tag'
+         });
+      });
+      /* function checks if a parson's is selected and displays warning
+      function parsonsCheck(challengeType){
+       var isSerious = "{{serious}}";
+       if(!!isSerious){
+       if(challengeType.options[challengeType.selectedIndex].text==="Parsons Problems"){
+         alert("Warning: Adding Parson's Problems to a Serious Challenge is not recommended.");
+         }
+       }
+      }*/
+      function selectAllCheckboxes() {
+         var checkboxes = document.getElementsByName('deletion_checkboxes');
+         for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = true;
+         }
+      }
+
+   </script>
+   <style>
       .custom-badge::after {
          content: none !important;
       }
-      </style>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-   </head>
-   <body>
-      {% include 'heading.html' %}
-      <main>
-         <div class="row center-align">
-            <div class="col s12 m10 offset-m1">
-               {% if unassign %}  
-               <h3>Problems</h3>
-               {% else %}
-               <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Problems for <br />{{challengeName}}</h3>
-               {% endif %}
-            </div>
+   </style>
+   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+
+<body>
+   {% include 'heading.html' %}
+   <main>
+      <div class="row center-align">
+         <div class="col s12 m10 offset-m1">
+            {% if unassign %}
+            <h3>Problems</h3>
+            {% else %}
+            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Problems for
+               <br />{{challengeName}}</h3>
+            {% endif %}
          </div>
-            {% csrf_token %}
-            <input type="hidden" name="challengeID" value="{{challengeID}}">
-         <div class="row right-align">
-            <div class="col s12 m10 offset-m1">
-               <a class="modal-trigger waves-effect waves-light btn" href="#modal-create"><i class="material-icons left">add_circle</i>Add a Problem</a>  
-               <div id="modal-create" class="modal modal-fixed-footer">
-                  <div class="modal-content">
-                     <div class="row center-align">
-                        <div class="col s12 m10 offset-m1">
-                           <h4>Select Problem Type</h4>
-                        </div>
+      </div>
+      {% csrf_token %}
+      <input type="hidden" name="challengeID" value="{{challengeID}}">
+      <div class="row right-align">
+         <div class="col s12 m10 offset-m1">
+            {% if unassign %}
+            <button class="btn waves-effect waves-light" type="button" onclick="selectAllCheckboxes();">Select
+               All</button>
+            {% endif %}
+            <a class="modal-trigger waves-effect waves-light btn" href="#modal-create"><i
+                  class="material-icons left">add_circle</i>Add a Problem</a>
+            <div id="modal-create" class="modal modal-fixed-footer">
+               <div class="modal-content">
+                  <div class="row center-align">
+                     <div class="col s12 m10 offset-m1">
+                        <h4>Select Problem Type</h4>
                      </div>
-                     <div class="row">
-                        <div class="input-field col s12 m10 offset-m1">
-                           {% if challenge %} 
-                           <select id="create-type">   
-                              <option value="" disabled selected>Select Problem Type</option>
-                              <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False</option>
-                              <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
-                              <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
-                              <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
-                              <option name="Parson" value="/oneUp/instructors/forms/ParsonsForm?challengeID={{challengeID}}">Parsons Problems</option>
-                              {%if lupa_available%}
-                              <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Template)</option>
-                              <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Raw Lua)</option>
-                              {%endif%}
-                           </select>
-                           {%else%} 
-                           <select id="create-type">
-                              <option value="" disabled selected>Select Problem Type</option>
-                              <option value="/oneUp/instructors/forms/TrueFalseForm">True/False</option>
-                              <option value="/oneUp/instructors/forms/MultipleChoiceForm">Multiple Choice</option>
-                              <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
-                              <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
-                              <option value="/oneUp/instructors/forms/ParsonsForm">Parsons Problems</option>
-                              {%if lupa_available%}
-                              <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)</option>
-                              <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
-                              {%endif%}
-                           </select>
+                  </div>
+                  <div class="row">
+                     <div class="input-field col s12 m10 offset-m1">
+                        {% if challenge %}
+                        <select id="create-type">
+                           <option value="" disabled selected>Select Problem Type</option>
+                           <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False
+                           </option>
+                           <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">
+                              Multiple Choice</option>
+                           <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching
+                           </option>
+                           <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">
+                              Multiple Answers</option>
+                           <option name="Parson"
+                              value="/oneUp/instructors/forms/ParsonsForm?challengeID={{challengeID}}">Parsons Problems
+                           </option>
+                           {%if lupa_available%}
+                           <option
+                              value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">
+                              Dynamic (Template)</option>
+                           <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">
+                              Dynamic (Raw Lua)</option>
                            {%endif%}
-                           <label>Problem Type</label>
-                        </div>
+                        </select>
+                        {%else%}
+                        <select id="create-type">
+                           <option value="" disabled selected>Select Problem Type</option>
+                           <option value="/oneUp/instructors/forms/TrueFalseForm">True/False</option>
+                           <option value="/oneUp/instructors/forms/MultipleChoiceForm">Multiple Choice</option>
+                           <option value="/oneUp/instructors/forms/MatchingForm">Matching</option>
+                           <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
+                           <option value="/oneUp/instructors/forms/ParsonsForm">Parsons Problems</option>
+                           {%if lupa_available%}
+                           <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)
+                           </option>
+                           <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
+                           {%endif%}
+                        </select>
+                        {%endif%}
+                        <label>Problem Type</label>
                      </div>
                   </div>
-                  <div class="modal-footer">
-                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn" id="create">Create Problem</a>
-                  </div>
-                  
                </div>
-               {% if not unassign %}
-               <a class="waves-effect waves-light btn" href="/oneUp/instructors/search?challengeID={{challengeID}}"><i class="material-icons left">search</i>Search Problems</a>  
+               <div class="modal-footer">
+                  <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                     style="color: #00bcd4">Cancel</a>
+                  <a href="#!" class="modal-action modal-close waves-effect waves-light btn" id="create">Create
+                     Problem</a>
+               </div>
+
+            </div>
+            {% if not unassign %}
+               <a class="waves-effect waves-light btn" href="/oneUp/instructors/search?challengeID={{challengeID}}"><i
+                  class="material-icons left">search</i>Search Problems</a>
                
                
-                  <br> <br>
-                  {% if isRandomized %}
-                  <div class="chip" style="background-color: #3f51b5; color: white;">
-                     Problems are Randomized
+            <br> <br>
+            {% if isRandomized %}
+            <div class="chip" style="background-color: #3f51b5; color: white;">
+               Problems are Randomized
+            </div>
+            {% endif %}
+            {% endif %}
+         </div>
+
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  <ul id="sortableQuestions" class="collapsible">
+                     {% for i,q_ID, challenge_question_id, q_preview,q_type_name,q_type_displayName,q_difficulty, q_position, q_duplicate in question_range %}
+                     <li id={{q_ID}}>
+
+                        <div class="collapsible-header"><i class="material-icons">swap_vert</i><span class="left-align"
+                              style="max-width: 30%;min-width: 30%; padding-left: 0px">
+                              {{q_preview}}</span>
+                           <span class="badge right-align"
+                              style="max-width: 20%;min-width: 20%;">{{q_type_displayName}}</span>
+                           <span class="badge right-align" style="max-width: 20%;min-width: 20%">
+                              {% if unassign %}
+                              <input type="checkbox" name="deletion_checkboxes" id="{{q_ID}}_checkbox"
+                                 value="{{q_ID}}" />
+                              <label for="{{q_ID}}_checkbox">Delete</label>
+                              {% endif %}
+                              {% if q_duplicate.0 %}
+                              <span class="badge right-align" style="max-width: 20%;min-width: 20%" data-position="top"
+                                 data-tooltip="Editing will override duplicates">duplicate</span>
+                              {% endif %}
+                           </span>
+                           <span class="badge right-align" style="max-width: 10%;min-width: 10%;">
+                              <a class="dropdown-button tooltipped secondary-content" href="#!"
+                                 data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}'
+                                 data-position="right" data-delay="50" data-tooltip="Options"><i
+                                    class="material-icons">more_vert</i></a>
+                              <ul id='dropdown-{{i}}' class='dropdown-content'>
+                                 {% csrf_token %}
+                                 {% if q_type_name == 'multipleChoice' %}
+                                 <li><a
+                                       href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+                                 </li>
+                                 {% endif %}
+                                 {% if q_type_name == 'multipleAnswers' %}
+                                 <li><a
+                                       href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+                                 </li>
+                                 {% endif %}
+                                 {% if q_type_name == 'matching' %}
+                                 <li><a
+                                       href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+                                 </li>
+                                 {% endif %}
+                                 {% if q_type_name == 'trueFalse' %}
+                                 <li><a
+                                       href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+                                 </li>
+                                 {% endif %}
+                                 {% if q_type_name == 'parsons' %}
+                                 <li><a
+                                       href="/oneUp/instructors/forms/ParsonsForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+                                 </li>
+                                 {% endif %}
+                                 {% if q_type_name == 'dynamic' %}
+                                 <li><a
+                                       href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+                                 </li>
+                                 {% endif %}
+                                 {% if q_type_name == 'templatedynamic' %}
+                                 <li><a
+                                       href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+                                 </li>
+                                 {% endif %}
+                                 <li class="divider"></li>
+                                 <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
+                              </ul>
+                              <div id="modal_delete-{{i}}" class="modal no-padding">
+                                 <div class="modal-content">
+                                    <h5>Are you sure you want to delete?</h5>
+                                    {% if q_duplicate.0 %}
+                                    <p>These problems will also be removed:</p>
+                                    <blockquote>
+                                       {% for names, position, challenge in q_duplicate.1 %}
+                                       {{ names }} at position {{position}} {% if unassign %} in {{challenge}}
+                                       (Challenge) {%endif%}<br />
+                                       {% endfor %}
+                                    </blockquote>
+                                    {% endif %}
+                                 </div>
+                                 <div class="modal-footer">
+                                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                                       style="color: #00bcd4">Cancel</a>
+                                    <button class="modal-action modal-close waves-effect waves-light btn-flat"
+                                       type="button"
+                                       {% if challenge %}onclick="deleteQuestion({{q_ID}},{{challengeID}})"
+                                       {%else%}onclick="deleteQuestion({{q_ID}}, 0)" {%endif%}value="Delete">Delete
+                                    </button>
+                                 </div>
+                              </div>
+                           </span>
+                        </div>
+
+                     </li>
+                     {% empty %}
+                     <li>
+                        <div class="center-align" colspan="3"><i>No Problems Created</i></div>
+                     </li>
+                     {% endfor %}
+                  </ul>
+                  {% if unassign %}
+                  <a id="submit3" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i
+                        class="material-icons right">send</i>Submit Checkboxes</a>
+                  <div id="modal_confirm1" class="modal">
+                     <div class="modal-content left-align">
+                        <h5>Are you sure you want to submit?</h5>
+                        <p>Warning, this will delete the selected problems. Please confirm.</p>
+                     </div>
+                     <div class="modal-footer">
+                        <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                           style="color: #00bcd4">Cancel</a>
+                        <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit"
+                           id="submit4" onclick="return deleteProblemsButFilter();" value="Submit">Submit
+                        </button>
+                     </div>
                   </div>
                   {% endif %}
-               {% endif %}
-         </div>
-         
-         <div class="row">
-				<div class="col s12 m10 offset-m1">
-					<div class="card-panel">
-                  
-                        <ul id="sortableQuestions"  class="collapsible">
-                           {% for i,q_ID, challenge_question_id, q_preview,q_type_name,q_type_displayName,q_difficulty, q_position, q_duplicate in question_range %}
-                           <li id={{q_ID}}> 
-                           <div  class="collapsible-header"><i  class="material-icons">swap_vert</i><span class="left-align" style="max-width: 30%;min-width: 30%; padding-left: 0px"> {{q_preview}}</span>
-                              <span class="badge right-align" style="max-width: 20%;min-width: 20%;">{{q_type_displayName}}</span>                              
-                                <span class="badge right-align" style="max-width: 20%;min-width: 20%">
-                              {% if q_duplicate.0 %}
-                                 <span class="badge right-align" style="max-width: 20%;min-width: 20%" data-position="top" data-tooltip="Editing will override duplicates">duplicate</span>
-                             {% endif %}
-                                </span>
-                              <span class="badge right-align" style="max-width: 10%;min-width: 10%;">
-                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                    <ul id='dropdown-{{i}}' class='dropdown-content'>
-                                       {% csrf_token %} 
-                                       {% if q_type_name == 'multipleChoice' %}
-                                       <li><a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a></li>
-                                       {% endif %}
-                                       {% if q_type_name == 'multipleAnswers' %}
-                                       <li><a href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a></li>
-                                       {% endif %}
-                                       {% if q_type_name == 'matching' %}
-                                       <li><a href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a></li>
-                                       {% endif %}
-                                       {% if q_type_name == 'trueFalse' %}
-                                       <li><a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a></li>
-                                       {% endif %}
-                                       {% if q_type_name == 'parsons' %}
-                                       <li><a href="/oneUp/instructors/forms/ParsonsForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a></li>
-                                       {% endif %}
-                                       {% if q_type_name == 'dynamic' %}
-                                       <li><a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a></li>
-                                       {% endif %}
-                                       {% if q_type_name == 'templatedynamic' %}
-                                       <li><a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a></li>
-                                       {% endif %}
-                                       <li class="divider"></li>
-                                       <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
-                                    </ul>
-                                    <div id="modal_delete-{{i}}" class="modal no-padding">
-                                       <div class="modal-content">
-                                          <h5>Are you sure you want to delete?</h5>
-                                          {% if q_duplicate.0 %}
-                                          <p>These problems will also be removed:</p>
-                                          <blockquote>
-                                             {% for names, position, challenge in q_duplicate.1 %}
-                                                {{ names }} at position {{position}} {% if unassign %} in {{challenge}} (Challenge) {%endif%}<br />
-                                             {% endfor %}
-                                          </blockquote>
-                                          {% endif %}
-                                       </div>
-                                       <div class="modal-footer">
-                                          <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                                          <button class="modal-action modal-close waves-effect waves-light btn-flat" type="button" {% if challenge %}onclick="deleteQuestion({{q_ID}},{{challengeID}})" {%else%}onclick="deleteQuestion({{q_ID}}, 0)" {%endif%}value="Delete">Delete
-                                          </button>                                        
-                                       </div>
-                                    </div>
-                              </span>
-                           </div>
-                           
-                           </li>
-                           {% empty %}
-                           <li>
-                              <div class="center-align" colspan="3"><i>No Problems Created</i></div>
-                           </li>
-                           {% endfor %}
-                        </ul>
-                        <script>
-                              $( function() {
-                                 $( "#sortableQuestions" ).sortable({
+                  <script>
+                     $(function () {
+                        $("#sortableQuestions").sortable({
 
-                                    stop: function(event, ui) {
+                           stop: function (event, ui) {
 
-                                    var itemOrder = $('#sortableQuestions').sortable("toArray");
+                              var itemOrder = $('#sortableQuestions').sortable("toArray");
 
-                                    var idsPositions = []
+                              var idsPositions = []
 
-                                    for (var i = 0; i < itemOrder.length; i++) {
-                                       if (itemOrder[i]){
-                                          idsPositions.push(String(itemOrder[i])+"---"+String(i));
-                                       }
-                                    }
+                              for (var i = 0; i < itemOrder.length; i++) {
+                                 if (itemOrder[i]) {
+                                    idsPositions.push(String(itemOrder[i]) + "---" + String(i));
+                                 }
+                              }
 
-                                    var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+                              var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
 
-                                    $.post( "/oneUp/instructors/ReorderQuestions", {questionIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
-                                       console.log(data)
-                                    });
+                              $.post("/oneUp/instructors/ReorderQuestions", { questionIdsPositions: idsPositions, csrfmiddlewaretoken: csrftoken, }, function (data) {
+                                 console.log(data)
+                              });
 
-                                    }
-                                    });
-                                 });
-                             </script>
-                  
+                           }
+                        });
+                     });
+                     function collectAllSelectedCheckboxes() {
+                        var selectedList = [];
+                        var checkboxes = document.getElementsByName('deletion_checkboxes');
+                        for (var i = 0; i < checkboxes.length; i++) {
+                           if (checkboxes[i].checked) {
+                              selectedList.push(checkboxes[i].value)
+                           }
+                        }
+                        return selectedList;
+                     }
+                     function deleteProblemsButFilter() {
+                        var selectedChallenges = collectAllSelectedCheckboxes();
+                        if (selectedChallenges.length > 0) {
+                           var xhttp = new XMLHttpRequest();
+                           xhttp.open("POST", "/oneUp/instructors/deleteProblemsButFilterTakenByStudent", true);
+                           xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                           xhttp.send("deletion_checkboxes=" + selectedChallenges + "&csrfmiddlewaretoken={{csrf_token}}");
+                           console.table(xhttp.responseText);
+                           Materialize.toast(xhttp.responseText.errorMessages, 4000);
+                           // for (var i = 0; i < xhttp.responseText.errorMessages.length; i++) {
+                           //    Materialize.toast(xhttp.responseText.errorMessages[i], 4000);
+                           // }
+
+                           xhttp.onload = function () {
+                              location.reload();
+                           }
+                        }
+                     }
+                  </script>
+
                   <div class="card-action right-align">
                      {% if warmUp %}
-                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/warmUpChallengeList"><i class="material-icons left">navigate_before</i>Back</a>
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/warmUpChallengeList"><i
+                           class="material-icons left">navigate_before</i>Back</a>
                      {% elif serious %}
-                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengesList"><i class="material-icons left">navigate_before</i>Back</a>
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/challengesList"><i
+                           class="material-icons left">navigate_before</i>Back</a>
                      {% endif %}
                   </div>
                </div>
             </div>
          </div>
-      </main>
-      {% include 'footer.html' %}
-      <script>
-                              function deleteQuestion(questionID, challengeID) {
-                                var xhttp = new XMLHttpRequest();
-                                {% if not unassign %}
-                                xhttp.open("POST", "/oneUp/instructors/deleteQuestionFromChallenge", true);
-                                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                                xhttp.send("questionId="+questionID+"&challengeID="+challengeID+"&csrfmiddlewaretoken={{csrf_token}}");
-                                {% else %}
-                                xhttp.open("POST", "/oneUp/instructors/deleteQuestion", true);
-                                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                                xhttp.send("questionId="+questionID+"&csrfmiddlewaretoken={{csrf_token}}");
-                                {% endif %}
-                                  xhttp.onload = function(){
-                                      location.reload();
-                                  }
-                              }
-                              </script>
-   </body>
+   </main>
+   {% include 'footer.html' %}
+   <script>
+      function deleteQuestion(questionID, challengeID) {
+         var xhttp = new XMLHttpRequest();
+         {% if not unassign %}
+         xhttp.open("POST", "/oneUp/instructors/deleteQuestionFromChallenge", true);
+         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+         xhttp.send("questionId=" + questionID + "&challengeID=" + challengeID + "&csrfmiddlewaretoken={{csrf_token}}");
+         {% else %}
+         xhttp.open("POST", "/oneUp/instructors/deleteQuestion", true);
+         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+         xhttp.send("questionId=" + questionID + "&csrfmiddlewaretoken={{csrf_token}}");
+         {% endif %}
+         xhttp.onload = function () {
+            location.reload();
+         }
+      }
+   </script>
+</body>
+
 </html>

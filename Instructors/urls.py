@@ -14,7 +14,7 @@ from Instructors.views.allAnnouncementsView import allAnnouncements
 
 from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
 from Instructors.views.challengeCreateView import challengeCreateView
-from Instructors.views.challengeQuestionsListView import challengeQuestionsListView
+from Instructors.views.challengeQuestionsListView import challengeQuestionsListView, deleteProblemsButFilterTakenByStudent
 from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
 from Instructors.views.challengeListView import challengesList, warmUpChallengeList
 from Instructors.views.challengeAdjusmentView import challengeAdjustmentView, adjustmentList
@@ -148,6 +148,7 @@ urlpatterns = [
     url(r'^deleteAnnouncement', deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge', deleteChallenge, name='deleteChallenge'),
     url(r'^deleteMilestone', deleteMilestone, name='deleteMilestone'),
+    url(r'^deleteProblemsButFilterTakenByStudent', deleteProblemsButFilterTakenByStudent, name='deleteProblemsButFilterTakenByStudent'),
     url(r'^deleteQuestionFromChallenge', deleteQuestionFromChallenge,
         name='deleteQuestionFromChallenge'),
     url(r'^deleteQuestion', deleteQuestion, name='deleteQuestion'),
