@@ -7,6 +7,7 @@
          position:relative;
          margin:auto;
          overflow:hidden;
+         margin-top: 4px;
          }
          .table-wrap {
          width:100%;
@@ -44,6 +45,12 @@
          background:#f9f9f9;
          visibility:visible;
          }
+         .heading-pad {
+            padding-left: 4px;
+            padding-right: 4px;
+            padding-top: 0;
+            padding-bottom: 0;
+         }
       </style>
    </head>
    <body>
@@ -76,9 +83,9 @@
                         <table class="highlight main-table">
                            <thead>
                               <th class="fixed-side no-padding"> Name</th>
-                              <th class="no-padding"> Total</th>
+                              <th class="heading-pad"> Total</th>
                               {% for i,chall_Name in challenge_range %}
-                              <th class="no-padding" >{{chall_Name}} </th>
+                              <th class="heading-pad" >{{chall_Name}} </th>
                               {% endfor %}
                            </thead>
                            <tbody>
@@ -86,18 +93,18 @@
                               <!-- gave this classes and witdths GGM -->
                               <tr class="no-padding">
                                  <td class="fixed-side no-padding">{{first_Name}} {{last_Name}}</td>
-                                 <td class="no-padding">{{gradeTotal}}</td>
+                                 <td class="heading-pad">{{gradeTotal}}</td>
                                  {% for grade,sc_user,sc_chall in grade_range %}
                                  <input type="hidden" name="challID" value="{{sc_user}}">
                                  <input type="hidden" name="challID" value="{{sc_chall}}">
                                  {% if grade !=  '-' %}
-                                     <td class="no-padding" ><a href="/oneUp/students/ChallengesTaken?challengeID={{sc_chall}}&userID={{sc_user}}&classAchievements">{{grade}}</a></td>
+                                     <td class="heading-pad" ><a href="/oneUp/students/ChallengesTaken?challengeID={{sc_chall}}&userID={{sc_user}}&classAchievements">{{grade}}</a></td>
                                  {% else %}  
-                                     <td class="no-padding">{{grade}}</td>
+                                     <td class="heading-pad">{{grade}}</td>
                                  {% endif %} 
                                       {% endfor %}
                                  {% for activityGrades in allActivityGrade_range %}
-                                 <td class="no-padding" > {{activityGrades}}</td>
+                                 <td class="heading-pad" > {{activityGrades}}</td>
                                  {% endfor %}
                               </tr>
                               {% endfor %}
