@@ -711,7 +711,7 @@
                     endOnTick: true,
                     startOnTick: false,
                     plotLines: [{
-                        value: [ChallengePointsProjected()],
+                        value: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0)],
                         width: 2,
                         zIndex: 4,
                         //Progressbar marker black color
@@ -783,7 +783,7 @@
                     //color:'#9966FF',
                     pointRange: .5,
                     zIndex: 1,
-                    data: [ChallengePointsProjected()]
+                    data: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0) ]
                 }]
             });
         });
