@@ -36,14 +36,14 @@
                 <div style="text-align: center; margin-top: 8px; color: #ecf9ff">
                     <!-- <div style="font-size: 1.6em;font-weight: 400;">Austin Hodge</div> -->
                     <div style="font-size: 1.3em;font-weight: 300;">{{username}}</div>
-                    <div style="font-size: 0.95em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{course_Name}}</div>
+                    <div title="{{course_Name}}" style="font-size: 0.95em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{course_Name}}</div>
                 </div>
                 </div>
             </div>
            
             <div style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly;">
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div title="{{studentXP_range}}" style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{studentXP_range}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
@@ -52,7 +52,7 @@
                 </div>
                 {% if ccparams.warmupsUsed %}
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div title="{{totalWCEarnedPoints|floatformat}}" style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{totalWCEarnedPoints|floatformat}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
@@ -62,11 +62,11 @@
                 {% endif %}
                 {% if ccparams.virtualCurrencyUsed %}
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div title="{{course_Bucks}}" style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{course_Bucks}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
-                        Current VC
+                        Virtual Currency
                     </div>
                 </div>
                 {% endif %}
