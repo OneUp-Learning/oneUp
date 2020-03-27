@@ -2,6 +2,11 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <style>
+         .select-dropdown {
+            margin: 0 !important;
+         }
+      </style>
    </head>
    <body>
       {% include 'stheading.html' %}  
@@ -36,8 +41,8 @@
                                  <td>{{buyOpt.displayName}}</td>
                                  <td>{{buyOpt.description}}</td>
                                  <td>{{buyOpt.cost}}</td>
-                                 <td><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" {% if buyOpt.remaining != 0 %} max="{{buyOpt.remaining}}" {% else %} max="99" {% endif %} value="0"></td>
-                                 <td>
+                                 <td style="padding-bottom: 0; padding-top: 0;"><input name="buyOptionQuantity{{buyOpt.id}}" id="buyOptionQuantity{{buyOpt.id}}" type="number" min="0" {% if buyOpt.remaining != 0 %} max="{{buyOpt.remaining}}" {% else %} max="99" {% endif %} value="0"></td>
+                                 <td style="padding-bottom: 0; padding-top: 0;">
                                     {% if buyOpt.challenges != None and buyOpt.challenges != 0 %}
                                     <select name="challengeFor{{buyOpt.id}}">
                                        <option value="none">None</option>
