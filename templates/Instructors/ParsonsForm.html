@@ -209,6 +209,18 @@
                                  });
                               </script> 
                            </div>
+                        </div>
+                        <div class="input-field col s12">
+                           <i class="material-icons prefix">mode_edit</i>
+                           <textarea name="basicHint" id="correct_feedback"
+                              class="materialize-textarea">{{basicHint}}</textarea>
+                           <label for="correct_feedback">Basic Hint</label>
+                        </div>
+                        <div class="input-field col s12">
+                           <i class="material-icons prefix">mode_edit</i>
+                           <textarea name="strongHint" id="correct_feedback"
+                              class="materialize-textarea">{{strongHint}}</textarea>
+                           <label for="correct_feedback">Strong Hint</label>
                         </div>       
                         {% if challenge %}
                         {% if unassign %}
