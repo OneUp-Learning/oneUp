@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased
 from Students.views.utils import studentInitialContextDict
@@ -10,7 +11,6 @@ from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo, Virtu
 from Badges.enums import Action, ObjectTypes
 from Badges.events import register_event
 from Badges.enums import Event, dict_dict_to_zipped_list
-from Instructors.views.utils import utcDate
 from datetime import datetime, timedelta
 import pytz
 from Badges.models import CourseConfigParams
@@ -112,8 +112,8 @@ def filterTransactions(request):
 def get_new_trasactions_ids_names(course, student):
     '''Filter the newly made transactions so we can record the reasons for the transactions'''
 
-    timestamp_from = utcDate() - timedelta(seconds=120)
-    timestamp_to = utcDate() + timedelta(seconds=1200)
+    timestamp_from = timezone.now() - timedelta(seconds=120)
+    timestamp_to = timezone.now() + timedelta(seconds=1200)
     transactions = StudentVirtualCurrencyTransactions.objects.filter(
         student=student, course=course, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
     transactionsNames = [t.name for t in transactions]
@@ -144,8 +144,8 @@ def save_transaction_reason(request):
             transactionID=int(request.POST['id']))
         transaction.transactionReason = request.POST['reason']
         transaction.save()
-        timestamp_from = utcDate() - timedelta(seconds=6220)
-        timestamp_to = utcDate() + timedelta(seconds=1200)
+        timestamp_from = timezone.now() - timedelta(seconds=6220)
+        timestamp_to = timezone.now() + timedelta(seconds=1200)
         transactions = StudentVirtualCurrencyTransactions.objects.filter(
             student=transaction.student, course=transaction.course, name=transaction.name, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
         for transaction in transactions:

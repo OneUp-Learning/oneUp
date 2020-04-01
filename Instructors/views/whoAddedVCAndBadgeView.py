@@ -18,7 +18,15 @@ import json
 def whoAddedBadgeAndVC(request):
 
     context_dict, currentCourse = initialContextDict(request)
-    
+
+    from Students.models import StudentBadges
+    import datetime
+    temp = BadgesVCLog()
+    temp.courseID = currentCourse
+    temp.log_data = json.dumps(create_badge_vc_log_json(request.user, StudentBadges.objects.all()[2], "Badge", "Automatic"))
+    temp.timestamp = datetime.datetime.strptime('2020-03-22 23:59:03.00', '%Y-%m-%d %H:%M:%S.%f')
+    temp.save()
+
     if request.method == 'GET':
         logObjectList = []
         loggedObjects = BadgesVCLog.objects.filter(courseID=currentCourse).order_by('-timestamp')

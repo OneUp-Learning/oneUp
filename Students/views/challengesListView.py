@@ -4,6 +4,7 @@ Created on May 7, 2014
 @author: Swapna
 '''
 from django.shortcuts import render
+from django.utils import timezone
 from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges , ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
@@ -45,7 +46,7 @@ def ChallengesList(request):
 
             #studentId = Student.objects.filter(user=request.user)
             defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-            currentTime = utcDate()
+            currentTime = timezone.now()
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
@@ -207,7 +208,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
         optionSelected = 0
 
     defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-    currentTime = utcDate()
+    currentTime = timezone.now()
 
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
     for challID in chall:

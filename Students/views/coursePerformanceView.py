@@ -3,6 +3,7 @@ Created on Feb 22, 2017
 
 '''
 from django.shortcuts import render
+from django.utils import timezone
 from Students.models import StudentChallenges, StudentActivities
 from Instructors.models import Challenges, Activities
 from Instructors.constants import default_time_str
@@ -40,7 +41,7 @@ def CoursePerformance(request):
 
     # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
     defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-    currentTime = utcDate()
+    currentTime = timezone.now()
     
     stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))
     for sa in stud_activities:

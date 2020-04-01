@@ -2,6 +2,9 @@
 # The database
 db.sqlite3
 
+# logstash db
+logstash.db
+
 # Pycache are temporary files generated in python compilation.
 # They should not go into version control
 **/__pycache__
@@ -32,8 +35,16 @@ media/images/uploadedInstructorImages/*
 media/images/uploadedAvatarImages/*
 media/lua/uploadedLuaLibs/*
 media/textfiles/xmlfiles/*
+media/textfiles/course/*
 media/Instructors/instructorActivityFiles/*
 lua/problems/*
+media/ckeditor/uploads/*
+
+# VScode stuff
+.vscode/*
+
+# Mac stuff
+.DS_Store
 
 # Deployment stuff which shouldn't be checked in
 oneUp/secret.key

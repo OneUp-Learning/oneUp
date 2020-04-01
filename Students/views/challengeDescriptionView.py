@@ -10,6 +10,7 @@ from time import strftime
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 
+from django.utils import timezone
 
 @login_required
 def ChallengeDescription(request):
@@ -22,7 +23,7 @@ def ChallengeDescription(request):
         chall_ID = []
         chall_Name = []
         defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        currentTime = utcDate()
+        currentTime = timezone.now()
         string_attributes = ['challengeName', 'courseID', 'isGraded',  # 'challengeCategory','timeLimit','numberAttempts',
                              'challengeAuthor',
                              'displayCorrectAnswer', 'displayCorrectAnswerFeedback', 'displayIncorrectAnswerFeedback',
@@ -89,7 +90,7 @@ def ChallengeDescription(request):
                     total_time = duel_challenge.acceptTime + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
                             minutes=duel_challenge.timeLimit)
-                    remaing_time = remaing_time = total_time-utcDate()
+                    remaing_time = remaing_time = total_time-timezone.now()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['timeLimit'] = ("%.2f" % difference_minutes)
                     if difference_minutes <= 0:
@@ -97,7 +98,7 @@ def ChallengeDescription(request):
                                         str(duel_challenge.duelChallengeID))
                 elif is_callout:
                     time_left = (call_out_part.calloutID.endTime -
-                                 utcDate()).total_seconds() / 60.0
+                                 timezone.now()).total_seconds() / 60.0
                     context_dict['timeLimit'] = ("%.2f" % time_left)
                     if time_left <= 0:
                         return redirect('/oneUp/students/CalloutDescription?call_out_participant_id=' + str(call_out_part.id) + '&participant_id=' + str(call_out_part.participantID.user.id))

@@ -16,6 +16,7 @@ from Instructors.models import InstructorRegisteredCourses, Topics
 import json
 from oneUp.settings import CELERY_ENABLED, DATABASES
 from Badges.tasks import process_event_offline
+from django.utils import timezone
 
 postgres_enabled = False
 if len([db for (name,db) in DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
@@ -48,7 +49,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     # Create event entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
-    eventEntry.timestamp = utcDate()
+    eventEntry.timestamp = timezone.now()
     courseIDint = int(mini_req['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
@@ -488,7 +489,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                     studentBadge.studentID = studentID
                     studentBadge.badgeID = badge
                     studentBadge.objectID = objID
-                    studentBadge.timestamp = utcDate()         # AV #Timestamp for badge assignment date
+                    studentBadge.timestamp = timezone.now()         # AV #Timestamp for badge assignment date
                     studentBadge.save()
 
                     # Record this trasaction in the log to show that the system awarded this badge

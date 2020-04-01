@@ -405,7 +405,7 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     
     if date == "None":
         dt = datetime.now(tz=timezone.utc).replace(microsecond=0)
-        # print("Current UTC: ", dt)
+        print("Current UTC: ", dt)
         return dt
     
     dt = datetime.strptime(date, form)

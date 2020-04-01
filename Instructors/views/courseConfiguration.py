@@ -3,8 +3,8 @@ Created on Sep 15, 2016
 #Updated The order of the fields to match the templates
 @author: Vendhan
 '''
-from django.shortcuts import redirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required,user_passes_test
 from Badges.models import CourseConfigParams
 from Instructors.views.utils import initialContextDict, utcDate
@@ -41,7 +41,7 @@ def courseConfigurationView(request):
         ccparams.announcementsUsed = "announcementsUsed" in request.POST
         logger.debug(request.POST['courseStartDate'])
         if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-            ccparams.courseStartDate = utcDate()
+            ccparams.courseStartDate = timezone.now()
         else:
             ccparams.courseStartDate = utcDate(request.POST['courseStartDate'], "%B %d, %Y")
 

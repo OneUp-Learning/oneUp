@@ -17,6 +17,10 @@ def passed_current_time(value):
     return timezone.now() >= value
 
 @register.filter
+def raw_timestamp(value):
+    return value
+
+@register.filter
 def get_value_indexed(l, i):
     try:
         return l[i]

@@ -5,7 +5,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
-from django.utils.timezone import make_naive
+from django.utils import timezone
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
 from Instructors.views.utils import utcDate, initialContextDict, localizedDate
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
@@ -135,67 +135,63 @@ def activityCreateView(request):
     ######################################
     # request.GET
     else:
-        if request.GET:
+        # If questionId is specified then we load for editing.
+        if 'activityID' in request.GET:
+            activity = Activities.objects.get(
+                pk=int(request.GET['activityID']))
 
-            # If questionId is specified then we load for editing.
-            if 'activityID' in request.GET:
-                activity = Activities.objects.get(
-                    pk=int(request.GET['activityID']))
+            # Copy all of the attribute values into the context_dict to
+            # display them on the page.
+            context_dict['activityID'] = request.GET['activityID']
+            for attr in string_attributes:
+                context_dict[attr] = getattr(activity, attr)
+            context_dict["points"] = int(context_dict["points"])
 
-                # Copy all of the attribute values into the context_dict to
-                # display them on the page.
-                context_dict['activityID'] = request.GET['activityID']
-                for attr in string_attributes:
-                    context_dict[attr] = getattr(activity, attr)
-                context_dict["points"] = int(context_dict["points"])
+            context_dict['currentCat'] = activity.category
+            context_dict['categories'] = ActivitiesCategory.objects.filter(
+                courseID=currentCourse)
 
-                context_dict['currentCat'] = activity.category
-                context_dict['categories'] = ActivitiesCategory.objects.filter(
-                    courseID=currentCourse)
+            # ggm upload attempts infinite
+            if activity.uploadAttempts == 9999:
+                context_dict['uploadAttempts'] = ''
+            else:
+                context_dict['uploadAttempts'] = activity.uploadAttempts
+            context_dict['isFileUpload'] = activity.isFileAllowed
+            context_dict['isGraded'] = activity.isGraded
 
-                # ggm upload attempts infinite
-                if activity.uploadAttempts == 9999:
-                    context_dict['uploadAttempts'] = ''
-                else:
-                    context_dict['uploadAttempts'] = activity.uploadAttempts
-                context_dict['isFileUpload'] = activity.isFileAllowed
-                context_dict['isGraded'] = activity.isGraded
+            startTime = localizedDate(request, str(timezone.make_naive(activity.startTimestamp.replace(
+                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if activity.startTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+                context_dict['startTimestamp'] = startTime
+            else:
+                context_dict['startTimestamp'] = ""
 
-                startTime = localizedDate(request, str(make_naive(activity.startTimestamp.replace(
-                    microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if activity.startTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
-                    context_dict['startTimestamp'] = startTime
-                else:
-                    context_dict['startTimestamp'] = ""
+            endTime = localizedDate(request, str(timezone.make_naive(activity.endTimestamp.replace(
+                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if activity.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+                context_dict['endTimestamp'] = endTime
+            else:
+                context_dict['endTimestamp'] = ""
+            # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
+            deadLine = localizedDate(request, str(timezone.make_naive(activity.deadLine.replace(
+                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+            if activity.deadLine.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+                context_dict['deadLineTimestamp'] = deadLine
+            else:
+                context_dict['deadLineTimestamp'] = ""
 
-                endTime = localizedDate(request, str(make_naive(activity.endTimestamp.replace(
-                    microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if activity.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
-                    context_dict['endTimestamp'] = endTime
-                else:
-                    context_dict['endTimestamp'] = ""
-                # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
-                deadLine = localizedDate(request, str(make_naive(activity.deadLine.replace(
-                    microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if activity.deadLine.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
-                    context_dict['deadLineTimestamp'] = deadLine
-                else:
-                    context_dict['deadLineTimestamp'] = ""
-
-                activityFiles = UploadedActivityFiles.objects.filter(
-                    activity=activity, latest=True)
-                if(activityFiles):
-                    context_dict['activityFiles'] = activityFiles
-                else:
-                    print('No activity files found')
+            activityFiles = UploadedActivityFiles.objects.filter(
+                activity=activity, latest=True)
+            if(activityFiles):
+                context_dict['activityFiles'] = activityFiles
+            else:
+                print('No activity files found')
         else:
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
-            print("fjdfkdjfkd")
-            if ccp.courseStartDate < utcDate().now().date():
+            if ccp.courseStartDate < timezone.now().date():
                 context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
                     "%m/%d/%Y %I:%M %p")
-                print("kdkkdk")
-            if ccp.courseEndDate > utcDate().now().date():
+            if ccp.courseEndDate > timezone.now().date():
                 context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
                     "%m/%d/%Y %I:%M %p")
                 context_dict['deadLineTimestamp'] = ccp.courseEndDate.strftime(

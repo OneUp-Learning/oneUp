@@ -4,6 +4,7 @@ Created on Nov 2, 2018
 '''
 #from Students.models import DuelChallenges
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.utils import utcDate
 from Badges.models import CourseConfigParams, BadgesVCLog
@@ -684,7 +685,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < timezone.now() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -788,7 +789,7 @@ def duel_challenge_create(request):
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < timezone.now() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -853,7 +854,7 @@ def duel_challenge_create(request):
         
         duel_challenge.courseID = current_course
 
-        time = utcDate()
+        time = timezone.now()
         duel_challenge.sendTime = time
         custom_message = "This duel is anonymous. Both you and your are opponent are called to solve a challenge/problem(s) selected by the system based on specified topic and difficulty by sender. The duel is"
 
@@ -938,7 +939,7 @@ def duel_challenge_create(request):
 
         ##################################################################################################################################################
         # Automatically makes a duel after a week using Celery 
-        expiration_time = utcDate() + timedelta(weeks=1)
+        expiration_time = timezone.now() + timedelta(weeks=1)
         duel_challenge_expire.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=expiration_time)
         ##################################################################################################################################################
 
@@ -1002,7 +1003,7 @@ def get_create_duel_topics_difficulties(request):
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < timezone.now() + timedelta(weeks=3):
                 continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :
@@ -1124,7 +1125,7 @@ def duel_challenge_description(request):
 
         duel_challenge_ID = duel_challenge.duelChallengeID
         # check if the duel hasStartTime reached
-        if (not duel_challenge.hasStarted) and (duel_challenge.status == 2) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)) <= utcDate()):
+        if (not duel_challenge.hasStarted) and (duel_challenge.status == 2) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)) <= timezone.now()):
             
             try:
                 with transaction.atomic():
@@ -1142,7 +1143,7 @@ def duel_challenge_description(request):
 
         duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_challenge_ID)
         # check if the duel hasStartTime + timeLimit reached
-        if (not duel_challenge.hasEnded) and (duel_challenge.hasStarted) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) +timedelta(seconds=5)) <= utcDate()):
+        if (not duel_challenge.hasEnded) and (duel_challenge.hasStarted) and ((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) +timedelta(seconds=5)) <= timezone.now()):
             automatic_evaluator(duel_challenge.duelChallengeID, current_course.courseID)
         
         context_dict['timeLimit'] = duel_challenge.timeLimit    
@@ -1156,14 +1157,14 @@ def duel_challenge_description(request):
     
             if duel_challenge.hasStarted:
                 total_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) #+timedelta(seconds=2)
-                remaing_time = total_time-utcDate()
+                remaing_time = total_time-timezone.now()
                 difference_minutes = remaing_time.total_seconds()/60.0
                 context_dict['testDuration'] = difference_minutes
         else:
             start_accept_time = duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) #+timedelta(seconds=2)
             print("start_accept_time", start_accept_time)
-            print("utcDate()", utcDate())
-            difference =  start_accept_time - utcDate()
+            print("timezone.now()", timezone.now())
+            difference =  start_accept_time - timezone.now()
             difference_minutes = difference.total_seconds()/60.0
         
             context_dict['startTime'] = difference_minutes
@@ -1262,7 +1263,7 @@ def duel_challenge_description(request):
             elif duel_challenge.status == 1:
                 context_dict['acceptance_status'] = 'pending'
                 context_dict['isAccepted'] = False
-                context_dict['expirationTime'] = (duel_challenge.sendTime+timedelta(weeks=1) - utcDate()).total_seconds()
+                context_dict['expirationTime'] = (duel_challenge.sendTime+timedelta(weeks=1) - timezone.now()).total_seconds()
             elif duel_challenge.status == 2:
                 context_dict['acceptance_status'] = 'Accepted'
                 context_dict['isAccepted'] = True
@@ -1308,7 +1309,7 @@ def duel_challenge_description(request):
             elif duel_challenge.status == 1:
                 context_dict['acceptance_status'] = 'pending'
                 context_dict['isAccepted'] = False
-                context_dict['expirationTime'] = (duel_challenge.sendTime+timedelta(weeks=1) - utcDate()).total_seconds()
+                context_dict['expirationTime'] = (duel_challenge.sendTime+timedelta(weeks=1) - timezone.now()).total_seconds()
             elif duel_challenge.status == 2:
                 context_dict['acceptance_status'] = 'Accepted'
                 context_dict['isAccepted'] = True
@@ -1372,7 +1373,7 @@ def duel_challenge_accept(request):
         # toggle status to accpeted
         duel_challenge.status = 2 
         #duel_challenge.hasStarted = True
-        duel_challenge.acceptTime = utcDate()
+        duel_challenge.acceptTime = timezone.now()
         duel_challenge.save()
         context_dict['requested_duel_challenge']=duel_challenge
         #context_dict['time_limit'] = convert_time_to_hh_mm(duel_challenge.timeLimit)
@@ -1395,7 +1396,7 @@ def duel_challenge_accept(request):
         ################################################################################################################################################
         # Start duel after specified time using celery 
         # get database start time and subtract 20 seconds from it to be consistent with network latency 
-        # start_time = utcDate() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
+        # start_time = timezone.now() +timedelta(minutes=duel_challenge.startTime)-timedelta(seconds=20)
         # print("start time ", start_time)
         # start_duel_challenge.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=start_time)
         # print("start duel celery")
@@ -1404,7 +1405,7 @@ def duel_challenge_accept(request):
         ##################################################################################################################################################
         # Automatically evaluate duel after specified time using Celery 
         # get database start time and add 3 seconds to it to be consistent with network latency 
-        evaluation_time = utcDate() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=3)
+        evaluation_time = timezone.now() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=3)
         print("evaluation time ", evaluation_time )
         automatic_evaluator.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=evaluation_time)
         print("automatic evaluation duel celery")
@@ -1472,7 +1473,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             # get the time when duel was accpeted and add start_and_limit_time to time
             duel_allowed_time = duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time)+timedelta(seconds=2)
             
-            if duel_allowed_time <= utcDate():
+            if duel_allowed_time <= timezone.now():
                 
                 # Challenge is expired
                 context_dict['isExpired']=True

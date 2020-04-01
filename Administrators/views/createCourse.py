@@ -1,5 +1,6 @@
 from django.template import RequestContext
 from django.shortcuts import render, redirect
+from django.utils import timezone
 
 from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics, ActivitiesCategory
 from Instructors.constants import uncategorized_activity
@@ -142,7 +143,7 @@ def courseCreateView(request):
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-                    ccp.courseStartDate = utcDate()
+                    ccp.courseStartDate = timezone.now()
                 else:
                     ccp.courseStartDate = utcDate(
                         request.POST['courseStartDate'], "%B %d, %Y")
@@ -191,7 +192,7 @@ def courseCreateView(request):
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-                    ccp.courseStartDate = utcDate()
+                    ccp.courseStartDate = timezone.now()
                 else:
                     ccp.courseStartDate = utcDate(
                         request.POST['courseStartDate'], "%B %d, %Y")
@@ -228,7 +229,7 @@ def courseCreateView(request):
                 ccp = CourseConfigParams()
                 ccp.courseID = course
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-                    ccp.courseStartDate = utcDate()
+                    ccp.courseStartDate = timezone.now()
                 else:
                     ccp.courseStartDate = utcDate(
                         request.POST['courseStartDate'], "%B %d, %Y")

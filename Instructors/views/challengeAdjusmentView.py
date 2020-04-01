@@ -5,6 +5,7 @@ Created on Feb 17, 2018
 '''
 
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, Courses
 from Students.models import StudentRegisteredCourses, StudentChallenges
@@ -77,8 +78,8 @@ def challengeAdjustmentView(request):
                     
 
                         studentChallenge.courseID = course
-                        studentChallenge.startTimestamp = utcDate()
-                        studentChallenge.endTimestamp = utcDate()
+                        studentChallenge.startTimestamp = timezone.now()
+                        studentChallenge.endTimestamp = timezone.now()
                         studentChallenge.testScore = 0
                         studentChallenge.save()
 

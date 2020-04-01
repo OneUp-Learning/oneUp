@@ -13,7 +13,7 @@ from datetime import datetime
 from notify.signals import notify
 from Students.models import StudentRegisteredCourses
 from oneUp.decorators import instructorsCheck
-from django.utils.timezone import make_naive
+from django.utils import timezone
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -54,7 +54,7 @@ def announcementCreateView(request):
         
         announcement.courseID = currentCourse 
     
-        announcement.startTimestamp = utcDate()
+        announcement.startTimestamp = timezone.now()
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
@@ -86,7 +86,7 @@ def announcementCreateView(request):
                     context_dict[attr]=getattr(announcement,attr)
 
                 # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-                endTime = localizedDate(request, str(make_naive(announcement.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+                endTime = localizedDate(request, str(timezone.make_naive(announcement.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
                 if announcement.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
                     context_dict['endTimestamp']= endTime
                 else:

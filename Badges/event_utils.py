@@ -2,11 +2,12 @@ def updateLeaderboard(course):
     from Students.models import StudentLeaderboardHistory, StudentRegisteredCourses
     from Badges.models import CourseConfigParams
     from Instructors.views.utils import utcDate
+    from django.utils import timezone
     from Badges.periodicVariables import studentScore, TimePeriods
 
     studentrcs = StudentRegisteredCourses.objects.filter(courseID=course)
     studentLeaders = {}
-    currentTime = utcDate()
+    currentTime = timezone.now()
 
     for studentrc in studentrcs:
         # result = studentScore(studentrc.studentID, course, 0, result_only=True, gradeWarmup=True, gradeSerious=True, gradeActivity=True, gradeSkills=True)

@@ -4,10 +4,10 @@ Created on Aug 28, 2017
 @author: jevans116
 '''
 from django.shortcuts import render
+from django.utils import timezone
 from Students.models import StudentActivities, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Activities, ActivitiesCategory
-from Instructors.views.utils import utcDate
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -115,8 +115,7 @@ def category_activities(category, studentId, current_course):
     for act in activity_objects:
         # if today is after the data it was assigninged display it
         # logger.debug(act.startTimestamp)
-        # logger.debug(utcDate())
-        if act.startTimestamp <= utcDate():
+        if act.startTimestamp <= timezone.now():
             # add the activities to the list so we can display
             activites.append(act)
             if act.isGraded:
@@ -129,7 +128,7 @@ def category_activities(category, studentId, current_course):
         activity_points.append(round(act.points))
         if act.deadLine == None:
             activity_date_status.append("Undated Activity")
-        elif act.deadLine < utcDate():
+        elif act.deadLine < timezone.now():
             activity_date_status.append("Past Activity")
         else:
             activity_date_status.append("Upcoming Activity")

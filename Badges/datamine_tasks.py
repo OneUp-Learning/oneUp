@@ -253,7 +253,7 @@ def student_data_mine_actions():
             student_actions_data.save()
 
     task = PeriodicTask.objects.get(name='student_data_mine_actions')
-    task.last_run_at = utcDate()
+    task.last_run_at = timezone.now()
     task.save()
     PeriodicTasks.changed(task)
 

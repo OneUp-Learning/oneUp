@@ -148,7 +148,7 @@ def getDaysBetweenCurrentTimeAndDeadline(challenge):
         Returns the number of days between now and challenge deadline.
     '''
     deadline = challenge.dueDate
-    now = utcDate()
+    now = timezone.now()
     diff = deadline-now
     return diff.days
 

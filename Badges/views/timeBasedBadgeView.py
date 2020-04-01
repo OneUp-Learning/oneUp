@@ -4,6 +4,7 @@ Last modified 09/02/2016
 
 '''
 from django.shortcuts import render
+from django.utils import timezone
 
 import glob, os
 
@@ -80,7 +81,7 @@ def timeBasedBadgeView(request):
             periodic_badge.timePeriodID = request.POST['timePeriodSelected']
             periodic_badge.threshold = request.POST['threshold']
             periodic_badge.operatorType = request.POST['operator']
-            periodic_badge.lastModified = utcDate()
+            periodic_badge.lastModified = timezone.now()
 
             streakObject = determineIfStreakAward(int(request.POST['periodicVariableSelected']))
     

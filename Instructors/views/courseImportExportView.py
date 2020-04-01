@@ -1,6 +1,7 @@
 ''' Created by Austin Hodge 5-18-19 '''
 
 from django.shortcuts import redirect, render, HttpResponse
+from django.utils import timezone
 from django.http import JsonResponse
 
 from django.contrib.auth.models import User
@@ -2646,7 +2647,7 @@ def import_badges_from_json(badges_jsons, badge_type, current_course, context_di
 
             elif badge_type == 'periodic':
                 # Add the periodic fields to badge
-                periodic_badge_fields_to_update = {'lastModified': utcDate()}
+                periodic_badge_fields_to_update = {'lastModified': timezone.now()}
                 badge = create_model_instance(badge, badge_json, custom_fields_to_save=periodic_badge_fields_to_update, modify=True)
                 badge.save()
                 
@@ -2705,7 +2706,7 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
 
             elif vc_rule_type == 'periodic':
                 # Add the periodic fields to vc rule
-                periodic_vc_rule_fields_to_update = {'lastModified': utcDate()}
+                periodic_vc_rule_fields_to_update = {'lastModified': timezone.now()}
                 vc_rule = create_model_instance(vc_rule, vc_rule_json, custom_fields_to_save=periodic_vc_rule_fields_to_update, modify=True)
                 vc_rule.save()
                 
@@ -2759,7 +2760,7 @@ def import_leaderboards_from_json(leaderboards_jsons, current_course, id_map=Non
         for leaderboard_json in leaderboards_jsons:
 
             # Create the leaderboard model instance
-            leaderboard_fields_to_save = {'lastModified': utcDate(), 'courseID': current_course}
+            leaderboard_fields_to_save = {'lastModified': timezone.now(), 'courseID': current_course}
             leaderboard = create_model_instance(LeaderboardsConfig, leaderboard_json, custom_fields_to_save=leaderboard_fields_to_save)
             leaderboard.save()
 

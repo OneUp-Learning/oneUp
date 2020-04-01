@@ -2,8 +2,7 @@
 # Created on  11/20/2015
 # Dillon Perry, Austin Hodge
 #
-from datetime import datetime, timezone
-
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Students.models import StudentRegisteredCourses, Student, StudentFile
@@ -68,7 +67,9 @@ def activityAssignPointsView(request):
                     if studentPoints != stud_activity.activityScore:
                         # A score exists and a new score has been assigned.
                         stud_activity.activityScore = studentPoints
-                        stud_activity.timestamp = utcDate()
+                        stud_activity.timestamp = timezone.now()
+                        print(f'{timezone.get_default_timezone_name()} {timezone.now()}')
+                        print(f'{timezone.get_current_timezone_name()} {timezone.localtime(timezone.now())} \n\n')
                         stud_activity.instructorFeedback = request.POST['student_Feedback' + str(
                             studentRC.studentID.id)]
                         stud_activity.graded = True
@@ -99,7 +100,9 @@ def activityAssignPointsView(request):
                     stud_activity.instructorFeedback = ""
 
                 stud_activity.bonusPointsAwarded = studentBonus
-                stud_activity.timestamp = utcDate()
+                stud_activity.timestamp = timezone.now()
+                print(timezone.now())
+                print(timezone.localtime(timezone.now()))
                 stud_activity.courseID = currentCourse
                 stud_activity.graded = True
                 stud_activity.save()

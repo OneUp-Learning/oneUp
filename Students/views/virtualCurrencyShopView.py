@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from Instructors.views.utils import utcDate
 
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentChallenges, StudentActivities, StudentEventLog
@@ -87,7 +88,7 @@ def virtualCurrencyShopView(request):
 
             if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
                 defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-                currentTime = utcDate()
+                currentTime = timezone.now()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(
                     Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
                 activites = Activities.objects.filter(courseID=currentCourse).filter(
@@ -248,7 +249,7 @@ def virtualCurrencyShopView(request):
                             studentVCTransaction.objectID = int(
                                 request.POST[challenge_for_id])
                         studentVCTransaction.status = 'Requested'
-                        studentVCTransaction.timestamp = utcDate()
+                        studentVCTransaction.timestamp = timezone.now()
                         studentVCTransaction.save()
 
             # Send notification to Instructor that student has bought item from shop

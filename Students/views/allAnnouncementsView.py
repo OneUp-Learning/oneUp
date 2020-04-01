@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Announcements
 from Students.views.utils import studentInitialContextDict
-from Instructors.views.utils import utcDate
+from django.utils import timezone
 from datetime import datetime
 
 def createContextForAnnouncementList(currentCourse, context_dict):
@@ -51,7 +51,7 @@ def allAnnouncements(request):
 #if the current time exceeds the endTimestamp, the announcement is deleted from the database
 def removeExpired():
     announcements = Announcements.objects.all()
-    currentTime = utcDate().strftime("%m/%d/%Y %I:%M %p") 
+    currentTime = timezone.now().strftime("%m/%d/%Y %I:%M %p") 
     for announcement in announcements:
         if (currentTime > datetime.strptime(str(announcement.endTimestamp.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p")):
             announcement.delete()

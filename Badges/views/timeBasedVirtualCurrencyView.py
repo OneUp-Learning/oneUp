@@ -4,7 +4,7 @@ Last modified 09/02/2016
 
 '''
 from django.shortcuts import render
-
+from django.utils import timezone
 
 from django.contrib.auth.decorators import login_required
 from Instructors.views.utils import initialContextDict, utcDate
@@ -80,7 +80,7 @@ def timeBasedVirtualCurrencyView(request):
             periodicVC.timePeriodID = request.POST['timePeriodSelected']
             periodicVC.threshold = request.POST['threshold']
             periodicVC.operatorType = request.POST['operator']
-            periodicVC.lastModified = utcDate()
+            periodicVC.lastModified = timezone.now()
             
             if 'selectors' in request.POST:
                 periodicVC.periodicType = selectorMap[selectors]

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 import random
 from datetime import datetime, timedelta
@@ -77,7 +78,7 @@ def ChallengeSetup(request):
                     total_time = duel_challenge.acceptTime + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
                             minutes=duel_challenge.timeLimit)
-                    remaing_time = total_time-utcDate()
+                    remaing_time = total_time-timezone.now()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['testDuration'] = difference_minutes
                     context_dict['isDuel'] = True
@@ -89,7 +90,7 @@ def ChallengeSetup(request):
                     context_dict['challengeName'] = call_out_part.calloutID.challengeID.challengeName
                     context_dict['isduration'] = True
                     time_left = (call_out_part.calloutID.endTime -
-                                 utcDate()).total_seconds() / 60.0
+                                 timezone.now()).total_seconds() / 60.0
                     context_dict['testDuration'] = time_left
                     context_dict['isCallout'] = True
                     context_dict['calloutPartID'] = call_out_part_id
@@ -101,9 +102,6 @@ def ChallengeSetup(request):
                         context_dict['isduration'] = True
                     context_dict['testDuration'] = challenge.timeLimit
                     context_dict['isDuel'] = False
-
-                # starttime = utcDate()
-                # context_dict['startTime'] = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
 
                 # Use timezone to convert date to current timzone set in settings.py
                 tz = pytz.timezone(request.session.get(
