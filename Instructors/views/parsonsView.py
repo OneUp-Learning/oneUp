@@ -130,11 +130,11 @@ def parsonsForm(request):
         
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
-            
+            positions = []
             position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
             
             if  'questionId' in request.POST:                         
-                challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
                 for chall_question in challenge_questions:
                     positions.append((chall_question.pk, chall_question.questionPosition, chall_question.points))
                 
