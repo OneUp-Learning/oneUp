@@ -450,8 +450,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Number of recent badges to be displayed on the
-                                            leaderboard</p>
+                                        <p style="font-size: 0.8rem;">Number of recent badges to be displayed on 
+                                            course home pages</p>
                                         <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed"
                                             id="badges_recent" maxlength="3" type="number" min="0" max="100" required>
                                     </div>
@@ -542,10 +542,11 @@
                                         <span class="lever secondary-content"></span>
                                     </label>
                                 </div>
+                            </div>
                                 <div class="row">
                                     <div class="switch col s12">
                                         <label>
-                                            Call out after solving a warmup correctly on the first attempt
+                                            Call out after solving a warmup correctly on <br /> the first attempt
                                             {% if calloutAfterWarmup %}
                                             <input name="calloutAfterWarmup" type="checkbox" checked>
                                             {% else %}
@@ -555,7 +556,6 @@
                                         </label>
                                     </div>
                                 </div>
-                            </div>
                             <div class="row">
                                 <div class="switch col s12">
                                     <label>

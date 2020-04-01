@@ -24,7 +24,7 @@ input[type=search]:not(.browser-default),
 textarea.materialize-textarea {
 
   // General Styles
-  background-color: transparent;
+  background-color: $input-background;
   border: none;
   border-bottom: $input-border;
   border-radius: 0;
@@ -195,7 +195,7 @@ textarea.materialize-textarea {
     min-height: 18px;
     display: block;
     font-size: 14px;
-    color: rgba(0,0,0,0.54);
+    color: $input-helper-text-color;
   }
 
   // Prefix Icons

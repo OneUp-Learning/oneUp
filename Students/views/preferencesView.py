@@ -30,9 +30,8 @@ def preferencesView(request):
             context_dict["classmatesChallenges"] = ccparams.classmatesChallenges
 
         student = context_dict['student']
-
     if request.POST:
-
+        
         if request.POST['scpID']:
             scparams = StudentConfigParams.objects.get(
                 pk=int(request.POST['scpID']))
@@ -40,6 +39,8 @@ def preferencesView(request):
         else:
             scparams = StudentConfigParams.objects.get(
                 courseID=currentCourse, studentID=student)
+        student.displayDarkMode = "displayDarkMode" in request.POST
+        student.save()
 
         if ccparams.studCanChangeBadgeVis:
             scparams.displayBadges = "displayBadges" in request.POST

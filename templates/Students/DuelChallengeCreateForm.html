@@ -63,12 +63,12 @@
                         <div class="row">
                            <div class="input-field col s18 m6">
                               <label for="startTime"><span class= "red-text">*</span> Minute The Challenge Starts After Acceptance</label> 
-                              <input placeholder="minutes (minimum 5)" value="{{startTime}}" name="startTime" id="startTime" maxlength="4" type="number" class="validate" min="5" step="any" required>
+                              <input placeholder="minutes (minimum 5)" value="{{startTime}}" name="startTime" id="startTime" maxlength="4" type="number" class="validate" min="5" step="any" autocomplete="off" required>
                               <!--<input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime">-->
                            </div>
                            <div class="input-field col s18 m6">
                               <label for="timeLimit"><span class= "red-text">*</span> Time Limit In Minutes</label>
-                              <input placeholder="minutes (minimum 5)" value="{{timeLimit}}" name="timeLimit" id="timeLimit" maxlength="4" type="number" class="validate" min="5" step="any" required> 
+                              <input placeholder="minutes (minimum 5)" value="{{timeLimit}}" name="timeLimit" id="timeLimit" maxlength="4" type="number" class="validate" min="5" step="any" autocomplete="off" required> 
                               <!--<input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime">-->
                            </div>
 
@@ -145,7 +145,7 @@
                         {% if is_bet_vc %}
                         <div class="row">
                            <div class="col s12">
-                              <input name="isBetting" type="checkbox" id="isBetting" {% if isBetting %} checked {% endif %}/>
+                              <input class="filled-in" name="isBetting" type="checkbox" id="isBetting" {% if isBetting %} checked {% endif %}/>
                               <label for="isBetting">Bet An Amount of Virtual Currency</label>
                               
                            </div>
@@ -179,7 +179,7 @@
                                   Are sure you want to submit?</P>
                             </div>
                             <div class="modal-footer">
-                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                              <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
                               <!--class="modal-action modal-close waves-effect waves-light btn"-->
                               <button href="#!" class="modal-action modal-close waves-effect waves-light btn" type="submit" name="submit"
                                 value="Submit">Submit

@@ -5,7 +5,8 @@
   position: fixed;
   left: 0;
   right: 0;
-  background-color: #fafafa;
+  background-color: $surface-highest-color;
+  color: $primary-text-surface-color;
   padding: 0;
   max-height: 70%;
   width: 55%;
@@ -32,7 +33,7 @@
 
   .modal-footer {
     border-radius: 0 0 2px 2px;
-    background-color: #fafafa;
+    background-color: $surface-highest-color;
     padding: 4px 6px;
     height: 56px;
     width: 100%;

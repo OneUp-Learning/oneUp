@@ -88,8 +88,7 @@ def listRules(request,current_course,context_dict):
 
     # Code for selector
     objTypes.append( {'id' : ObjectTypes.activity, 'string' : 'Activity'} ) 
-    objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' WarmUp Challenge' } )
-    objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' Serious Challenge' } )
+    objTypes.append( {'id' : ObjectTypes.challenge, 'string' : ' Challenge' } )
     objTypes.append( {'id' : ObjectTypes.topic, 'string' : 'Topic' } )
     objTypes.append( {'id' : ObjectTypes.activityCategory, 'string' : 'Activity Category' } )
     context_dict['filter'] = objTypes

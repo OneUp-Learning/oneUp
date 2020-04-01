@@ -50,6 +50,7 @@ class Universities(models.Model):
     universityID = models.AutoField(primary_key=True)
     universityName = models.CharField(max_length=300)
     universityDescription = models.CharField(max_length=2000, default="")
+    universityTimezone = models.CharField(max_length=100, default="America/New_York")
    
     def __str__(self):              
         return str(self.universityID) +", "+ self.universityName  +", "+ self.universityDescription  

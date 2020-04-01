@@ -5,6 +5,8 @@ Last updated on Sep 12, 2016
 '''
 from django.template import RequestContext
 from django.shortcuts import redirect
+from Instructors.models import Universities, UniversityCourses, Courses
+from django.conf import settings
 
 def setCourseView(request):
  
@@ -16,6 +18,12 @@ def setCourseView(request):
         
     if request.POST:
         request.session['currentCourseID'] = request.POST['courseID']
+        university = UniversityCourses.objects.filter(courseID=request.POST['courseID']).first()
+        timezone = settings.TIME_ZONE
+        if university:
+            timezone = university.universityID.universityTimezone
+
+        request.session['django_timezone'] = timezone
 
     user = request.user    
     

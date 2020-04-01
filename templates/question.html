@@ -7,6 +7,7 @@ graded - a boolean which should be true when the challenge has been graded and y
 showcorrect - a boolean reflects whether or not the correct answer should be displayed
 instructorview - a boolean which reflects whether or not we're in the instructor view (show points for problem)
 {% endcomment %}
+<link rel="stylesheet" href="/static/ThirdParty/ckeditor/content-styles.css">
 {% if i != 1 %}
 <div class="divider"></div>
 {% endif %}
@@ -14,27 +15,27 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 {% if q.type == questionTypes.multipleChoice %}
 <div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Multiple Choice)</h4>
-  <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+  <div class="ck-content" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.multipleAnswers %}
 <div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Multiple Answer)</h4>
-  <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+  <div class="ck-content" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.matching %}
 <div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Matching)</h4>
-  <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+  <div class="ck-content" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.trueFalse %}
 <div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (True/False)</h4>
-  <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+  <div class="ck-content" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% elif q.type == questionTypes.parsons %}
 <div id="scrollspy-{{i}}" class="row scrollspy">
   <h4>Problem {{i}} (Parsons)</h4>
-  <div class="ck-view" style="margin-left: 10px"> {{q.questionText|safe}} </div>
+  <div class="ck-content" style="margin-left: 10px"> {{q.questionText|safe}} </div>
 </div>
 {% endif %}
 
@@ -130,7 +131,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   <div class="col s12">
     {% for j,answer in q.answers_with_count %}
     <div class="row">
-      <input name="{{i}}-ans" type="checkbox" id="{{i}}ans-{{j}}" value="{{j}}" {% if graded %}
+      <input class="filled-in" name="{{i}}-ans" type="checkbox" id="{{i}}ans-{{j}}" value="{{j}}" {% if graded %}
         {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %}
         disabled {% endif %} />
       <label for="{{i}}ans-{{j}}" style="width: -webkit-fill-available;">
@@ -220,12 +221,12 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   
     {% for match in q.matches %}
     <div class="col s12 m6" style="display: flex; margin: 0">
-    <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
-      <div class="card-content white-text">
+    <div class="card primary-color-dark colored-card" style="display: inline-block; overflow: visible; width: 100%;">
+      <div class="card-content">
         <span class="card-title">Choice {{match.current_pos}}</span>
         <p>{{match.matchingAnswerText}}</p>
       </div>
-      <div class="card-action" style="color: white;">
+      <div class="card-action">
         <span class="card-title">Your Answer</span>
         {% for user_answer in q.user_answers %}
         {% if forloop.counter ==  forloop.parentloop.counter %}
@@ -245,13 +246,13 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   <div style="display: flex; flex-wrap: wrap;">
     {% for match in q.matches %}
     <div class="col s12 m6" style="display: flex; margin: 0">
-    <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
-      <div class="card-content white-text">
+    <div class="card primary-color-dark colored-card" style="display: inline-block; overflow: visible; width: 100%;">
+      <div class="card-content">
         <span class="card-title">Choice {{match.current_pos}}</span>
         <p>{{match.matchingAnswerText}}</p>
       </div>
       <div class="card-action">
-        <select name="{{i}}-{{match.current_pos}}" style="color: white">
+        <select name="{{i}}-{{match.current_pos}}">
           {% for k in match.answers_count %}
           <option value="{{k}}">Question {{k}}</option>
           {% endfor %}
@@ -276,12 +277,12 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         <div style="display: flex; flex-wrap: wrap;">
           {% for match in q.matches %}
           <div class="col s12 m6" style="display: flex; margin: 0">
-          <div class="card indigo" style="display: inline-block; overflow: visible; width: 100%;">
-            <div class="card-content white-text">
+          <div class="card primary-color-dark colored-card" style="display: inline-block; overflow: visible; width: 100%;">
+            <div class="card-content">
               <span class="card-title">Choice {{match.current_pos}}</span>
               <p>{{match.matchingAnswerText}}</p>
             </div>
-            <div class="card-action" style="color: white;">
+            <div class="card-action">
               <span class="card-title">Correct Answer</span>
               <p>{{match.answerText}}</p>
             </div>
@@ -423,7 +424,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 		<h6><b>Code Fragments:</b></h6>
 		<div class="example-list-{{i}} cdk-drop-list" id="parsonTrash_{{i}}">
 			{% for model_solution_data in q.model_solution %}
-			<div class="example-box cdk-drag" data-id="{{model_solution_data.hashVal}}"><pre class="code">{{model_solution_data.line}}</pre></div>
+			<div class="parson-box cdk-drag" data-id="{{model_solution_data.hashVal}}"><pre class="code">{{model_solution_data.line}}</pre></div>
 			{% endfor %}
 		</div>
 	</div>
@@ -463,7 +464,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 		padding: 10px 10px;
 		margin: 0;
 	}
-	.example-box {
+	.parson-box {
 		
 		border-bottom: solid 1px #ccc;
 		color: rgba(0, 0, 0, 0.87);
@@ -499,11 +500,11 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 		transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 	}
 
-	.example-box:last-child {
+	.parson-box:last-child {
 		border: none;
 	}
 
-	.example-list-{{i}}.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+	.example-list-{{i}}.cdk-drop-list-dragging .parson-box:not(.cdk-drag-placeholder) {
 		transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 	}
 
@@ -552,8 +553,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 		sort: function(event, ui){
 			// Updates purple blue? indent line 
 			
-			// Skip this function and set purple indent to 0 if we hover from one box to another
-			if (skip) {
+      // Skip this function and set purple indent to 0 if we hover from one box to another
+			if (skip || $(this).attr('id').startsWith("parsonTrash_")) {
 				$(ui.placeholder[0]).css("left", 0);
 				return;
 			}
@@ -614,9 +615,6 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 			// Remove shadow and update indent position of item and depth 
 			ui.helper.removeClass("cdk-drag-preview");
 
-			var offset = ui.position.left - ui.originalPosition.left;
-			var direction = Math.sign(offset);
-
 			var padding = $(ui.item[0]).attr('data-padding');
 			var multiple = $(ui.item[0]).attr('data-multiple');
 
@@ -624,16 +622,12 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 			if (multiple) multiple = parseInt(multiple);
 
 			if (padding >= 0 && padding <= max_indent_range_in_pixels){ 
-				// $(ui.item[0]).attr("data-depth", parseInt($(ui.item[0]).attr("data-depth")) + (multiple * direction)); 
-
-				// if ($(ui.item[0]).attr("data-depth") < 0) $(ui.item[0]).attr("data-depth", 0);
 
 				$(ui.item[0]).css("margin-left", padding); 
 				$(ui.item[0]).css("margin-right", -padding); 
 			}  
 			console.log(ui.position); 
 			console.log(ui.originalPosition); 
-			console.log(ui.offset); 
 		},
 	}); 
 

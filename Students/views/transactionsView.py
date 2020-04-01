@@ -116,11 +116,20 @@ def get_new_trasactions_ids_names(course, student):
     timestamp_to = utcDate() + timedelta(seconds=1200)
     transactions = StudentVirtualCurrencyTransactions.objects.filter(
         student=student, course=course, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
+    transactionsNames = [t.name for t in transactions]
+
+    idsToBeDeleted = []
+    for i in range(0, len(transactions)):
+        if transactionsNames[i] in transactionsNames[i+1:]:
+            idsToBeDeleted.append(transactions[i].transactionID)
+
     i = 0
     Is = []
     ids = []
     names = []
     for transaction in transactions:
+        if transaction.transactionID in idsToBeDeleted:
+            continue
         ids.append(transaction.transactionID)
         names.append(transaction.name)
         Is.append(i)
@@ -135,8 +144,13 @@ def save_transaction_reason(request):
             transactionID=int(request.POST['id']))
         transaction.transactionReason = request.POST['reason']
         transaction.save()
-        print("come to save")
-        print(transaction)
+        timestamp_from = utcDate() - timedelta(seconds=6220)
+        timestamp_to = utcDate() + timedelta(seconds=1200)
+        transactions = StudentVirtualCurrencyTransactions.objects.filter(
+            student=transaction.student, course=transaction.course, name=transaction.name, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
+        for transaction in transactions:
+            transaction.transactionReason = request.POST['reason']
+            transaction.save()
 
     return JsonResponse({'status': "successful"})
 
@@ -241,7 +255,7 @@ def get_transactions(context_dict, course, student, t_type='all'):
             transactionID.append(None)
             challenges.append(None)
 
-    # Sort by status (Request -> In Progress -> Complete) then datetime 
+    # Sort by status (Request -> In Progress -> Complete) then datetime
     status_order = ['Complete', 'Reverted', 'In Progress', 'Requested']
     transactions = sorted(zip(transactionID, name, description, date, total, status,
                               challenges, transaction_type), key=lambda s: (status_order.index(s[5]), s[3]), reverse=True)

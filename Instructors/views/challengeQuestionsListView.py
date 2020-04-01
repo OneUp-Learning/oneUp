@@ -1,12 +1,13 @@
 from django.template import RequestContext
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.models import Challenges, Courses, CoursesSkills
+from Instructors.models import Challenges, Courses, CoursesSkills, ChallengesQuestions, Questions
 from Instructors.views.challengeListView import makeContextDictForQuestionsInChallenge
 from Instructors.views.searchResultsView import searchResults
 from Instructors.views.utils import initialContextDict
 from Instructors.lupaQuestion import lupa_available
 from Instructors.constants import unassigned_problems_challenge_name
+from Students.models import StudentChallengeQuestions
 
 from Badges.enums import dict_dict_to_zipped_list
 from Instructors.questionTypes import QuestionTypes
@@ -56,39 +57,77 @@ def challengeQuestionsListView(request):
     context_dict, currentCourse = initialContextDict(request)
     context_dict['lupa_available'] = lupa_available
         
-    if 'challengeID' in request.GET:   
-        challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
-        
-        currentChallenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
-        isRandomized = currentChallenge.isRandomized 
-        context_dict['isRandomized'] = isRandomized    
-        if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
-            context_dict["unassign"]= 1
-            context_dict['serious'] = False
-            context_dict['warmUp'] = False
-        else:
-            if challenge.isGraded:
-                context_dict['serious'] = True
+    if request.GET:
+        if 'challengeID' in request.GET:   
+            challenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+            
+            currentChallenge = Challenges.objects.get(pk=int(request.GET['challengeID']))
+            isRandomized = currentChallenge.isRandomized 
+            context_dict['isRandomized'] = isRandomized    
+            if Challenges.objects.filter(challengeID = request.GET['challengeID'],challengeName=unassigned_problems_challenge_name):
+                context_dict["unassign"]= 1
+                context_dict['serious'] = False
+                context_dict['warmUp'] = False
             else:
-                context_dict['warmUp'] = True
-        context_dict['challenge'] = True
-        context_dict['challengeID'] = request.GET['challengeID']
-        context_dict['challengeName'] = challenge.challengeName
+                if challenge.isGraded:
+                    context_dict['serious'] = True
+                else:
+                    context_dict['warmUp'] = True
+            context_dict['challenge'] = True
+            context_dict['challengeID'] = request.GET['challengeID']
+            context_dict['challengeName'] = challenge.challengeName
 
-    if 'problems' in request.GET:
-        context_dict["unassign"]= 1
-        chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
-        challengeID = None
-        for challID in chall:
-            challengeID = (str(challID.challengeID)) 
-        if challengeID == None:
-            context_dict['question_range'] = None
+        if 'problems' in request.GET:
+            context_dict["unassign"]= 1
+            chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
+            challengeID = None
+            for challID in chall:
+                challengeID = (str(challID.challengeID)) 
+            if challengeID == None:
+                context_dict['question_range'] = None
+            else:
+                context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)      
         else:
-            context_dict = makeContextDictForQuestionsInChallenge(challengeID, context_dict)      
-    else:
-        context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
+            context_dict = makeContextDictForQuestionsInChallenge(request.GET['challengeID'], context_dict)
 
     return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
 
-  
+def makeSureTheresNoStudentsUsingThatProblem(problem):
+    isAstudentUsingTheProblem = True
+    print("len(StudentChallengeQuestions.objects.filter(challengeQuestionID=int(problem)))", len(StudentChallengeQuestions.objects.filter(challengeQuestionID=int(problem))))
+    if(len(StudentChallengeQuestions.objects.filter(challengeQuestionID=int(problem))) == 0):
+        isAstudentUsingTheProblem = False
+    return isAstudentUsingTheProblem
+
+def performDeletion(problems):
+    errorList = []
+    for problem in problems:
+        challengeQuestion = ChallengesQuestions.objects.get(questionID=int(problem))
+        if makeSureTheresNoStudentsUsingThatProblem(problem):
+            errorList.append("Error: Student data found for problem: "+ challengeQuestion.questionID.preview)
+        else:
+            question = Questions.objects.get(questionID=int(problem))
+            question.delete()
+            challengeQuestion.delete()
+        
+    return errorList
+@login_required
+def deleteProblemsButFilterTakenByStudent(request):
+    ##this is used to track how many times the student clicks class average
+    ##we use ajax to track the information, otherwise they'd get the page refreshed on them
+    ##and it would be "wrong".
+    from django.http import JsonResponse
+    
+    context_dict, currentCourse = initialContextDict(request)
+    context_dict['lupa_available'] = lupa_available
+
+    errorList = []
+    response = {}
+    
+    if request.POST:
+        if 'deletion_checkboxes' in request.POST:
+            errorList = performDeletion(request.POST.getlist('deletion_checkboxes'))
+            response['errorMessages'] = errorList
+            
+    return JsonResponse(response)
 

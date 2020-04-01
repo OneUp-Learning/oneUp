@@ -15,7 +15,7 @@ nav {
 
   color: $navbar-font-color;
   @extend .z-depth-1;
-  background-color: $primary-color;
+  background-color: $surface-mid-color;
   width: 100%;
   height: $navbar-height-mobile;
   line-height: $navbar-line-height-mobile;
@@ -138,9 +138,13 @@ nav {
           line-height: inherit;
         }
       }
+      &.nav-dropdown-link, &.nav-dropdown-link:hover{
+        background-color: if($dark-mode, transparent, white) !important;
+        cursor: default !important;
+      }
 
       &:hover {
-        background-color: rgba(0,0,0,.1);
+        background-color: transparent;
       }
     }
 

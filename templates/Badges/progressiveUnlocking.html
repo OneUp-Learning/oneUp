@@ -3,6 +3,11 @@
 
 <head>
     {% include 'scripts.html' %}
+    <style>
+        .select-dropdown {
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,51 +18,23 @@
                 <h3>Progressive Unlocking</h3>
             </div>
         </div>
-            <div class="row right-align">
-                <form name="filterRules" action="/oneUp/badges/ProgressiveUnlocking" id="filterRules" method="POST">
+            <div class="row">
+                <div class="col s12 m10 offset-m1" >
+                <form name="filterRules" action="/oneUp/badges/ProgressiveUnlocking" id="filterRules" method="POST" style="display: flex; align-items: flex-end;">
                     {% csrf_token %}
-                    <div class="input-field col s3 offset-s1">
+                    <div class="input-field col s12 m3" style="margin: 0;">
                             <select name="objTypeFilter" form="filterRules" id="objTypeSelector" onchange="this.form.submit();">
-                                {% if currentFilter == 1 %}
-                                    <option value="all" name="objTypeFilter">All</option>
-                                {% endif %}
-                                {% for node in filter %}
-                              {% if currentFilter == node.id %}
-                                <option value={{node.id}} name="objTypeFilter" selected>{{node.string}}</option>
                                 <option value="all" name="objTypeFilter">All</option>
-                              {% else %}
-                                <option value={{node.id}} name="objTypeFilter" >{{node.string}}</option>
-                              {% endif %}
+                                {% for node in filter %}
+                                <option value={{node.id}} name="objTypeFilter" {% if currentFilter == node.id %}selected{% endif %}>{{node.string}}</option>
                               {% endfor %}
                             </select>
                             <label for="objTypeFilter">Filter by Object Type</label>
                     </div>
-                    <input type="hidden" name="whatWeAreDoing" value='filter'>
-                </form>
-                <div class="col s7">
-                    <a class="btn waves-effect waves-light"  href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=activity"
+                    <a class="btn waves-effect waves-light" style="margin-left:auto"  href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=activity"
                         data-beloworigin="true" data-activates='dropdownObjTypes' data-position="right" data-delay="50">
                         <i class="material-icons left">add_circle</i>Create New Rule</a>
-
-                        <!-- 
-                        <ul id='dropdownObjTypes' class='dropdown-content'>
-                            <li>
-                                <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=challenge&warmUp=True"> WarmUp Challenge</a>
-                            </li>
-                            <li>
-                                    <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=challenge&warmUp=False"> Serious Challenge</a>
-                            </li>
-                            <li>
-                                    <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=activity"> Activities</a> 
-                            </li>
-                            <li>
-                                <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=topic"> Topics</a> 
-                            </li>
-                            <li>
-                                    <a href="/oneUp/badges/ProgressiveUnlocking?create=True&ruleType=activityCategory"> Activity Category</a> 
-                            </li>
-                        </ul>
-                         -->
+                </form>
                 </div>
             </div>
             
@@ -104,7 +81,7 @@
                                                     <h5>Are you sure you want to delete?</h5>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
 
                                                     <a href="/oneUp/badges/ProgressiveUnlocking?ruleID={{rule.rule.pk}}&delete=True" class="modal-action modal-close waves-effect waves-light btn-flat" style="color:red">Delete</a>
                                                 </div>

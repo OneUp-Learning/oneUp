@@ -1,67 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      
-        {% include 'scripts.html' %}
-   <script>
-  function vcCheck(vcOn){
-	   
-	   var vcID=document.getElementsByClassName('vc');
-	   
-	   if(vcOn=='False'){
-		   
-		   for(var i=0;i<vcID.length;i++){
-		    	vcID[i].style.display="none";
-		   }
-		   
-	   }
-		   
-		   
-	   
-   }
-   window.onload = function(){
-	 	vcCheck('{{isVCUsed}}'); 
-	   
-   };
-   </script>
-      
-   </head>
-   <body>
-     
-         {% include 'heading.html' %}
- 
-        <main>
-            <div class="row center-align">
-         	<div class="col s12">
-               <h3>Students Summary</h3>
-            </div>
-            </div>
-            <div class="row">
-            <div class="col s12 m10 offset-m1">
-               <div class="card">
-                  <div class="card-content">
+
+<head>
+   {% include 'scripts.html' %}
+   <style>
+      .heading-pad {
+         padding-left: 0;
+      }
+   </style>
+</head>
+
+<body>
+   {% include 'heading.html' %}
+   <main>
+      <div class="row center-align">
+         <div class="col s12">
+            <h3>Students Summary</h3>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col s12 m10 offset-m1">
+            <div class="card">
+               <div class="card-content">
                   <table>
                      <thead>
-                     	<th></th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                       {% if seriousUsed %}
-                        <th>Serious Challenge Points</th>
-                       {% endif %}
-                       {% if activitiesUsed %}
-                        <th>Activity Points</th>
-                       {% endif %}
-                      {% if warmupsUsed %}
-                        <th>#WarmUps / #Attempts</th>
-                       {% endif %}
-                        <th>XP</th>
-                        <th class='vc'>VC</th>
-                        <th>Last Action</th>
+                        <th></th>
+                        <th class="heading-pad">First Name</th>
+                        <th class="heading-pad">Last Name</th>
+                        {% if seriousUsed %}
+                        <th class="heading-pad">Serious Challenge Points</th>
+                        {% endif %}
+                        {% if activitiesUsed %}
+                        <th class="heading-pad">Activity Points</th>
+                        {% endif %}
+                        {% if warmupsUsed %}
+                        <th class="heading-pad">#WarmUps / #Attempts</th>
+                        {% endif %}
+                        <th class="heading-pad">XP</th>
+                        {% if isVCUsed %}
+                        <th class="heading-pad">VC</th>
+                        {% endif %}
+                        <th class="heading-pad">Last Action</th>
                      </thead>
                      <tbody>
-                     {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_Action in user_range %}
-                     <tr class="no-padding">
-                           <td class="no-padding"><img class="circle" alt="Avatar Image" width="36" height="36" src="{{user_Avatar}}"></td> 
+                        {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_Action in user_range %}
+                        <tr>
+                           <td style="padding-top: 4px; padding-left: 0; padding-right: 0; padding-bottom: 0;"><img class="circle" style="vertical-align: baseline" alt="Avatar Image" width="28" height="28" 
+                                 src="{{user_Avatar}}"></td>
                            <td class="no-padding">{{first_Name}}</td>
                            <td class="no-padding">{{last_Name}}</td>
                            {% if seriousUsed %}
@@ -74,19 +59,24 @@
                            <td class="no-padding">{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
                            {% endif %}
                            <td class="no-padding">{{user_XP}}</td>
-                           <td class="vc no-padding">{{user_VC}}</td>
+                           {% if isVCUsed %}
+                           <td class="no-padding">{{user_VC}}</td>
+                           {% endif %}
                            <td class="no-padding">{{user_Action}}</td>
-                     </tr>
-                     {% empty %}
-                     <tr class="no-padding"><td class="center-align" colspan="8"><i>No students enrolled</i></td></tr>
-                     {% endfor %}
+                        </tr>
+                        {% empty %}
+                        <tr class="no-padding">
+                           <td class="center-align" colspan="8"><i>No students enrolled</i></td>
+                        </tr>
+                        {% endfor %}
                      </tbody>
                   </table>
-                  </div>
-                  </div>
-        </div>
-        </div>
-        </main>
-       {% include 'footer.html' %}    
-   </body>
+               </div>
+            </div>
+         </div>
+      </div>
+   </main>
+   {% include 'footer.html' %}
+</body>
+
 </html>

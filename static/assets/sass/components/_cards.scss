@@ -25,6 +25,9 @@
       cursor: pointer;
     }
   }
+  &.colored-card {
+    color: #ffffff;
+  }
 
   // Card Sizes
   &.small, &.medium, &.large {
