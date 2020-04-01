@@ -77,21 +77,14 @@
                         {% if challenge %}
                         <select id="create-type">
                            <option value="" disabled selected>Select Problem Type</option>
-                           <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False
-                           </option>
+                           <option value="/oneUp/instructors/forms/TrueFalseForm?challengeID={{challengeID}}">True/False</option>
                            <option value="/oneUp/instructors/forms/MultipleChoiceForm?challengeID={{challengeID}}">Multiple Choice</option>
-                           <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching
-                           </option>
+                           <option value="/oneUp/instructors/forms/MatchingForm?challengeID={{challengeID}}">Matching</option>
                            <option value="/oneUp/instructors/forms/MultipleAnswersForm?challengeID={{challengeID}}">Multiple Answers</option>
-                           <option name="Parson"
-                              value="/oneUp/instructors/forms/ParsonsForm?challengeID={{challengeID}}">Parsons Problems
-                           </option>
+                           <option name="Parson" value="/oneUp/instructors/forms/ParsonsForm?challengeID={{challengeID}}">Parsons Problems</option>
                            {%if lupa_available%}
-                           <option
-                              value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">
-                              Dynamic (Template)</option>
-                           <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">
-                              Dynamic (Raw Lua)</option>
+                           <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Template)</option>
+                           <option value="/oneUp/instructors/forms/DynamicQuestionForm?challengeID={{challengeID}}">Dynamic (Raw Lua)</option>
                            {%endif%}
                         </select>
                         {%else%}
@@ -103,8 +96,7 @@
                            <option value="/oneUp/instructors/forms/MultipleAnswersForm">Multiple Answers</option>
                            <option value="/oneUp/instructors/forms/ParsonsForm">Parsons Problems</option>
                            {%if lupa_available%}
-                           <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)
-                           </option>
+                           <option value="/oneUp/instructors/forms/TemplateDynamicQuestionForm">Dynamic (Templated)</option>
                            <option value="/oneUp/instructors/forms/DynamicQuestionForm">Dynamic (Raw Lua)</option>
                            {%endif%}
                         </select>
