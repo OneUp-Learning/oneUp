@@ -152,6 +152,11 @@ def preferencesView(request):
         ccparams.thresholdToLevelDifficulty = request.POST.get(
             'thresholdToLevelDifficulty')
 
+        #hints
+        ccparams.hintsUsed = "hintsUsed" in request.POST
+        ccparams.weightBasicHint = request.POST["weightBasicHint"]
+        context_dict = ccparams.weightStrongHint = request.POST["weightStrongHint"]
+
        #moved to course config  
        #ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()
@@ -238,6 +243,11 @@ def preferencesView(request):
             context_dict["vc_duel_participants"] = ccparams.vcDuelParticipants
             context_dict["vc_duel_max_bet"] = ccparams.vcDuelMaxBet
             context_dict["calloutAfterWarmup"] = ccparams.calloutAfterWarmup
+
+            #Hints
+            context_dict["hintsUsed"] = ccparams.hintsUsed 
+            context_dict["weightBasicHint"] = ccparams.weightBasicHint
+            context_dict["weightStrongHint"] = ccparams.weightStrongHint
 
             # Streaks
             #moved to course config
