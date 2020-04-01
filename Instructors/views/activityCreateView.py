@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.utils import timezone
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
-from Instructors.views.utils import utcDate, initialContextDict, localizedDate
+from Instructors.views.utils import initialContextDict, localizedDate
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Badges.models import CourseConfigParams
 from Instructors.constants import default_time_str
@@ -83,7 +83,9 @@ def activityCreateView(request):
             else:
                 activity.uploadAttempts = request.POST['attempts']
 
-        default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        default_date = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
+        print(f"Default Date {default_date}")
+
         # Set the start date and end data to show the activity
         if(request.POST['startTime'] == ""):
             activity.startTimestamp = default_date

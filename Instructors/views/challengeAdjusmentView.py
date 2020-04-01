@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, Courses
 from Students.models import StudentRegisteredCourses, StudentChallenges
-from Instructors.views.utils import utcDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
 from Badges.models import CourseConfigParams

@@ -1,7 +1,6 @@
 def updateLeaderboard(course):
     from Students.models import StudentLeaderboardHistory, StudentRegisteredCourses
     from Badges.models import CourseConfigParams
-    from Instructors.views.utils import utcDate
     from django.utils import timezone
     from Badges.periodicVariables import studentScore, TimePeriods
 

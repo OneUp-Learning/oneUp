@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Announcements, Instructors, Courses
-from Instructors.views.utils import utcDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime
 from oneUp.decorators import instructorsCheck   

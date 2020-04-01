@@ -10,7 +10,7 @@ import logging
 from billiard.connection import CHALLENGE
 from django.conf.urls.static import static
 from dateutil.utils import today
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {

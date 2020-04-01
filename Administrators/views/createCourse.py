@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 
 from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str, anonymous_avatar, unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
 from oneUp.decorators import adminsCheck
@@ -145,15 +145,12 @@ def courseCreateView(request):
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
                     ccp.courseStartDate = timezone.now()
                 else:
-                    ccp.courseStartDate = utcDate(
-                        request.POST['courseStartDate'], "%B %d, %Y")
+                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
 
                 if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-                    ccp.courseEndDate = utcDate(
-                        default_time_str, "%m/%d/%Y %I:%M %p")
+                    ccp.courseEndDate = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
                 else:
-                    ccp.courseEndDate = utcDate(
-                        request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
 
                 ccp.save()
             elif courses:  # The new course name is already chosen
@@ -194,15 +191,12 @@ def courseCreateView(request):
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
                     ccp.courseStartDate = timezone.now()
                 else:
-                    ccp.courseStartDate = utcDate(
-                        request.POST['courseStartDate'], "%B %d, %Y")
+                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
 
                 if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-                    ccp.courseEndDate = utcDate(
-                        default_time_str, "%m/%d/%Y %I:%M %p")
+                    ccp.courseEndDate = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
                 else:
-                    ccp.courseEndDate = utcDate(
-                        request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
 
                 ccp.save()
 
@@ -231,15 +225,12 @@ def courseCreateView(request):
                 if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
                     ccp.courseStartDate = timezone.now()
                 else:
-                    ccp.courseStartDate = utcDate(
-                        request.POST['courseStartDate'], "%B %d, %Y")
+                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
 
                 if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-                    ccp.courseEndDate = utcDate(
-                        default_time_str, "%m/%d/%Y %I:%M %p")
+                    ccp.courseEndDate = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
                 else:
-                    ccp.courseEndDate = utcDate(
-                        request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
 
                 ccp.save()
 
@@ -299,9 +290,12 @@ def courseCreateView(request):
         if irc.exists():
             context_dict['instructorNames'] = [
                 instructor.instructorID.username for instructor in irc]
+
         ccparams = CourseConfigParams.objects.get(
             courseID=request.GET['courseID'])
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+
+        defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
+
         if(ccparams.courseStartDate.year < defaultTime.year):
             context_dict["courseStartDate"] = ccparams.courseStartDate.strftime(
                 "%B %d, %Y")

@@ -8,7 +8,7 @@ from django.utils import timezone
 from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges , ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from Instructors.constants import default_time_str, unspecified_topic_name, unassigned_problems_challenge_name
 from django.db.models import Q
 from Badges.enums import ObjectTypes
@@ -45,7 +45,7 @@ def ChallengesList(request):
             chall_position = []
 
             #studentId = Student.objects.filter(user=request.user)
-            defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
             currentTime = timezone.now()
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
@@ -207,7 +207,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
     else:
         optionSelected = 0
 
-    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
     currentTime = timezone.now()
 
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)

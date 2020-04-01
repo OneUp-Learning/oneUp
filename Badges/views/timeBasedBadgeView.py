@@ -10,7 +10,7 @@ import glob, os
 
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
-from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.views.utils import initialContextDict, localizedDate
 from Badges.models import Badges, BadgesInfo, PeriodicBadges
 from django.views.decorators.http import condition
 from django.shortcuts import redirect

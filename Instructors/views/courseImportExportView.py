@@ -30,7 +30,7 @@ from Instructors.questionTypes import QuestionTypes
 
 from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields, operand_types_to_char, get_events_for_condition
 from Badges.periodicVariables import setup_periodic_badge, setup_periodic_vc, setup_periodic_leaderboard
-from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.views.utils import initialContextDict, localizedDate
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity, unspecified_vc_manual_rule_name
 
 from decimal import Decimal
@@ -2448,7 +2448,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                 operand_2_value = string_constant.stringID
             elif operand_2_type == "Y":
                 # Date Constant
-                date_constant = create_model_instance(Dates, None, custom_fields_to_save={'dateValue': utcDate(value_to_save, '%Y-%M-%d').date()})
+                date_constant = create_model_instance(Dates, None, custom_fields_to_save={'dateValue': localizedDate(None, value_to_save, '%Y-%M-%d', timezone="utc").date()})
                 date_constant.save()
                 operand_2_value = date_constant.dateID
 

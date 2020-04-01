@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from Instructors.models import Announcements, Courses
 from Instructors.views.announcementListView import createContextForAnnouncementList
-from Instructors.views.utils import utcDate, localizedDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict
 from Instructors.constants import default_time_str
 from datetime import datetime
 from notify.signals import notify
@@ -59,7 +59,7 @@ def announcementCreateView(request):
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
         if(request.POST['endTime'] == ""):
-            announcement.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+            announcement.endTimestamp = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
         else:
             announcement.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p") 
         

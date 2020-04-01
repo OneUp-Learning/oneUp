@@ -14,7 +14,7 @@ from Badges.enums import AwardFrequency
 from Badges.events import operandSetTypeToObjectType, chosenObjectSpecifierFields
 from Badges import systemVariables
 from datetime import datetime
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var,context, insideFor):
@@ -120,7 +120,8 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             elif parts[3] == "Y":
                 cond.operand2Type = OperandTypes.dateConstant
                 dconst = Dates()
-                dconst.dateValue = utcDate(rhsValueTable[value], '%Y-%M-%d').date()
+                # Timezone here doesn't matter since we are getting the date only
+                dconst.dateValue = localizedDate(None, rhsValueTable[value], '%Y-%M-%d', timezone="utc").date()
                 dconst.save()
                 cond.operand2Value = dconst.dateID
             cond.save()

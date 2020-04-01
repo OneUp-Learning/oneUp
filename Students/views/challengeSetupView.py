@@ -12,7 +12,7 @@ import pytz
 from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Students.models import DuelChallenges, CalloutParticipants
-from Instructors.views.utils import utcDate, localizedDate
+from Instructors.views.utils import localizedDate, localizedDate
 from Instructors.constants import unlimited_constant
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event

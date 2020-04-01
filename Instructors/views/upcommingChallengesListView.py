@@ -8,7 +8,7 @@ Modified
 
 from Instructors.models import Challenges
 from Instructors.constants import default_time_str
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from datetime import datetime
 from django.utils import timezone
 

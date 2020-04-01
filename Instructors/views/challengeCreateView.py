@@ -5,7 +5,7 @@ from Instructors.models import Challenges, CoursesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Badges.models import CourseConfigParams
-from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
+from Instructors.views.utils import localizedDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.constants import unspecified_topic_name, default_time_str, unlimited_constant
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -159,7 +159,7 @@ def challengeCreateView(request):
         context_dict = challengeListView.makeContextDictForChallengeList(
             context_dict, currentCourse, challenge.displayIncorrectAnswerFeedback)
 
-        default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        default_date = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
         if(request.POST['startTime'] == ""):
             challenge.startTimestamp = default_date
         elif datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p"):

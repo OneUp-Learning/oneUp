@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import datetime
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
     ChallengesQuestions
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats
@@ -135,8 +135,7 @@ def ChallengeResults(request):
                     context_dict['isWarmUp'] = True
 
                 print("Start Time: "+request.POST['startTime'])
-                startTime = utcDate(
-                    request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p").replace(tzinfo=None).astimezone(pytz.utc)
+                startTime = localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
                 # end time of the test is the current time when it is navigated to this page
                 endTime = timezone.now()
                 print("End Time:" + endTime.strftime("%m/%d/%Y %I:%M %p"))

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from django.contrib.auth.decorators import login_required
-from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.views.utils import initialContextDict, localizedDate
 from Badges.models import VirtualCurrencyPeriodicRule
 from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_vc, delete_periodic_task
 from django.shortcuts import redirect

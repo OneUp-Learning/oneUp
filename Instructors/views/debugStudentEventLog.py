@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from Instructors.models import Challenges, Activities, ActivitiesCategory
-from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.views.utils import initialContextDict, localizedDate
 from Instructors.constants import default_time_str
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog, Student
 from Badges.enums import Event, ObjectTypes
@@ -25,7 +25,7 @@ from oneUp.decorators import instructorsCheck
 def debugEventVars(request):
 
     context_dict, currentCourse = initialContextDict(request)
-    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
 
     # Student info
     courseStudents = StudentRegisteredCourses.objects.filter(

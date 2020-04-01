@@ -3,11 +3,12 @@
 # Dillon Perry, Austin Hodge
 #
 from django.utils import timezone
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
-from Instructors.views.utils import utcDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict
 from Students.models import StudentActivities
 from Badges.events import register_event
 from Badges.enums import Event
@@ -69,7 +70,8 @@ def activityAssignPointsView(request):
                         stud_activity.activityScore = studentPoints
                         stud_activity.timestamp = timezone.now()
                         print(f'{timezone.get_default_timezone_name()} {timezone.now()}')
-                        print(f'{timezone.get_current_timezone_name()} {timezone.localtime(timezone.now())} \n\n')
+                        print(f'{timezone.get_current_timezone_name()} {timezone.localtime(timezone.now())}')
+                        print(f"converted 2020-04-01 00:43:06.958951 {timezone.make_aware(datetime.strptime('2020-04-01 00:43:06.958951', '%Y-%m-%d %H:%M:%S.%f'))} \n\n")
                         stud_activity.instructorFeedback = request.POST['student_Feedback' + str(
                             studentRC.studentID.id)]
                         stud_activity.graded = True

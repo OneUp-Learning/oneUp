@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentChallenges, StudentActivities, StudentEventLog
 from Students.views.utils import studentInitialContextDict
@@ -80,14 +80,13 @@ def virtualCurrencyShopView(request):
         def getChallengesForEvent(event):
             from Instructors.models import Challenges, ChallengesQuestions, Activities
             from Instructors.constants import default_time_str
-            from Instructors.views.utils import utcDate
             from django.db.models import Q
 
             challenges_id = []
             challenges_name = []
 
             if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
-                defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+                defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
                 currentTime = timezone.now()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(
                     Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
@@ -120,7 +119,6 @@ def virtualCurrencyShopView(request):
         def getChallengesForShop(request):
             from Instructors.models import Challenges, ChallengesQuestions, Activities
             from Instructors.constants import default_time_str
-            from Instructors.views.utils import utcDate, localizedDate
             from django.db.models import Q
             from datetime import datetime
 

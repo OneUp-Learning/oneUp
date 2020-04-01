@@ -9,6 +9,7 @@ from oneUp.settings import MEDIA_ROOT
 from zipfile import ZipFile
 import zipfile
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from Instructors.models import Activities, UploadedFiles, UploadedActivityFiles
 from Students.models import StudentActivities, Student, StudentFile
 from Students.views.utils import studentInitialContextDict
@@ -18,7 +19,6 @@ from django.contrib.auth.decorators import login_required
 from Badges.systemVariables import activityScore
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from Instructors.views.utils import utcDate
 from Badges.events import register_event
 from Badges.enums import Event
 #from requests.api import request
@@ -230,9 +230,9 @@ def makeFileObjects(studentId, currentCourse, files, studentActivities):
 
 
 def isDisplayTimePassed(endTimeStamp):
-    utcNow = utcDate(datetime.now().replace(microsecond=0).strftime(
-        "%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
-    if endTimeStamp < utcNow:
+    # utcNow = utcDate(datetime.now().replace(microsecond=0).strftime(
+    #     "%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    if endTimeStamp < timezone.now():
         return False
     else:
         return True
@@ -240,11 +240,11 @@ def isDisplayTimePassed(endTimeStamp):
 
 def checkTimes(endTimestamp, deadLine):
 
-    utcNow = utcDate(datetime.now().replace(microsecond=0).strftime(
-        "%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
-    print("Utc" + str(utcNow))
-    endMax = max((endTimestamp, utcNow))
-    deadMax = max((deadLine, utcNow))
+    # utcNow = utcDate(datetime.now().replace(microsecond=0).strftime(
+    #     "%m/%d/%Y %I:%M %p"), "%m/%d/%Y %I:%M %p")
+    print("Utc" + str(timezone.now()))
+    endMax = max((endTimestamp, timezone.now()))
+    deadMax = max((deadLine, timezone.now()))
 
     if(endMax == endMax and deadMax == deadLine):
         return True

@@ -13,12 +13,12 @@ from Students.views.utils import studentInitialContextDict
 from Badges.enums import ObjectTypes
 from Badges.models import ProgressiveUnlocking, CourseConfigParams
 from django.db.models import Q
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 
 from django.contrib.auth.decorators import login_required
 
 
-def challengesForTopic(topic, student, currentCourse):
+def challengesForTopic(request, topic, student, currentCourse):
     challenge_ID = []
     isWarmup = []
     challenge_Name = []
@@ -27,7 +27,7 @@ def challengesForTopic(topic, student, currentCourse):
     isUnlocked = []
     ulockingDescript = []
 
-    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
     currentTime = timezone.now()
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition").filter(Q(challengeID__startTimestamp__lt=currentTime) | Q(
         challengeID__startTimestamp=defaultTime), Q(challengeID__endTimestamp__gt=currentTime) | Q(challengeID__endTimestamp=defaultTime))
@@ -134,8 +134,7 @@ def ChallengesWarmUpList(request):
                 topic_ID.append(tID)
                 topic_Name.append(tName)
                 topic_Pos.append(str(ct.topicPos))
-                topic_challenges = challengesForTopic(
-                    ct.topicID, student, currentCourse)
+                topic_challenges = challengesForTopic(request, ct.topicID, student, currentCourse)
                 challenges_count.append(len(list(topic_challenges)))
                 all_challenges_for_topic.append(topic_challenges)
 
@@ -157,8 +156,7 @@ def ChallengesWarmUpList(request):
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous")
             topic_Pos.append(str(len(topic_Pos)+1))
-            topic_challenges = challengesForTopic(
-                unspecified_topic, student, currentCourse)
+            topic_challenges = challengesForTopic(request, unspecified_topic, student, currentCourse)
             challenges_count.append(len(list(topic_challenges)))
             all_challenges_for_topic.append(topic_challenges)
             isTopicUnlocked.append({'isFullfilled': True, 'descript': ''})

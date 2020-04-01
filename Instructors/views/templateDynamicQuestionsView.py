@@ -165,10 +165,8 @@ def templateDynamicQuestionForm(request):
         challenge = Challenges()
         challenge.challengeName = unassigned_problems_challenge_name
         challenge.courseID = currentCourse
-        challenge.startTimestamp = utils.utcDate(
-            default_time_str, "%m/%d/%Y %I:%M %p")
-        challenge.endTimestamp = utils.utcDate(
-            default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.startTimestamp = utils.localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
+        challenge.endTimestamp = utils.localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
         challenge.numberAttempts = unlimited_constant
         challenge.timeLimit = unlimited_constant
         challenge.save()

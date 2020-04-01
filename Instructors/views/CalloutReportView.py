@@ -9,7 +9,7 @@ from Instructors.models import ChallengesTopics, Topics, CoursesTopics
 from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
 from Badges.models import CourseConfigParams
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 
 
 def callout_report(request):

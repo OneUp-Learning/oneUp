@@ -8,7 +8,7 @@ from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
 from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
 from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify

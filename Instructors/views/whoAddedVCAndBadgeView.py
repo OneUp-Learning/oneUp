@@ -6,7 +6,7 @@ Created on Oct 5, 2019
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.views.utils import initialContextDict, localizedDate
 from oneUp.decorators import instructorsCheck
 from Badges.models import BadgesVCLog, CourseConfigParams, ActionArguments
 from Chat.serializers import UserSerializer

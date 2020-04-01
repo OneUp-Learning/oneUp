@@ -6,7 +6,7 @@ Created on Nov 2, 2018
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from Students.views.utils import studentInitialContextDict
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from Badges.models import CourseConfigParams, BadgesVCLog
 from Students.models import StudentRegisteredCourses, DuelChallenges, StudentChallenges, Winners, StudentConfigParams, StudentVirtualCurrency, Callouts, Student, CalloutParticipants, StudentEventLog
 from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
@@ -675,7 +675,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
         print("topic nameeeeee", topic_obj.topicName)
         course_topics = CoursesTopics.objects.filter(courseID=current_course, topicID=topic_obj)
 
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    default_date = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
 
     challenges_list = []
     for crs_t in course_topics:
@@ -783,7 +783,7 @@ def duel_challenge_create(request):
     challenges_list = []
     chall_topics = []
     challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    default_date = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
     for chall_t in challenges_topics:
             # if warmup is not available, then skip it
             if not chall_t.challengeID.isVisible:
@@ -996,7 +996,7 @@ def get_create_duel_topics_difficulties(request):
     else:
         challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
        
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    default_date = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
 
     for chall_t in challenges_topics:
              # if warmup is not available, then skip it

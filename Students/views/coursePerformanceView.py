@@ -7,7 +7,7 @@ from django.utils import timezone
 from Students.models import StudentChallenges, StudentActivities
 from Instructors.models import Challenges, Activities
 from Instructors.constants import default_time_str
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
 from Students.views.utils import studentInitialContextDict
@@ -40,7 +40,7 @@ def CoursePerformance(request):
     isExpired = []
 
     # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
     currentTime = timezone.now()
     
     stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))

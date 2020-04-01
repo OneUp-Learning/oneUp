@@ -1,7 +1,7 @@
 import datetime
 from django.shortcuts import render, redirect
 from Instructors.models import Challenges
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import localizedDate
 from Instructors.constants import default_time_str, unlimited_constant
 from Students.models import Student, StudentChallenges, DuelChallenges, CalloutParticipants
 from Students.views.utils import studentInitialContextDict
@@ -22,7 +22,7 @@ def ChallengeDescription(request):
     if 'currentCourseID' in request.session:
         chall_ID = []
         chall_Name = []
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
         currentTime = timezone.now()
         string_attributes = ['challengeName', 'courseID', 'isGraded',  # 'challengeCategory','timeLimit','numberAttempts',
                              'challengeAuthor',
