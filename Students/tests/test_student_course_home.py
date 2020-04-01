@@ -258,8 +258,8 @@ class StudentCourseHomeTest(TestCase, CommonTestCase):
                     studentChallenge.studentID = student.studentID
                     studentChallenge.courseID = for_course
                     studentChallenge.challengeID = challenge
-                    studentChallenge.startTimestamp = timezone.now()
-                    studentChallenge.endTimestamp = timezone.now()
+                    studentChallenge.startTimestamp = timezone.localtime(timezone.now())
+                    studentChallenge.endTimestamp = timezone.localtime(timezone.now())
                     # initially its zero and updated after calculation at the end
                     studentChallenge.testScore = 0
                     studentChallenge.save()
@@ -576,8 +576,8 @@ class StudentCourseHomeBrowserTest(StaticLiveServerTestCase, CommonTestCase):
                     studentChallenge.studentID = student.studentID
                     studentChallenge.courseID = for_course
                     studentChallenge.challengeID = challenge
-                    studentChallenge.startTimestamp = timezone.now()
-                    studentChallenge.endTimestamp = timezone.now()
+                    studentChallenge.startTimestamp = timezone.localtime(timezone.now())
+                    studentChallenge.endTimestamp = timezone.localtime(timezone.now())
                     # initially its zero and updated after calculation at the end
                     studentChallenge.testScore = 0
                     studentChallenge.save()

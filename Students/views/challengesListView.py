@@ -13,7 +13,7 @@ from Instructors.constants import default_time_str, unspecified_topic_name, unas
 from django.db.models import Q
 from Badges.enums import ObjectTypes
 from Badges.models import ProgressiveUnlocking
-
+from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 
@@ -43,14 +43,21 @@ def ChallengesList(request):
             chall_Name = []         
             #chall_Difficulty = []
             chall_position = []
-
+            # TODO: 
+            # filtering
             #studentId = Student.objects.filter(user=request.user)
-            defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
+            defaultTime = timezone.make_aware(datetime.strptime(default_time_str, "%m/%d/%Y %I:%M %p")).astimezone(timezone.utc)
             currentTime = timezone.now()
+            print(currentTime)
+            print(defaultTime)
+            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
+            for chal in challenges:
+                print(currentTime > chal.startTimestamp)
+                print(chal.startTimestamp, chal.endTimestamp)
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
-                challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+                challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lte=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
             grade = []
             gradeLast = []
             gradeFirst = []

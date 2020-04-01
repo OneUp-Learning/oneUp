@@ -51,7 +51,7 @@ def StudentHome(request):
     reg_crs = StudentRegisteredCourses.objects.filter(studentID=student)
 
     #get today's date
-    today = datetime.now(tz=timezone.utc).date()
+    today = timezone.localdate()
     currentTime = timezone.now()
     for item in reg_crs:
         course = CourseConfigParams.objects.get(courseID=item.courseID.courseID)

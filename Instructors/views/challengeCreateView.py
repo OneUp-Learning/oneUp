@@ -269,23 +269,23 @@ def challengeCreateView(request):
             else:
                 context_dict['unlimitedTime'] = False
 
-            startTime = localizedDate(request, str(timezone.make_naive(challenge.startTimestamp.replace(
-                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.startTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+            startTime = timezone.localtime(challenge.startTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
+
+            if startTime != default_time_str:
                 context_dict['startTimestamp'] = startTime
             else:
                 context_dict['startTimestamp'] = ""
 
-            endTime = localizedDate(request, str(timezone.make_naive(challenge.endTimestamp.replace(
-                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+            endTime = timezone.localtime(challenge.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
+
+            if endTime != default_time_str:
                 context_dict['endTimestamp'] = endTime
             else:
                 context_dict['endTimestamp'] = ""
-            # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
-            dueDate = localizedDate(request, str(timezone.make_naive(challenge.dueDate.replace(
-                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
+           
+            dueDate = timezone.localtime(challenge.dueDate).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
+
+            if dueDate != default_time_str:
                 context_dict['dueDate'] = dueDate
             else:
                 context_dict['dueDate'] = ""
@@ -370,10 +370,10 @@ def challengeCreateView(request):
             context_dict['curve'] = '0'
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
 
-            if ccp.courseStartDate < timezone.now().date():
+            if ccp.courseStartDate < timezone.localtime(timezone.now()).date():
                 context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
                     "%m/%d/%Y %I:%M %p")
-            if ccp.courseEndDate > timezone.now().date():
+            if ccp.courseEndDate > timezone.localtime(timezone.now()).date():
                 context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
                     "%m/%d/%Y %I:%M %p")
                 context_dict['dueDate'] = ccp.courseEndDate.strftime(

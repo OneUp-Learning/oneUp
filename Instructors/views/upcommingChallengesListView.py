@@ -20,13 +20,13 @@ def createContextForUpcommingChallengesList(currentCourse, context_dict):
         
     # Filter challenges to show only Graded(Serious Challenges) and sort by earlier dates first
     challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).order_by('dueDate')
-    currentTime = timezone.now()
+    currentTime = timezone.localtime(timezone.now())
     index = 0
     for item in challenges:
         if index < 1 and item.isVisible: # Showing first three upcomming assignments
             # Check if current time is within the start and end time of the challenge and that the endtime is not the default for 'unchecked' endtime
-            if currentTime > item.startTimestamp:
-                if currentTime < item.dueDate and not datetime.strptime(str(item.dueDate.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p") == default_time_str:
+            if currentTime > timezone.localtime(item.startTimestamp):
+                if currentTime < timezone.localtime(item.dueDate) and not timezone.localtime(item.dueDate).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str:
                     chall_ID.append(item.challengeID) #pk
                     chall_Name.append(item.challengeName)
                     start_Timestamp.append(item.startTimestamp)

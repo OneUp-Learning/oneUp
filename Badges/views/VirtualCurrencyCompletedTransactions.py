@@ -4,7 +4,6 @@ from Instructors.views.utils import initialContextDict
 from Students.models import StudentVirtualCurrencyTransactions
 from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Event, dict_dict_to_zipped_list
-from datetime import datetime
 #import logging
 
 @login_required

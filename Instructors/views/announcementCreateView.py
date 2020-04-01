@@ -54,7 +54,7 @@ def announcementCreateView(request):
         
         announcement.courseID = currentCourse 
     
-        announcement.startTimestamp = timezone.now()
+        announcement.startTimestamp = timezone.localtime(timezone.now())
         
         #if user does not specify an expiration date, it assigns a default value really far in the future
         #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
@@ -64,7 +64,7 @@ def announcementCreateView(request):
             announcement.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p") 
         
             
-        announcement.save();  #Writes to database.
+        announcement.save()  #Writes to database.
     
                 
         return redirect('announcementListView')
@@ -86,13 +86,10 @@ def announcementCreateView(request):
                     context_dict[attr]=getattr(announcement,attr)
 
                 # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-                endTime = localizedDate(request, str(timezone.make_naive(announcement.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if announcement.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
+                endTime = timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
+                if endTime != default_time_str: 
                     context_dict['endTimestamp']= endTime
                 else:
                     context_dict['endTimestamp']= ""
- 
-    
-                
 
     return render(request,'Instructors/AnnouncementCreateForm.html', context_dict)

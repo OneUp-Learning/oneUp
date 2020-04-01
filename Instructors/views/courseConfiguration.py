@@ -41,7 +41,7 @@ def courseConfigurationView(request):
         ccparams.announcementsUsed = "announcementsUsed" in request.POST
         logger.debug(request.POST['courseStartDate'])
         if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-            ccparams.courseStartDate = timezone.now()
+            ccparams.courseStartDate = timezone.localtime(timezone.now())
         else:
             ccparams.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
 

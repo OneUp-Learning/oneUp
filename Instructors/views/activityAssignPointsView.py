@@ -68,9 +68,11 @@ def activityAssignPointsView(request):
                     if studentPoints != stud_activity.activityScore:
                         # A score exists and a new score has been assigned.
                         stud_activity.activityScore = studentPoints
-                        stud_activity.timestamp = timezone.now()
+                        stud_activity.timestamp = timezone.localtime(timezone.now())
                         print(f'{timezone.get_default_timezone_name()} {timezone.now()}')
                         print(f'{timezone.get_current_timezone_name()} {timezone.localtime(timezone.now())}')
+                        print(f'{activity.startTimestamp} {timezone.localtime(activity.startTimestamp)}')
+                        print(f'{activity.endTimestamp} {timezone.localtime(activity.endTimestamp)}')
                         print(f"converted 2020-04-01 00:43:06.958951 {timezone.make_aware(datetime.strptime('2020-04-01 00:43:06.958951', '%Y-%m-%d %H:%M:%S.%f'))} \n\n")
                         stud_activity.instructorFeedback = request.POST['student_Feedback' + str(
                             studentRC.studentID.id)]
@@ -102,9 +104,7 @@ def activityAssignPointsView(request):
                     stud_activity.instructorFeedback = ""
 
                 stud_activity.bonusPointsAwarded = studentBonus
-                stud_activity.timestamp = timezone.now()
-                print(timezone.now())
-                print(timezone.localtime(timezone.now()))
+                stud_activity.timestamp = timezone.localtime(timezone.now())
                 stud_activity.courseID = currentCourse
                 stud_activity.graded = True
                 stud_activity.save()

@@ -28,7 +28,6 @@ from django.http import JsonResponse
 def debugSysVars(request):
 
     context_dict, currentCourse = initialContextDict(request)
-    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
 
     # Student info
     courseStudents = StudentRegisteredCourses.objects.filter(

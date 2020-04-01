@@ -51,8 +51,7 @@ def studentSummary(request):
         courseID=currentCourse).exclude(studentID__isTestStudent=True)
     courseChallenges = Challenges.objects.filter(
         courseID=currentCourse, isGraded=True, isVisible=True)
-    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
-    # default time
+
     courseActivities = Activities.objects.filter(courseID=currentCourse)
     courseWarmupChallenges = Challenges.objects.filter(
         courseID=currentCourse, isGraded=False)

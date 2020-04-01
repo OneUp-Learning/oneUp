@@ -4,7 +4,6 @@ from Instructors.views.utils import initialContextDict
 from Students.models import StudentVirtualCurrencyTransactions, StudentRegisteredCourses
 from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Event, ObjectTypes
-from datetime import datetime
 from Instructors.models import Challenges, Activities
 from notify.signals import notify  
 import json

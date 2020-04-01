@@ -103,11 +103,8 @@ def ChallengeSetup(request):
                     context_dict['testDuration'] = challenge.timeLimit
                     context_dict['isDuel'] = False
 
-                # Use timezone to convert date to current timzone set in settings.py
-                tz = pytz.timezone(request.session.get(
-                    'django_timezone', 'EST'))
-                starttime = tz.localize(datetime.now()).astimezone(tz)
-                starttimestring = starttime.strftime("%m/%d/%Y %I:%M:%S %p")
+
+                starttimestring = timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M:%S %p")
                 context_dict['startTime'] = starttimestring
 
                 attemptId = 'challenge:'+challengeId + '@' + starttimestring

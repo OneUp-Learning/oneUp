@@ -28,7 +28,7 @@ def challengesForTopic(request, topic, student, currentCourse):
     ulockingDescript = []
 
     defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
-    currentTime = timezone.now()
+    currentTime = timezone.localtime(timezone.now())
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition").filter(Q(challengeID__startTimestamp__lt=currentTime) | Q(
         challengeID__startTimestamp=defaultTime), Q(challengeID__endTimestamp__gt=currentTime) | Q(challengeID__endTimestamp=defaultTime))
     if challenge_topics:
