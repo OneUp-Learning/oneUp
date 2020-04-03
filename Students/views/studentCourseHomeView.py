@@ -21,6 +21,8 @@ from Students.views.avatarView import checkIfAvatarExist
 
 from Badges.periodicVariables import studentScore, TimePeriods
 
+from Students.views.goalsListView import createContextForGoalsList
+
 from collections import defaultdict
 import json
 
@@ -44,6 +46,7 @@ def StudentCourseHome(request):
 
 	context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
 	context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
+	context_dict = createContextForGoalsList(currentCourse, context_dict, True, request.user)
 
 	progress_data = progress_bar_data(currentCourse, context_dict['ccparams'], for_student=student)
 
