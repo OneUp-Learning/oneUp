@@ -38,8 +38,7 @@ from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule
-
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteSubTopic, deleteActivity, deleteAnnouncement, deleteMilestone, deleteManualSpendRule,deleteGroup
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
 
@@ -95,7 +94,12 @@ from Instructors.views.CalloutReportView import callout_report, callout_challeng
 
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
 
-from Instructors.views.reorderViews import reorderTopics, reorderChalls, reorderActivities, reorderCategories, reorderQuestions, reorderBadges, reorderVCRules
+#FlashCards
+from Instructors.views.flashCardGroupListView import groupListView
+from Instructors.views.flashCardGroupCreateView import groupCreateView
+from Instructors.views.flashCardCreateView import CreateFlashCards
+
+from Instructors.views.reorderViews import reorderTopics, reorderChalls, reorderActivities, reorderCategories, reorderQuestions, reorderBadges, reorderVCRules,reorderGroups
 admin.autodiscover()
 urlpatterns = [
 
@@ -157,6 +161,7 @@ urlpatterns = [
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
     url(r'^deleteSubTopic', deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
+    url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
     url(r'^exportChallenges', exportChallenges, name='exportChallenges'),
@@ -249,4 +254,9 @@ urlpatterns = [
     url(r'^ReorderQuestions', reorderQuestions, name="reorderQuestions"),
     url(r'^ReorderBadges', reorderBadges, name="reorderBadges"),
     url(r'^ReorderVCRules', reorderVCRules, name="reorderVCRules"),
+    url(r'^groupList', groupListView, name='groupListView'),
+    url(r'^groupCreate', groupCreateView, name='groupCreateView'),
+    url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
+    url(r'^ReorderGroups', reorderGroups, name='reorderGroups')
 ]
+

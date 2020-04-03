@@ -1,5 +1,5 @@
 #import nltk
-from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
+from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses, FlashCardGroupCourse,FlashCardGroup,FlashCardToGroup
 from Instructors.constants import unspecified_topic_name
 from Badges.enums import ObjectTypes
 import re
@@ -268,6 +268,25 @@ def getTopicsForChallenge(challenge):
 
     return json.dumps(topics)
 
+def getGroupForCards(currentCourse,flashID):
+    cgroups = FlashCardGroupCourse.objects.filter(courseID=currentCourse)
+    
+    
+    groups = []
+    for cg in cgroups:
+        group = {}
+        gId = cg.groupID.groupID
+        flashCard=FlashCardToGroup.objects.filter(flashID=flashID, groupID=gId).first()
+        if flashCard and flashCard.groupID.groupName != "Unassigned":
+            cardGroup= FlashCardGroup.objects.get(groupID=gId)
+            group['tag'] = cardGroup.groupName
+            group['id'] = gId
+            groups.append(group)
+
+    logger.debug("groups To JSON: " + json.dumps(groups))
+
+    return json.dumps(groups)
+
 def autoCompleteTopicsToJson(currentCourse):
     topics = {}
     createdTopics = []
@@ -280,6 +299,70 @@ def autoCompleteTopicsToJson(currentCourse):
     logger.debug("Auto Topics To JSON: " + json.dumps(topics))
     logger.debug("Created Topics: " + json.dumps(createdTopics))
     return json.dumps(topics), json.dumps(createdTopics)
+
+def autoCompleteGroupsToJson(currentCourse):
+   
+
+    cgroups = FlashCardGroupCourse.objects.filter(courseID=currentCourse)
+    createdGroups = []
+    groups = {}
+    for cg in cgroups:
+        group = {}
+        gId = cg.groupID.groupID
+        cardGroup= FlashCardGroup.objects.get(groupID=gId)
+        if cardGroup.groupName != "Unassigned":
+            group['tag'] = cardGroup.groupName
+            group['id'] = gId
+            createdGroups.append(group)
+            groups[cardGroup.groupName]=None
+
+    logger.debug("Auto Groups To JSON: " + json.dumps(groups))
+    logger.debug("Created Groups: " + json.dumps(createdGroups))
+    return json.dumps(groups), json.dumps(createdGroups)
+
+def saveGroupToCards(currentCourse,jsonData,flashID):
+    groups=json.loads(jsonData)
+    # Remove duplicate groups in json
+    groups = [dict(t) for t in set([tuple(d.items()) for d in groups])]
+
+    flashcardsGroups = FlashCardToGroup.objects.filter(flashID=flashID)
+    
+    if len(groups) > 0:
+        newGroupsIDs = [int(group["id"]) for group in groups]
+        existingIDs = [fc.groupID for fc in flashcardsGroups]
+        deletionIDs = [id for id in existingIDs if id not in newGroupsIDs]
+        newIDs = [id for id in newGroupsIDs if id not in existingIDs]
+
+        # Delete unassigned group from flashcard so flashcard will not show in the unassigned group list
+        unassigned_group = FlashCardToGroup.objects.get(flashID=flashID, groupID__groupName="Unassigned")
+        unassigned_group.delete()
+
+        for g in groups:
+            gId = g['id']
+
+            if gId in newIDs:
+                flashcard=FlashCardToGroup()
+                flashcard.flashID=flashID
+                flashcard.groupID=FlashCardGroup.objects.get(groupID=gId)
+                flashcard.save()
+                continue
+
+            if gId in deletionIDs:
+                flashcard=FlashCardToGroup.object.get(groupID=gId, flashID=flashID)
+                flashcard.delete()
+
+    else:
+        for fc in flashcardsGroups:
+            fc.delete()
+
+        # Add flashcard to unassigned group to allow it to show in the unassigned group list
+        unassigned_group = FlashCardToGroup()
+        unassigned_group.flashID=flashID
+        unassigned_group.groupID = FlashCardGroup.objects.get(groupName="Unassigned")
+        unassigned_group.save()
+        
+
+    logger.debug("Saved groups " + json.dumps(groups))
 
 def addSkillsToQuestion(course,question,skills,points):
     pointsDict = {}

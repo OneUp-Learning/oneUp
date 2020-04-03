@@ -5,7 +5,7 @@ Created on February 27, 2020
 '''
 
 from django.http import JsonResponse
-from Instructors.models import CoursesTopics, Challenges, Activities, ActivitiesCategory, ChallengesQuestions
+from Instructors.models import CoursesTopics, Challenges, Activities, ActivitiesCategory, ChallengesQuestions,FlashCardGroupCourse
 from Badges.models import BadgesInfo, VirtualCurrencyCustomRuleInfo
 import json
 from Instructors.views import utils
@@ -163,6 +163,28 @@ def reorderVCRules(request):
                     vcRuleID=int(idPos[0]), courseID=currentCourse)
                 rule.vcRulePosition = int(idPos[1])
                 rule.save()
+            except:
+                continue
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+
+def reorderGroups(request):
+    ''' This view is called by an ajax function to reorder Groups'''
+
+    context_dict, currentCourse = utils.initialContextDict(request)
+
+    if request.POST:
+        groupIdsPositions = request.POST.getlist("groupIdsPositions[]")
+        for groupIdPos in groupIdsPositions:
+            idPos = groupIdPos.split("---")
+
+            try:
+                group = FlashCardGroupCourse.objects.get(
+                    groupID=int(idPos[0]), courseID=currentCourse)
+                group.groupPos = int(idPos[1])
+                group.save()
             except:
                 continue
 
