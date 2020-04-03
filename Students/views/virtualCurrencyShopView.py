@@ -256,7 +256,7 @@ def virtualCurrencyShopView(request):
                 courseID=currentCourse).first()
             instructor = instructorCourse.instructorID
             notify.send(None, recipient=instructor, actor=student.user, verb=student.user.first_name + ' '+student.user.last_name + ' spent ' +
-                        str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName)}))
+                        str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/badges/VirtualCurrencyTransactions'}))
 
             st_crs.virtualCurrencyAmount -= total
             st_crs.save()
