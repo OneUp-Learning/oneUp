@@ -2,6 +2,18 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
+      
+      <style type="text/css">
+      	
+      	.goalindicator {
+
+      		width: 100px;
+      		height: 100px;
+      	}
+      	
+      
+      </style>
    </head>
    <body>
       {% include 'stheading.html' %}
@@ -85,6 +97,47 @@
                 </div>
             </div>
             {% endif %}   
+            {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal scparams.displayGoal %}
+            <div class="row">
+            	<div class="col s12">            
+	            	<div class="card-panel">
+	            	  <table>
+	            	    <thead>
+	                        <th>Goals</th>
+	                    </thead>
+	                    <tbody>
+		                    <tr><td>
+			            		<div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;">
+			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal in goal_range %}                                                           
+			                          <div >
+                                       <div class="card" style="max-width: 20vw;">
+                                             <div style="padding: 24px; text-align: center; font-size: initial; height: 99px;">
+                                                   <p style="margin: 0;"><b>{{goal_Type}}</b></p>
+                                             </div>
+                                             <div class="card-image">
+                                                <div style="display: flex; align-items: center; flex-direction: column; padding-top: 8px;">
+                                                <div class="goalindicator" data-goalprogress="{{goal_progress}}" title="{{goal_Type}} by {{student_ID}}" data-target="100" id="goal_container{{i}}"></div>
+                                                </div>   
+                                             </div>
+                                             <div class="card-content">
+                                             
+                                               <p>End Date: {{end_date}}</p>
+                                             </div>
+                                           </div>
+			                          </div>
+			                         {% empty %} 
+			                            <div class="center-align"><i>No New Goals Created Yet</i></div>
+                                  {% endfor %}	
+			            		</div>
+		            		</td></tr>
+	            		</tbody>
+	            	  </table>
+	            	  <center><a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
+	            	  <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a></center>
+	            	</div>
+           		</div>
+            </div>
+            {% endif %}
                {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
                <div class="row">
                   <div class="col s12 m12">
@@ -124,4 +177,66 @@
       </main>
       {% include 'footer.html' %}
    </body>
+   <script>
+      window.onload = function(){    	
+          var indicatorsFound = document.getElementsByClassName("goalindicator");
+          console.log(indicatorsFound.length)
+          for(var i = 0; i < indicatorsFound.length; i++){
+              createProgressBar(indicatorsFound[i].dataset.goalprogress, indicatorsFound[i].dataset.target, indicatorsFound.item(i));
+          }
+          var streakIndicators = [];
+      }
+  
+      function createProgressBar(currentCount ,treshold, objID){
+          console.log(treshold);
+          console.log(currentCount);
+          treshold = parseInt(treshold);
+          if (currentCount <= 100){
+             currentCount = parseInt(currentCount);
+          }
+          else {
+             currentCount = 100;
+          }
+        //   currentCount = 100;
+          var bar = new ProgressBar.Circle(objID, {
+        strokeWidth: 9,
+        color: '#ADD8E6',
+        trailColor: '#eee',
+        trailWidth: 1,
+        easing: 'easeInOut',
+        duration: 2000,
+        svgStyle: null,
+        text: {
+          value: '',
+          alignToBottom: false,
+          autoStyleContainer: false,
+        },
+        from: {color: '#000000', width: 8},
+        to: {color: '#1df704', width: 8},
+        // Set default step function for all animate calls
+        
+        step: (state, bar) => {
+          bar.path.setAttribute('stroke', state.color);
+          bar.path.setAttribute('stroke-width', state.width);
+          
+          var value = Math.round(bar.value() * treshold);
+          console.log(value)
+          if (value === 0) {
+            bar.setText('0%');
+          } else if(value >= currentCount+1){
+              bar.stop();    
+          }
+          else{
+            bar.setText(Math.round(bar.value() * 100) + "%");
+          }
+      
+          bar.text.style.color = state.color;
+        }
+      });
+      bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+      bar.text.style.fontSize = '1rem';
+      
+      bar.animate(1.0);  // Number from 0.0 to 1.0
+      }
+  </script>
 </html>
