@@ -43,6 +43,10 @@ from Students.views.calloutsView import callout_create, get_class_callout_qualif
 from Students.views.resetPasswordView import validateResetPassword
 from Students.views.leaderboardInfoView import leaderboardInfoView
 
+from Students.views.goalsListView import goalsList
+from Students.views.goalCreateView import goalCreate
+from Students.views.goalDeleteView import deleteStudentGoal
+
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 
 from Students.views.achievementsView import Track_class_avg_button_clicks
@@ -111,6 +115,9 @@ urlpatterns = [
     url(r'^doDynamicQuestion', dynamicQuestionPartAJAX,
         name="dynamic question engine AJAX"),
     url(r'SaveTransactionReason', save_transaction_reason,
-        name="Save Transaction Reason")
+        name="Save Transaction Reason"),
+    url(r'^GoalsList',goalsList, name='GoalsList'),
+    url(r'^GoalCreate', goalCreate, name='GoalCreate'),
+    url(r'^GoalDelete',deleteStudentGoal, name='GoalDelete'),
 
 ]
