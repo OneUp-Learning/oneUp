@@ -60,7 +60,11 @@
 		min-height: auto;
 		flex: none;
 		display: flex;
-	}
+    }
+    .cond-rhs-value {
+        color: black;
+        border-bottom: 1px solid #0000005c !important;
+    }
 	.cond-atom-helper {
 		display: flex;
 		flex-direction: row;
@@ -85,8 +89,13 @@
 		min-height: 0px;
 		width: 100%;
 		overflow-x: auto;
-		overflow-y: scroll;
-	}
+        overflow-y: scroll;
+        background-color: #fafafa;
+    }
+    .cond-container select {
+        background-color: white;
+        color: black;
+    }
 	.cond-icon-list {
 		display: flex;
 		flex-direction: row;
@@ -96,7 +105,9 @@
 		border-style: solid;
 		border-width: 1px;
 		border-radius: 6px;
-		padding: 6px;
+        padding: 6px;
+        margin-left: 4px;
+        margin-right: 4px;
 	}
 	.cond-trash {
 		margin-left: auto;
@@ -127,7 +138,8 @@
 	.cond-atom-option-group {
 	}
 	.cond-for {
-		background-color: #007bff61;
+        background-color: #007bff61;
+        color: black;
 		align-items: center;
 		display: flex;
 		flex-direction: column;
@@ -243,7 +255,7 @@
 						</select>
 					</div>
 					<div class="col s12 m2">
-						<input id="check-" type="checkbox" name="cond-value" class="cond-value" checked onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">
+						<input id="check-" type="checkbox" name="cond-value" class="cond-value filled-in" checked onchange="condHideError(this.parentNode,['cond-blank-rhs-var-error','cond-blank-rhs-value-error']);condToggleAtomType(this);">
 						<label for="check-">Value</label>
                     </div>
 
@@ -291,15 +303,15 @@
 					<div class="col s12 m6 cond-{{objectType.name}}-list" >
 						<select name="cond-{{objectType.name}}-list-select" class="cond-{{objectType.name}}-list-select browser-default" 
                             onchange="condHideError(this,['cond-blank-{{objectType.name}}-list-error']);condAddThingieToList(this);this.selectedIndex=0;"
-                            style="width: auto;">
+                            style="width: 200px;">
 							<option disabled selected value="0">select {{objectType.plural}} to add</option>
 							{% for object in objectType.objects %}
 							<option value="{{object.id}}">{{object.name}}</option>
 							{% endfor %}
 						</select>
 					</div>
-					<div class="col s12 m6">
-						or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
+					<div class="col s12 m6" style="width: 200px">
+						or <input type="checkbox" id="cond-{{objectType.name}}-all" name="cond-{{objectType.name}}-all" class="cond-{{objectType.name}}-all filled-in" onchange="condHideError(this,['cond-blank-{{objectType.name}}-list']);return true;" />
 						<label for="cond-{{objectType.name}}-all">all {{objectType.plural}}</label>
 					</div>
 			</div>
@@ -317,9 +329,9 @@
 	</div>
  <!-- Icons -->
  <div class="cond-icon-list">
-		<div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
-		<div id="condAtomIcon" class="cond-icon" draggable="true">Atom</div>
-		<div id="condForAllIcon" class="cond-icon" draggable="true">Forall</div>
+        <div id="condAtomIcon" class="cond-icon" draggable="true">Atom</div>
+        <div id="condForAllIcon" class="cond-icon" draggable="true">ForAll</div>
+        <div id="condOrIcon" class="cond-icon" draggable="true">OR</div>
 		<div id="condTrashIcon" class="cond-icon cond-trash"> Trash </div>
  </div>
  <br />
@@ -677,9 +689,11 @@ function condAddThingieToListByNameAndId(list, name, id) {
     //itemDiv.onclick = function(e){condRemoveThingie(this)};
     var icon = document.createElement("i");
     icon.className = "close material-icons";
+    icon.style = "position: absolute; right: 4px;";
     icon.appendChild(document.createTextNode("close"));
     itemDiv.dataset.id = id;
-    itemDiv.className = "chip cond-for-list-item orange";
+    itemDiv.className = "chip cond-for-list-item";
+    itemDiv.style = "text-overflow: ellipsis; max-width: 200px; white-space: nowrap; position: relative; overflow: hidden; padding-inline-end: 20px;";
     var name_text = document.createTextNode(name);
     itemDiv.appendChild(name_text);
     itemDiv.appendChild(icon);

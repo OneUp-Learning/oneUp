@@ -31,20 +31,24 @@
 	   		},
 	   		dayRender: function (date, cell) {
 	   			 if (daysOfCalendar.includes(date.format('YYYY-MM-DD'))){
-	   			 var checkbox = document.createElement('input');
-   				 checkbox.type = "checkbox";
-   				 checkbox.name = "dates[]";
-   				 checkbox.value = date.format('YYYY-MM-DD');
-   				 checkbox.id = date.format('YYYY-MM-DD');
-   				 var label = document.createElement('label')
-   				 label.htmlFor = date.format('YYYY-MM-DD');
-   				 label.appendChild(document.createTextNode(''));
-				
-				 if (calendarDaysSelected.includes(date.format('YYYY-MM-DD')))
-					 checkbox.checked = true;
-	   			
-   				 cell.append(checkbox);
-   				 cell.append(label);
+					var checkbox = document.createElement('input');
+					checkbox.type = "checkbox";
+					checkbox.name = "dates[]";
+					checkbox.value = date.format('YYYY-MM-DD');
+					checkbox.id = date.format('YYYY-MM-DD');
+					checkbox.className = "filled-in";
+					var label = document.createElement('label')
+					label.htmlFor = date.format('YYYY-MM-DD');
+					label.style.marginLeft = "2px";
+					label.style.marginBottom = "1px";
+					label.style.marginTop = "1px";
+					label.appendChild(document.createTextNode(''));
+					
+					if (calendarDaysSelected.includes(date.format('YYYY-MM-DD')))
+						checkbox.checked = true;
+					
+					cell.append(checkbox);
+					cell.append(label);
 	   			}
 	   			
 
@@ -57,6 +61,8 @@
 	   			right: ''
 	   		},
 	   		dayClick: function (date, jsEvent, view) {
+				if(!document.getElementById(date.format('YYYY-MM-DD'))) return;
+				
 	   			if (document.getElementById(date.format('YYYY-MM-DD')).checked)
 	   				document.getElementById(date.format('YYYY-MM-DD')).checked = false;
 	   			else
@@ -154,36 +160,36 @@
                      <form id="daysOfWeekForm" action="/oneUp/instructors/attendanceStreaks" method="post">
                         {% csrf_token %}
                         <p>Class Days: </p>
-                        <input type="checkbox" name="dayCheckbox" value="0" id="monday" />
-                        <label id="badge" for="monday">Monday</label>
+                        <input class="filled-in" type="checkbox" name="dayCheckbox" value="0" id="monday" />
+                        <label style="margin-bottom: 4px; margin-top: 4px;" id="badge" for="monday">Monday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="0" />
                         <br>
-                        <input type="checkbox" name="dayCheckbox" value="1" id="tuesday" />
-                        <label id="badge" for="tuesday">Tuesday</label>
+                        <input class="filled-in" type="checkbox" name="dayCheckbox" value="1" id="tuesday" />
+                        <label style="margin-bottom: 4px" id="badge" for="tuesday">Tuesday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="1" />
                         <br>
-                        <input type="checkbox" name="dayCheckbox" value="2" id="wednesday" />
-                        <label id="badge" for="wednesday">Wednesday</label>
+                        <input class="filled-in" type="checkbox" name="dayCheckbox" value="2" id="wednesday" />
+                        <label style="margin-bottom: 4px" id="badge" for="wednesday">Wednesday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="2" />
                         <br>
-                        <input type="checkbox" name="dayCheckbox" value="3" id="thursday" />
-                        <label id="badge" for="thursday">Thursday</label>
+                        <input class="filled-in" type="checkbox" name="dayCheckbox" value="3" id="thursday" />
+                        <label style="margin-bottom: 4px" id="badge" for="thursday">Thursday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="3" />
                         <br>
-                        <input type="checkbox" name="dayCheckbox" value="4" id="friday" />
-                        <label id="badge" for="friday">Friday</label>
+                        <input class="filled-in" type="checkbox" name="dayCheckbox" value="4" id="friday" />
+                        <label style="margin-bottom: 4px" id="badge" for="friday">Friday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="4" />
                         <br>
-                        <input type="checkbox" name="dayCheckbox" value="5" id="saturday" />
-                        <label id="badge" for="saturday">Saturday</label>
+                        <input class="filled-in" type="checkbox" name="dayCheckbox" value="5" id="saturday" />
+                        <label style="margin-bottom: 4px" id="badge" for="saturday">Saturday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="5" />
                         <br>
-                        <input type="checkbox" name="dayCheckbox" value="6" id="sunday" />
+                        <input class="filled-in" type="checkbox" name="dayCheckbox" value="6" id="sunday" />
                         <label id="badge" for="sunday">Sunday</label>
                         <input type="hidden" name="daysOfWeek[]" value="32" id="6" />
                      </form>
                      <br>
-                     <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit"><i class="material-icons left">send</i>Submit</button>
+                     <button onclick="return validateDaysSelected()" class="btn waves-effect waves-light" type="submit">Submit</button>
                   </div>
                </div>
             </div>

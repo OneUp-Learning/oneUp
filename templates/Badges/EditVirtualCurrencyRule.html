@@ -6,16 +6,6 @@
    
    
    <script>
- /*function valueChanged(){
-	 if($('.checkbox').is(":checked")){
-		 
-		 $("#rule_amt").hide();
-		 
-	 }
-	 else
-		 $("#rule_amt").show();
-	  
- }*/
  document.addEventListener('DOMContentLoaded', function(){ // during edit function checks for the state of the checkbox and hides the field appropriately
 	 var amountVaries = document.getElementById("rule_varies");
 	 var ruleAmt=document.getElementById("rule_amt");
@@ -69,13 +59,11 @@
                         </div>
                      </div>
                      {%if isRuleCustom == True %}
-                     <div class="row">
-                        
-                        
-                       	<input class="checkbox" name="varyCheck" type="checkbox" id="rule_varies" onchange="valueChanged()" {{vcAmountVaries}} style="padding:0;"/> <!-- hides the rule amount field when checked -->
+                     <div class="row" style="margin: 0;">
+                        <div class="col s12">
+                       	<input class="filled-in" name="varyCheck" type="checkbox" id="rule_varies" onchange="valueChanged()" {{vcAmountVaries}} style="padding:0;"/> <!-- hides the rule amount field when checked -->
                        	 <label for="rule_varies">Virtual Currency Award Varies</label>
-                        
-                        
+                        </div>
                      </div>
                      {% endif %}
                       <div class="row" id='rule_amt'>
@@ -90,13 +78,14 @@
                     
                        {% endif %}
                   </div>
-                  </div>
+                  
                   <div class="card-action right-align">
                      <button class="btn waves-effect waves-light" id="{{editOrCreate}}" type="submit" name="{{editOrCreate}}">{{captialSaveOrCreate}} Rule<i class="material-icons right">send</i>
                      </button>
                      <a class="waves-effect waves-light btn" href="/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom={{isRuleCustom}}">											
                      <i class="material-icons left">close</i>Cancel</a>                                                                  									
                   </div>
+               </div>
             </form>
             </div>
          </div>

@@ -64,13 +64,34 @@
                               <label>Course(s)</label>
                               {% if universityCourses %}
                               <script  type="text/javascript"> 
-                                 window.onload = function() {
                                     let names = {{universityCourses|safe}};
+                                    
                                     names.forEach(name => {
                                  	   document.getElementById(name).selected = true;
                                         
                                     });
                                     $("#courses").material_select();
+                                 
+                              </script> 
+                              {% endif %}
+                           </div>
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <select id="timezones" name="universityTimezone" {%if view%}readonly{%endif%}>
+                              <option value="" disabled selected>Choose timezone</option>
+                              {% for timezone in supported_timezones %}
+                                <option id="{{timezone.value}}" value="{{timezone.value}}">{{timezone.name}}</option>
+                              {% endfor %}
+                              </select>
+                              <label>Timezone</label>
+                              {% if universityTimezone %}
+                              <script  type="text/javascript"> 
+                                 window.onload = function() {
+                                    let name = "{{universityTimezone}}";
+                                    document.getElementById(name).selected = true;
+
+                                    $("#timezones").material_select();
                                  }
                               </script> 
                               {% endif %}

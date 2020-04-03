@@ -99,17 +99,21 @@
                                     <span class="lever secondary-content"></span>
                                 </label>
                             </div>
+                            <br />
                             {% endif %}
+                            <div class="switch">
+                                <label>
+                                    Dark Theme (applies across courses)
+                                    <input name="displayDarkMode" type="checkbox" {% if student.displayDarkMode %}checked{%endif%}>
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
                             </div>
                             <div class="card-action right-align">
-                            {% if studCanChangeLeaderboardVis or studCanChangeClassSkillsVis or studCanChangeBadgeVis or studCanChangeclassAverageVis %}
                                 <button class="btn waves-effect waves-light" type="submit" name="save" value="Save" onClick="redirect();">Save
                                     <i class="material-icons right">done</i>
                                   </button> 
                                   <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome"><i class="material-icons right">close</i>Cancel</a>
-                            {% else %}
-                            <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome"><i class="material-icons right">navigate_before</i>Return</a>
-                            {% endif %}
                             </div>
                         </form>
                         </div>

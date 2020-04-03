@@ -4,6 +4,7 @@
       {% include 'scripts.html' %}
       <script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
       <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
+      {% include 'chartTheme.html' %}
       <style>
         
       @media only screen and (max-width : 992px) {
@@ -43,7 +44,7 @@
            
             <div style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly;">
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div title="{{studentXP_range}}" style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div title="{{studentXP_range}}" class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{studentXP_range}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
@@ -52,7 +53,7 @@
                 </div>
                 {% if ccparams.warmupsUsed %}
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div title="{{totalWCEarnedPoints|floatformat}}" style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div title="{{totalWCEarnedPoints|floatformat}}" class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{totalWCEarnedPoints|floatformat}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
@@ -60,9 +61,9 @@
                     </div>
                 </div>
                 {% endif %}
-                {% if ccparams.virtualCurrencyUsed %}
+                {% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div title="{{course_Bucks}}" style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div title="{{course_Bucks}}" class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{course_Bucks}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
@@ -73,14 +74,14 @@
                 <!-- <div class="subheader" style="color: black; font-size: 1.64rem;font-weight: 400;">Experience Points</div>
                 <div style="font-size: 1.3em;font-weight: 300;">100</div> -->
             </div>
-            {% if ccparams.challengeClassmates %}
+            {% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
             <div class="divider" style="margin-bottom: 8px;"></div>
             <div style="padding-left: 16px; padding-right: 8px; margin-bottom: 8px; font-size: 1.4rem;">
                 Duels
             </div>
             <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{numOfDuelWon}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
@@ -88,14 +89,14 @@
                     </div>
                 </div>
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{numOfDuelLost}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
                         Losses
                     </div>
                 </div>
-                <a id="drop-duels" class="waves-effect waves-light" style="color: black; max-width: 80px; min-width: fit-content; align-self: center;">
+                <a id="drop-duels" class="waves-effect waves-light" style="max-width: 80px; min-width: fit-content; align-self: center;">
                     <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         <i id="duels-drop-icon" class="material-icons">arrow_drop_up</i>
                     </div>
@@ -103,14 +104,14 @@
                 
             </div>
             
-            <div id="duels-info" style="display: none; padding-left: 32px; padding-right: 8px; background-color: #039be50d;">
+            <div id="duels-info" style="display: none; padding-left: 32px; padding-right: 8px;">
                 <div>
-                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Sent</div>
-                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelSent}}</div>
+                    <div class="subheader" style="font-size: 1.3rem;font-weight: 400;">Sent</div>
+                    <div class="primary-colored-text" style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelSent}}</div>
                 </div>
                 <div>
-                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Accepted</div>
-                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelAccepted}}</div>
+                    <div class="subheader" style="font-size: 1.3rem;font-weight: 400;">Accepted</div>
+                    <div class="primary-colored-text" style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelAccepted}}</div>
                 </div>
             </div>
 
@@ -120,7 +121,7 @@
             </div>
             <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{numOfCalloutWon}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
@@ -128,14 +129,14 @@
                     </div>
                 </div>
                 <div style="max-width: 80px; min-width: 80px;">
-                    <div style="color: #3f51b5; font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                    <div class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         {{numOfCalloutLost}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
                         Losses
                     </div>
                 </div>
-                <a id="drop-callouts" class="waves-effect waves-light" style="color: black; max-width: 80px; min-width: fit-content; align-self: center;">
+                <a id="drop-callouts" class="waves-effect waves-light" style="max-width: 80px; min-width: fit-content; align-self: center;">
                     <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
                         <i id="callouts-drop-icon" class="material-icons">arrow_drop_up</i>
                     </div>
@@ -143,14 +144,14 @@
                 
             </div>
             
-            <div id="callouts-info" style="display: none; padding-left: 32px; padding-right: 8px; background-color: #039be50d;">
+            <div id="callouts-info" style="display: none; padding-left: 32px; padding-right: 8px;">
                 <div>
-                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Sent</div>
-                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfCalloutSent}}</div>
+                    <div class="subheader" style="font-size: 1.3rem;font-weight: 400;">Sent</div>
+                    <div class="primary-colored-text" style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfCalloutSent}}</div>
                 </div>
                 <div>
-                    <div class="subheader" style="color: black; font-size: 1.3rem;font-weight: 400;">Requested</div>
-                    <div style="color: #3f51b5; font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelAccepted}}</div>
+                    <div class="subheader" style="font-size: 1.3rem;font-weight: 400;">Requested</div>
+                    <div class="primary-colored-text" style="font-size: 1.3em;font-weight: 300; overflow: hidden; text-overflow: ellipsis;">{{numOfDuelAccepted}}</div>
                 </div>
             </div>
             
@@ -342,7 +343,7 @@
                            },
                            {% if not ccparams.progressBarGroupUsed %}
                            plotLines: [{
-                                value: [ChallengePointsProjected()],
+                                value: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0)],
                                 width: 2,
                                 zIndex: 4,
                                 //Progressbar marker black color
@@ -428,7 +429,7 @@
                             //color:'#9966FF',
                             pointRange: .5,
                             zIndex: 1,
-                            data: [ChallengePointsProjected()]
+                            data: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0)]
                         }
                         {% endif %}
                     ]

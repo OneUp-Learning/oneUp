@@ -67,10 +67,10 @@
       vertical-align: top;
     }
 
-    .table-scroll thead,
+    /* .table-scroll thead,
     .table-scroll tfoot {
       background: #f9f9f9;
-    }
+    } */
 
     .clone {
       position: absolute;
@@ -94,10 +94,10 @@
       color: red;
     }
 
-    .clone .fixed-side {
+    /* .clone .fixed-side {
       background: #f9f9f9;
       visibility: visible;
-    }
+    } */
   </style>
 </head>
 
@@ -112,17 +112,17 @@
     <form id="dateForm" name="question" onsumbit="return validateDateFields()" enctype="multipart/form-data" action="/oneUp/instructors/studentAttendanceReport"
       method="POST">
       {% csrf_token %}
-      <div class="row ">
-        <div class="col s12 m10 offset-m1">
-          <div class="input-field col s12 m3">
+      <div class="row">
+        <div class="col s12 m10 offset-m1" style="display: flex; align-items: flex-end;">
+          <div class="input-field col s12 m3" style="width: fit-content; margin: 0;">
             <h6>First Date:</h6>
-            <input type="text" class="datepicker-from" name="firstDate" value="{{firstDate}}" id="firstDate">
+            <input type="text" style="margin: 0;" name="firstDate" value="{{firstDate}}" id="firstDate">
           </div>
-          <div class="input-field col s12 m3">
+          <div class="input-field col s12 m3" style="width: fit-content; margin: 0;">
             <h6>Second Date:</h6>
-            <input type="text" class="datepicker-from" name="secondDate" value="{{secondDate}}" id="secondDate">
+            <input type="text" style="margin: 0;" name="secondDate" value="{{secondDate}}" id="secondDate">
           </div>
-          <a class="secondary-content waves-effect waves-light btn" id="save">Get Attendance Report</a>
+          <a class="secondary-content waves-effect waves-light btn" style="margin-left:auto" id="save">Get Attendance Report</a>
         </div>
       </div>
     </form>

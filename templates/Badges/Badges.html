@@ -3,7 +3,6 @@
 
 <head>
     {% include 'scripts.html' %}
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <body>
@@ -44,10 +43,7 @@
                                         <span style="max-width: 45%;min-width: 45%; left: 0px"> {{badgeDescription}}</span>
                                         
                                         <span class="right-align" style="max-width: 15%;min-width: 15%;">
-                                            <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}">
-                                                <div class="hide-on-med-and-down" style="display:inline;">
-                                                <i class="material-icons left">edit</i>
-                                                </div>Modify</a>
+                                            <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"> Modify</a>
                                         </span>
                                     </li>
                                     {% empty %}
@@ -119,11 +115,8 @@
                                         <span style="max-width: 30%;min-width: 30%; left: 0px">{{badgeName}}</span>
                                         <span style="max-width: 45%;min-width: 45%; left: 0px"> {{badgeDescription}}</span>
                                         
-                                        <span class="right-align" style="max-width: 15%;min-width: 15%;">
-                                            <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}&isManualBadge=true">
-                                                <div class="hide-on-med-and-down" style="display:inline;">
-                                                <i class="material-icons left">edit</i>
-                                                </div>Modify</a>
+                                        <span class="right-align" style="max-width: 15%; min-width: 15%;">
+                                            <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}&isManualBadge=true"> Modify</a>
                                         </span>
                                     </li>
                                     {% empty %}

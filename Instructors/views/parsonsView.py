@@ -72,6 +72,10 @@ def parsonsForm(request):
         if question.author == '':
             question.author = request.user.username
         
+        if 'strongHint' in request.POST:
+            question.strongHint = request.POST['strongHint']
+        if 'basicHint' in request.POST:
+            question.basicHint = request.POST['basicHint']
         question.save();  
         
         # Save the entered model solution as "correctAnswer"        
@@ -127,14 +131,14 @@ def parsonsForm(request):
        
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], question, ObjectTypes.question)
-        
+        positions = []
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
-            
+            positions = []
             position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
             
             if  'questionId' in request.POST:                         
-                challenge_question = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
+                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
                 for chall_question in challenge_questions:
                     positions.append((chall_question.pk, chall_question.questionPosition, chall_question.points))
                 
@@ -259,7 +263,8 @@ def parsonsForm(request):
                         context_dict['selectedSkills'] = getSkillsForQuestion(currentCourse,question)   
                 else:
                     context_dict['points'] = 0
-
+                context_dict['basicHint'] = question.basicHint
+                context_dict['strongHint'] = question.strongHint
                 
 
             #print("loaded feedback")

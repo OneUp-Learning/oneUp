@@ -57,6 +57,15 @@
 		</div>
 		<div class="row center-align">
 			<div class="col s12">
+				{% if is_teacher %}
+				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/instructors/NotificationPage?ID=0">All
+					Notifications</a>
+				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/instructors/NotificationPage?ID=1">Active
+						Notifications</a>
+				
+				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/instructors/NotificationPage?ID=2">Dismissed
+						Notifications</a>
+				{% else %}
 				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/students/NotificationPage?ID=0">All
 					Notifications</a>
 				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/students/NotificationPage?ID=1">Active
@@ -64,6 +73,7 @@
 				
 				<a class="waves-effect waves-light btn" style="margin-block-end: 8px" href="/oneUp/students/NotificationPage?ID=2">Dismissed
 						Notifications</a>
+				{% endif %}
 			</div>
 				
 		</div>

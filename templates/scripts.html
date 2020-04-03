@@ -1,7 +1,20 @@
 <!--Import Google Icon Font-->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% if is_student or is_test_student %}
+{% if student.displayDarkMode %}
+<!-- Dark theme -->
+<link rel="stylesheet" href="/static/assets/css/dark-materialize.css">
+{% else %}
 <!-- Compiled and minified CSS -->
 <link rel="stylesheet" href="/static/assets/css/materialize.css">
+{% endif %}
+
+{% else %}
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet" href="/static/assets/css/materialize.css">
+{% endif %}
+
+
 <link rel="stylesheet" href="/static/assets/css/materialDateTimePicker.css">
 <!-- Import Font Awesome Icon Font -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"/>
@@ -25,6 +38,9 @@
 <!-- Compiled and minified JavaScript -->
 <script src="/static/assets/js/materialize.js"></script>
 <script src="/static/assets/js/materialDateTimePicker.js"></script>
+
+ <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+ 
 <script>
     $( document ).ready(function(){
       $(".button-collapse").sideNav();
@@ -45,9 +61,9 @@
     main {
       flex: 1 0 auto;
     }
-    html{
+    /* html{
       background-color: #fafafa;
-    }
+    } */
     [type="checkbox"].reset-checkbox,
     [type="checkbox"].reset-checkbox:checked,
     [type="checkbox"].reset-checkbox:not(checked) {

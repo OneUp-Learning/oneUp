@@ -196,7 +196,7 @@
                            </div>
                         </div>
                         <div class="col s12">
-                              <input name="randomizeProblems" type="checkbox" id="randomizeProblems" {% if randomizeProblems %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <input class="filled-in" name="randomizeProblems" type="checkbox" id="randomizeProblems" {% if randomizeProblems %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="randomizeProblems">Randomize Problems</label>
                            </div>
                         <div class="row">
@@ -204,7 +204,7 @@
                               <h5>Availability</h5>
                            </div>
                            <div class="col s12">
-                              <input name="isVisible" type="checkbox" id="challenge_visible" {% if isVisible %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <input class="filled-in" name="isVisible" type="checkbox" id="challenge_visible" {% if isVisible %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="challenge_visible">Make challenge available</label>
                            </div>
                         </div>
@@ -228,7 +228,7 @@
                               <label for="num_attempts">Number of Attempts</label>
                            </div>
                            <div class="col s12">
-                              <input name="unlimitedAttempts" onchange="CheckboxAttemptsChange(this)" type="checkbox" id="unl_attempts" {% if unlimitedAttempts %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <input class="filled-in" name="unlimitedAttempts" onchange="CheckboxAttemptsChange(this)" type="checkbox" id="unl_attempts" {% if unlimitedAttempts %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="unl_attempts">Unlimited Attempts</label>
                            </div>
                         </div>
@@ -238,7 +238,7 @@
                               <label for="time_limit">Time Limit (Minutes)</label>
                            </div>
                            <div class="col s12">
-                              <input name="unlimitedTime" onchange="CheckboxTimeChange(this)" type="checkbox" id="unl_time" {% if unlimitedTime %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <input class="filled-in" name="unlimitedTime" onchange="CheckboxTimeChange(this)" type="checkbox" id="unl_time" {% if unlimitedTime %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="unl_time">Unlimited Time</label>
                            </div>
                         </div>
@@ -286,15 +286,15 @@
                               <h5>Feedback Options</h5>
                            </div>
                            <div class="col s12">
-                              <input name="displayCorrectAnswer" type="checkbox" id="display_correct" {% if displayCorrectAnswer %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <input class="filled-in" name="displayCorrectAnswer" type="checkbox" id="display_correct" {% if displayCorrectAnswer %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="display_correct">Display Correct Answers</label>
                            </div>
                            <div class="col s12">
-                              <input name="displayCorrectAnswerFeedback" type="checkbox" id="display_correct_feedback" {% if displayCorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <input class="filled-in" name="displayCorrectAnswerFeedback" type="checkbox" id="display_correct_feedback" {% if displayCorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="display_correct_feedback">Display Correct Answer Feedback</label>
                            </div>
                            <div class="col s12">
-                              <input name="displayIncorrectAnswerFeedback" type="checkbox" id="display_incorrect_feedback" {% if displayIncorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <input class="filled-in" name="displayIncorrectAnswerFeedback" type="checkbox" id="display_incorrect_feedback" {% if displayIncorrectAnswerFeedback %} checked {% endif %} {%if view%}disabled{%endif%}/>
                               <label for="display_incorrect_feedback">Display Incorrect Answer Feedback</label>
                            </div>
                         </div>

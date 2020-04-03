@@ -182,7 +182,7 @@
                            <div id="ans{{i}}">
                               <div class="row">
                                  <div class="col s12">
-                                    <input type="checkbox" name="correctAnswer" id="answer_{{i}}" value="{{i}}"  {%if view%}disabled{%endif%} {% if ansChecked %} checked {% endif %}>
+                                    <input type="checkbox" class="filled-in" name="correctAnswer" id="answer_{{i}}" value="{{i}}"  {%if view%}disabled{%endif%} {% if ansChecked %} checked {% endif %}>
                                     <label for="answer_{{i}}">Answer {{i}}</label>
                                  </div>
                               </div>
@@ -197,9 +197,9 @@
                            {% endfor %}
                         </div>
                         <div class="row">
-                           <div class="col s12 m6">
-                              <a class="waves-effect waves-light btn" id="addAnswer" onclick="addAnswer();" {%if view%}disabled{%endif%}><i class="material-icons left">add</i>Add Answer</a>
-                              <a class="waves-effect waves-light btn" id="removeAnswer" onclick="removeAnswer();" {%if view%}disabled{%endif%}><i class="material-icons left">remove</i>Remove Last Answer</a>                                      
+                           <div class="col s12 m8">
+                              <a class="waves-effect waves-light btn" style="margin-bottom: 8px;" id="addAnswer" onclick="addAnswer();" {%if view%}disabled{%endif%}><i class="material-icons left">add</i>Add Answer</a>
+                              <a class="waves-effect waves-light btn" style="margin-bottom: 8px;" id="removeAnswer" onclick="removeAnswer();" {%if view%}disabled{%endif%}><i class="material-icons left">remove</i>Remove Last Answer</a>                                      
                            </div>
                         </div>
                         <!-- GGM Difficulty Setting Updated Code -->
@@ -226,7 +226,19 @@
                                  });
                               </script> 
                            </div>
-                        </div>  
+                        </div>
+                        <div class="input-field col s12">
+                           <i class="material-icons prefix">mode_edit</i>
+                           <textarea name="basicHint" id="correct_feedback"
+                              class="materialize-textarea">{{basicHint}}</textarea>
+                           <label for="correct_feedback">Basic Hint</label>
+                        </div>
+                        <div class="input-field col s12">
+                           <i class="material-icons prefix">mode_edit</i>
+                           <textarea name="strongHint" id="correct_feedback"
+                              class="materialize-textarea">{{strongHint}}</textarea>
+                           <label for="correct_feedback">Strong Hint</label>
+                        </div>
                         {% if challenge %}
                         {% if unassign %}
                         <input type="hidden" name="points" value="0" id="Points">

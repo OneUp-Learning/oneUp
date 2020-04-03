@@ -82,7 +82,7 @@ select:not(.no-materialize) {
   }
 
   span.caret {
-    color: initial;
+    color: $select-caret-color;
     position: absolute;
     right: 0;
     top: 0;
@@ -125,7 +125,7 @@ select:disabled {
 .select-dropdown li.disabled,
 .select-dropdown li.disabled > span,
 .select-dropdown li.optgroup {
-  color: $select-disabled-color;
+  color: $select-text-color;
   background-color: transparent;
 }
 
@@ -169,11 +169,11 @@ select:disabled {
   border-top: 1px solid $dropdown-hover-bg-color;
 
   &.selected > span {
-    color: rgba(0, 0, 0, .7);
+    color: $secondary-color-dark;
   }
 
   & > span {
-    color: rgba(0, 0, 0, .4);
+    color: if($dark-mode, $secondary-color, rgba(0, 0, 0, 0.4));
   }
 
   & ~ li.optgroup-option {

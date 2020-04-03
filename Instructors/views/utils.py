@@ -504,3 +504,6 @@ def localizedDate(request, date_str, date_format, timezone=None):
     
     return tz.localize(datetime.strptime(date_str, date_format))
 
+# def addHintsToQuestion(course,question):
+# def removeHintsFromQuestion(course, question):
+# def getHintsForQuestion(course, question):

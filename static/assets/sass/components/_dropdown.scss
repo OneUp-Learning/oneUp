@@ -14,7 +14,7 @@
 
   li {
     clear: both;
-    color: $off-black;
+    color: $primary-text-surface-color;
     cursor: pointer;
     min-height: $dropdown-item-height;
     line-height: 1.5rem;
@@ -29,7 +29,11 @@
     &.active.selected {
       background-color: darken($dropdown-hover-bg-color, 5%);
     }
-
+    &.nav-dropdown-link, &.nav-dropdown-link:hover{
+      background-color: if($dark-mode, transparent, white) !important;
+      cursor: default !important;
+    }
+    
     &.divider {
       min-height: 0;
       height: 1px;
@@ -48,6 +52,7 @@
       left: 0;
       height: 18px;
     }
+    
 
     // Icon alignment override
     & > a > i {

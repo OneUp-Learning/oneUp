@@ -4,7 +4,7 @@
   z-index: 2000;
   background-color: transparent;
   border-radius: 2px;
-  color: #fff;
+  color: $tooltip-text-color;
   min-height: 36px;
   line-height: 120%;
   opacity: 0;
@@ -24,7 +24,7 @@
   height: 7px;
   width: 14px;
   border-radius: 0 0 50% 50%;
-  background-color: #323232;
+  background-color: $tooltip-color;
   z-index: -1;
   transform-origin: 50% 0%;
   visibility: hidden;
