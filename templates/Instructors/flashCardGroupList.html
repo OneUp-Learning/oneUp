@@ -152,7 +152,7 @@
                <div class="card-panel">
                         
                         <ul id="sortableGroups" class="collapsible" data-collapsible="expandable">
-                        {% for i,groupID,groupName,groupPosition in group_range %}
+                        {% for i,groupID,groupName,groupPosition,all_cards_in_group in group_range %}
                         <li id={{groupID}}>
                            <div class="collapsible-header" > <i class="material-icons">swap_vert</i> {{groupName}} &nbsp;&nbsp;
                            
