@@ -7,7 +7,7 @@ Last updated 07/15/2017
 from django.shortcuts import render
 
 from Instructors.models import Courses, Challenges, ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
-from Instructors.constants import  unspecified_topic_name, default_time_str
+from Instructors.constants import  unspecified_topic_name
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
