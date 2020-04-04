@@ -10,7 +10,6 @@ from Instructors.views.activityScoreView import activityScore
 from Instructors.views.activityCategories import activityCatList, activityCatCreate, activityCatDelete
 from Instructors.views.announcementCreateView import announcementCreateView
 from Instructors.views.announcementListView import announcementList
-from Instructors.views.allAnnouncementsView import allAnnouncements
 
 from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
 from Instructors.views.challengeCreateView import challengeCreateView
@@ -118,7 +117,6 @@ urlpatterns = [
     url(r'^announcementList', announcementList, name='announcementListView'),
     url(r'^challengeAddQuestions', challengeAddQuestionsView,
         name='challengeAddQuestionsView'),
-    url(r'^announcements', allAnnouncements, name='allAnnouncements'),
     url(r'^announcementList', announcementList, name='announcementListView'),
     url(r'^challengeCreate', challengeCreateView, name='challengeCreateView'),
     url(r'^challengeQuestionsList', challengeQuestionsListView,

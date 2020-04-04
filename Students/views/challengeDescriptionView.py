@@ -2,7 +2,7 @@ import datetime
 from django.shortcuts import render, redirect
 from Instructors.models import Challenges
 from Instructors.views.utils import utcDate
-from Instructors.constants import default_time_str, unlimited_constant
+from Instructors.constants import unlimited_constant
 from Students.models import Student, StudentChallenges, DuelChallenges, CalloutParticipants
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
@@ -21,7 +21,6 @@ def ChallengeDescription(request):
     if 'currentCourseID' in request.session:
         chall_ID = []
         chall_Name = []
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         currentTime = utcDate()
         string_attributes = ['challengeName', 'courseID', 'isGraded',  # 'challengeCategory','timeLimit','numberAttempts',
                              'challengeAuthor',
@@ -29,7 +28,7 @@ def ChallengeDescription(request):
                              'challengeDifficulty', 'challengePassword', 'isVisible']  # Added challengePassword AH
 
         challenges = Challenges.objects.filter(courseID=currentCourse,  isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(
-            startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+            hasStartTimestamp=False), Q(endTimestamp__gt=currentTime) | Q(hasEndTimestamp=False))
 
         if request.GET:
 

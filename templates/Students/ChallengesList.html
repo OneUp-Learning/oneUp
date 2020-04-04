@@ -42,7 +42,7 @@
                            {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate, isUnlocked in challenge_range %}
                            <tr>
                                 <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis; padding-bottom: .1em;">{{chall_Name}}</td>	
-                                <td style="padding-bottom: .1em;">{{challDueDate|default_date}}</td>
+                                <td style="padding-bottom: .1em;">{{challDueDate}}</td>
                                 <td style="padding-bottom: .1em;">{{grade}}</td>
                                 {% if numberOfAttempts == 99999 %}
                                 <td style="padding-bottom: .1em;">Unlimited</td>
@@ -59,7 +59,7 @@
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
                                  </div>
                                  {% else %}
-                                 {% if passed_current_time %}
+                                 {% if challDueDate|passed_current_time %}
                                  <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
                                  <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
                                  </div>
@@ -131,7 +131,7 @@
                                        <input type="hidden" name="challengeID" value="{{chall_ID}}">
                                        <tr>
                                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
-                                             <td>{{challDueDate|default_date}}</td>
+                                             <td>{{challDueDate}}</td>
                                              <td>{{grade}}</td>
                                              {% if numberOfAttempts == 99999 %}
                                              <td>Unlimited</td>
@@ -148,7 +148,7 @@
                                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
                                                 </div>
                                                 {% else %}
-                                                {% if passed_current_time %}
+                                                {% if challDueDate|passed_current_time %}
                                                 <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
                                                 <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
                                                 </div>

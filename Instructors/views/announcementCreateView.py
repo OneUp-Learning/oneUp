@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Announcements, Courses
 from Instructors.views.announcementListView import createContextForAnnouncementList
 from Instructors.views.utils import utcDate, localizedDate, initialContextDict
-from Instructors.constants import default_time_str
 from datetime import datetime
 from notify.signals import notify
 from Students.models import StudentRegisteredCourses
@@ -56,13 +55,11 @@ def announcementCreateView(request):
     
         announcement.startTimestamp = utcDate()
         
-        #if user does not specify an expiration date, it assigns a default value really far in the future
-        #This assignment statement can be defaulted to the end of the course date if it ever gets implemented
-        if(request.POST['endTime'] == ""):
-            announcement.endTimestamp = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        else:
-            announcement.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p") 
-        
+        try:
+            announcement.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+            announcement.hasEndTimestamp = True
+        except ValueError:
+            announcement.hasEndTimestamp = False
             
         announcement.save();  #Writes to database.
     
@@ -85,9 +82,8 @@ def announcementCreateView(request):
                 for attr in string_attributes:
                     context_dict[attr]=getattr(announcement,attr)
 
-                # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-                endTime = localizedDate(request, str(make_naive(announcement.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-                if announcement.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str: 
+                if announcement.hasEndTimestamp: 
+                    endTime = localizedDate(request, str(make_naive(announcement.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
                     context_dict['endTimestamp']= endTime
                 else:
                     context_dict['endTimestamp']= ""

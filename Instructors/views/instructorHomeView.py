@@ -13,7 +13,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck    
 from django.utils import timezone 
 from django.utils.timezone import make_naive, make_aware
-from Instructors.constants import default_time_str
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
@@ -75,7 +74,7 @@ def instructorHome(request):
                     if c.isVisible and currentTime < courseEndDate: # Showing only visible challenges
                         # Check if current time is within the start and end time of the challenge
                         if currentTime > c.startTimestamp:
-                            if currentTime < c.dueDate and not datetime.strptime(str(c.dueDate.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p") == default_time_str:
+                            if c.hasDueDate and currentTime < c.dueDate:
                                 chall_ID.append(c.challengeID) #pk
                                 chall_course.append(c.courseID.courseName)
                                 chall_Name.append(c.challengeName)
