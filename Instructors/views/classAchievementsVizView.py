@@ -3,9 +3,18 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, CoursesSkills, ChallengesTopics, CoursesTopics
 from Instructors.views.utils import initialContextDict
-from Students.models import StudentChallenges, StudentCourseSkills, StudentRegisteredCourses
-from oneUp.decorators import instructorsCheck  
+from Students.models import StudentChallenges, StudentCourseSkills, StudentRegisteredCourses, StudentGoalSetting
+from oneUp.decorators import instructorsCheck
+
+from Badges.enums import Goal
+from Badges import systemVariables
+from Students.views.goalsListView import goalsList, calculateProgress, goalStatus
+from datetime import datetime, date, time, timedelta
+
 from Instructors.constants import unassigned_problems_challenge_name
+
+import json
+from django.db.models import Count
     
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
@@ -16,12 +25,16 @@ def classAchievementsViz(request):
     serious = 0
     warmUp = 0
     skills = 0
+    goals = 0
     if 'serious' in request.GET:
         serious = 1
         context_dict['serious']= 1
     elif 'warmUp' in request.GET:
         warmUp = 1
         context_dict['warmUp']= 1
+    elif 'goals' in request.GET:    #4.4.19 - JC
+        goals = 1
+        context_dict['goals'] = 1
     else:
         skills = 1
         context_dict['skills']= 1   
@@ -87,7 +100,52 @@ def classAchievementsViz(request):
         print(str(len(skillNames)))
         
         return render(request,'Instructors/ClassSkillsViz.html', context_dict)
-
+    
+    elif goals:
+        
+        # visualize challenges               
+        allGoals = []
+        goals_Created = []
+        goals_Completed = []
+        goals_Failed = []
+        user_Names = []
+                            
+        #Displaying the list of challenges from database
+                             
+        for student in students:
+            completed = 0
+            failed = 0
+            created = 0
+                       
+            goals = StudentGoalSetting.objects.filter(courseID=currentCourse, studentID=student)
+            
+            for g in goals:
+                created += 1
+                progressPercent = calculateProgress(g.progressToGoal, g.goalType, g.courseID, g.studentID, g.targetedNumber)
+                endDate = g.timestamp + timedelta(days=7)
+                if (goalStatus(progressPercent, endDate) == "Completed"):
+                    completed += 1
+                if (goalStatus(progressPercent, endDate) == "Not Achieved"):
+                    failed += 1
+            
+            if (created):        
+                user_Names.append(str(student.user.first_name+' '+student.user.last_name))   
+                goals_Created.append(created)
+                goals_Completed.append(completed)
+                goals_Failed.append(failed)
+        
+        print(students)
+        print(user_Names)
+        print(goals_Created)
+        print(goals_Completed)
+        print(goals_Failed)
+                   
+        context_dict['studentsRange'] = zip(range(1,len(students)+1),user_Names,goals_Created,goals_Completed,goals_Failed)
+        print("Students in the class:",len(students))
+        context_dict['studentsCount'] = len(students)   
+        
+        return render(request,'Instructors/ClassGoalsViz.html', context_dict)
+                    
     else:
         # visualize challenges               
         allChallengGrades = []
@@ -170,3 +228,4 @@ def classAchievementsViz(request):
         context_dict['challengesCount'] = len(challenges)
                                 
     return render(request,'Instructors/ClassAchievementsViz.html', context_dict)
+

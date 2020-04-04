@@ -87,7 +87,7 @@ def activityAssignPointsView(request):
 
                     if changesNeedSaving:
                         notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                    verb=activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName)}))
+                                    verb=activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/students/ActivityDescription?activityID='+str(activity.activityID)}))
                         stud_activity.save()
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
             elif not studentPoints == default_student_points or not studentBonus == default_student_bonus:
@@ -110,7 +110,7 @@ def activityAssignPointsView(request):
                 stud_activity.save()
 
                 notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                            verb=activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName)}))
+                            verb=activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/students/ActivityDescription?activityID='+str(activity.activityID)}))
 
                 activityGradedNow[studentRC.studentID] = True
 

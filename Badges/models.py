@@ -390,6 +390,10 @@ class CourseConfigParams(models.Model):
     activitiesUsed = models.BooleanField(default=True)  
     skillsUsed = models.BooleanField(default=False)
     announcementsUsed = models.BooleanField(default=True)
+    #hints system
+    hintsUsed = models.BooleanField(default = False)
+    weightBasicHint = models.IntegerField(default=0)     ##  Costs as a percentage of points lost for accepting the hint.
+    weightStrongHint = models.IntegerField(default=0) ##     
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -432,7 +436,10 @@ class CourseConfigParams(models.Model):
         +str(self.gradebookUsed)+","\
         +str(self.activitiesUsed)+","\
         +str(self.skillsUsed)+","\
-        +str(self.announcementsUsed)+","
+        +str(self.announcementsUsed)+","\
+        +str(self.hintsUsed)+","\
+        +str(self.weightBasicHint)+","\
+        +str(self.weightStrongHint)+","
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)

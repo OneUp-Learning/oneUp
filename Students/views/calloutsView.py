@@ -76,7 +76,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             # Notify sender about the call out
             notify.send(None, recipient=call_out.sender.user, actor=call_out.sender.user,
-                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName)}))
+                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
 
             # mini req for calloutSent event
             mini_req = {
@@ -148,7 +148,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             # Notify participant about the call out
             notify.send(None, recipient=participant_id.user, actor=participant_id.user,
-                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName)}))
+                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
 
             # mini req for calloutSent event
             mini_req = {
@@ -229,7 +229,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             # Notify participant about the call out
             notify.send(None, recipient=participant_id.user, actor=participant_id.user,
-                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName)}))
+                        verb="You have won the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
 
             # mini req for calloutSent event
             mini_req = {
@@ -249,7 +249,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             # Notify participant about the call out
             notify.send(None, recipient=participant_id.user, actor=participant_id.user,
-                        verb="You have loast the call out "+call_out.challengeID.challengeName, nf_type='callout lost', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName)}))
+                        verb="You have loast the call out "+call_out.challengeID.challengeName, nf_type='callout lost', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
 
             # mini req for calloutSent event
             mini_req = {
@@ -394,7 +394,7 @@ def callout_create(request):
 
             # Notify participant about the call out
             notify.send(None, recipient=participant_stud.user, actor=participant_stud.user,
-                        verb="You have recieved an individual call out", nf_type='individual callout invitation', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName)}))
+                        verb="You have recieved an individual call out", nf_type='individual callout invitation', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(participant.id)+'&participant_id='+str(participant.participantID.user.id)}))
 
             # mini req for calloutSent event
             mini_req = {
@@ -430,7 +430,7 @@ def callout_create(request):
 
                         # Notify participant about the call out
                         notify.send(None, recipient=participant_stud.studentID.user, actor=participant_stud.studentID.user,
-                                    verb="You have recieved a class call out", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName)}))
+                                    verb="You have recieved a class call out", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(participant.id)+'&participant_id='+str(participant.participantID.user.id)}))
 
                         # for event
                         mini_req = {
@@ -460,7 +460,7 @@ def callout_create(request):
 
                     # Notify participant about the call out
                     notify.send(None, recipient=participant_stud.studentID.user, actor=participant_stud.studentID.user,
-                                verb="You have recieved a class call out", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName)}))
+                                verb="You have recieved a class call out", nf_type='class callout invitation', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(participant.id)+'&participant_id='+str(participant.participantID.user.id)}))
 
                     # for event
                     mini_req = {

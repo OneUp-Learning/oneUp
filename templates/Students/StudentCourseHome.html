@@ -2,6 +2,11 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      
+      <script src="https://code.highcharts.com/highcharts.js"></script>
+      <script src="https://code.highcharts.com/highcharts-more.js"></script>
+      <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+
    </head>
    <body>
       {% include 'stheading.html' %}
@@ -84,7 +89,159 @@
                      </table>
                 </div>
             </div>
+            </div>
             {% endif %}   
+            {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal and scparams.displayGoal %}
+            <div class="row">
+            	<div class="col s12 m10 offset-m1">            
+	            	<div class="card">
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">Goals</span>
+			            		<div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; margin-bottom: 10px;">
+			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal in goal_range %}                                                           
+			                          <div style="width: 240px; height: 240px; margin-bottom: 24px; margin-top: 8px;">
+                                        <div style="padding-left: 8px; padding-right: 8px; height: 40px;">
+                                            <p>{{goal_Type}}</p>
+                                        </div>
+                                        <div id="goal-container-{{i}}" class="goalindicator" data-goalprogress="20" data-title="{{goal_Type}}" title="{{goal_Type}} by {{student_ID}}" data-target="100"></div>
+                                            
+                                        <div style="padding-left: 8px; padding-right: 8px; text-align: center;">
+                                            <p>End Date: {{end_date}}</p>
+                                        </div>
+                                        </div>
+			                         {% empty %} 
+			                            <div class="center-align"><i>No goals created</i></div>
+                                  {% endfor %}	
+                                </div>
+                            </div>
+                            <div class="card-action right-align">
+                                <div class="hide-on-med-and-up">
+                                    <div class="row center-align">
+                                       <div class="col s12">
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                       </div>
+                                    </div>
+                                    <div class="row center-align">
+                                       <div class="col s12">
+                                            <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div class="hide-on-small-only">
+                                    <div class="row right-align" style="margin: 0">
+                                       <div class="col s12">
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                       </div>
+                                    </div>
+                                 </div>
+                            </div>
+                        </div>
+                        <script type='text/javascript'>
+                            $(document).ready(function () {
+                                var chart_settings = {
+                                        chart: {
+                                            type: 'solidgauge',
+                                            height: '60%',
+
+                                        },
+
+                                        title: {
+                                            text: '',
+                                            enabled: false,
+                                        },
+
+                                        tooltip: {
+                                            borderWidth: 0,
+                                            backgroundColor: 'none',
+                                            shadow: false,
+                                            style: {
+                                                fontSize: '16px'
+                                            },
+                                            valueSuffix: '%',
+                                            pointFormat: '{series.name}<br><span style="font-size:2em; color: {point.color}; font-weight: bold">{point.y}</span>',
+                                            positioner: function (labelWidth) {
+                                                return {
+                                                    x: (this.chart.chartWidth - labelWidth + 3) / 2,
+                                                    y: (this.chart.plotHeight / 2)
+                                                };
+                                            }
+                                        },
+
+                                        pane: {
+                                            startAngle: 0,
+                                            endAngle: 360,
+                                            background: [{ // Track for Move
+                                                outerRadius: '112%',
+                                                innerRadius: '88%',
+                                                backgroundColor: Highcharts.color(Highcharts.getOptions().colors[4])
+                                                    .setOpacity(0.3)
+                                                    .get(),
+                                                borderWidth: 0
+                                            }]
+                                        },
+
+                                        yAxis: {
+                                            min: 0,
+                                            max: 100,
+                                            lineWidth: 0,
+                                            tickPositions: []
+                                        },
+
+                                        plotOptions: {
+                                            solidgauge: {
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                linecap: 'round',
+                                                stickyTracking: false,
+                                                rounded: true
+                                            }
+                                        },
+                                       credits: {
+                                          enabled: false
+                                       },
+
+                                        series: [{
+                                            name: '',
+                                            data: [{
+                                                color: Highcharts.getOptions().colors[4],
+                                                radius: '112%',
+                                                innerRadius: '88%',
+                                                y: 80
+                                            }]
+                                        },]
+                                    };
+                                    var indicatorsFound = document.getElementsByClassName("goalindicator");
+                                    console.log(indicatorsFound.length)
+                                    for(var i = 0; i < indicatorsFound.length; i++){
+                                        chart_settings.chart.renderTo = `goal-container-${i+1}`;
+                                        var chart = new Highcharts.Chart(chart_settings);
+                                        // chart.title.text = indicatorsFound[i].dataset.title;
+                                        // chart.setTitle({text: indicatorsFound[i].dataset.title});
+                                        
+                                        var progress_data = indicatorsFound[i].dataset.goalprogress;
+                                        if (progress_data <= 100){
+                                            progress_data = parseInt(progress_data);
+                                        }
+                                        else {
+                                            progress_data = 100;
+                                        }
+                                        chart.series[0].points[0].update(progress_data);
+
+                                        chart.series[0].points[0].onMouseOver(); // Show the hover marker
+                                        chart.tooltip.refresh(chart.series[0].points[0]); // Show the tooltip
+                                        chart.tooltip.hide = function () {};
+
+                                        // createProgressBar(indicatorsFound[i].dataset.goalprogress, indicatorsFound[i].dataset.target, indicatorsFound.item(i));
+                                    }
+                                    
+                            });
+                        </script>
+           		</div>
+            </div>
+            {% endif %}
                {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
                <div class="row">
                   <div class="col s12 m12">
@@ -124,4 +281,66 @@
       </main>
       {% include 'footer.html' %}
    </body>
+   <script>
+      window.onload = function(){    	
+          var indicatorsFound = document.getElementsByClassName("goalindicator");
+          console.log(indicatorsFound.length)
+          for(var i = 0; i < indicatorsFound.length; i++){
+              createProgressBar(indicatorsFound[i].dataset.goalprogress, indicatorsFound[i].dataset.target, indicatorsFound.item(i));
+          }
+          var streakIndicators = [];
+      }
+  
+      function createProgressBar(currentCount ,treshold, objID){
+          console.log(treshold);
+          console.log(currentCount);
+          treshold = parseInt(treshold);
+          if (currentCount <= 100){
+             currentCount = parseInt(currentCount);
+          }
+          else {
+             currentCount = 100;
+          }
+        //   currentCount = 100;
+          var bar = new ProgressBar.Circle(objID, {
+        strokeWidth: 9,
+        color: '#ADD8E6',
+        trailColor: '#eee',
+        trailWidth: 1,
+        easing: 'easeInOut',
+        duration: 2000,
+        svgStyle: null,
+        text: {
+          value: '',
+          alignToBottom: false,
+          autoStyleContainer: false,
+        },
+        from: {color: '#000000', width: 8},
+        to: {color: '#1df704', width: 8},
+        // Set default step function for all animate calls
+        
+        step: (state, bar) => {
+          bar.path.setAttribute('stroke', state.color);
+          bar.path.setAttribute('stroke-width', state.width);
+          
+          var value = Math.round(bar.value() * treshold);
+          console.log(value)
+          if (value === 0) {
+            bar.setText('0%');
+          } else if(value >= currentCount+1){
+              bar.stop();    
+          }
+          else{
+            bar.setText(`<span>${Math.round(bar.value() * 100)}%</span>`);
+          }
+      
+          bar.text.style.color = state.color;
+        }
+      });
+      bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+      bar.text.style.fontSize = '1rem';
+      
+      bar.animate(1.0);  // Number from 0.0 to 1.0
+      }
+  </script>
 </html>
