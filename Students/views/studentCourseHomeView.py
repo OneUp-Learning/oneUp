@@ -47,7 +47,7 @@ def StudentCourseHome(request):
 	context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
 	context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
 	context_dict = createContextForGoalsList(currentCourse, context_dict, True, request.user)
-
+	print(context_dict)
 	progress_data = progress_bar_data(currentCourse, context_dict['ccparams'], for_student=student)
 
 	context_dict['currentEarnedPoints'] = progress_data['currentEarnedPoints']

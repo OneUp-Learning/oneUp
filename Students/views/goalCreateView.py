@@ -88,6 +88,7 @@ def goalCreate(request):
 
 def goalProgressFxn(goalType, course, student):
     goalType = str(goalType)
+    # TODO: This function needs to be updated 
     print ("Type {}".format(goalType))
     if goalType == str(Goal.warmup10):
         return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
@@ -100,7 +101,7 @@ def goalProgressFxn(goalType, course, student):
     if goalType == str(Goal.streak10):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken30Percent(course, student, goalType)
     if goalType == str(Goal.streak70):
-        return systemVariables.getConsecutiveDaysWarmUpChallengesTaken70Percent(course, student, goalType)
+        return systemVariablesgetConsecutiveDaysWarmUpChallengesTaken70Percent(course, student, goalType)
     if goalType == str(Goal.streak80):
         return systemVariables.getConsecutiveDaysWarmUpChallengesTaken80Percent(course, student, goalType)
     if goalType == str(Goal.streak90):
@@ -109,8 +110,8 @@ def goalProgressFxn(goalType, course, student):
         studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
         return studentReg.virtualCurrencyAmount
     if goalType == str(Goal.courseXP):
-        time_period = TimePeriods.timePeriods[1503]
-        id, xp = studentScore(student, course, 0, time_period, 0, result_only=True)
+        studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
+        xp = studentReg.xp
         return xp
     if goalType == str(Goal.courseBadges):
         return systemVariables.getNumberOfBadgesEarned(course, student)

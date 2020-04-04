@@ -46,7 +46,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
     
     index = 0
     if not courseHome: # Shows all the announcements
-        
+        print("Here")
         for goal in goals:
             studentGoal_ID.append(goal.studentGoalID) #pk
             student_ID.append(goal.studentID)
@@ -83,6 +83,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 goal.save()
             
     else: # Only shows the first three
+        print("h")
         for goal in goals:                        
             if index < 1:
                 studentGoal_ID.append(goal.studentGoalID) #pk
@@ -111,6 +112,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
     # The range part is the index numbers.
     print (student_ID)
     context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal)
+    print(context_dict['goal_range'])
     return context_dict
 
     
