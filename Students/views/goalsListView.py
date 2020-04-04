@@ -10,7 +10,6 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Announcements, Instructors, Courses, Goals
 from Instructors.views.utils import utcDate, initialContextDict
-from Instructors.constants import default_time_str
 from datetime import datetime, date, time, timedelta
 from oneUp.decorators import instructorsCheck   
 from Students.models import StudentGoalSetting, Student

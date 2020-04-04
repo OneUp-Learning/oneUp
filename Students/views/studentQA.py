@@ -3,7 +3,6 @@
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-
 from Students.views.utils import studentInitialContextDict
 
 @login_required

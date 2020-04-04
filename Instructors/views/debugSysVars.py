@@ -10,7 +10,6 @@ from oneUp.decorators import instructorsCheck
 
 from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, CoursesTopics
 from Instructors.views.utils import initialContextDict, localizedDate
-from Instructors.constants import default_time_str
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog, Student
 from Badges.enums import Event, ObjectTypes
 from Badges.systemVariables import SystemVariable, calculate_system_variable

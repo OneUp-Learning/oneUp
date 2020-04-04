@@ -83,24 +83,6 @@ class Conditions(models.Model):
         deleteOperand(self.operand1Type,self.operand1Value)
         deleteOperand(self.operand2Type,self.operand2Value)
         
-# Events Table
-
-# -   Taking a test
-#     o    Starting a test
-#     o    Finishing a test
-#     o    Completing  a question
-# -   Instructor entering information for an activity
-# -   Passing certain time
-# -   Change value
-
-# Events class removed and replaced with an enumerated type - Keith
-#
-#class Events(models.Model):
-#    eventID = models.AutoField(primary_key=True)
-#    eventName = models.CharField(max_length=30)
-#    eventDescription = models.CharField(max_length=100)
-#    def __str__(self):              
-#        return str(self.eventID)+","+str(self.eventName)
 
 # Rules Table
 class Rules(models.Model):
@@ -159,12 +141,8 @@ class BadgesInfo(models.Model):
 
 # Badges Table    
 class Badges(BadgesInfo):
-#    badgeID = models.AutoField(primary_key=True)
     ruleID = models.ForeignKey(Rules,  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the related rule", db_index=True)
-#    courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id
-#    badgeName = models.CharField(max_length=300) # e.g. test score, number of attempts 
-#    badgeDescription = models.CharField(max_length=10000)
-#    badgeImage = models.CharField(max_length=300)
+
     def __str__(self):              
         return "Badge#"+str(self.badgeID)+":"+str(self.badgeName)    
 
@@ -263,14 +241,6 @@ class CourseMechanics(models.Model):
     gameMechanismID = models.ForeignKey(GameMechanics, on_delete=models.CASCADE, verbose_name="the related game mechanism", db_index=True) 
     def __str__(self):              
         return str(self.courseID)+","+str(self.gameMechanismID)
-
-# This table has the information about the badges and assigned challenges
-#class BadgeChallenges(models.Model):
-#    badgeChallengeID = models.AutoField(primary_key=True)
-#    badgeID = models.ForeignKey(Badges, verbose_name="the related badge", db_index=True)
-#    challengeID = models.ForeignKey(Challenges, verbose_name="the related challenge", db_index=True)
-#    def __str__(self):              
-#        return str(self.badgeID)+","+str(self.challengeID)
     
 # '''
 # Course Configuration parameters (goes into Badges.models.py)
@@ -360,6 +330,10 @@ class CourseConfigParams(models.Model):
     ##Misc Leaderboard Fields
     courseStartDate=models.DateField(default=datetime.min)            ##
     courseEndDate=models.DateField(default=datetime.min)              ##
+
+    hasCourseStartDate = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
+    hasCourseEndDate = models.BooleanField(default=False)
+
     leaderboardUpdateFreq=models.IntegerField(default=1)
     skillLeaderboardDisplayed = models.BooleanField(default=False)         ## Frequency in days, minimum 1 and maximum 365 days
     customLeaderboardsUsed = models.BooleanField(default=False)

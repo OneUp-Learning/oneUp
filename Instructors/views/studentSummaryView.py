@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from Instructors.models import Challenges, Activities
 from Instructors.views.utils import initialContextDict, localizedDate
-from Instructors.constants import default_time_str
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog
 from Badges.enums import Event
 from Badges.periodicVariables import studentScore, TimePeriods
@@ -51,7 +50,6 @@ def studentSummary(request):
         courseID=currentCourse).exclude(studentID__isTestStudent=True)
     courseChallenges = Challenges.objects.filter(
         courseID=currentCourse, isGraded=True, isVisible=True)
-
     courseActivities = Activities.objects.filter(courseID=currentCourse)
     courseWarmupChallenges = Challenges.objects.filter(
         courseID=currentCourse, isGraded=False)
