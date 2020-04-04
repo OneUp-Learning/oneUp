@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from oneUp.logger import logger
 import json
 import pytz
+from django.utils import timezone
 from datetime import datetime, timezone
 
 def saveSkills(skillstring, resource, resourceIndicator):
@@ -412,6 +413,14 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     
     # print("Converted Time to UTC: " , dt.astimezone(pytz.utc))
     return dt.replace(tzinfo=timezone.utc)  
+
+
+def datetime_to_local(db_datetime):
+    return timezone.localtime(db_datetime).replace(microsecond=0)
+
+def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
+    return datetime_to_local(datetime.strptime(str_datetime, to_format))
+
 
 def localizedDate(request, date_str, date_format, timezone=None):
     if not timezone:
