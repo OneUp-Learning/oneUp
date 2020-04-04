@@ -1,20 +1,15 @@
 from django import template
-from Instructors.constants import  default_time_str
 from django.utils import timezone
 
 register = template.Library()
 
 @register.filter
-def default_date(value):
-    if value.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str:
-        return ""
-    return value
-
-@register.filter
 def passed_current_time(value):
-    if value.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str:
-        return False
-    return timezone.now() >= value
+    if value:
+        print(f"DUE TEST: value: {timezone.localtime(value)} - now: {timezone.localtime(timezone.now())}")
+        return timezone.localtime(timezone.now()) >= timezone.localtime(value)
+    
+    return False
 
 @register.filter
 def raw_timestamp(value):

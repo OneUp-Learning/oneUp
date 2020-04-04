@@ -19,8 +19,7 @@ from Instructors.models import InstructorRegisteredCourses, Courses, Universitie
 from Badges.models import CourseConfigParams, VirtualCurrencyCustomRuleInfo
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 
-from Instructors.views.utils import localizedDate
-from Instructors.constants import anonymous_avatar, default_time_str, unassigned_problems_challenge_name, uncategorized_activity, unspecified_topic_name, unspecified_vc_manual_rule_description, unspecified_vc_manual_rule_name, unlimited_constant
+from Instructors.constants import anonymous_avatar, unassigned_problems_challenge_name, uncategorized_activity, unspecified_topic_name, unspecified_vc_manual_rule_description, unspecified_vc_manual_rule_name, unlimited_constant
 
 
 from Instructors.questionTypes import QuestionTypes
@@ -107,8 +106,7 @@ class StudentCourseHomeTest(TestCase, CommonTestCase):
         ccparams = CourseConfigParams()
         ccparams.courseID = course
         ccparams.courseStartDate = timezone.now()
-        ccparams.courseEndDate = localizedDate(None, default_time_str, "%m/%d/%Y %I:%M %p", timezone="utc")
-        ccparams.gamificationUsed = True
+        ccparams.hasCourseStartDate = True
         ccparams.progressBarUsed = True
         ccparams.progressBarGroupUsed = True
         ccparams.progressBarTotalPoints = 9000
@@ -424,8 +422,7 @@ class StudentCourseHomeBrowserTest(StaticLiveServerTestCase, CommonTestCase):
         ccparams = CourseConfigParams()
         ccparams.courseID = course
         ccparams.courseStartDate = timezone.now()
-        ccparams.courseEndDate = localizedDate(None, default_time_str, "%m/%d/%Y %I:%M %p", timezone="utc")
-        ccparams.gamificationUsed = True
+        ccparams.hasCourseStartDate = True
         ccparams.progressBarUsed = True
         ccparams.progressBarGroupUsed = True
         ccparams.progressBarTotalPoints = 9000

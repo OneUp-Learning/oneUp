@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from Instructors.models import Announcements
 from Students.views.utils import studentInitialContextDict
-from django.utils import timezone
+from Instructors.views.announcementListView import removeExpired
 from datetime import datetime
 
 def createContextForAnnouncementList(currentCourse, context_dict):
@@ -45,16 +45,5 @@ def allAnnouncements(request):
     context_dict = createContextForAnnouncementList(currentCourse, context_dict)
 
     return render(request,'Students/Announcements.html', context_dict)
-
-
-#compares current time with the endTimestamp of each announcement
-#if the current time exceeds the endTimestamp, the announcement is deleted from the database
-def removeExpired():
-    announcements = Announcements.objects.all()
-    currentTime = timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M %p") 
-    
-    for announcement in announcements:
-        if (currentTime > timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") ):
-            announcement.delete()
     
     

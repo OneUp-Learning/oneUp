@@ -10,7 +10,6 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Announcements, Instructors, Courses
 from Instructors.views.utils import localizedDate, initialContextDict
-from Instructors.constants import default_time_str
 from datetime import datetime
 from oneUp.decorators import instructorsCheck   
 from django.utils import timezone
@@ -32,10 +31,11 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
         for announcement in announcements:
             announcement_ID.append(announcement.announcementID) #pk
             author_ID.append(announcement.authorID)
+            # Announcement will also show startTime (created time)
             start_Timestamp.append(announcement.startTimestamp)
-            # if default end date (= unlimited) is stored, we don't want to display it on the webpage                   
-            endTime = timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
-            if endTime != default_time_str: 
+
+            if announcement.hasEndTimestamp: 
+                endTime = timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
                 end_Timestamp.append(announcement.endTimestamp)
             else:
                 end_Timestamp.append("")
@@ -76,7 +76,7 @@ def removeExpired():
     announcements = Announcements.objects.all()
     currentTime = timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M %p") 
     for announcement in announcements:
-        if (currentTime > timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")):
+        if announcement.hasEndTimestamp and currentTime > timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p"):
             announcement.delete()
             
     

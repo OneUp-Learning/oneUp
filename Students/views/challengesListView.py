@@ -9,7 +9,7 @@ from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges , ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
 from Instructors.views.utils import localizedDate
-from Instructors.constants import default_time_str, unspecified_topic_name, unassigned_problems_challenge_name
+from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
 from django.db.models import Q
 from Badges.enums import ObjectTypes
 from Badges.models import ProgressiveUnlocking
@@ -46,18 +46,11 @@ def ChallengesList(request):
             # TODO: 
             # filtering
             #studentId = Student.objects.filter(user=request.user)
-            defaultTime = timezone.make_aware(datetime.strptime(default_time_str, "%m/%d/%Y %I:%M %p")).astimezone(timezone.utc)
             currentTime = timezone.now()
-            print(currentTime)
-            print(defaultTime)
-            challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
-            for chal in challenges:
-                print(currentTime > chal.startTimestamp)
-                print(chal.startTimestamp, chal.endTimestamp)
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
-                challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lte=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+                challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False), Q(endTimestamp__gt=currentTime) | Q(hasEndTimestamp=False))
             grade = []
             gradeLast = []
             gradeFirst = []
@@ -76,11 +69,10 @@ def ChallengesList(request):
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                     if challQuestions:
                         
-                        # if challenge.endTimestamp.strftime("%Y") < ("2900"):
-                        #     challDueDate.append(challenge.endTimestamp)
-                        # else:
-                        #     challDueDate.append("")
-                        challDueDate.append(challenge.dueDate)
+                        if challenge.hasDueDate:
+                            challDueDate.append(challenge.dueDate)
+                        else:
+                            challDueDate.append("")
                     
                         chall_ID.append(challenge.challengeID) #pk
                         chall_Name.append(challenge.challengeName)
@@ -214,7 +206,6 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
     else:
         optionSelected = 0
 
-    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
     currentTime = timezone.now()
 
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
@@ -228,7 +219,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
             if not str(user) == str(studentId):
                 condition = Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, courseID=currentCourse)
             else:
-                condition = Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, isVisible=True, courseID=currentCourse).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+                condition = Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, isVisible=True, courseID=currentCourse).filter(Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False), Q(endTimestamp__gt=currentTime) | Q(hasEndTimestamp=False))
             
             if condition:
                 challenge = challt.challengeID
@@ -236,7 +227,11 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                 
                     if challQuestions:
-                        challDueDate.append(challenge.dueDate)
+                        if challenge.hasDueDate:
+                            challDueDate.append(challenge.dueDate)
+                        else:
+                            challDueDate.append("")
+
                         chall_ID.append(challenge.challengeID) #pk
                         chall_Name.append(challenge.challengeName)
                         chall_position.append(challenge.challengePosition)

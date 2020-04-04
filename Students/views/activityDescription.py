@@ -44,11 +44,8 @@ def ActivityDetail(request):
             # If the act has files add them to the webpage
             act = request.GET['activityID']
             activity = Activities.objects.get(activityID=act)
-            context_dict['activity'] = activity
-            print("yearrrrr")
-            print(activity.deadLine.year)
-            if not activity.deadLine.year == 2999:
-                context_dict['hasDueDate'] = True
+            context_dict['activity'] = activity            
+            context_dict['hasDueDate'] = activity.hasDeadline
 
             instructorActFiles = UploadedActivityFiles.objects.filter(
                 activity=activity, latest=True)

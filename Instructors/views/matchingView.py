@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 
 from Instructors.models import StaticQuestions, Answers, MatchingAnswers, CorrectAnswers
 from Instructors.models import Challenges, ChallengesQuestions
-from Instructors.constants import unassigned_problems_challenge_name, default_time_str, unlimited_constant
+from Instructors.constants import unassigned_problems_challenge_name, unlimited_constant
 
 from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, localizedDate
 from Badges.enums import ObjectTypes
@@ -166,8 +166,6 @@ def matchingForm(request):
         challenge = Challenges()
         challenge.challengeName = unassigned_problems_challenge_name
         challenge.courseID = currentCourse
-        challenge.startTimestamp = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
-        challenge.endTimestamp = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
         challenge.numberAttempts = unlimited_constant
         challenge.timeLimit = unlimited_constant
         challenge.save()

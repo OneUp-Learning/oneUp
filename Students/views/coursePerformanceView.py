@@ -6,7 +6,6 @@ from django.shortcuts import render
 from django.utils import timezone
 from Students.models import StudentChallenges, StudentActivities
 from Instructors.models import Challenges, Activities
-from Instructors.constants import default_time_str
 from Instructors.views.utils import localizedDate
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
@@ -40,10 +39,9 @@ def CoursePerformance(request):
     isExpired = []
 
     # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-    defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
     currentTime = timezone.now()
     
-    stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(timestamp=defaultTime))
+    stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(hasTimestamp=False))
     for sa in stud_activities:
         assignmentID.append(sa.studentActivityID)
         a = Activities.objects.get(pk=sa.activityID.activityID)
@@ -61,7 +59,7 @@ def CoursePerformance(request):
             
     
     # Select if startTime is less than(__lt) currentTime (AH)
-    challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+    challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
     
     for challenge in challenges:  
         if StudentChallenges.objects.filter(studentID=student, courseID=currentCourse, challengeID = challenge) :

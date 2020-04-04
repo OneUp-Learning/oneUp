@@ -10,7 +10,6 @@ from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCate
 from Instructors.views.utils import initialContextDict, localizedDate
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Badges.models import CourseConfigParams
-from Instructors.constants import default_time_str
 from datetime import datetime
 import os
 from oneUp.decorators import instructorsCheck
@@ -83,35 +82,27 @@ def activityCreateView(request):
             else:
                 activity.uploadAttempts = request.POST['attempts']
 
-        default_date = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
-        print(f"Default Date {default_date}")
-
         # Set the start date and end data to show the activity
-        if(request.POST['startTime'] == ""):
-            activity.startTimestamp = default_date
-        elif datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p"):
+        try:
             activity.startTimestamp = localizedDate(
                 request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")
-        else:
-            activity.startTimestamp = default_date
+            activity.hasStartTimestamp = True
+        except ValueError:
+            activity.hasStartTimestamp = False
 
-        # if user does not specify an expiration date, it assigns a default value really far in the future
-        # This assignment statement can be defaulted to the end of the course date if it ever gets implemented
-        if(request.POST['endTime'] == ""):
-            activity.endTimestamp = default_date
-        elif datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
+        try:
             activity.endTimestamp = localizedDate(
                 request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")
-        else:
-            activity.endTimestamp = default_date
+            activity.hasEndTimestamp = True
+        except ValueError:
+            activity.hasEndTimestamp = False
 
-        if(request.POST['deadLine'] == ""):
-            activity.deadLine = default_date
-        elif datetime.strptime(request.POST['deadLine'], "%m/%d/%Y %I:%M %p"):
+        try:
             activity.deadLine = localizedDate(
                 request, request.POST['deadLine'], "%m/%d/%Y %I:%M %p")
-        else:
-            activity.deadLine = default_date
+            activity.hasDeadline = True
+        except ValueError:
+            activity.hasDeadline = False
 
         # get the author
         if request.user.is_authenticated:
@@ -137,6 +128,7 @@ def activityCreateView(request):
     ######################################
     # request.GET
     else:
+
         # If questionId is specified then we load for editing.
         if 'activityID' in request.GET:
             activity = Activities.objects.get(
@@ -161,26 +153,25 @@ def activityCreateView(request):
             context_dict['isFileUpload'] = activity.isFileAllowed
             context_dict['isGraded'] = activity.isGraded
 
-            startTime = timezone.localtime(activity.startTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
-
-            if startTime != default_time_str:
-                context_dict['startTimestamp'] = startTime
+            
+            if activity.hasStartTimestamp:
+                context_dict['startTimestamp'] = timezone.localtime(activity.startTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['startTimestamp'] = ""
 
-            endTime = timezone.localtime(activity.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
-
-            if endTime != default_time_str:
-                context_dict['endTimestamp'] = endTime
+            
+            if activity.hasEndTimestamp:
+                context_dict['endTimestamp'] = timezone.localtime(activity.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['endTimestamp'] = ""
 
-            deadLine = timezone.localtime(activity.deadLine).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
-
-            if deadLine != default_time_str:
-                context_dict['deadLineTimestamp'] = deadLine
+            # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
+            
+            if activity.hasDeadline:
+                context_dict['deadLineTimestamp'] = timezone.localtime(activity.deadLine).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['deadLineTimestamp'] = ""
+
 
             activityFiles = UploadedActivityFiles.objects.filter(
                 activity=activity, latest=True)

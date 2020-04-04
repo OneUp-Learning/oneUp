@@ -2,7 +2,7 @@ import datetime
 from django.shortcuts import render, redirect
 from Instructors.models import Challenges
 from Instructors.views.utils import localizedDate
-from Instructors.constants import default_time_str, unlimited_constant
+from Instructors.constants import unlimited_constant
 from Students.models import Student, StudentChallenges, DuelChallenges, CalloutParticipants
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
@@ -18,11 +18,9 @@ def ChallengeDescription(request):
     # The context contains information such as the client's machine details, for example.
 
     context_dict, currentCourse = studentInitialContextDict(request)
-    print("request", request)
     if 'currentCourseID' in request.session:
         chall_ID = []
         chall_Name = []
-        defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
         currentTime = timezone.now()
         string_attributes = ['challengeName', 'courseID', 'isGraded',  # 'challengeCategory','timeLimit','numberAttempts',
                              'challengeAuthor',
@@ -30,14 +28,13 @@ def ChallengeDescription(request):
                              'challengeDifficulty', 'challengePassword', 'isVisible']  # Added challengePassword AH
 
         challenges = Challenges.objects.filter(courseID=currentCourse,  isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(
-            startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+            hasStartTimestamp=False), Q(endTimestamp__gt=currentTime) | Q(hasEndTimestamp=False))
 
         if request.GET:
 
             # Getting the challenge information which the student has selected
             if request.GET['challengeID']:
                 # studentId = 1; # for now student id is 1 as there is no login table.. else studentd id will be the login ID that we get from the cookie or session
-                print("Context Dict", context_dict)
 
                 # Duel flag
                 is_duel = False
@@ -108,7 +105,6 @@ def ChallengeDescription(request):
                     context_dict['timeLimit'] = data
 
                 data = getattr(challenge, 'numberAttempts')
-                print(str(data))
                 if data == unlimited_constant:
                     context_dict['numberAttempts'] = "Unlimited"
                 else:

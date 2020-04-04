@@ -10,7 +10,7 @@ from Instructors.models import TemplateDynamicQuestions, Challenges, ChallengesQ
 from Instructors.lupaQuestion import CodeSegment
 from django.http import HttpResponse
 from Instructors.views import utils
-from Instructors.constants import unassigned_problems_challenge_name, default_time_str, unlimited_constant
+from Instructors.constants import unassigned_problems_challenge_name, unlimited_constant
 
 from Badges.enums import ObjectTypes
 from Instructors.questionTypes import QuestionTypes
@@ -165,8 +165,6 @@ def templateDynamicQuestionForm(request):
         challenge = Challenges()
         challenge.challengeName = unassigned_problems_challenge_name
         challenge.courseID = currentCourse
-        challenge.startTimestamp = utils.localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
-        challenge.endTimestamp = utils.localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
         challenge.numberAttempts = unlimited_constant
         challenge.timeLimit = unlimited_constant
         challenge.save()

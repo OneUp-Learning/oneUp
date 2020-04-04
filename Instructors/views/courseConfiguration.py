@@ -8,7 +8,6 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required,user_passes_test
 from Badges.models import CourseConfigParams
 from Instructors.views.utils import initialContextDict, localizedDate
-from Instructors.constants import default_time_str
 from Badges.systemVariables import logger
 from oneUp.decorators import instructorsCheck     
 @login_required
@@ -39,16 +38,21 @@ def courseConfigurationView(request):
         ccparams.streaksUsed = 'attendanceUsed' in request.POST
         ccparams.skillsUsed = "skillsUsed" in request.POST
         ccparams.announcementsUsed = "announcementsUsed" in request.POST
-        logger.debug(request.POST['courseStartDate'])
-        if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-            ccparams.courseStartDate = timezone.localtime(timezone.now())
-        else:
-            ccparams.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
 
-        if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-            ccparams.courseEndDate = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
+        logger.debug(request.POST['courseStartDate'])
+
+        if 'courseStartDate' in request.POST and request.POST['courseStartDate'] == "":
+            ccparams.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
+            ccparams.hasCourseStartDate = True
         else:
-             ccparams.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
+            ccparams.hasCourseStartDate = False
+            
+
+        if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
+            ccparams.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
+            ccparams.hasCourseEndDate = True
+        else:
+             ccparams.hasCourseEndDate = False
 
         
         ccparams.save()
@@ -71,12 +75,13 @@ def courseConfigurationView(request):
             context_dict['skillsUsed'] = ccparams.skillsUsed
             context_dict['announcementsUsed'] = ccparams.announcementsUsed
             context_dict['activitiesUsed'] = ccparams.activitiesUsed
-            defaultTime = localizedDate(request, default_time_str, "%m/%d/%Y %I:%M %p")
-            if(ccparams.courseStartDate.year < defaultTime.year):
+
+            if ccparams.hasCourseStartDate:
                 context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")
             else:
                 context_dict["courseStartDate"]=""
-            if(ccparams.courseEndDate.year < defaultTime.year):
+
+            if ccparams.hasCourseEndDate:
                 context_dict["courseEndDate"]=ccparams.courseEndDate.strftime("%B %d, %Y")
             else:
                 context_dict["courseEndDate"]=""
