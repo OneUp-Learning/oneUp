@@ -4,7 +4,7 @@ from datetime import datetime
 
 from Instructors.models import Challenges, Activities, Questions, Topics,\
     ActivitiesCategory
-from Instructors.constants import default_time_str, unlimited_constant
+from Instructors.constants import unlimited_constant
 from django.utils import timezone
 import logging
 from billiard.connection import CHALLENGE
@@ -633,7 +633,7 @@ def sc_reached_due_date(course, student, serious_challenge):
     '''
     if not serious_challenge.isGraded:
         return False
-    return serious_challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") == default_time_str or datetime.now(tz=timezone.utc).replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0)
+    return not serious_challenge.hasDueDate or (serious_challenge.hasDueDate and datetime.now(tz=timezone.utc).replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0))
 
 def isWarmUpChallenge(course,student,challenge):
     ''' This will return True/False if the a particular challenge is a warmup challenge'''

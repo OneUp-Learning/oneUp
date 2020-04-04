@@ -18,7 +18,7 @@ import json
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Students.views.calloutsView import call_out_list
-from Instructors.constants import unspecified_topic_name, default_time_str
+from Instructors.constants import unspecified_topic_name
 from Badges.enums import Event
 from Badges.events import register_event, register_event_simple
 from oneUp.settings import DATABASES
@@ -674,8 +674,6 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
         print("topic nameeeeee", topic_obj.topicName)
         course_topics = CoursesTopics.objects.filter(courseID=current_course, topicID=topic_obj)
 
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-
     challenges_list = []
     for crs_t in course_topics:
         challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID, challengeID__isGraded=False)
@@ -684,7 +682,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -782,13 +780,12 @@ def duel_challenge_create(request):
     challenges_list = []
     chall_topics = []
     challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     for chall_t in challenges_topics:
             # if warmup is not available, then skip it
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -997,14 +994,12 @@ def get_create_duel_topics_difficulties(request):
     else:
         challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
        
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-
     for chall_t in challenges_topics:
              # if warmup is not available, then skip it
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :

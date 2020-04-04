@@ -7,7 +7,7 @@ from Instructors.views import challengeListView
 from Badges.models import CourseConfigParams
 from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
-from Instructors.constants import unspecified_topic_name, default_time_str, unlimited_constant
+from Instructors.constants import unspecified_topic_name, unlimited_constant
 from django.contrib.auth.decorators import login_required, user_passes_test
 from decimal import Decimal
 from Badges.tasks import create_due_date_process
@@ -88,7 +88,6 @@ def challengeCreateView(request):
             challenge.challengeDifficulty = request.POST['challengeDifficulty']
         else:
             challenge.challengeDifficulty = ''
-        context_dict['challengeDifficulty'] = challenge.challengeDifficulty
 
         displayCorrectAnswer = str(
             request.POST.get('displayCorrectAnswer', 'false'))
@@ -122,69 +121,51 @@ def challengeCreateView(request):
         if isGraded == str("false"):
             isGraded = ""
         challenge.isGraded = bool(isGraded)
-        context_dict = challengeListView.makeContextDictForChallengeList(
-            context_dict, currentCourse, challenge.isGraded)
 
         # only empty strings return false when converted to boolean
         if isVisible == str("false"):
             isVisible = ""
         challenge.isVisible = bool(isVisible)
-        context_dict = challengeListView.makeContextDictForChallengeList(
-            context_dict, currentCourse, challenge.isVisible)
 
         # only empty strings return false when converted to boolean
         if isRandomized == str("false"):
             isRandomized = ""
         challenge.isRandomized = bool(isRandomized)
-        context_dict = challengeListView.makeContextDictForChallengeList(
-            context_dict, currentCourse, challenge.isRandomized)
 
         if displayCorrectAnswer == str("false"):
             displayCorrectAnswer = ""
         challenge.displayCorrectAnswer = bool(displayCorrectAnswer)
-        context_dict = challengeListView.makeContextDictForChallengeList(
-            context_dict, currentCourse, challenge.displayCorrectAnswer)
 
         if displayCorrectAnswerFeedback == str("false"):
             displayCorrectAnswerFeedback = ""
         challenge.displayCorrectAnswerFeedback = bool(
             displayCorrectAnswerFeedback)
-        context_dict = challengeListView.makeContextDictForChallengeList(
-            context_dict, currentCourse, challenge.displayCorrectAnswerFeedback)
 
         if displayIncorrectAnswerFeedback == str("false"):
             displayIncorrectAnswerFeedback = ""
         challenge.displayIncorrectAnswerFeedback = bool(
             displayIncorrectAnswerFeedback)
-        context_dict = challengeListView.makeContextDictForChallengeList(
-            context_dict, currentCourse, challenge.displayIncorrectAnswerFeedback)
 
-        default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        if(request.POST['startTime'] == ""):
-            challenge.startTimestamp = default_date
-        elif datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p"):
+        try:
             challenge.startTimestamp = localizedDate(
                 request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")
-        else:
-            challenge.startTimestamp = default_date
+            challenge.hasStartTimestamp = True
+        except ValueError:
+            challenge.hasStartTimestamp = False
 
-        # if user does not specify an expiration date, it assigns a default value really far in the future
-        # This assignment statement can be defaulted to the end of the course date if it ever gets implemented
-        if(request.POST['endTime'] == ""):
-            challenge.endTimestamp = default_date
-        elif datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p"):
+        try:
             challenge.endTimestamp = localizedDate(
                 request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")
-        else:
-            challenge.endTimestamp = default_date
+            challenge.hasEndTimestamp = True
+        except ValueError:
+            challenge.hasEndTimestamp = False
 
-        if request.POST['dueDate'] == "":
-            challenge.dueDate = default_date
-        elif datetime.strptime(request.POST['dueDate'], "%m/%d/%Y %I:%M %p"):
+        try:
             challenge.dueDate = localizedDate(
                 request, request.POST['dueDate'], "%m/%d/%Y %I:%M %p")
-        else:
-            challenge.dueDate = default_date
+            challenge.hasDueDate = True
+        except ValueError:
+            challenge.hasDueDate = False
 
         # Number of attempts
         if('unlimitedAttempts' in request.POST):
@@ -220,7 +201,7 @@ def challengeCreateView(request):
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)
 
-        if challenge.dueDate != default_date:
+        if challenge.hasDueDate:
             create_due_date_process(request, challenge.challengeID,
                                     challenge.dueDate, request.session['django_timezone'])
         else:
@@ -269,24 +250,21 @@ def challengeCreateView(request):
             else:
                 context_dict['unlimitedTime'] = False
 
-            startTime = localizedDate(request, str(make_naive(challenge.startTimestamp.replace(
-                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.startTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
-                context_dict['startTimestamp'] = startTime
+            
+            if challenge.hasStartTimestamp:
+                context_dict['startTimestamp'] = localizedDate(request, str(make_naive(challenge.startTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['startTimestamp'] = ""
 
-            endTime = localizedDate(request, str(make_naive(challenge.endTimestamp.replace(
-                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.endTimestamp.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
-                context_dict['endTimestamp'] = endTime
+            
+            if challenge.hasEndTimestamp:
+                context_dict['endTimestamp'] = localizedDate(request, str(make_naive(challenge.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['endTimestamp'] = ""
             # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
-            dueDate = localizedDate(request, str(make_naive(challenge.dueDate.replace(
-                microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
-            if challenge.dueDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
-                context_dict['dueDate'] = dueDate
+            
+            if challenge.hasDueDate:
+                context_dict['dueDate'] = localizedDate(request, str(make_naive(challenge.dueDate.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
             else:
                 context_dict['dueDate'] = ""
 

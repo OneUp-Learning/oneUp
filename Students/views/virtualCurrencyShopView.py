@@ -78,7 +78,6 @@ def virtualCurrencyShopView(request):
         # RULE BASED VC NOT USED
         def getChallengesForEvent(event):
             from Instructors.models import Challenges, ChallengesQuestions, Activities
-            from Instructors.constants import default_time_str
             from Instructors.views.utils import utcDate
             from django.db.models import Q
 
@@ -86,12 +85,11 @@ def virtualCurrencyShopView(request):
             challenges_name = []
 
             if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
-                defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
                 currentTime = utcDate()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(
-                    Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+                    Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
                 activites = Activities.objects.filter(courseID=currentCourse).filter(
-                    Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+                    Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
 
                 for challenge in challenges:
                     studentChallenges = StudentChallenges.objects.filter(
@@ -118,7 +116,6 @@ def virtualCurrencyShopView(request):
         # Gets all the serious challenges and graded activities
         def getChallengesForShop(request):
             from Instructors.models import Challenges, ChallengesQuestions, Activities
-            from Instructors.constants import default_time_str
             from Instructors.views.utils import utcDate, localizedDate
             from django.db.models import Q
             from datetime import datetime
@@ -126,16 +123,13 @@ def virtualCurrencyShopView(request):
             challenges_id = []
             challenges_name = []
 
-            defaultTime = localizedDate(
-                request, default_time_str, "%m/%d/%Y %I:%M %p")
-            print("Default Time: {}".format(defaultTime))
             currentTime = localizedDate(request, str(
                 datetime.utcnow().replace(microsecond=0)), "%Y-%m-%d %H:%M:%S")
             print("Current Time: {}".format(currentTime))
             challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).filter(
-                Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+                Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
             activites = Activities.objects.filter(courseID=currentCourse, isGraded=True).filter(
-                Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime))
+                Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
 
             for challenge in challenges:
                 challQuestions = ChallengesQuestions.objects.filter(

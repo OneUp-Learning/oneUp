@@ -101,6 +101,20 @@
                             </div>
                             <br />
                             {% endif %}
+                            {% if studCanChangeGoal %}
+                            <div class="switch">
+                                <label>
+                                    Display Student Goals
+                                    {% if displayGoal %}
+                                    <input name="displayGoal" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="displayGoal" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
+                            <br />
+                            {% endif %}
                             <div class="switch">
                                 <label>
                                     Dark Theme (applies across courses)

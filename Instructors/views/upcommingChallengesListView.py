@@ -7,7 +7,6 @@ Modified
 '''
 
 from Instructors.models import Challenges
-from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate
 from datetime import datetime
 from django.utils import timezone
@@ -26,7 +25,7 @@ def createContextForUpcommingChallengesList(currentCourse, context_dict):
         if index < 1 and item.isVisible: # Showing first three upcomming assignments
             # Check if current time is within the start and end time of the challenge and that the endtime is not the default for 'unchecked' endtime
             if currentTime > item.startTimestamp:
-                if currentTime < item.dueDate and not datetime.strptime(str(item.dueDate.replace(microsecond=0)), "%Y-%m-%d %H:%M:%S+00:00").strftime("%m/%d/%Y %I:%M %p") == default_time_str:
+                if item.hasDueDate and currentTime < item.dueDate:
                     chall_ID.append(item.challengeID) #pk
                     chall_Name.append(item.challengeName)
                     start_Timestamp.append(item.startTimestamp)

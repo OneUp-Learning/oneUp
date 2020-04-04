@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Topics, CoursesSubTopics
-from Instructors.constants import default_time_str
 from Instructors.views.utils import utcDate, initialContextDict
 from oneUp.decorators import instructorsCheck  
 
@@ -60,9 +59,9 @@ def subTopicsCreateView(request):
 #             subtopic.displayDate = (datetime.datetime.strptime("12/31/2999 11:59:59 PM" ,"%m/%d/%Y %I:%M:%S %p"))
 #         else:
         if datetime.strptime(request.POST['displayDate'], "%m/%d/%Y %I:%M %p"):
-                subtopic.displayDate = utcDate(request.POST['displayDate'], "%m/%d/%Y %I:%M %p")
+            subtopic.displayDate = utcDate(request.POST['displayDate'], "%m/%d/%Y %I:%M %p")
         else:
-                subtopic.displayDate = utcDate(default_time_str,"%m/%d/%Y %I:%M:%S %p")
+            subtopic.displayDate = utcDate()
                               
 
         subtopic.save();  #Save subtopic to database
