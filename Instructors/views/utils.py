@@ -416,6 +416,9 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
 
 
 def datetime_to_local(db_datetime):
+    if timezone.is_naive(db_datetime):
+        db_datetime = timezone.make_aware(db_datetime)
+        
     return timezone.localtime(db_datetime).replace(microsecond=0)
 
 def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
