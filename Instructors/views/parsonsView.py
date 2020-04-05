@@ -374,6 +374,9 @@ def generateIndenation(solution_string):
 #this model solution is used as the problem displayed to student
 #it is called model solution due to historical reasons
 #historical reasons like parsons1 naming the problem model solution
+#the way this works is that we first generate the Indentation off the pristine copy
+#then the pristine copy is modified for display
+#and then the student solves it in the UI to have their solution match the pristine copy
 def getModelSolution(solution_string, distractor_limit):
     formattedCode = {}
     model_solution = []
@@ -411,7 +414,7 @@ def getModelSolution(solution_string, distractor_limit):
             skip_flag = 1
 
             if (difference == -4):
-                #print("-4diff")
+                ##print("-4diff")
                 #if indentation is after the line
                 #example:
                 #data++;
@@ -420,15 +423,19 @@ def getModelSolution(solution_string, distractor_limit):
                 line += next_element
             if (difference == 4):
                 #print("4diff", repr(line))
-                next_element = re.sub("^    ", "", next_element)
+                #print("next element", repr(next_element))
+                next_element = re.sub("^\s{8}", "", next_element)
+                next_element = re.sub("^\s{4}", "", next_element)
+                #print("next element", repr(next_element))
                 #if indentation is before the line
                 #example:
                 #   data++;
                 #index++;
+                #print("line before", repr(line))
+                line = re.sub("\s{12}(?=.*; ##)", "    ", line)
                 line = re.sub("\s{8}(?=.*; ##)", "    ", line)
                 line = re.sub("$", "\n", line)
-                #print("line before", line)
-                #print("line after", line)
+                #print("line after", repr(line))
                 line += next_element
             if(difference == 0):
                 #print("zero diff\n")
