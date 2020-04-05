@@ -318,6 +318,10 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         {% if q.user_answer.answerValue == False %}checked{% else %}disabled="disabled" {% endif %} {% endif %} />
       <label for="{{i}}ans2">False</label>
     </p>
+    {% if hintsUsed %}
+    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{i}}, 0)" type="button" name="{{q.uniqid}}-1">Get Basic Hint</button>
+    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{i}}, 1)" type="button" name="{{q.uniqid}}-1">Get Strong Hint</button>
+    {% endif %}
   </div>
 </div>
 {% if graded or instructorview %}

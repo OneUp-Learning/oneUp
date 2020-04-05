@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 import sys
 
-# GMM import Regular Expression, re
+# GGM import Regular Expression, re
 import re
 import string
 import pytz
@@ -16,6 +16,7 @@ from Instructors.constants import unlimited_constant
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
+from Badges.models import CourseConfigParams
 from Instructors.questionTypes import QuestionTypes, staticQuestionTypesSet, dynamicQuestionTypesSet, questionTypeFunctions
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
@@ -60,7 +61,8 @@ def ChallengeSetup(request):
         attemptId = ''
         if request.POST:
             if request.POST['challengeId']:
-
+                ccp = CourseConfigParams.objects.get(courseID=currentCourse)
+                context_dict['hintsUsed'] = ccp.hintsUsed
                 context_dict['questionTypes'] = QuestionTypes
 
                 challengeId = request.POST['challengeId']

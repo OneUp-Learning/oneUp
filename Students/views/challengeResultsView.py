@@ -338,3 +338,34 @@ def ChallengeResults(request):
             context_dict['ckeditor'] = config_ck_editor()
 
     return render(request, 'Students/ChallengeResults.html', context_dict)
+
+def processHintsForEach(pIDs, item_types):
+    location = 0
+    hintDict = {}
+    for pid in pIDs:
+        hintDict[pid] = item_types[0]
+        location += 1
+
+    print("dictionary" + str(hintDict))
+    return hintDict
+
+@login_required
+def hintsUsed(request):
+    ##this is used to track how many times the student clicks class average
+    ##we use ajax to track the information, otherwise they'd get the page refreshed on them
+    ##and it would be "wrong".
+    from django.http import JsonResponse
+    context_dict, currentCourse = studentInitialContextDict(request)
+
+    hints = {}
+    response = {}
+    #dict['hintsUsed'] = {}
+
+    if request.POST:
+        print("request.post", request.POST)
+        if 'pID' in request.POST:
+            hints = processHintsForEach(request.POST['pID'], request.POST['type'])
+            response['hintsUsed'] = hints
+            context_dict['hintsUsed'] = hints
+            
+    return JsonResponse(response)
