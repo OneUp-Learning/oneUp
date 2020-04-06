@@ -10,7 +10,7 @@ import string
 import pytz
 from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
-from Students.models import DuelChallenges, CalloutParticipants
+from Students.models import DuelChallenges, CalloutParticipants, StudentAnswerHints
 from Instructors.views.utils import utcDate, localizedDate
 from Instructors.constants import unlimited_constant
 from Students.views.utils import studentInitialContextDict
@@ -165,6 +165,7 @@ def ChallengeSetup(request):
             context_dict['attemptId'] = attemptId
             context_dict['question_range'] = zip(
                 range(1, len(questionObjects)+1), qlist)
+            print("contents of the qlist", qlist)
             context_dict['question_ids'] = [i for i in range(1, len(questionObjects)+1)]
 
         register_event(Event.startChallenge, request, None, challengeId)
@@ -172,3 +173,12 @@ def ChallengeSetup(request):
 
         context_dict['ckeditor'] = config_ck_editor()
     return render(request, 'Students/ChallengeSetup.html', context_dict)
+
+#we have to dump out the unused hints:
+#unused hints are defined by hints that do not have a studentchallengeQuestions foreign key attached
+#if we leave them in it causes system instability with garbage data lurking around
+#we must dump any that exist for the user to ensure accurate reporting even if they miss submitting a challenge
+#but they have submitted already some hint requests
+#hints that are used properly have a studentChallengeQuestions foreign key
+def dumpUnusedHints():
+    StudentAnswerHints

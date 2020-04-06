@@ -154,7 +154,7 @@
          var xhttp = new XMLHttpRequest();
          xhttp.open("POST", "/oneUp/students/hintsUsed", true);
          xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-         xhttp.send("pID=" + pID + "&type="+ type +"&csrfmiddlewaretoken={{csrf_token}}");
+         xhttp.send("challengeQuestionID=" + pID + "&type="+ type +"&csrfmiddlewaretoken={{csrf_token}}");
          console.table(xhttp.responseText);
       }
       

@@ -10,7 +10,7 @@ from datetime import datetime
 from Instructors.views.utils import utcDate
 from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
     ChallengesQuestions
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats
+from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats, StudentAnswerHints
 from Students.views.utils import studentInitialContextDict
 from Students.views.duelChallengeView import duel_challenge_evaluate
 from Students.views.calloutsView import evaluator
@@ -177,6 +177,7 @@ def ChallengeResults(request):
                     return render(request, "Students/ChallengeError.html", context_dict)
 
                 questions = sessionDict['questions']
+                #print("questions in sessionDict", questions)
                 context_dict["questionCount"] = len(questions)
                 totalStudentScore = 0
                 totalPossibleScore = 0
@@ -339,15 +340,23 @@ def ChallengeResults(request):
 
     return render(request, 'Students/ChallengeResults.html', context_dict)
 
-def processHintsForEach(pIDs, item_types):
-    location = 0
-    hintDict = {}
-    for pid in pIDs:
-        hintDict[pid] = item_types[0]
-        location += 1
+def processHintsForEach(challengeQuestionsID, typeOfHint, student):
+    #first determine if the hint already exists
+    typeOfHint = int(typeOfHint)
+    studentAnswerHint = StudentAnswerHints.objects.filter(challengeQuestionID=challengeQuestionsID, studentID=student, studentChallengeQuestionID__isnull=True)
 
-    print("dictionary" + str(hintDict))
-    return hintDict
+    if studentAnswerHint.exists():
+        studentAnswerHint = StudentAnswerHints.objects.get(challengeQuestionID=challengeQuestionsID, studentID=student, studentChallengeQuestionID__isnull=True)
+    else:
+        studentAnswerHint = StudentAnswerHints()
+    studentAnswerHint.challengeQuestionID = int(challengeQuestionsID)
+    studentAnswerHint.studentID = student
+    if(typeOfHint == 0):
+        studentAnswerHint.usedBasicHint = True
+    if (typeOfHint == 1):
+        studentAnswerHint.usedStrongHint = True
+    studentAnswerHint.save()
+    return True
 
 @login_required
 def hintsUsed(request):
@@ -362,10 +371,8 @@ def hintsUsed(request):
     #dict['hintsUsed'] = {}
 
     if request.POST:
-        print("request.post", request.POST)
-        if 'pID' in request.POST:
-            hints = processHintsForEach(request.POST['pID'], request.POST['type'])
-            response['hintsUsed'] = hints
-            context_dict['hintsUsed'] = hints
+        student = Student.objects.get(user=request.user)
+        if 'challengeQuestionID' in request.POST:
+            processHintsForEach(request.POST['challengeQuestionID'], request.POST['type'], student)
             
     return JsonResponse(response)
