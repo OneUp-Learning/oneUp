@@ -600,10 +600,10 @@ def gradeParson(qdict, studentAnswerDict):
     student_grade = float(max_available_points) - (float(max_available_points) * float(penalties))
     if student_grade < 0:
         student_grade = 0
-    print("student_grade", student_grade)
-    print("max available points", max_available_points)
-    print("penalties", penalties)
-    print("scaled penalties", float(max_available_points) * float(penalties))
+    # print("student_grade", student_grade)
+    # print("max available points", max_available_points)
+    # print("penalties", penalties)
+    # print("scaled penalties", float(max_available_points) * float(penalties))
     return round(Decimal(student_grade), 2)
 
 #function that cleans the disctractor of the #distractor and of the ☃(snowman) symbol
