@@ -1,5 +1,5 @@
 #
-# Created  updated 10/21/2019
+# Created  updated 04/06/2020
 # GGM
 #
 
@@ -105,7 +105,7 @@ def parsonsForm(request):
            #we are crafting a new answer in this section
            # answer.answerText = request.POST['setupCode']
             
-            answer.answerText = "";
+            answer.answerText = ""
             languageName = request.POST['languageName']
             indentationBoolean = request.POST['indetationBoolean']
             
@@ -514,6 +514,11 @@ def generateStudentSolution(student_solution_JSON, student_trash_JSON, line_dict
 def getCorrectCount(student_hashes, hash_solutions):
     correct_count = 0
     i = 0
+    #******HOW TO******
+    #here is where we determine how many lines the student has entered correctly
+    #the student lines come in as hashes and are compared to the correct solutions(keys)
+    #if it breaks due to undex error we have run out of lines in either student hashes or keys
+
     #print("length of submitted keys", len(student_hashes))
     #print("student keys submitted", student_hashes)
     #print("lengh of hash solutions", len(hash_solutions))
@@ -521,9 +526,9 @@ def getCorrectCount(student_hashes, hash_solutions):
     for key in hash_solutions.keys():
         try:
             #while the range we are in is lower than student hashes
+            #print("student hash", i, key, student_hashes[i])
             if(student_hashes[i] == key):
                 correct_count += 1
-                #print("student hash", i, key, student_hashes[i])
             i += 1
         except IndexError:
             break    
@@ -571,15 +576,18 @@ def gradeParson(qdict, studentAnswerDict):
         penalties += Decimal((student_solution_line_count - correct_lines_in_solution) * (1 / correct_lines_in_solution))
         #print("Penalties too many!: ", penalties)
 
-    #correcnt line count contains the number of correct lines that a student submitted
-    error_count = -(studentAnswerDict['correct_line_count'] - correct_lines_in_solution)
-    penalties += Decimal(error_count * (1 / correct_lines_in_solution))
+    #correct line count contains the number of correct lines that a student submitted
+    error_count = (correct_lines_in_solution - studentAnswerDict['correct_line_count'])
+    penalties += Decimal(error_count * (1 / correct_lines_in_solution) * (1/2))
 
     student_solution_line_count 
     if str2bool(qdict['indentation_flag']):
+        #if the student has gotten a line wrong they shouldn't be penalized for its indentation
+        adjusted_indentation_error_count = len(studentAnswerDict['indentation_errors']) - error_count
         #print("Indentation flag exists", qdict['indentation_flag'])
-        if len(studentAnswerDict['indentation_errors']) > 0:
+        if adjusted_indentation_error_count > 0:
             ##we multiply by 1/2 because each wrong is half of 1/n
+            #print("length of indentation errors", len(studentAnswerDict['indentation_errors']))
             penalties += Decimal((len(studentAnswerDict['indentation_errors']) / correct_lines_in_solution) * (1/2))
             #print("indentation error penalties", penalties, studentAnswerDict['indentation_errors'],  correct_lines_in_solution)
 
@@ -592,9 +600,10 @@ def gradeParson(qdict, studentAnswerDict):
     student_grade = float(max_available_points) - (float(max_available_points) * float(penalties))
     if student_grade < 0:
         student_grade = 0
-    #print("student_grade", student_grade)
-    #print("max available points", max_available_points)
-    #print("penalties", penalties)
+    print("student_grade", student_grade)
+    print("max available points", max_available_points)
+    print("penalties", penalties)
+    print("scaled penalties", float(max_available_points) * float(penalties))
     return round(Decimal(student_grade), 2)
 
 #function that cleans the disctractor of the #distractor and of the ☃(snowman) symbol
@@ -653,7 +662,7 @@ def childFragmentFunction(children, level, line_dictionary, student_hashes, stud
     #print("student hashes, student indentation, student solution string, student solution", student_hashes, student_indentation, student_solution_string, student_solution)
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")    
-# def getDisplayForCKE():
+# def getDisplayForACE():
 #     solution_hashes.append(hash(line))
 #         line_array.update({hash(line):line})
 #         model_solution.append({'line':line, 'hashVal':hash(line)})
