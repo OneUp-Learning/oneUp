@@ -14,7 +14,25 @@
     --ck-image-style-spacing: 1.5em;
     --ck-todo-list-checkmark-size: 16px;
 }
+.ck-content {
+	overflow: overlay;
+	overflow-wrap: break-word;
+}
 
+.ck-content ul {
+    padding-left: 40px !important;
+    list-style-type: disc !important;
+}
+.ck-content ul {
+    padding-left: 40px !important;
+    list-style-type: decimal !important;
+}
+.ck-content ol > li {
+    list-style-type: decimal !important;
+}
+.ck-content ul > li {
+    list-style-type: disc !important;
+}
 /* ckeditor5-image/theme/imageresize.css */
 .ck-content .image.image_resized {
     max-width: 100%;
@@ -135,27 +153,24 @@
     min-width: 15em;
 }
 /* ckeditor5-table/theme/table.css */
-.ck-content .table {
+.ck-content table {
     margin: 1em auto;
     display: table;
-}
-/* ckeditor5-table/theme/table.css */
-.ck-content .table table {
     border-collapse: collapse;
-    border-spacing: 0;
+    border-spacing: 2px;
     width: 100%;
     height: 100%;
     border: 1px double hsl(0, 0%, 70%);
 }
 /* ckeditor5-table/theme/table.css */
-.ck-content .table table td,
-.ck-content .table table th {
+.ck-content  table td,
+.ck-content  table th {
     min-width: 2em;
     padding: .4em;
-    border-color: hsl(0, 0%, 75%);
+    border: 1px double hsl(0, 0%, 75%);
 }
 /* ckeditor5-table/theme/table.css */
-.ck-content .table table th {
+.ck-content  table th {
     font-weight: bold;
     background: hsla(0, 0%, 0%, 5%);
 }

@@ -47,7 +47,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     <h5>Part <b>1</b> of <b>{{q.numParts}}</b></h5>
   </div>
   {% endif %}
-  <div class="ck-view">
+  <div class="ck-content">
     <div id="{{q.uniqid}}-1-exact">
       <div class="darkClassParent">
         <div id="{{q.uniqid}}-1-darkLayer" class="darkClass" style="display:none"></div>
@@ -98,7 +98,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <input name="{{i}}-ans" type="radio" id="{{i}}ans-{{j}}" value="{{j}}" {% if graded %}
         {% if q.user_answer.answerNumber == j %}checked{% else %} disabled {% endif %} {% endif %} />
       <label for="{{i}}ans-{{j}}" style="width: -webkit-fill-available;">
-        <div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div>
+        <div class="ck-content">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div>
       </label>
     </div>
     {% endfor %}
@@ -110,7 +110,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     {% if showcorrect or instructorview %}
     <h5>Correct Answer: </h5>
     <blockquote style="width: -webkit-fill-available;">
-      <div class="ck-view">{{q.correct_answer_text|safe}} </div>
+      <div class="ck-content">{{q.correct_answer_text|safe}} </div>
     </blockquote>
     {% endif %}
     {% if graded %}
@@ -135,7 +135,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         {% for user_answer in q.user_answers %}{% if j == user_answer.answerNumber %}checked{% endif %}{% endfor %}
         disabled {% endif %} />
       <label for="{{i}}ans-{{j}}" style="width: -webkit-fill-available;">
-        <div class="ck-view">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div>
+        <div class="ck-content">{% autoescape off %}{{answer.answerText|safe}} {% endautoescape %}</div>
       </label>
     </div>
     {% endfor %}
@@ -147,7 +147,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     {% if showcorrect or instructorview %}
     <h5>Correct Answer(s): </h5>
     <blockquote style="width: -webkit-fill-available;">
-      <div class="ck-view">
+      <div class="ck-content">
         {% for correct_answer_text in q.correct_answer_texts %}
         {{correct_answer_text|safe}} <br />
         {% endfor %}
