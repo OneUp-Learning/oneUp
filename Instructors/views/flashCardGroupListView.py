@@ -37,7 +37,7 @@ def groupListView(request):
    '''
 
     cgroups = FlashCardGroupCourse.objects.filter(courseID=currentCourse).order_by("groupPos")
-    FlashCardGroup.objects.all().delete()
+    #FlashCardGroup.objects.all().delete()
     for cg in cgroups:
         gId = cg.groupID.groupID
         group = FlashCardGroup.objects.get(groupID=gId)
