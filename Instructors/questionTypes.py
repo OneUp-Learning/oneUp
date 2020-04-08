@@ -697,7 +697,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     wrongPositionLineNumbers = studentAnswerDict['indentation_errors']
     
     qdict['user_points'] = parsonsView.gradeParson(qdict, studentAnswerDict)
-    qdict['student_solution'] = studentAnswerDict['student_solution_string']
+    qdict['student_solution'] = studentAnswerDict['student_solution_string'].rstrip()
     qdict = addFeedback(qdict)
     return qdict
 
@@ -738,7 +738,7 @@ def parsonsCorrectAnswers(qdict):
     answer = ""
     answer = answer.join(tabedanswer)
 
-    qdict['model_solution'] = answer
+    qdict['model_solution'] = answer.rstrip()
     return qdict
 
 def addFeedback(qdict):
