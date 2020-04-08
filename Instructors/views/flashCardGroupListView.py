@@ -34,9 +34,10 @@ def groupListView(request):
         course_group.groupID = unassigned_flashgroup
         course_group.courseID= currentCourse
         course_group.save()
-    '''
+   '''
 
-    cgroups = FlashCardGroupCourse.objects.filter(courseID=currentCourse)
+    cgroups = FlashCardGroupCourse.objects.filter(courseID=currentCourse).order_by("groupPos")
+    FlashCardGroup.objects.all().delete()
     for cg in cgroups:
         gId = cg.groupID.groupID
         group = FlashCardGroup.objects.get(groupID=gId)
@@ -45,17 +46,16 @@ def groupListView(request):
         groupPos.append(cg.groupPos)
 
         cardGroup=FlashCardToGroup.objects.filter(groupID=gId)
-
+        temp=[]
         for card in cardGroup:
-            fId=card.flashID.flashID
-            flashcard=FlashCards.objects.get(flashID=fId)
-            flash_Name.append(flashcard.flashName)
-            flash_ID.append(fId)
+            temp.append(card.flashID)
+            print("****************************",card.flashID)
+        all_cards_in_group.append(temp)
 
     
 
     context_dict['groups']=utils.getGroupForCards(currentCourse,None)
     context_dict['groupsAuto'], context_dict['createdGroups']=utils.autoCompleteGroupsToJson(currentCourse)
-    context_dict['group_range'] = sorted(list(zip(range(1,cgroups.count()+1),groupID,groupName,groupPos)),key=lambda tup: tup[3])
-    context_dict['card_range'] = sorted(list(zip(range(1,cards.count()+1),flashID, flashName)),key=lambda tup: tup[2])
+    context_dict['group_range'] = zip(range(1,cgroups.count()+1),groupID,groupName,groupPos,all_cards_in_group)
+    
     return render(request,'Instructors/flashCardGroupList.html', context_dict)

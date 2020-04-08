@@ -437,7 +437,7 @@ class QuestionLibrary(models.Model):
 
 class FlashCards(models.Model):
     flashID = models.AutoField(primary_key=True)
-    flashName = models.CharField(max_length=500,default='Flashcard') 
+    flashName = models.CharField(max_length=200,default='Flashcard') 
     front = models.CharField(max_length=5000)
     back = models.CharField (max_length=5000)
     def __str__(self):              
