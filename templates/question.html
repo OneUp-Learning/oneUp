@@ -308,6 +308,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 {% elif q.type == questionTypes.trueFalse  %}
 <div class="row">
   <div class="col s12">
+    <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
     <p>
       <input name="{{i}}-ans" type="radio" id="{{i}}ans1" value="t" class="validate" {% if graded %}
         {% if q.user_answer.answerValue == True %}checked{% else %}disabled="disabled" {% endif %} {% endif %} />
@@ -319,8 +320,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <label for="{{i}}ans2">False</label>
     </p>
     {% if hintsUsed %}
-    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" name="{{q.uniqid}}-1">Get Basic Hint</button>
-    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" name="{{q.uniqid}}-1">Get Strong Hint</button>
+    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Basic Hint</button>
+    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
     {% endif %}
   </div>
 </div>

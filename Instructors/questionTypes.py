@@ -7,7 +7,7 @@ from random import shuffle
 from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
-from Students.models import StudentChallengeQuestions
+from Students.models import StudentChallengeQuestions, Student
 from oneUp.settings import BASE_DIR
 
 class QuestionTypes():
@@ -528,6 +528,7 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
 
 def trueFalseMakeAnswerList(qdict, POST):
     answerInputName = str(qdict['index']) + '-ans'
+    obtainStudentHint(POST)
     if answerInputName not in POST:
         return []
     else:
@@ -747,6 +748,11 @@ def addFeedback(qdict):
         qdict['feedback'] = static_question.correctAnswerFeedback
     else:
         qdict['feedback'] = static_question.incorrectAnswerFeedback
+    return qdict
+
+def obtainStudentHint(request):
+    student = Student.objects.get(user=request.user)
+    print("contents of post", request.user, student)
     return qdict
 
 questionTypeFunctions = {

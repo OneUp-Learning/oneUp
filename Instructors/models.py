@@ -92,8 +92,8 @@ class Questions(models.Model):
     type = models.IntegerField(default=0)
     difficulty = models.CharField(max_length=50, default="")
     author = models.CharField(max_length=100, default="")
-    strongHint = models.CharField(max_length=100, default="")
     basicHint = models.CharField(max_length=100, default="") 
+    strongHint = models.CharField(max_length=100, default="")
 #     topicID = models.ForeignKey(Topics, verbose_name="the related topic", db_index=True) 
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              

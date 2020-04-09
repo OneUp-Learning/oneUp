@@ -149,13 +149,41 @@
             });
          }
       });
-      
-      function hintClickedByStudent(pID, type){
-         var xhttp = new XMLHttpRequest();
+
+      function showHint(problemID, type, hint){
+         let previous;
+         switch(type){
+            case 0:
+               previous = document.getElementById(problemID + "-basicButton");
+               hint = "Weak Hint: " + hint;
+               break;
+            case 1:
+               previous = document.getElementById(problemID + "-strongButton");
+               hint = "Strong Hint: " + hint;
+               break;
+         }
+         previous.style.display = "none";
+         let hintTag =  "<p id="+ problemID +"-" + type +">"+hint+"</p>";
+         previous.insertAdjacentHTML('afterEnd', hintTag);
+
+      }
+
+      function hintClickedByStudent(problemID, type){
+         let xhttp = new XMLHttpRequest();
          xhttp.open("POST", "/oneUp/students/hintsUsed", true);
          xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-         xhttp.send("challengeQuestionID=" + pID + "&type="+ type +"&csrfmiddlewaretoken={{csrf_token}}");
-         console.table(xhttp.responseText);
+         xhttp.send("challengeQuestionID=" + problemID + "&type="+ type +"&csrfmiddlewaretoken={{csrf_token}}");
+         xhttp.onreadystatechange = function(){
+            if (xhttp.readyState == 4){
+               let responseText = JSON.parse(xhttp.responseText);
+               let hintID = responseText['hintID'];
+               let hint = responseText['hint'];
+               console.log(hintID);
+               console.log(hint);
+               document.getElementById(problemID).value = hintID;
+               showHint(problemID, type, hint);
+            }
+         }
       }
       
    </script>

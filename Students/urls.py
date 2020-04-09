@@ -19,11 +19,11 @@ from Students.views.challengesListView import ChallengesList
 from Students.views.challengesWarmUpListView import ChallengesWarmUpList
 from Students.views.challengeDescriptionView import ChallengeDescription
 from Students.views.challengeSetupView import ChallengeSetup
-from Students.views.challengeResultsView import ChallengeResults, hintsUsed
+from Students.views.challengeResultsView import ChallengeResults
 from Students.views.challengesTakenView import ChallengesTaken
 from Students.views.courseInfoView import CourseInformation
 from Students.views.coursePerformanceView import CoursePerformance
-
+from Students.views.hintsView import hintsUsed
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
 from Students.views.resetPasswordView import resetPasswordView
