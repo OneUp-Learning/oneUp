@@ -334,7 +334,7 @@ def saveGroupToCards(currentCourse,jsonData,flashID):
         newIDs = [id for id in newGroupsIDs if id not in existingIDs]
 
         # Delete unassigned group from flashcard so flashcard will not show in the unassigned group list
-        unassigned_group = FlashCardToGroup.objects.get(flashID=flashID, groupID__groupName="Unassigned")
+        unassigned_group = FlashCardToGroup.objects.filter(flashID=flashID, groupID__groupName="Unassigned")
         unassigned_group.delete()
 
         for g in groups:

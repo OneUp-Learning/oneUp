@@ -1,7 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render, redirect
 
-from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics, ActivitiesCategory
+from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics, ActivitiesCategory, FlashCardGroupCourse, FlashCardGroup
 from Instructors.constants import uncategorized_activity
 from Badges.models import CourseConfigParams, VirtualCurrencyCustomRuleInfo
 
@@ -259,6 +259,16 @@ def courseCreateView(request):
                 courseTopic.topicID = topic
                 courseTopic.courseID = course
                 courseTopic.save()
+
+                #Add default unassigned group for flash cards
+                unassigned_flashgroup = FlashCardGroup()
+                unassigned_flashgroup.groupName = "Unassigned"
+                unassigned_flashgroup.save()
+
+                course_group = FlashCardGroupCourse()
+                course_group.groupID = unassigned_flashgroup
+                course_group.courseID= course
+                course_group.save()
 
                 # Add a default category
                 defaultActivityCategory = ActivitiesCategory()

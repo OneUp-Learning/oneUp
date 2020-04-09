@@ -23,18 +23,7 @@ def groupListView(request):
 
     flash_ID=[]
     flash_Name=[]
-    '''
-    temp = 1
-    if temp:
-        unassigned_flashgroup = FlashCardGroup()
-        unassigned_flashgroup.groupName = "Unassigned"
-        unassigned_flashgroup.save()
-
-        course_group = FlashCardGroupCourse()
-        course_group.groupID = unassigned_flashgroup
-        course_group.courseID= currentCourse
-        course_group.save()
-   '''
+  
 
     cgroups = FlashCardGroupCourse.objects.filter(courseID=currentCourse).order_by("groupPos")
     #FlashCardGroup.objects.all().delete()
