@@ -380,6 +380,9 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       editor.setTheme("ace/theme/chrome");
       editor.session.setMode("ace/mode/java");
       editor.setReadOnly(true);
+      editor.setOptions({
+        maxLines: Infinity
+      });
     </script>
   </div>
   {% if showcorrect %}
@@ -398,6 +401,9 @@ instructorview - a boolean which reflects whether or not we're in the instructor
         editor.setTheme("ace/theme/chrome");
         editor.session.setMode("ace/mode/java");
         editor.setReadOnly(true);
+        editor.setOptions({
+          maxLines: Infinity
+        });
       </script>
     </div>
   </div>
