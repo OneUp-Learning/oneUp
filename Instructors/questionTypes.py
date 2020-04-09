@@ -4,6 +4,7 @@ import json
 import os
 from decimal import Decimal
 from random import shuffle
+from Badges.models import CourseConfigParams
 from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
@@ -388,6 +389,7 @@ def multipleChoiceAnswersAndGrades(qdict, studentAnswers):
         qdict['user_points'] = qdict['total_points']
     else:
         qdict['user_points'] = 0
+    qdict = setHintDeductions(qdict)
     qdict = addFeedback(qdict)
     return qdict
 
@@ -449,6 +451,7 @@ def multipleAnswerAddAnswersAndGrades(qdict, studentAnswers):
         'answerNumber': i,
         'answerText': x['answerText']
     } for i, x in userAnswers]
+    qdict = setHintDeductions(qdict)
     qdict = addFeedback(qdict)
     return qdict
 
@@ -522,6 +525,7 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
 
     qdict['user_points'] = round(userScore, 2)
     qdict['user_answers'] = userAnswers
+    qdict = setHintDeductions(qdict)
     qdict = addFeedback(qdict)
     return qdict
 
@@ -539,7 +543,6 @@ def trueFalseAddAnswersAndGrades(qdict, studentAnswers):
         questionID=qdict['questionID']).answerID.answerText == "true"
     qdict['correctAnswerText'] = str(correctAnswerValue)
 
-    qdict = obtainStudentHint(qdict)
     if not studentAnswers:
         qdict['user_points'] = 0
         qdict = addFeedback(qdict)
@@ -553,6 +556,7 @@ def trueFalseAddAnswersAndGrades(qdict, studentAnswers):
         qdict['user_points'] = qdict['total_points']
     else:
         qdict['user_points'] = 0
+    qdict = setHintDeductions(qdict)
     qdict = addFeedback(qdict)
     return qdict
 
@@ -699,6 +703,7 @@ def parsonsAddAnswersAndGrades(qdict, studentAnswers):
     
     qdict['user_points'] = parsonsView.gradeParson(qdict, studentAnswerDict)
     qdict['student_solution'] = studentAnswerDict['student_solution_string']
+    qdict = setHintDeductions(qdict)
     qdict = addFeedback(qdict)
     return qdict
 
@@ -750,14 +755,25 @@ def addFeedback(qdict):
         qdict['feedback'] = static_question.incorrectAnswerFeedback
     return qdict
 
-def obtainStudentHint(qdict):
-    hintID = str(qdict['index']) + 'hintID'
-    if(hintID != ''):
-        studentHint = StudentAnswerHints.objects.get(studentAnswerHintsID=hintID)
-        qdict['usedBasicHint'] = studentHint.usedBasicHint
-        qdict['usedStrongHint'] = studentHint.usedStrongHint
-    return qdict
+def getHintDeductions(qdict):
+    challengeQuestion = ChallengesQuestions.objects.get(pk=qdict['challenge_question_id'])
+    ccp = CourseConfigParams.objects.get(courseID=challengeQuestion.challengeID.courseID)
+    basicHintDeduction = Decimal(ccp.weightBasicHint/100)
+    strongHintDeduction = Decimal(ccp.weightStrongHint/100)
+    hintDeductionPercentages = {'basicHint': basicHintDeduction, 'strongHint': strongHintDeduction}
+    return hintDeductionPercentages
+    
 
+def setHintDeductions(qdict):
+    hintDeduction = getHintDeductions(qdict)
+    if('hintID' in qdict and qdict['hintID'] != ''):
+        studentHint = StudentAnswerHints.objects.get(studentAnswerHintsID=qdict['hintID'])
+        if(studentHint.usedBasicHint):
+            qdict['user_points'] -=  round(Decimal(qdict['user_points']) * hintDeduction['basicHint'],2)
+        if(studentHint.usedStrongHint):
+            qdict['user_points'] -= round(Decimal(qdict['user_points']) * hintDeduction['strongHint'],2)
+    return qdict
+    
 questionTypeFunctions = {
     QuestionTypes.multipleChoice: {
         "makeqdict": staticqdict,
