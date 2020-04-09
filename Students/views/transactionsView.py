@@ -112,8 +112,8 @@ def filterTransactions(request):
 def get_new_trasactions_ids_names(course, student):
     '''Filter the newly made transactions so we can record the reasons for the transactions'''
 
-    timestamp_from = timezone.now() - timedelta(seconds=120)
-    timestamp_to = timezone.now() + timedelta(seconds=1200)
+    timestamp_from = timezone.now() - timedelta(seconds=120) # TODO: Use current localtime 
+    timestamp_to = timezone.now() + timedelta(seconds=1200) # TODO: Use current localtime 
     transactions = StudentVirtualCurrencyTransactions.objects.filter(
         student=student, course=course, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
     transactionsNames = [t.name for t in transactions]
@@ -144,8 +144,8 @@ def save_transaction_reason(request):
             transactionID=int(request.POST['id']))
         transaction.transactionReason = request.POST['reason']
         transaction.save()
-        timestamp_from = timezone.now() - timedelta(seconds=6220)
-        timestamp_to = timezone.now() + timedelta(seconds=1200)
+        timestamp_from = timezone.now() - timedelta(seconds=6220) # TODO: Use current localtime 
+        timestamp_to = timezone.now() + timedelta(seconds=1200) # TODO: Use current localtime 
         transactions = StudentVirtualCurrencyTransactions.objects.filter(
             student=transaction.student, course=transaction.course, name=transaction.name, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
         for transaction in transactions:

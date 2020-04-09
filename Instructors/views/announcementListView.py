@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Announcements, Instructors, Courses
-from Instructors.views.utils import localizedDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict, str_datetime_to_local, current_localtime, datetime_to_selected
 from datetime import datetime
 from oneUp.decorators import instructorsCheck   
 from django.utils import timezone
@@ -35,8 +35,12 @@ def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
             start_Timestamp.append(announcement.startTimestamp)
 
             if announcement.hasEndTimestamp: 
-                endTime = timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
-                end_Timestamp.append(announcement.endTimestamp)
+                # For displaying the local datetime in a different format do this
+                endTime = announcement.endTimestamp
+                print(endTime)
+                print(announcement.endTimestamp)
+                print(timezone.localtime(announcement.endTimestamp))
+                end_Timestamp.append(datetime_to_selected(endTime))
             else:
                 end_Timestamp.append("")
             
@@ -74,9 +78,9 @@ def announcementList(request):
 #if the current time exceeds the endTimestamp, the announcement is deleted from the database
 def removeExpired():
     announcements = Announcements.objects.all()
-    currentTime = timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M %p") 
+    currentTime = current_localtime()
     for announcement in announcements:
-        if announcement.hasEndTimestamp and currentTime > timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p"):
+        if announcement.hasEndTimestamp and currentTime > announcement.endTimestamp:
             announcement.delete()
             
     

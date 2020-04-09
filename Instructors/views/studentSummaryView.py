@@ -11,7 +11,7 @@ from Instructors.models import Challenges, Activities
 from Instructors.views.utils import initialContextDict, localizedDate
 from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog
 from Badges.enums import Event
-from Badges.periodicVariables import studentScore, TimePeriods
+from Badges.periodicVariables import studentScore
 from Students.views.avatarView import checkIfAvatarExist
 from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams

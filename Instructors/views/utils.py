@@ -9,7 +9,7 @@ from oneUp.logger import logger
 import json
 import pytz
 from django.utils import timezone
-from datetime import datetime, timezone
+from datetime import datetime
 
 def saveSkills(skillstring, resource, resourceIndicator):
     #if skillstring is not null or empty
@@ -415,14 +415,48 @@ def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
     return dt.replace(tzinfo=timezone.utc)  
 
 
-def datetime_to_local(db_datetime):
+def current_utctime():
+    ''' Return current utc datetime object '''
+    return timezone.now()
+
+def current_localtime(tz=timezone.get_current_timezone()):
+    ''' Returns current local datetime object '''
+    if type(tz) == str:
+        tz = pytz.timezone(tz)
+
+    return timezone.localtime(current_utctime(), timezone=tz)
+
+def datetime_to_local(db_datetime, tz=timezone.get_current_timezone()):
+    ''' Converts datetime object to local '''
+    if not db_datetime:
+        return None
+
     if timezone.is_naive(db_datetime):
         db_datetime = timezone.make_aware(db_datetime)
-        
-    return timezone.localtime(db_datetime).replace(microsecond=0)
 
-def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
-    return datetime_to_local(datetime.strptime(str_datetime, to_format))
+    if type(tz) == str:
+        tz = pytz.timezone(tz)
+        
+    return timezone.localtime(db_datetime, timezone=tz).replace(microsecond=0)
+
+def datetime_to_utc(db_datetime):
+    ''' Converts datetime object to utc '''
+    if not db_datetime:
+        return None
+        
+    return db_datetime.replace(microsecond=0).astimezone(timezone.utc)
+
+def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p", tz=timezone.get_current_timezone()):
+    ''' Converts string datetime to local timezone datetime object '''
+    return datetime_to_local(datetime.strptime(str_datetime, to_format), tz=tz)
+
+def str_datetime_to_utc(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
+    ''' Converts string datetime to utc datetime object '''
+    return datetime_to_utc(datetime.strptime(str_datetime, to_format))
+
+def datetime_to_selected(db_datetime, to_format="%m/%d/%Y %I:%M %p"):
+    ''' Converts datetime object to what was actually selected in the interface '''
+    return timezone.make_naive(db_datetime.replace(microsecond=0)).strftime(to_format)
 
 
 def localizedDate(request, date_str, date_format, timezone=None):

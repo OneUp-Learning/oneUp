@@ -49,14 +49,14 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
         for goal in goals:
             studentGoal_ID.append(goal.studentGoalID) #pk
             student_ID.append(goal.studentID)
-            start_date.append(goal.timestamp.strftime('%m/%d/%y'))
+            start_date.append(goal.timestamp.strftime('%m/%d/%y')) # TODO: Show actual datetime selected ?
             course_ID.append(goal.courseID) 
              
             # if default end date (= unlimited) is stored, we don't want to display it on the webpage  
             
             edit_allowed.append(editGoal(goal.timestamp))
                              
-            endDate = goal.timestamp + timedelta(days=7)
+            endDate = goal.timestamp + timedelta(days=7) # TODO: Convert datetime to local
             end_date.append(endDate.strftime('%m/%d/%y'))           
             #end_date calculation function here            
             goal_Type.append(goalTypeToString(goal.goalType))
@@ -74,7 +74,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
             
             recurring_goal.append("Yes" if goal.recurringGoal else "No")    
             
-            if (utcDate() >= endDate):
+            if (utcDate() >= endDate): # TODO: Use current localtime for utcDate
                 goalRecurrence(goal.recurringGoal, goal.courseID, goal.studentID, goal.goalType, goal.targetedNumber, goal.progressToGoal, endDate)
                 sgi = goal.studentGoalID
                 goal = StudentGoalSetting.objects.get(pk=int(sgi))
@@ -105,7 +105,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
                 
                 recurring_goal.append("Yes" if goal.recurringGoal else "No")
                 
-                if (utcDate() >= endDate):
+                if (utcDate() >= endDate): # TODO: Use current localtime for utcDate
                     index += 1    
       
     # The range part is the index numbers.
@@ -141,7 +141,7 @@ def calculateProgress(initialGoalTarget, goalType, course, student, target):
 def goalStatus(progressPercent, endDate):
     if (progressPercent >= 100):
         return "Completed"
-    elif (utcDate() >= endDate):
+    elif (utcDate() >= endDate): # TODO: Use current localtime for utcDate
         return "Not Achieved"
     else:
         return "In Progress"

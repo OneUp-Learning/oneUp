@@ -27,7 +27,7 @@ def challengesForTopic(request, topic, student, currentCourse):
     isUnlocked = []
     ulockingDescript = []
 
-    currentTime = timezone.now()
+    currentTime = timezone.now() # TODO: Use current localtime
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition").filter(Q(challengeID__startTimestamp__lt=currentTime) | Q(
         challengeID__hasStartTimestamp=False), Q(challengeID__endTimestamp__gt=currentTime) | Q(challengeID__hasEndTimestamp=False))
     if challenge_topics:

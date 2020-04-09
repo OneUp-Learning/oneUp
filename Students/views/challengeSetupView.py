@@ -77,8 +77,8 @@ def ChallengeSetup(request):
                     context_dict['isduration'] = True
                     total_time = duel_challenge.acceptTime + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
-                            minutes=duel_challenge.timeLimit)
-                    remaing_time = total_time-timezone.now()
+                            minutes=duel_challenge.timeLimit) # TODO: convert datetime to local
+                    remaing_time = total_time-timezone.now() # TODO: Use current localtime
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['testDuration'] = difference_minutes
                     context_dict['isDuel'] = True
@@ -90,7 +90,7 @@ def ChallengeSetup(request):
                     context_dict['challengeName'] = call_out_part.calloutID.challengeID.challengeName
                     context_dict['isduration'] = True
                     time_left = (call_out_part.calloutID.endTime -
-                                 timezone.now()).total_seconds() / 60.0
+                                 timezone.now()).total_seconds() / 60.0 # TODO: Use current localtime and convert datetime to local
                     context_dict['testDuration'] = time_left
                     context_dict['isCallout'] = True
                     context_dict['calloutPartID'] = call_out_part_id
@@ -104,7 +104,7 @@ def ChallengeSetup(request):
                     context_dict['isDuel'] = False
 
 
-                starttimestring = timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M:%S %p")
+                starttimestring = timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M:%S %p") # TODO: Use current localtime before format
                 context_dict['startTime'] = starttimestring
 
                 attemptId = 'challenge:'+challengeId + '@' + starttimestring

@@ -8,18 +8,18 @@ from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
 from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
     ChallengesTopics
 from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import current_localtime
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Instructors.constants import unassigned_problems_challenge_name
 from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses, Topics
 import json
-from oneUp.settings import CELERY_ENABLED, DATABASES
+from django.conf import settings
+from django.utils.timezone import get_current_timezone_name
 from Badges.tasks import process_event_offline
-from django.utils import timezone
 
 postgres_enabled = False
-if len([db for (name,db) in DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
+if len([db for (name,db) in settings.DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
     postgres_enabled = True
 transaction_retry_count = 50
 from django.db import transaction, OperationalError
@@ -46,10 +46,14 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     else:
         studentpk = student.pk
 
+    # TODO: As of now, not all places pass in a timezone option
+    if not 'timezone' in mini_req:
+        mini_req['timezone'] = settings.TIMEZONE
+
     # Create event entry and fill in details.
     eventEntry = StudentEventLog()
     eventEntry.event = eventID
-    eventEntry.timestamp = timezone.now() # TODO: Convert timestamp to localtime if being used for filtering
+    eventEntry.timestamp = current_localtime(tz=mini_req['timezone'])
     courseIDint = int(mini_req['currentCourseID'])
     courseId = Courses.objects.get(pk=courseIDint)
     eventEntry.course = courseId
@@ -230,7 +234,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
 
-    if CELERY_ENABLED:
+    if settings.CELERY_ENABLED:
         process_event_offline.delay(eventEntry.pk, mini_req, studentpk, objectId)
     else:
         process_event_actual(eventEntry.pk, mini_req, studentpk, objectId)
@@ -244,6 +248,7 @@ def register_event(eventID, request, student=None, objectId=None):
         minireq = {
             'currentCourseID':request.session['currentCourseID'],
             'user':request.user.username,
+            'timezone': get_current_timezone_name()
         }
         return minireq
 
@@ -263,6 +268,9 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     
     timestampstr = str(eventEntry.timestamp)
     print("Processing Event with timestamp: "+timestampstr)
+
+    
+    timezone = minireq['timezone']
 
     # check for rules which are triggered by this event
     matchingRuleEvents = RuleEvents.objects.filter(rule__courseID=courseId).filter(event=eventEntry.event)
@@ -285,7 +293,7 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
             # rule as is.  That's the simple case because there's no local context.
             if potential.awardFrequency == AwardFrequency.justOnce:
                 if check_condition(condition, courseId, student, eventEntry.objectType, eventEntry.objectID, timestampstr):
-                    fire_action(potential,courseId,student,eventEntry.objectID, timestampstr)
+                    fire_action(potential,courseId,student,eventEntry.objectID, timestampstr, timezone)
             else:            
                 objType = AwardFrequency.awardFrequency[potential.awardFrequency]['objectType']
                 objSpecifier = ChosenObjectSpecifier(objType,potential.objectSpecifier)
@@ -302,7 +310,7 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
                 if result:
                     for objID in objIDList:
                         if check_condition(condition,courseId,student,objType,objID,timestampstr):
-                            fire_action(potential,courseId,student,objID, timestampstr)
+                            fire_action(potential,courseId,student,objID, timestampstr, timezone)
         except Exception as e:
             print('Problem evaluating Rule: '+str(potential)+'  '+str(e))
             pass
@@ -454,10 +462,13 @@ def get_operand_value(operandType,operandValue,course,student,objectType,objectI
     else:
         return "Bad operand type value"
 
-def fire_action(rule,courseID,studentID,objID,timestampstr):
+def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
     print("In Event w/timestamp: "+timestampstr+" In fire_action for rule "+str(rule))
     actionID = rule.actionID
     args = ActionArguments.objects.filter(ruleID = rule)
+
+    current_time = current_localtime(tz=timezone)
+
     if (actionID == Action.giveBadge):
         #Give a student a badge.
         badgeIdArg = args.get(sequenceNumber=1)
@@ -489,7 +500,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                     studentBadge.studentID = studentID
                     studentBadge.badgeID = badge
                     studentBadge.objectID = objID
-                    studentBadge.timestamp = timezone.now()   #Timestamp for badge assignment date # TODO: Convert timestamp to localtime if being used for filtering
+                    studentBadge.timestamp = current_time   #Timestamp for badge assignment date
                     studentBadge.save()
 
                     # Record this trasaction in the log to show that the system awarded this badge
@@ -497,6 +508,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                     studentAddBadgeLog.courseID = courseID
                     log_data = create_badge_vc_log_json("System", studentBadge, "Badge", "Automatic")
                     studentAddBadgeLog.log_data = json.dumps(log_data)
+                    studentAddBadgeLog.timestamp = current_time
                     studentAddBadgeLog.save()
 
                     print("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " just earned badge " + str(badge) + " with argument " + str(badgeIdArg))
@@ -511,6 +523,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         mini_req = {
             'currentCourseID': courseID.pk,
             'user': studentID.user.username,
+            'timezone': timezone
         }
         register_event_simple(Event.badgeEarned, mini_req, studentID, badgeId)
         #Test to make notifications 
@@ -573,6 +586,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                         studVCRec = StudentVirtualCurrencyRuleBased()
                         studVCRec.courseID = courseID
                         studVCRec.studentID = student.studentID
+                        studVCRec.timestamp = current_time
                         if rule.awardFrequency == AwardFrequency.justOnce:
                             studVCRec.objectID = 0
                         else:
@@ -585,6 +599,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                         studentAddBadgeLog.courseID = courseID
                         log_data = create_badge_vc_log_json("System", studVCRec, "VC", "Automatic")
                         studentAddBadgeLog.log_data = json.dumps(log_data)
+                        studentAddBadgeLog.timestamp = current_time
                         studentAddBadgeLog.save()
 
                         print("[TEST4] StudentVirtualCurrencyRuleBased object was saved.")
@@ -611,6 +626,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                     mini_req = {
                         'currentCourseID': courseID.pk,
                         'user': studentID.user.username,
+                        'timezone': timezone
                     }
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, studentID, vcRuleAmount)
                     notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/Transactions'}))

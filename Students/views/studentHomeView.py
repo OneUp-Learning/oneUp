@@ -9,6 +9,7 @@ from Students.models import Student, StudentRegisteredCourses
 from Badges.models import CourseConfigParams
 from datetime import datetime
 from django.utils import timezone
+from Instructors.views.utils import current_localtime, datetime_to_local
 
 
 def StudentHome(request):
@@ -51,11 +52,11 @@ def StudentHome(request):
     reg_crs = StudentRegisteredCourses.objects.filter(studentID=student)
 
     #get today's date
-    today = timezone.localdate()
-    currentTime = timezone.now()
+    currentTime = current_localtime()
+    today = currentTime.date()
     for item in reg_crs:
         course = CourseConfigParams.objects.get(courseID=item.courseID.courseID)
-        if course.courseStartDate <= today and course.courseEndDate >=today:
+        if (course.hasCourseStartDate and course.courseStartDate <= today) and (not course.hasCourseEndDate or course.courseEndDate >= today):
             course_ID.append(item.courseID.courseID) 
             course_Name.append(item.courseID.courseName)
             course_available.append(course.courseAvailable)
@@ -73,10 +74,10 @@ def StudentHome(request):
             # Show upcoming challenges (only one for each course)
             if course_challenges.count() > 0:
                 for c in course_challenges:
-                    if c.isVisible and today < course.courseEndDate: # Showing only visible challenges
+                    if c.isVisible and (not course.hasCourseEndDate or today < course.courseEndDate): # Showing only visible challenges
                         # Check if current time is within the start and end time of the challenge
-                        if currentTime > c.startTimestamp:
-                            if c.hasDueDate and currentTime < c.dueDate:
+                        if c.hasStartTimestamp and currentTime > datetime_to_local(c.startTimestamp):
+                            if c.hasDueDate and currentTime < datetime_to_local(c.dueDate):
                                 chall_ID.append(c.challengeID) #pk
                                 chall_course.append(c.courseID.courseName)
                                 chall_Name.append(c.challengeName)

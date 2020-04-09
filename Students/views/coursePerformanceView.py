@@ -38,8 +38,7 @@ def CoursePerformance(request):
     assignmentFeedback = []
     isExpired = []
 
-    # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-    currentTime = timezone.now()
+    currentTime = timezone.now() # TODO: Use current localtime 
     
     stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(hasTimestamp=False))
     for sa in stud_activities:

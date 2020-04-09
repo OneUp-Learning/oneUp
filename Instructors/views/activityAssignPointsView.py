@@ -68,7 +68,7 @@ def activityAssignPointsView(request):
                     if studentPoints != stud_activity.activityScore:
                         # A score exists and a new score has been assigned.
                         stud_activity.activityScore = studentPoints
-                        stud_activity.timestamp = timezone.localtime(timezone.now())
+                        stud_activity.timestamp = timezone.localtime(timezone.now()) # TODO: Use current localtime
                         print(f'{timezone.get_default_timezone_name()} {timezone.now()}')
                         print(f'{timezone.get_current_timezone_name()} {timezone.localtime(timezone.now())}')
                         print(f'{activity.startTimestamp} {timezone.localtime(activity.startTimestamp)}')

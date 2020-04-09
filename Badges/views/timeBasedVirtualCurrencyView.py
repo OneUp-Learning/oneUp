@@ -80,7 +80,7 @@ def timeBasedVirtualCurrencyView(request):
             periodicVC.timePeriodID = request.POST['timePeriodSelected']
             periodicVC.threshold = request.POST['threshold']
             periodicVC.operatorType = request.POST['operator']
-            periodicVC.lastModified = timezone.now()
+            periodicVC.lastModified = timezone.now() # TODO: Use current localtime
             
             if 'selectors' in request.POST:
                 periodicVC.periodicType = selectorMap[selectors]
@@ -100,11 +100,11 @@ def timeBasedVirtualCurrencyView(request):
             
             # Recreate the Periodic Task based on the type
             if selectors == "TopN":
-                periodicVC.periodicTask = setup_periodic_vc(unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), number_of_top_students=int(periodicVC.numberOfAwards), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
+                periodicVC.periodicTask = setup_periodic_vc(request, unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), number_of_top_students=int(periodicVC.numberOfAwards), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
             elif selectors == "Random":
-                periodicVC.periodicTask = setup_periodic_vc(unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType, is_random=periodicVC.isRandom)
+                periodicVC.periodicTask = setup_periodic_vc(request, unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType, is_random=periodicVC.isRandom)
             else:
-                periodicVC.periodicTask = setup_periodic_vc(unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
+                periodicVC.periodicTask = setup_periodic_vc(request, unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
             periodicVC.save()
 
         return redirect('PeriodicVirtualCurrencyEarnRuleList.html')

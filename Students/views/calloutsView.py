@@ -321,7 +321,7 @@ def callout_create(request):
         callout.courseID = current_course
         callout.sender = student_id
         # Get utc time
-        time = timezone.now()
+        time = timezone.now() # TODO: Use current localtime
         # send time is when the callout is being created
         callout.sendTime = time
         # end time is send time plus a week. Basically the callout expires afte a week
@@ -929,7 +929,7 @@ def callout_description(request):
             calloutID=call_out_id, courseID=current_course)
         context_dict['call_out'] = call_out
 
-        if (call_out.endTime + timedelta(seconds=5)) <= timezone.now():
+        if (call_out.endTime + timedelta(seconds=5)) <= timezone.now(): # TODO: Use current localtime and convert datetime to local
             try:
                 call_out.hasEnded = True
                 call_out.save()
@@ -938,7 +938,7 @@ def callout_description(request):
 
         # get the remaing time before the call out is expired in seconds
         context_dict['time_left'] = (
-            call_out.endTime - timezone.now()).total_seconds()
+            call_out.endTime - timezone.now()).total_seconds() # TODO: Use current localtime and convert datetime to local
 
         # get sender pure challenge higest score without curve and adjustment, and also call out virtual currency
         sender_call_out_stat = CalloutStats.objects.get(
@@ -965,7 +965,7 @@ def callout_description(request):
             studentID__user__id=participant_id, courseID=current_course).avatarImage
         call_out = call_out_participant.calloutID
 
-        if (call_out.endTime + timedelta(seconds=5)) <= timezone.now():
+        if (call_out.endTime + timedelta(seconds=5)) <= timezone.now(): # TODO: Use current localtime and convert datetime to local
             try:
                 call_out.hasEnded = True
                 call_out.save()
@@ -984,7 +984,7 @@ def callout_description(request):
 
         # get the remaing time before the call out is expired in seconds
         context_dict['time_left'] = (
-            call_out.endTime - timezone.now()).total_seconds()
+            call_out.endTime - timezone.now()).total_seconds() # TODO: Use current localtime and convert datetime to local
 
         context_dict = get_details(
             call_out, sender_score, is_sent_call_out, participant_id, context_dict)
@@ -1016,7 +1016,7 @@ def call_out_list(student_id, current_course):
         # else append a string statig this is for the whole class
         else:
             sent_avatars_or_whole_class.append("Whole Class")
-        time_left = (sent_call_out.endTime - timezone.now()).total_seconds() / 60.0
+        time_left = (sent_call_out.endTime - timezone.now()).total_seconds() / 60.0 # TODO: Use current localtime and convert datetime to local
 
         sent_times_left.append(time_left)
 
@@ -1038,7 +1038,7 @@ def call_out_list(student_id, current_course):
     for call_out_participant in call_out_participants:
         requested_call_outs.append(call_out_participant)
         time_left = (call_out_participant.calloutID.endTime -
-                     timezone.now()).total_seconds() / 60.0
+                     timezone.now()).total_seconds() / 60.0 # TODO: Use current localtime and convert datetime to local
 
         requested_times_left.append(time_left)
         sender_avatars.append(StudentRegisteredCourses.objects.get(

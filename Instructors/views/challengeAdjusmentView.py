@@ -87,8 +87,8 @@ def challengeAdjustmentView(request):
                             studentChallenge.bonusPointsAwarded = 0
 
                         studentChallenge.courseID = course
-                        studentChallenge.startTimestamp = timezone.now()
-                        studentChallenge.endTimestamp = timezone.now()
+                        studentChallenge.startTimestamp = timezone.now() # TODO: Use current localtime
+                        studentChallenge.endTimestamp = timezone.now() # TODO: Use current localtime
                         studentChallenge.testScore = 0
                         studentChallenge.save()
 

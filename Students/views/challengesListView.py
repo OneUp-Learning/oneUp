@@ -46,7 +46,7 @@ def ChallengesList(request):
             # TODO: 
             # filtering
             #studentId = Student.objects.filter(user=request.user)
-            currentTime = timezone.now()
+            currentTime = timezone.now() # TODO: Use current localtime
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
@@ -206,7 +206,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
     else:
         optionSelected = 0
 
-    currentTime = timezone.now()
+    currentTime = timezone.now() # TODO: Use current localtime
 
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
     for challID in chall:

@@ -10,7 +10,7 @@ import logging
 from billiard.connection import CHALLENGE
 from django.conf.urls.static import static
 from dateutil.utils import today
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, current_utctime
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -148,7 +148,7 @@ def getDaysBetweenCurrentTimeAndDeadline(challenge):
         Returns the number of days between now and challenge deadline.
     '''
     deadline = challenge.dueDate
-    now = timezone.now()
+    now = current_utctime()
     diff = deadline-now
     return diff.days
 
@@ -633,7 +633,7 @@ def sc_reached_due_date(course, student, serious_challenge):
     '''
     if not serious_challenge.isGraded:
         return False
-    return not serious_challenge.hasDueDate or (serious_challenge.hasDueDate and timezone.localtime(timezone.now()).replace(microsecond=0) >= timezone.localtime(serious_challenge.dueDate).replace(microsecond=0))
+    return not serious_challenge.hasDueDate or (serious_challenge.hasDueDate and current_utctime().replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0))
 
 def isWarmUpChallenge(course,student,challenge):
     ''' This will return True/False if the a particular challenge is a warmup challenge'''
@@ -724,7 +724,7 @@ def getConsecutiveDaysLoggedIn(course,student):
     eventDates = StudentEventLog.objects.filter(student = student, course = course).values('timestamp').order_by('timestamp')
     studentEventDates = eventDates.exclude(event = Event.participationNoted)
     #Convert the days to integers to make them easier to compare
-    dates = list(map(lambda d: timezone.localtime(d['timestamp']).toordinal(),studentEventDates))
+    dates = list(map(lambda d: d['timestamp'].toordinal(),studentEventDates))
     
     previous_day = 0   # This is probably Jan 1, 1 AD and shouldn't match.
     consecutive_days = 0
@@ -759,10 +759,10 @@ def getConsecutiveDaysWarmUpChallengesTaken30Percent(course,student,challenge):
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 30.0:
                 # eventDate = str(event.timestamp
-                print("Time : ", timezone.localdate(event.timestamp))
-                warmUpChallDates.append(timezone.localdate(event.timestamp))  
+                print("Time : ", event.timestamp)
+                warmUpChallDates.append(event.timestamp)  
     # get today's date in utc            
-    today = timezone.now().date()
+    today = current_utctime().date()
     
     # if the student did not take any challenge return 0 as consecutiveDays
     if warmUpChallDates == []:
@@ -819,10 +819,10 @@ def getConsecutiveDaysWarmUpChallengesTaken75Percent(course,student,challenge):
             # if the challenge is not graded then it's a warm up challenge and put in it in the list
             if not chall.isGraded and scorePecentage >= 75.0:
                 # eventDate = str(event.timestamp)
-                print("Time : ", timezone.localdate(event.timestamp))
-                warmUpChallDates.append(timezone.localdate(event.timestamp))  
+                print("Time : ", event.timestamp)
+                warmUpChallDates.append(event.timestamp)  
     # get today's date in utc            
-    today = timezone.now().date()
+    today = current_utctime().date()
     # if the student did not take any challenge return 0 as consecutiveDays
     if warmUpChallDates == []:
         return 0

@@ -19,7 +19,7 @@ from Students.views.utils import studentInitialContextDict
 
 from Students.views.avatarView import checkIfAvatarExist
 
-from Badges.periodicVariables import studentScore, TimePeriods
+from Badges.periodicVariables import studentScore
 
 from Students.views.goalsListView import createContextForGoalsList
 

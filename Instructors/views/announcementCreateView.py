@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from Instructors.models import Announcements, Courses
 from Instructors.views.announcementListView import createContextForAnnouncementList
-from Instructors.views.utils import localizedDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict, str_datetime_to_local, current_localtime, datetime_to_local, datetime_to_selected
 from datetime import datetime
 from notify.signals import notify
 from Students.models import StudentRegisteredCourses
@@ -53,10 +53,10 @@ def announcementCreateView(request):
         
         announcement.courseID = currentCourse 
     
-        announcement.startTimestamp = timezone.localtime(timezone.now())
+        announcement.startTimestamp = current_localtime()
         
         try:
-            announcement.endTimestamp = localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+            announcement.endTimestamp = str_datetime_to_local(request.POST['endTime'])
             announcement.hasEndTimestamp = True
         except ValueError:
             announcement.hasEndTimestamp = False
@@ -83,8 +83,7 @@ def announcementCreateView(request):
                     context_dict[attr]=getattr(announcement,attr)
 
                 if announcement.hasEndTimestamp: 
-                    endTime = timezone.localtime(announcement.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
-                    context_dict['endTimestamp']= endTime
+                    context_dict['endTimestamp']= datetime_to_selected(announcement.endTimestamp)
                 else:
                     context_dict['endTimestamp']= ""
 

@@ -42,14 +42,14 @@ def courseConfigurationView(request):
         logger.debug(request.POST['courseStartDate'])
 
         if 'courseStartDate' in request.POST and request.POST['courseStartDate'] == "":
-            ccparams.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
+            ccparams.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
             ccparams.hasCourseStartDate = True
         else:
             ccparams.hasCourseStartDate = False
             
 
         if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-            ccparams.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
+            ccparams.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
             ccparams.hasCourseEndDate = True
         else:
              ccparams.hasCourseEndDate = False

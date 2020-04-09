@@ -13,7 +13,7 @@ from Students.views import classResults
 from Students.views.utils import studentInitialContextDict
 from Students.models import StudentConfigParams, StudentEventLog
 
-from Badges.periodicVariables import studentScore, TimePeriods
+from Badges.periodicVariables import studentScore
 from Students.views.studentCourseHomeView import progress_bar_data
 from Badges.events import register_event
 from Badges.enums import Event

@@ -18,7 +18,7 @@ from Badges.enums import Goal
 from Badges import systemVariables
 from Students.views.utils import studentInitialContextDict
 from django.template.context_processors import request
-from Badges.periodicVariables import studentScore, TimePeriods
+from Badges.periodicVariables import studentScore
 
 @login_required
  
@@ -51,7 +51,7 @@ def goalCreate(request):
         goal.studentID = context_dict['student'] #get student ID
         goal.goalType = request.POST['goalType']
         goal.targetedNumber = request.POST['targetedNumber']
-        goal.timestamp = utcDate()
+        goal.timestamp = utcDate() # TODO: Use current localtime
         
           
         goal.progressToGoal = goalProgressFxn(goal.goalType, goal.courseID, goal.studentID)  

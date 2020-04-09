@@ -5,7 +5,7 @@ from Instructors.models import Challenges, CoursesTopics, StaticQuestions
 from Instructors.models import ChallengesQuestions, MatchingAnswers
 from Instructors.views import challengeListView
 from Badges.models import CourseConfigParams
-from Instructors.views.utils import localizedDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
+from Instructors.views.utils import localizedDate, str_datetime_to_local, datetime_to_local, datetime_to_selected, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Instructors.constants import unspecified_topic_name, unlimited_constant
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -148,21 +148,20 @@ def challengeCreateView(request):
 
         try:
             challenge.startTimestamp = localizedDate(
-                request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")
+                request, request.POST['startTime'], "%m/%d/%Y %I:%M %p") # TODO: Convert to localtime
             challenge.hasStartTimestamp = True
         except ValueError:
             challenge.hasStartTimestamp = False
 
         try:
             challenge.endTimestamp = localizedDate(
-                request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+                request, request.POST['endTime'], "%m/%d/%Y %I:%M %p") # TODO: Convert to localtime
             challenge.hasEndTimestamp = True
         except ValueError:
             challenge.hasEndTimestamp = False
 
         try:
-            challenge.dueDate = localizedDate(
-                request, request.POST['dueDate'], "%m/%d/%Y %I:%M %p")
+            challenge.dueDate = str_datetime_to_local(request.POST['dueDate']) 
             challenge.hasDueDate = True
         except ValueError:
             challenge.hasDueDate = False
@@ -252,19 +251,19 @@ def challengeCreateView(request):
 
             
             if challenge.hasStartTimestamp:
-                context_dict['startTimestamp'] = timezone.localtime(challenge.startTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
+                context_dict['startTimestamp'] = timezone.localtime(challenge.startTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
             else:
                 context_dict['startTimestamp'] = ""
 
             
             if challenge.hasEndTimestamp:
-                context_dict['endTimestamp'] = timezone.localtime(challenge.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
+                context_dict['endTimestamp'] = timezone.localtime(challenge.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
             else:
                 context_dict['endTimestamp'] = ""
             # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
             
             if challenge.hasDueDate:
-                context_dict['dueDate'] = timezone.localtime(challenge.dueDate).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p")
+                context_dict['dueDate'] = datetime_to_selected(challenge.dueDate)
             else:
                 context_dict['dueDate'] = ""
 
@@ -348,10 +347,10 @@ def challengeCreateView(request):
             context_dict['curve'] = '0'
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
 
-            if ccp.courseStartDate < timezone.localtime(timezone.now()).date():
+            if ccp.courseStartDate < timezone.localtime(timezone.now()).date(): # TODO: Use current localtime
                 context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
                     "%m/%d/%Y %I:%M %p")
-            if ccp.courseEndDate > timezone.localtime(timezone.now()).date():
+            if ccp.courseEndDate > timezone.localtime(timezone.now()).date(): # TODO: Use current localtime
                 context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
                     "%m/%d/%Y %I:%M %p")
                 context_dict['dueDate'] = ccp.courseEndDate.strftime(

@@ -135,9 +135,9 @@ def ChallengeResults(request):
                     context_dict['isWarmUp'] = True
 
                 print("Start Time: "+request.POST['startTime'])
-                startTime = localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p")
+                startTime = localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p") # TODO: convert str datetime to local
                 # end time of the test is the current time when it is navigated to this page
-                endTime = timezone.now()
+                endTime = timezone.now() # TODO: Use current localtime
                 print("End Time:" + endTime.strftime("%m/%d/%Y %I:%M %p"))
 
                 attemptId = 'challenge:'+challengeId + \

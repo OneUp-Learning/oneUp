@@ -4,6 +4,7 @@ Created on Sep 10, 2018
 @author: GGM
 '''
 from django.shortcuts import render
+from django.utils import timezone
 from Instructors.models import Courses
 from Badges.models import LeaderboardsConfig
 from Instructors.views.utils import initialContextDict, CoursesSkills, Skills
@@ -156,7 +157,7 @@ def dynamicLeaderboardView(request):
                     oldPeriodicVariableForLeaderboard.append(leaderboard.periodicVariable)
                 leaderboard.periodicVariable = int(periodicVariableSelected[index])
                 
-                
+            leaderboard.lastModified = timezone.now() # TODO: Use current localtime
             leaderboard.save()
             
             #if we must append because there was a change NOT in name or description
@@ -189,6 +190,7 @@ def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboar
             else:
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboardToOldPeriodicVariableDict[leaderboard], award_type="leaderboard", course=leaderboard.courseID)
             leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
+            leaderboard.lastModified = timezone.now() # TODO: Use current localtime
             leaderboard.save()
 
 def deleteLeaderboardConfigObjects(leaderboards):
@@ -215,6 +217,7 @@ def createXPLeaderboard(currentCourse, request):
     xpLeaderboard.leaderboardName = "XP Leaderboard"
     xpLeaderboard.numStudentsDisplayed = 0
     xpLeaderboard.displayOnCourseHomePage = True
+    xpLeaderboard.lastModified = timezone.now() # TODO: Use current localtime
     xpLeaderboard.save()
     return xpLeaderboard
 def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDisplayedNum, courseID):
@@ -224,7 +227,7 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDispla
         
         Returns list of tuples: [(student, value), (student, value),...]'''
     print(periodicVariable)
-    results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
+    results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID, timezone.get_current_timezone())
     results.sort(key=lambda tup: tup[1], reverse=True)
     results = results[:studentsDisplayedNum]
     results = [(name, score) for name, score in results if score != 0.0 or score != 0]

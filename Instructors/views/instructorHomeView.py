@@ -11,6 +11,7 @@ from datetime import datetime
 from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck    
+from Instructors.views.utils import current_localtime, datetime_to_local
 from django.utils import timezone 
 from django.utils.timezone import make_naive, make_aware
 
@@ -45,7 +46,7 @@ def instructorHome(request):
     due_date = []
       
     num_challenges = 0
-    currentTime = timezone.localtime(timezone.now())
+    currentTime = timezone.localtime(timezone.now()) # TODO: Use current localtime
     # get only the courses of the logged in user        
     reg_crs = InstructorRegisteredCourses.objects.filter(instructorID=request.user)
     
@@ -56,12 +57,12 @@ def instructorHome(request):
         course_challenges = Challenges.objects.filter(courseID=item.courseID, isGraded=True).order_by('dueDate')
 
         ccp = CourseConfigParams.objects.get(courseID = item.courseID.courseID)
-        courseEndDate= make_aware(datetime.combine(ccp.courseEndDate, datetime.min.time()))
+        courseEndDate = ccp.courseEndDate
         
         if not course_announcements.count()==0:
             last_course_announc= course_announcements[0]
             #if our current time is smaller than the course expiry date, we want to add the announcements
-            if currentTime < courseEndDate:
+            if not ccp.hasCourseEndDate or currentTime.date() < courseEndDate:
                 
                 announcement_ID.append(last_course_announc.announcementID)       
                 announcement_course.append(item.courseID.courseName)         
@@ -70,18 +71,18 @@ def instructorHome(request):
                 message.append(last_course_announc.message[:300])
                 num_announcements = num_announcements+1
         if not course_challenges.count() == 0:
-                for c in course_challenges:
-                    if c.isVisible and currentTime < courseEndDate: # Showing only visible challenges
-                        # Check if current time is within the start and end time of the challenge
-                        if currentTime > timezone.localtime(c.startTimestamp):
-                            if c.hasDueDate and currentTime < timezone.localtime(c.dueDate):
-                                chall_ID.append(c.challengeID) #pk
-                                chall_course.append(c.courseID.courseName)
-                                chall_Name.append(c.challengeName)
-                                start_Timestamp.append(c.startTimestamp)
-                                due_date.append(c.dueDate)
-                                num_challenges = num_challenges+1
-                                break
+            for c in course_challenges:
+                if c.isVisible and (not ccp.hasCourseEndDate or currentTime.date() < courseEndDate): # Showing only visible challenges
+                    # Check if current time is within the start and end time of the challenge
+                    if c.hasStartTimestamp and currentTime > datetime_to_local(c.startTimestamp):
+                        if c.hasDueDate and currentTime < datetime_to_local(c.dueDate):
+                            chall_ID.append(c.challengeID) #pk
+                            chall_course.append(c.courseID.courseName)
+                            chall_Name.append(c.challengeName)
+                            start_Timestamp.append(c.startTimestamp)
+                            due_date.append(c.dueDate)
+                            num_challenges = num_challenges+1
+                            break
                         
     # casefold will ignore cases when sorting alphabetically so ('c' becomes before 'T')
     context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name)), key=lambda x: x[2].casefold())

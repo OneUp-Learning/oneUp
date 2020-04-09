@@ -105,7 +105,7 @@ class StudentCourseHomeTest(TestCase, CommonTestCase):
         # Create course config parameters
         ccparams = CourseConfigParams()
         ccparams.courseID = course
-        ccparams.courseStartDate = timezone.now()
+        ccparams.courseStartDate = timezone.now() 
         ccparams.hasCourseStartDate = True
         ccparams.progressBarUsed = True
         ccparams.progressBarGroupUsed = True

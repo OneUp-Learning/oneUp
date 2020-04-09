@@ -143,13 +143,13 @@ def courseCreateView(request):
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
                 if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
-                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
+                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
                     ccp.hasCourseStartDate = True
                 else:
                     ccp.hasCourseStartDate = False
 
                 if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
                     ccp.hasCourseEndDate = True
                 else:
                     ccp.hasCourseEndDate = False
@@ -191,13 +191,13 @@ def courseCreateView(request):
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
                 if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
-                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
+                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
                     ccp.hasCourseStartDate = True
                 else:
                     ccp.hasCourseStartDate = False
 
                 if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
                     ccp.hasCourseEndDate = True
                 else:
                     ccp.hasCourseEndDate = False
@@ -227,12 +227,12 @@ def courseCreateView(request):
                 ccp = CourseConfigParams()
                 ccp.courseID = course
                 if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
-                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y")
+                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
 
                     ccp.hasCourseStartDate = True
 
                 if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
                     ccp.hasCourseEndDate = True
 
                 ccp.save()

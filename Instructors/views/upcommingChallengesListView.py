@@ -7,7 +7,7 @@ Modified
 '''
 
 from Instructors.models import Challenges
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, current_localtime, datetime_to_local
 from datetime import datetime
 from django.utils import timezone
 
@@ -19,13 +19,13 @@ def createContextForUpcommingChallengesList(currentCourse, context_dict):
         
     # Filter challenges to show only Graded(Serious Challenges) and sort by earlier dates first
     challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).order_by('dueDate')
-    currentTime = timezone.localtime(timezone.now())
+    currentTime = current_localtime()
     index = 0
     for item in challenges:
         if index < 1 and item.isVisible: # Showing first three upcomming assignments
             # Check if current time is within the start and end time of the challenge and that the endtime is not the default for 'unchecked' endtime
-            if currentTime > timezone.localtime(item.startTimestamp):
-                if item.hasDueDate and currentTime < timezone.localtime(item.dueDate):
+            if item.hasStartTimestamp and currentTime > datetime_to_local(item.startTimestamp):
+                if item.hasDueDate and currentTime < datetime_to_local(item.dueDate):
                     chall_ID.append(item.challengeID) #pk
                     chall_Name.append(item.challengeName)
                     start_Timestamp.append(item.startTimestamp)
