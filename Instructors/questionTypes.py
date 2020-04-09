@@ -7,7 +7,7 @@ from random import shuffle
 from Instructors.models import Answers, StaticQuestions, MatchingAnswers, DynamicQuestions, CorrectAnswers, ChallengesQuestions, TemplateDynamicQuestions, TemplateTextParts
 
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
-from Students.models import StudentChallengeQuestions, Student
+from Students.models import StudentChallengeQuestions, Student, StudentAnswerHints
 from oneUp.settings import BASE_DIR
 
 class QuestionTypes():
@@ -528,7 +528,6 @@ def matchingAddAnswersAndGrades(qdict, studentAnswers):
 
 def trueFalseMakeAnswerList(qdict, POST):
     answerInputName = str(qdict['index']) + '-ans'
-    obtainStudentHint(POST)
     if answerInputName not in POST:
         return []
     else:
@@ -540,6 +539,7 @@ def trueFalseAddAnswersAndGrades(qdict, studentAnswers):
         questionID=qdict['questionID']).answerID.answerText == "true"
     qdict['correctAnswerText'] = str(correctAnswerValue)
 
+    qdict = obtainStudentHint(qdict)
     if not studentAnswers:
         qdict['user_points'] = 0
         qdict = addFeedback(qdict)
@@ -750,9 +750,12 @@ def addFeedback(qdict):
         qdict['feedback'] = static_question.incorrectAnswerFeedback
     return qdict
 
-def obtainStudentHint(request):
-    student = Student.objects.get(user=request.user)
-    print("contents of post", request.user, student)
+def obtainStudentHint(qdict):
+    hintID = str(qdict['index']) + 'hintID'
+    if(hintID != ''):
+        studentHint = StudentAnswerHints.objects.get(studentAnswerHintsID=hintID)
+        qdict['usedBasicHint'] = studentHint.usedBasicHint
+        qdict['usedStrongHint'] = studentHint.usedStrongHint
     return qdict
 
 questionTypeFunctions = {

@@ -178,8 +178,6 @@
                let responseText = JSON.parse(xhttp.responseText);
                let hintID = responseText['hintID'];
                let hint = responseText['hint'];
-               console.log(hintID);
-               console.log(hint);
                document.getElementById(problemID).value = hintID;
                showHint(problemID, type, hint);
             }

@@ -27,10 +27,8 @@ def hintsUsed(request):
         student = Student.objects.get(user=request.user)
         if 'challengeQuestionID' in request.POST:
             hintType = convertToEnum(request.POST['type'])
-            print("typeOfHint",hintType)
             studentHintObjectID = createStudentHint(request.POST['challengeQuestionID'], hintType, student).studentAnswerHintsID
             hint = obtainHint(request.POST['challengeQuestionID'], hintType)
-            print("resulting hint", hint)
             return JsonResponse( 
                 {
                 "hintID" : studentHintObjectID ,
@@ -59,10 +57,8 @@ def obtainHint(challengeQuestionsID, typeOfHint):
     challengeQuestion = ChallengesQuestions.objects.get(pk=int(challengeQuestionsID))
     question = challengeQuestion.questionID
     if(typeOfHint == HintType.basic):
-        print("basic hint", question.basicHint)
         return question.basicHint
     if(typeOfHint == HintType.strong):
-        print("basic hint", question.strongHint)
         return question.strongHint
 
 def convertToEnum(typeOfHint):

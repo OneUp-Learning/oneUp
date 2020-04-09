@@ -66,6 +66,8 @@ def saveChallengeQuestion(studentChallenge, challenge_question_id, key, ma_point
     #studentChallengeQuestion.instructorFeedback = instructorFeedback
     studentChallengeQuestion.seed = seed
     studentChallengeQuestion.save()
+
+    attachStudentHintToStudentChallenge(studentChallenge.studentID, challenge_question_id, studentChallengeQuestion)
     return studentChallengeQuestion
 
 
@@ -339,3 +341,9 @@ def ChallengeResults(request):
             context_dict['ckeditor'] = config_ck_editor()
 
     return render(request, 'Students/ChallengeResults.html', context_dict)
+
+#we have to attach student hints to the Challenge
+def attachStudentHintToStudentChallenge(studentID, challenge_question_id, student_challenge_question ):
+    studentHint = StudentAnswerHints.object.get(studentID, challenge_question_id)
+    studentHint.studentChallengeQuestionID = student_challenge_question
+    studentHint.save()
