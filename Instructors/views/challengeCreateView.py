@@ -347,14 +347,14 @@ def challengeCreateView(request):
             context_dict['curve'] = '0'
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
 
-            if ccp.courseStartDate < timezone.localtime(timezone.now()).date(): # TODO: Use current localtime
+            if ccp.hasCourseStartDate and ccp.courseStartDate < timezone.localtime(timezone.now()).date(): # TODO: Use current localtime
                 context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
-            if ccp.courseEndDate > timezone.localtime(timezone.now()).date(): # TODO: Use current localtime
+                    "%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
+            if ccp.hasCourseEndDate and ccp.courseEndDate > timezone.localtime(timezone.now()).date(): # TODO: Use current localtime
                 context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
+                    "%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
                 context_dict['dueDate'] = ccp.courseEndDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
+                    "%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
         context_dict['question_range'] = zip(
             range(1, len(questionObjects)+1), qlist)
         # logger.debug("[GET] " + str(context_dict))
