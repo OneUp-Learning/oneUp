@@ -162,7 +162,7 @@ def calculate_xp(student_reg_course, gradeWarmup=False, gradeSerious=False, grad
     for challenge in courseChallenges:
         
         warmupChallenge = StudentChallenges.objects.filter(studentID=studentId, courseID=course,challengeID=challenge)
-        print("Challenge List ", warmupChallenge)
+        #print("Challenge List ", warmupChallenge)
         # Ignore challenges that have invalid total scores
         if warmupChallenge and warmupChallenge[0].challengeID.totalScore < 0:
             continue

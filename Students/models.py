@@ -95,7 +95,7 @@ class StudentChallengeQuestions(models.Model):
     challengeQuestionID = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name="the related challenge_question", db_index=True) 
     questionScore = models.DecimalField(decimal_places=2, max_digits=6)
     questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
-    usedHint = models.BooleanField(default=True)
+    usedHint = models.BooleanField(default=False)
     instructorFeedback = models.CharField(max_length=200)
     seed = models.IntegerField(default=0)
     def __str__(self):              
@@ -105,6 +105,17 @@ class StudentChallengeQuestions(models.Model):
 class StudentChallengeAnswers(models.Model):
     studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question", db_index=True)
     studentAnswer = models.CharField(max_length=10000)
+    def __str__(self):              
+        return str(self.studentChallengeQuestionID) +","+str(self.studentAnswer)
+
+# This table stores the hints per question for a student
+class StudentAnswerHints(models.Model):
+    studentAnswerHintsID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    challengeQuestionID =  models.IntegerField(default=0) #we need to hold it temporarily, we update studentChallengeQuestionID aftwards with the instance
+    usedBasicHint = models.BooleanField(default=False)
+    usedStrongHint = models.BooleanField(default=False)
+    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question hint",null=True)
     def __str__(self):              
         return str(self.studentChallengeQuestionID) +","+str(self.studentAnswer)
 

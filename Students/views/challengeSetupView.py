@@ -5,18 +5,19 @@ import random
 from datetime import datetime, timedelta
 import sys
 
-# GMM import Regular Expression, re
+# GGM import Regular Expression, re
 import re
 import string
 import pytz
 from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
-from Students.models import DuelChallenges, CalloutParticipants
-from Instructors.views.utils import localizedDate, localizedDate
+from Students.models import DuelChallenges, CalloutParticipants, StudentAnswerHints, Student
+from Instructors.views.utils import localizedDate
 from Instructors.constants import unlimited_constant
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
 from Badges.enums import Event
+from Badges.models import CourseConfigParams
 from Instructors.questionTypes import QuestionTypes, staticQuestionTypesSet, dynamicQuestionTypesSet, questionTypeFunctions
 from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
 from Instructors.views.dynamicQuestionView import makeLibs
@@ -61,7 +62,8 @@ def ChallengeSetup(request):
         attemptId = ''
         if request.POST:
             if request.POST['challengeId']:
-
+                ccp = CourseConfigParams.objects.get(courseID=currentCourse)
+                context_dict['hintsUsed'] = ccp.hintsUsed
                 context_dict['questionTypes'] = QuestionTypes
 
                 challengeId = request.POST['challengeId']
@@ -137,7 +139,6 @@ def ChallengeSetup(request):
                 else:
                     challenge_questions = ChallengesQuestions.objects.filter(
                         challengeID=challengeId).order_by("questionPosition")
-                print("Challenge Questions", challenge_questions)
                 for challenge_question in challenge_questions:
                     questionObjects.append(challenge_question)
 
@@ -158,10 +159,26 @@ def ChallengeSetup(request):
             context_dict['attemptId'] = attemptId
             context_dict['question_range'] = zip(
                 range(1, len(questionObjects)+1), qlist)
+            print("contents of the qlist", qlist)
             context_dict['question_ids'] = [i for i in range(1, len(questionObjects)+1)]
 
         register_event(Event.startChallenge, request, None, challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)
 
         context_dict['ckeditor'] = config_ck_editor()
+
+        dumpUnusedHints(Student.objects.get(user=request.user))
     return render(request, 'Students/ChallengeSetup.html', context_dict)
+
+#we have to dump out the unused hints:
+#unused hints are defined by hints that do not have a studentchallengeQuestions foreign key attached
+#if we leave them in it causes system instability with garbage data lurking around
+#we must dump any that exist for the user to ensure accurate reporting even if they miss submitting a challenge
+#but they have submitted already some hint requests
+#hints that are used properly have a studentChallengeQuestions foreign key
+def dumpUnusedHints(student):
+    studentAnswerHints = StudentAnswerHints.objects.filter(studentID=student, studentChallengeQuestionID__isnull=True)
+    if(len(studentAnswerHints) > 0):
+        #dump the hints that didnt get attached to anything
+        for studentAnswerHint in studentAnswerHints:
+            studentAnswerHint.delete()
