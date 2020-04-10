@@ -144,7 +144,6 @@ def ChallengeSetup(request):
                 else:
                     challenge_questions = ChallengesQuestions.objects.filter(
                         challengeID=challengeId).order_by("questionPosition")
-                print("Challenge Questions", challenge_questions)
                 for challenge_question in challenge_questions:
                     questionObjects.append(challenge_question)
 

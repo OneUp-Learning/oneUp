@@ -92,7 +92,8 @@ def basicqdict(question, i, challengeId, challenge_question, studChallQuest):
     ]
     canswer_range = range(1, len(correct_answers) + 1)
     qdict['correct_answers'] = list(zip(canswer_range, correct_answers))
-
+    print("question has ", challenge_question.questionID.isHintUsed)
+    qdict['questionHasHintsEnabled'] = challenge_question.questionID.isHintUsed
     # question_point = ChallengesQuestions.objects.get(pk=challenge_question.pk)
     qdict['point'] = challenge_question.points
     qdict['total_points'] = qdict['point']

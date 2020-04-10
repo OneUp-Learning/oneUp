@@ -92,6 +92,7 @@ class Questions(models.Model):
     type = models.IntegerField(default=0)
     difficulty = models.CharField(max_length=50, default="")
     author = models.CharField(max_length=100, default="")
+    isHintUsed = models.BooleanField(default=False)
     basicHint = models.CharField(max_length=100, default="") 
     strongHint = models.CharField(max_length=100, default="")
 #     topicID = models.ForeignKey(Topics, verbose_name="the related topic", db_index=True) 
