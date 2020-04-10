@@ -216,6 +216,19 @@
                            <div class="col s12">
                               <h5>Hints</h5>
                            </div>
+                           <div class="left-align">
+                              <div class="switch col s12">
+                                 <label>
+                                     Enable Hints
+                                     {% if hintUsed %}
+                                     <input name="hintUsed" type="checkbox" checked>
+                                     {% else %}
+                                     <input name="hintUsed" type="checkbox">
+                                     {% endif %}
+                                     <span class="lever secondary-content"></span>
+                                 </label>
+                             </div>
+                           </div>
                            <div class="input-field col s12">
                               <i class="material-icons prefix">mode_edit</i>
                               <textarea name="basicHint" id="correct_feedback"
