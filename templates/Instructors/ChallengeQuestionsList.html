@@ -137,18 +137,20 @@
                               {{q_preview}}</span>
                            <span class="left-align"
                               style="max-width: 20%;min-width: 20%;">{{q_type_displayName}}</span>
-                           <span class="badge right-align" style="max-width: 20%;min-width: 20%">
-                              {% if unassign %}
-                              <input type="checkbox" name="deletion_checkboxes" id="{{q_ID}}_checkbox"
-                                 value="{{q_ID}}" />
-                              <label for="{{q_ID}}_checkbox">Delete</label>
-                              {% endif %}
-                              {% if q_duplicate.0 %}
-                              <span class="badge right-align" style="max-width: 20%;min-width: 20%" data-position="top"
-                                 data-tooltip="Editing will override duplicates">duplicate</span>
-                              {% endif %}
+                           <span class="badge left-align" style="max-width: 30%;min-width: 30%">
+                           {% if unassign %}
+                              <span class="badge left-align" style="max-width: 20%;min-width: 20%">
+                                 <input type="checkbox" name="deletion_checkboxes" id="{{q_ID}}_checkbox"
+                                    value="{{q_ID}}" />
+                                 <label for="{{q_ID}}_checkbox">Delete</label>
+                              </span>
+                            {% endif %}
+                           {% if q_duplicate.0 %}
+                              <span class= "right-align" style="max-width: 10%;min-width: 10%" data-position="top"
+                                    data-tooltip="Editing will override duplicates">duplicate</span>
+                           {% endif %}
                            </span>
-                           <span class="badge right-align" style="max-width: 10%;min-width: 10%;">
+                              <span class="badge right-align" style="max-width: 4%;min-width: 4%;">
                               <a class="dropdown-button tooltipped secondary-content" href="#!"
                                  data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}'
                                  data-position="right" data-delay="50" data-tooltip="Options"><i
@@ -227,7 +229,7 @@
                   </ul>
                   {% if unassign %}
                   <a id="submit3" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1"><i
-                        class="material-icons right">send</i>Submit Checkboxes</a>
+                        class="material-icons right">send</i>Delete all checked</a>
                   <div id="modal_confirm1" class="modal">
                      <div class="modal-content left-align">
                         <h5>Are you sure you want to submit?</h5>
