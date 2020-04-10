@@ -38,7 +38,7 @@
 										<span class="badge right-align" style="max-width: 5%;min-width: 5%"> {{chall_visible}}</span>
 										<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</span>
 										<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</span>
-										<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if due_date|default_date %} Due at {{due_date|default_date}} {% endif %}</span>
+										<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if due_date %} Due at {{due_date}} {% endif %}</span>
 										<!--<span>
 											<div class="input-field col s12">
 												<input placeholder="Position" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4"
@@ -132,7 +132,7 @@
 												<span class="badge right-align" style="max-width: 5%;min-width: 5%"> {{chall_visible}}</span>
 												<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</span>
 												<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</span>
-												<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if due_date|default_date %} Due at {{due_date|default_date}} {% endif %}</span>
+												<span class="badge right-align" style="max-width: 20%;min-width: 20%"> {% if due_date %} Due at {{due_date}} {% endif %}</span>
 												
 												<span class="badge right-align">
 													<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"

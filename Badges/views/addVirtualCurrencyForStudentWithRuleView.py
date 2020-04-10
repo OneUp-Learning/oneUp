@@ -5,12 +5,11 @@ from Instructors.constants import unspecified_vc_manual_rule_name, unspecified_v
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
 from Badges.systemVariables import logger
-from notify.signals import notify  
+from notify.signals import notify
 import json
 from Badges.events import register_event
 from Badges.enums import Event
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
-
 
 
 @login_required
@@ -18,22 +17,27 @@ def addVirtualCurrencyForStudentWithRuleView(request):
     context_dict, course = initialContextDict(request)
     if 'currentCourseID' in request.session:
         if request.method == 'GET':
-            students = StudentRegisteredCourses.objects.filter(courseID = course).order_by("studentID__user__last_name")
+            students = StudentRegisteredCourses.objects.filter(
+                courseID=course).order_by("studentID__user__last_name")
             studentID = []
-            studentName= []
+            studentName = []
             studentCurrencyVC = []
             test_student_info = []
             for studentobj in students:
                 if studentobj.studentID.isTestStudent:
-                    test_student_info.append((studentobj.studentID, f'(Test Student) {studentobj.studentID.user.get_full_name()}', studentobj.virtualCurrencyAmount))
+                    test_student_info.append(
+                        (studentobj.studentID, f'(Test Student) {studentobj.studentID.user.get_full_name()}', studentobj.virtualCurrencyAmount))
                 else:
                     studentID.append(studentobj.studentID)
-                    studentName.append(studentobj.studentID.user.get_full_name())
+                    studentName.append(
+                        studentobj.studentID.user.get_full_name())
                     studentCurrencyVC.append(studentobj.virtualCurrencyAmount)
-            
-            rules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID = course)
-            customRules = [r for r in rules if not hasattr(r, 'virtualcurrencyruleinfo')]
-            
+
+            rules = VirtualCurrencyCustomRuleInfo.objects.filter(
+                courseID=course)
+            customRules = [r for r in rules if not hasattr(
+                r, 'virtualcurrencyruleinfo')]
+
             allRulesID = []
             allRulesName = []
             allRulesAmount = []
@@ -41,20 +45,24 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 allRulesID.append(rule.vcRuleID)
                 allRulesName.append(rule.vcRuleName)
                 allRulesAmount.append(rule.vcRuleAmount)
-            
+
             # insert the test student info last
-            test_student_info = sorted(test_student_info, key=lambda x: x[1].casefold())
+            test_student_info = sorted(
+                test_student_info, key=lambda x: x[1].casefold())
             for ID, name, vc in test_student_info:
                 studentID.append(ID)
                 studentName.append(name)
                 studentCurrencyVC.append(vc)
 
-            context_dict['students'] = list(zip(studentID, studentName, studentCurrencyVC))#, key=lambda tup: tup[1])
-                                              
-            context_dict['rules'] = list(zip(allRulesID, allRulesName,allRulesAmount))
+            # , key=lambda tup: tup[1])
+            context_dict['students'] = list(
+                zip(studentID, studentName, studentCurrencyVC))
+
+            context_dict['rules'] = list(
+                zip(allRulesID, allRulesName, allRulesAmount))
 
             # Create default manual earning rule if it doesn't exist in this course
-            if not VirtualCurrencyCustomRuleInfo.objects.filter(courseID= course, vcRuleName=unspecified_vc_manual_rule_name, vcRuleAmount=-1, vcRuleType=True).exists():
+            if not VirtualCurrencyCustomRuleInfo.objects.filter(courseID=course, vcRuleName=unspecified_vc_manual_rule_name, vcRuleAmount=-1, vcRuleType=True).exists():
                 manual_earning_rule = VirtualCurrencyCustomRuleInfo()
                 manual_earning_rule.courseID = course
                 manual_earning_rule.vcRuleName = unspecified_vc_manual_rule_name
@@ -67,16 +75,17 @@ def addVirtualCurrencyForStudentWithRuleView(request):
             return render(request, 'Badges/AddVirtualCurrency.html', context_dict)
         elif request.method == 'POST':
             logger.debug(request.POST)
-            students = StudentRegisteredCourses.objects.filter(courseID = course)
-            
+            students = StudentRegisteredCourses.objects.filter(courseID=course)
+
             for studentobj in students:
                 studentValAttribute = str(studentobj.studentID) + '_Value'
                 studentRuleAttribute = str(studentobj.studentID) + '_Rule'
-                accumulative_type = request.POST.get(str(studentobj.studentID) + '_type')
-                
+                accumulative_type = request.POST.get(
+                    str(studentobj.studentID) + '_type')
+
                 if request.POST[studentValAttribute] == '' or request.POST[studentRuleAttribute] == '':
                     continue
-                
+
                 # Virtual currency should be positive
                 vcAmount = int(request.POST[studentValAttribute])
                 if vcAmount < 0:
@@ -86,10 +95,11 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                     studentobj.virtualCurrencyAmount = vcAmount
                 elif accumulative_type == 'combine':
                     studentobj.virtualCurrencyAmount += vcAmount
-                
+
                 studentobj.save()
-                
-                ruleCustom = VirtualCurrencyCustomRuleInfo.objects.get(courseID = course, vcRuleID = int(request.POST[studentRuleAttribute]))
+
+                ruleCustom = VirtualCurrencyCustomRuleInfo.objects.get(
+                    courseID=course, vcRuleID=int(request.POST[studentRuleAttribute]))
                 studentVC = StudentVirtualCurrencyRuleBased()
                 studentVC.courseID = course
                 studentVC.studentID = studentobj.studentID
@@ -97,24 +107,26 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 studentVC.value = vcAmount
                 studentVC.save()
 
-                
                 studentAddBadgeLog = BadgesVCLog()
                 studentAddBadgeLog.courseID = course
                 vc_award_type = "Add" if accumulative_type == 'combine' else "Set"
-                log_data = create_badge_vc_log_json(request.user, studentVC, "VC", "Manual", vc_award_type=vc_award_type)
+                log_data = create_badge_vc_log_json(
+                    request.user, studentVC, "VC", "Manual", vc_award_type=vc_award_type)
                 studentAddBadgeLog.log_data = json.dumps(log_data)
                 studentAddBadgeLog.save()
-                
+
                 virtual_currency_amount = abs(vcAmount)
                 if accumulative_type == 'set':
-                    virtual_currency_amount = abs(prev_amount - studentobj.virtualCurrencyAmount)
+                    virtual_currency_amount = abs(
+                        prev_amount - studentobj.virtualCurrencyAmount)
 
                 if prev_amount > studentobj.virtualCurrencyAmount:
-                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You lost '+str(virtual_currency_amount)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
+                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You lost '+str(virtual_currency_amount)+' course bucks',
+                                nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName), "related_link": '/oneUp/students/Transactions'}))
                 elif prev_amount < studentobj.virtualCurrencyAmount:
-                    register_event(Event.virtualCurrencyEarned, request, studentobj.studentID, objectId=virtual_currency_amount)
-                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You earned '+str(virtual_currency_amount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName)}))
-                
-            
+                    register_event(Event.virtualCurrencyEarned, request,
+                                   studentobj.studentID, objectId=virtual_currency_amount)
+                    notify.send(None, recipient=studentobj.studentID.user, actor=request.user, verb='You earned '+str(virtual_currency_amount)+' course bucks',
+                                nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName), "related_link": '/oneUp/students/Transactions'}))
+
             return redirect('AddVirtualCurrency.html')
-            

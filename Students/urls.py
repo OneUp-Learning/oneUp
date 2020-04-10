@@ -23,7 +23,7 @@ from Students.views.challengeResultsView import ChallengeResults
 from Students.views.challengesTakenView import ChallengesTaken
 from Students.views.courseInfoView import CourseInformation
 from Students.views.coursePerformanceView import CoursePerformance
-
+from Students.views.hintsView import hintsUsed
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
 from Students.views.resetPasswordView import resetPasswordView
@@ -42,6 +42,10 @@ from Students.views.duelChallengeView import callouts_list, duel_challenge_creat
 from Students.views.calloutsView import callout_create, get_class_callout_qualified_challenges, get_individual_callout_qualified_challenges, callout_description
 from Students.views.resetPasswordView import validateResetPassword
 from Students.views.leaderboardInfoView import leaderboardInfoView
+
+from Students.views.goalsListView import goalsList
+from Students.views.goalCreateView import goalCreate
+from Students.views.goalDeleteView import deleteStudentGoal
 
 from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
 
@@ -66,6 +70,7 @@ urlpatterns = [
     url(r'^Announcements', allAnnouncements, name='allAnnouncements'),
     url(r'^ChallengeSetup', ChallengeSetup, name='ChallengeSetup'),
     url(r'^ChallengeResults', ChallengeResults, name='ChallengeResults'),
+    url(r'^hintsUsed', hintsUsed, name='hintsUsed'),
     url(r'^ChallengesTaken', ChallengesTaken, name='ChallengesTaken'),
     url(r'^CourseInformation', CourseInformation, name='CourseInformation'),
     url(r'^CoursePerformance', CoursePerformance, name='CoursePerformance'),
@@ -111,6 +116,9 @@ urlpatterns = [
     url(r'^doDynamicQuestion', dynamicQuestionPartAJAX,
         name="dynamic question engine AJAX"),
     url(r'SaveTransactionReason', save_transaction_reason,
-        name="Save Transaction Reason")
+        name="Save Transaction Reason"),
+    url(r'^GoalsList',goalsList, name='GoalsList'),
+    url(r'^GoalCreate', goalCreate, name='GoalCreate'),
+    url(r'^GoalDelete',deleteStudentGoal, name='GoalDelete'),
 
 ]

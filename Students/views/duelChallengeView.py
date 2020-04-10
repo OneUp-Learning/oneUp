@@ -2,7 +2,7 @@
 Created on Nov 2, 2018
 @author: omar
 '''
-#from Students.models import DuelChallenges
+
 from django.shortcuts import render, redirect
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.utils import utcDate
@@ -18,7 +18,7 @@ import json
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Students.views.calloutsView import call_out_list
-from Instructors.constants import unspecified_topic_name, default_time_str
+from Instructors.constants import unspecified_topic_name
 from Badges.enums import Event
 from Badges.events import register_event, register_event_simple
 from oneUp.settings import DATABASES
@@ -82,10 +82,10 @@ def automatic_evaluator(duel_id, course_id):
             
             # Notify parties
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
             notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                    verb= "Both you and your oppenent have failed to submit the duel, " +duel_challenge.duelChallengeName+", on time. The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
             # reimberse participants if there is betting
             if duel_challenge.isBetting:
@@ -144,7 +144,7 @@ def automatic_evaluator(duel_id, course_id):
                 
                 # Notify winner
                 notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
-                                        verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                        verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                 
                 # Register event that the student has won the duel
                 register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_id)
@@ -185,7 +185,7 @@ def automatic_evaluator(duel_id, course_id):
                 
                 # Notify student about their lost
                 notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
-                                        verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                        verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                 
                 # Register event that the student has lost the duel
                 register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_id)
@@ -232,7 +232,7 @@ def automatic_evaluator(duel_id, course_id):
 
                 # Notify winner
                 notify.send(None, recipient=winner.studentID.user, actor=challenger_challenge.studentID.user,
-                                        verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                        verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                 
                 # Register event that the student has won the duel
                 register_event_simple(Event.duelWon, mini_req, winner.studentID, objectId=duel_id)
@@ -271,7 +271,7 @@ def automatic_evaluator(duel_id, course_id):
                         
                 # Notify student about their lost
                 notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner.studentID,
-                                        verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                        verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
                 # Register event that the student has lost the duel
                 register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_id)
@@ -284,10 +284,10 @@ def automatic_evaluator(duel_id, course_id):
             
                     # Notify parties
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     
                     notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     
                     # Register event that the students has won the duel
                     mini_req1 = {
@@ -376,10 +376,10 @@ def automatic_evaluator(duel_id, course_id):
 
                     # Notify winners
                     notify.send(None, recipient=winner1.user, actor=winner2.user,
-                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
                     notify.send(None, recipient=winner2.user, actor=winner1.user,
-                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
                     # Register event that the students has won the duel
                     mini_req = {
@@ -423,12 +423,12 @@ def automatic_evaluator(duel_id, course_id):
                 register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const))
 
             notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
             register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_id)
 
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
@@ -459,12 +459,12 @@ def automatic_evaluator(duel_id, course_id):
                 register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const))
 
             notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
             register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_id)
 
             notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName)}))
+                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(course_id), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': duel_challenge.challengee.user.username,
@@ -674,8 +674,6 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
         print("topic nameeeeee", topic_obj.topicName)
         course_topics = CoursesTopics.objects.filter(courseID=current_course, topicID=topic_obj)
 
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-
     challenges_list = []
     for crs_t in course_topics:
         challenges_topics = ChallengesTopics.objects.filter(topicID=crs_t.topicID, challengeID__isGraded=False)
@@ -684,7 +682,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -782,13 +780,12 @@ def duel_challenge_create(request):
     challenges_list = []
     chall_topics = []
     challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     for chall_t in challenges_topics:
             # if warmup is not available, then skip it
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -936,20 +933,22 @@ def duel_challenge_create(request):
 
         duel_challenge.save()
 
-        ##################################################################################################################################################
-        # Automatically makes a duel after a week using Celery 
-        expiration_time = utcDate() + timedelta(weeks=1)
-        duel_challenge_expire.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=expiration_time)
-        ##################################################################################################################################################
-
+       
         notify.send(None, recipient=challengee.user, actor=student_id.user,
-                                    verb= 'Someone sent you a duel request named '+duel_name, nf_type='Duel Request', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                    verb= 'Someone sent you a duel request named '+duel_name, nf_type='Duel Request', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID) }), )
         
         mini_req = {
             'currentCourseID': current_course.pk,
             'user': student_id.user.username,
         }
         register_event_simple(Event.duelSent, mini_req, student_id, objectId=duel_challenge.duelChallengeID)
+
+        ##################################################################################################################################################
+        # Automatically makes a duel after a week using Celery 
+        expiration_time = utcDate() + timedelta(weeks=1)
+        duel_challenge_expire.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=expiration_time)
+        ##################################################################################################################################################
+
 
         return redirect('/oneUp/students/Callouts')
     #elif request.GET:
@@ -995,14 +994,12 @@ def get_create_duel_topics_difficulties(request):
     else:
         challenges_topics = ChallengesTopics.objects.filter(challengeID__courseID=current_course, challengeID__isGraded=False)
        
-    default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-
     for chall_t in challenges_topics:
              # if warmup is not available, then skip it
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if chall_t.challengeID.endTimestamp != default_date and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < utcDate() + timedelta(weeks=3):
                 continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :
@@ -1360,7 +1357,7 @@ def duel_challenge_accept(request):
                 duel_challenge.delete()
                 
                 notify.send(None, recipient=duel_challenge.challenger.user, actor=challengee.user,
-                                        verb= "Your opponent does not have enough virtual currency to take the duel " + duel_challenge.duelChallengeName +' at this moment.\n The duel has been deleted and you are reimbursed an amount of '+str(duel_challenge.vcBet)+' virtual currency.', nf_type='Insufficient Virtual Currency', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName)}))
+                                        verb= "Your opponent does not have enough virtual currency to take the duel " + duel_challenge.duelChallengeName +' at this moment.\n The duel has been deleted and you are reimbursed an amount of '+str(duel_challenge.vcBet)+' virtual currency.', nf_type='Insufficient Virtual Currency', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName), "related_link": '/oneUp/students/Callouts'}))
                 
                 return  render(request,'Students/DuelChallengeInsufficientVCForm.html', context_dict)
         
@@ -1412,7 +1409,7 @@ def duel_challenge_accept(request):
 
         # Notify challenger that the challengee has accepted the request
         notify.send(None, recipient=duel_challenge.challenger.user, actor=challengee.user,
-                                    verb= "Your opponent has accepted the duel, " + duel_challenge.duelChallengeName +", request. The duel will start in "+str(duel_challenge.startTime)+" minutes." , nf_type='Request Acceptance', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName)}))           
+                                    verb= "Your opponent has accepted the duel, " + duel_challenge.duelChallengeName +", request. The duel will start in "+str(duel_challenge.startTime)+" minutes." , nf_type='Request Acceptance', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))           
 
         mini_req = {
             'currentCourseID': duel_challenge.courseID.pk,
@@ -1451,10 +1448,10 @@ def duel_challenge_delete(request):
         # if request denied, notify challenger
         if 'denial' in request.GET:
             notify.send(None, recipient=challenger.user, actor=challengee.user,
-                                    verb= "Your opponent has declined your duel," + duel_challenge.duelChallengeName +", request. You are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency." , nf_type='Request denial', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName)}))           
+                                    verb= "Your opponent has declined your duel," + duel_challenge.duelChallengeName +", request. You are reimbursed an amount of "+str(duel_challenge.vcBet)+" virtual currency." , nf_type='Request denial', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName), "related_link": '/oneUp/students/Callouts'}))           
         else:
             notify.send(None, recipient=challengee.user, actor=challenger.user,
-                                    verb= 'The duel, ' + duel_challenge.duelChallengeName +", request has been canceled by opponent." , nf_type='Request Delete', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName)}))           
+                                    verb= 'The duel, ' + duel_challenge.duelChallengeName +", request has been canceled by opponent." , nf_type='Request Delete', extra=json.dumps({"course": str(course_id), "name": str(duel_challenge.courseID.courseName), "related_link": '/oneUp/students/Callouts'}))           
 
         duel_challenge.delete()
         
@@ -1511,7 +1508,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
                 if duel_challenge.challenger == student_id:
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     # Register event that the student has won the duel
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
@@ -1523,7 +1520,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
 
                     notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     # Register event that the student has lost the duel
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
@@ -1534,7 +1531,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 else: 
                         
                     notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challengee.user.username,
@@ -1545,7 +1542,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
 
                     notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challenger.user.username,
@@ -1600,7 +1597,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             
             # Notify winner
             notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
-                                    verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                    verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
@@ -1645,7 +1642,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
             # Notify student about their lost
             notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
-                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
             register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
@@ -1682,7 +1679,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
             # Notify winner
             notify.send(None, recipient=winner_s.user, actor=challenger_challenge.studentID.user,
-                                    verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                    verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
@@ -1727,7 +1724,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                         
             # Notify student about their lost
             notify.send(None, recipient=challenger_challenge.studentID.user, actor=winner_s.user,
-                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                    verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
             register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
@@ -1739,10 +1736,10 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 
                 # Notify parties
                 notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                        verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                        verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                 
                 notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                        verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                        verb= "Both you and your oppenent have failed the duel, " +duel_challenge.duelChallengeName+". The duel has already expired and cannot be taken.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
                 # Register event that the students has won the duel
                 mini_req1 = {
@@ -1831,7 +1828,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
                 # Notify winners
                 notify.send(None, recipient=winner1.user, actor=winner2.user,
-                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
@@ -1843,7 +1840,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 register_event_simple(Event.duelWon, mini_req, winner1, objectId=duel_challenge.duelChallengeID)
 
                 notify.send(None, recipient=winner2.user, actor=winner1.user,
-                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName)}))
+                                            verb= "Congratulations! Both you and your opponent are winners of the duel, " +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
@@ -1853,7 +1850,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
 
                 register_event_simple(Event.duelWon, mini_req, winner2, objectId=duel_challenge.duelChallengeID)
-        print("come to termination")
+        
         duel_challenge.hasEnded = True
         duel_challenge.save()
     

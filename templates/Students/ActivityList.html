@@ -21,7 +21,7 @@
             <div class="row right-align">
             <form name="question"id="actForm" enctype="multipart/form-data" action="/oneUp/students/ActivityList" method="POST">
 	            {% csrf_token %}
-	            <div class="input-field col s4" id="actCats">
+	            <div class="input-field col s6 m4" id="actCats">
 				    <select name="actCat" form="actForm" onchange="this.form.submit()">
 				      <option value="all" name="actCat" selected>All</option>
 				      {% for cat in categories %}

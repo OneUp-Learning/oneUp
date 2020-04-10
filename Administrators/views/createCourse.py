@@ -8,7 +8,7 @@ from Badges.models import CourseConfigParams, VirtualCurrencyCustomRuleInfo
 from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 
-from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, default_time_str, anonymous_avatar, unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
+from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, anonymous_avatar, unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
 from Instructors.views.utils import utcDate
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
@@ -141,18 +141,19 @@ def courseCreateView(request):
                         registered_courses.delete()
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
-                if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-                    ccp.courseStartDate = utcDate()
-                else:
+                if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
                     ccp.courseStartDate = utcDate(
                         request.POST['courseStartDate'], "%B %d, %Y")
-
-                if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-                    ccp.courseEndDate = utcDate(
-                        default_time_str, "%m/%d/%Y %I:%M %p")
+                    ccp.hasCourseStartDate = True
                 else:
+                    ccp.hasCourseStartDate = False
+
+                if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
                     ccp.courseEndDate = utcDate(
                         request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.hasCourseEndDate = True
+                else:
+                    ccp.hasCourseEndDate = False
 
                 ccp.save()
             elif courses:  # The new course name is already chosen
@@ -190,18 +191,19 @@ def courseCreateView(request):
                             registered_courses.delete()
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
-                if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-                    ccp.courseStartDate = utcDate()
-                else:
+                if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
                     ccp.courseStartDate = utcDate(
                         request.POST['courseStartDate'], "%B %d, %Y")
-
-                if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-                    ccp.courseEndDate = utcDate(
-                        default_time_str, "%m/%d/%Y %I:%M %p")
+                    ccp.hasCourseStartDate = True
                 else:
+                    ccp.hasCourseStartDate = False
+
+                if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
                     ccp.courseEndDate = utcDate(
                         request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.hasCourseEndDate = True
+                else:
+                    ccp.hasCourseEndDate = False
 
                 ccp.save()
 
@@ -227,18 +229,16 @@ def courseCreateView(request):
 
                 ccp = CourseConfigParams()
                 ccp.courseID = course
-                if('courseStartDate' in request.POST and request.POST['courseStartDate'] == ""):
-                    ccp.courseStartDate = utcDate()
-                else:
+                if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
                     ccp.courseStartDate = utcDate(
                         request.POST['courseStartDate'], "%B %d, %Y")
 
-                if('courseEndDate' in request.POST and request.POST['courseEndDate'] == ""):
-                    ccp.courseEndDate = utcDate(
-                        default_time_str, "%m/%d/%Y %I:%M %p")
-                else:
+                    ccp.hasCourseStartDate = True
+
+                if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
                     ccp.courseEndDate = utcDate(
                         request.POST['courseEndDate'], "%B %d, %Y")
+                    ccp.hasCourseEndDate = True
 
                 ccp.save()
 
@@ -293,25 +293,32 @@ def courseCreateView(request):
         course = Courses.objects.get(courseID=request.GET['courseID'])
         context_dict['courseName'] = course.courseName
         context_dict['courseDescription'] = course.courseDescription
+
         irc = InstructorRegisteredCourses.objects.filter(
             courseID=request.GET['courseID'])
+
         if irc.exists():
             context_dict['instructorNames'] = [
                 instructor.instructorID.username for instructor in irc]
+
         ccparams = CourseConfigParams.objects.get(
             courseID=request.GET['courseID'])
-        defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
-        if(ccparams.courseStartDate.year < defaultTime.year):
+
+        
+        if(ccparams.hasCourseStartDate):
             context_dict["courseStartDate"] = ccparams.courseStartDate.strftime(
                 "%B %d, %Y")
         else:
             context_dict["courseStartDate"] = ""
-        if(ccparams.courseEndDate.year < defaultTime.year):
+
+        if(ccparams.hasCourseEndDate):
             context_dict["courseEndDate"] = ccparams.courseEndDate.strftime(
                 "%B %d, %Y")
         else:
             context_dict["courseEndDate"] = ""
+
         context_dict['editCourse'] = True
+
     context_dict['view'] = False
     context_dict['ckeditor'] = config_ck_editor()
 

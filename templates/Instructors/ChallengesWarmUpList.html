@@ -4,8 +4,7 @@
 <head>
 	{% include 'scripts.html' %}
 	<meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
   <script>
    $( function() {
 	$( "#sortableTopics" ).sortable({
@@ -220,7 +219,7 @@
 											{% empty %}
 											<li>
 												<td class="center-align" colspan="4">
-													<i>There are warmup challenges for this topic</i>
+													<i>There are no warmup challenges created for this topic</i>
 												</td>
 											</li>
 											{% endfor %}

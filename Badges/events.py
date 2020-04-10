@@ -513,7 +513,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
         }
         register_event_simple(Event.badgeEarned, mini_req, studentID, badgeId)
         #Test to make notifications 
-        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName)}))
+        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/StudentCourseHome'}))
         
         return
     
@@ -612,7 +612,7 @@ def fire_action(rule,courseID,studentID,objID,timestampstr):
                         'user': studentID.user.username,
                     }
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, studentID, vcRuleAmount)
-                    notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName)}))
+                    notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/Transactions'}))
                     print("[TEST7] End. VC earned event registered")
                 except OperationalError as e:
                     if e.__cause__.__class__ == TransactionRollbackError:

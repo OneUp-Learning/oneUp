@@ -10,7 +10,7 @@ from datetime import datetime
 from Instructors.views.utils import utcDate
 from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
     ChallengesQuestions
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats
+from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats, StudentAnswerHints
 from Students.views.utils import studentInitialContextDict
 from Students.views.duelChallengeView import duel_challenge_evaluate
 from Students.views.calloutsView import evaluator
@@ -29,45 +29,6 @@ from decimal import Decimal
 from oneUp.ckeditorUtil import config_ck_editor
 from Students.views.challengeSetupView import remove_old_challenge_session_entries
 from Badges.tasks import refresh_xp
-
-
-def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
-
-    # get all skills to which this question contributes
-    questionSkills = QuestionsSkills.objects.filter(
-        questionID=questionId, courseID=course)
-    if questionSkills:
-        for qskill in questionSkills:
-
-            # check if this question has already been answered and contributed to the skill
-            # qss is all appearances of this question in StudentCourseSkills
-            qss = StudentCourseSkills.objects.filter(studentChallengeQuestionID__questionID__questionID=questionId,
-                                                     studentChallengeQuestionID__studentChallengeID__studentID=studentId, skillID=qskill.skillID)
-
-            if not qss:
-                studentCourseSkills = StudentCourseSkills()
-                studentCourseSkills.studentChallengeQuestionID = studentChallengeQuestion
-                studentCourseSkills.skillID = qskill.skillID
-                studentCourseSkills.skillPoints = qskill.questionSkillPoints
-                studentCourseSkills.save()
-
-    return
-
-
-def saveChallengeQuestion(studentChallenge, challenge_question_id, key, ma_point, c_ques_points, instructorFeedback, seed):
-
-    studentChallengeQuestion = StudentChallengeQuestions()
-    studentChallengeQuestion.studentChallengeID = studentChallenge
-    studentChallengeQuestion.questionID = Questions(key)
-    studentChallengeQuestion.challengeQuestionID = ChallengesQuestions(challenge_question_id)
-    studentChallengeQuestion.questionScore = ma_point
-    studentChallengeQuestion.questionTotal = c_ques_points
-    studentChallengeQuestion.usedHint = "False"
-    #studentChallengeQuestion.instructorFeedback = instructorFeedback
-    studentChallengeQuestion.seed = seed
-    studentChallengeQuestion.save()
-    return studentChallengeQuestion
-
 
 @login_required
 def ChallengeResults(request):
@@ -180,6 +141,7 @@ def ChallengeResults(request):
                 context_dict["questionCount"] = len(questions)
                 totalStudentScore = 0
                 totalPossibleScore = 0
+                questions = placeHintIDIntoQuestionDict(questions, request)
 
                 for question in questions:
                     questionType = question['type']
@@ -190,19 +152,12 @@ def ChallengeResults(request):
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
 
-                    if 'seed' in question:
-                        seed = question['seed']
-                    else:
-                        seed = 0
-
                     # Todo save challenge question instead of question id
-                    studentChallengeQuestion = saveChallengeQuestion(
-                        studentChallenge, question['challenge_question_id'], question['questionID'], question['user_points'], question['total_points'], "", seed)
+                    studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question)
 
                     # Award skills if the answer was correct.
                     if question['user_points'] == question['total_points']:
-                        saveSkillPoints(
-                            question['id'], currentCourse, studentId, studentChallengeQuestion)
+                        saveSkillPoints(question['id'], currentCourse, studentId, studentChallengeQuestion)
 
                     for studentAnswer in studentAnswerList:
                         studentChallengeAnswers = StudentChallengeAnswers()
@@ -338,3 +293,69 @@ def ChallengeResults(request):
             context_dict['ckeditor'] = config_ck_editor()
 
     return render(request, 'Students/ChallengeResults.html', context_dict)
+
+def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
+
+    # get all skills to which this question contributes
+    questionSkills = QuestionsSkills.objects.filter(
+        questionID=questionId, courseID=course)
+    if questionSkills:
+        for qskill in questionSkills:
+
+            # check if this question has already been answered and contributed to the skill
+            # qss is all appearances of this question in StudentCourseSkills
+            qss = StudentCourseSkills.objects.filter(studentChallengeQuestionID__questionID__questionID=questionId,
+                                                     studentChallengeQuestionID__studentChallengeID__studentID=studentId, skillID=qskill.skillID)
+
+            if not qss:
+                studentCourseSkills = StudentCourseSkills()
+                studentCourseSkills.studentChallengeQuestionID = studentChallengeQuestion
+                studentCourseSkills.skillID = qskill.skillID
+                studentCourseSkills.skillPoints = qskill.questionSkillPoints
+                studentCourseSkills.save()
+
+    return
+
+def saveChallengeQuestion(student_challenge, question):
+    if 'seed' in question:
+        seed = question['seed']
+    else:
+        seed = 0
+
+    studentChallengeQuestion = StudentChallengeQuestions()
+    studentChallengeQuestion.studentChallengeID = student_challenge
+    studentChallengeQuestion.questionID = Questions(question['questionID'])
+    studentChallengeQuestion.challengeQuestionID = ChallengesQuestions(question['challenge_question_id'])
+    studentChallengeQuestion.questionScore = question['user_points']
+    studentChallengeQuestion.questionTotal = question['total_points']
+    studentChallengeQuestion.usedHint = "False"
+    studentChallengeQuestion.seed = seed
+    studentChallengeQuestion.save()
+
+    if 'hintID' in question:
+        attachStudentHintToStudentChallenge(student_challenge.studentID, question, studentChallengeQuestion)
+    return studentChallengeQuestion
+
+#we have to attach student hints to the Challenge
+def attachStudentHintToStudentChallenge(studentID, question, student_challenge_question ):
+    studentHintExists = StudentAnswerHints.objects.filter(
+        studentID=studentID, 
+        studentAnswerHintsID=question['hintID'],
+        challengeQuestionID=int(question['challenge_question_id'])
+    ).exists()
+
+    #first check if the student Hint exists or we're going to cause problems
+    if(studentHintExists):
+        studentHint = StudentAnswerHints.objects.get(studentID=studentID, studentAnswerHintsID=question['hintID'], challengeQuestionID=question['challenge_question_id'])
+        studentHint.studentChallengeQuestionID = student_challenge_question
+        studentHint.save()
+    
+def placeHintIDIntoQuestionDict(questions, request):
+    i = 1
+    for question in questions:
+        hintID = str(i)+'hintID'
+        if hintID in request.POST and request.POST[hintID] != '':
+            hintID = request.POST[hintID]
+            question['hintID'] = hintID
+        i += 1
+    return questions

@@ -8,7 +8,7 @@ from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges , ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
 from Instructors.views.utils import utcDate
-from Instructors.constants import default_time_str, unspecified_topic_name, unassigned_problems_challenge_name
+from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
 from django.db.models import Q
 from Badges.enums import ObjectTypes
 from Badges.models import ProgressiveUnlocking
@@ -44,12 +44,11 @@ def ChallengesList(request):
             chall_position = []
 
             #studentId = Student.objects.filter(user=request.user)
-            defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
             currentTime = utcDate()
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
-                challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+                challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True).filter(Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False), Q(endTimestamp__gt=currentTime) | Q(hasEndTimestamp=False))
             grade = []
             gradeLast = []
             gradeFirst = []
@@ -68,11 +67,10 @@ def ChallengesList(request):
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                     if challQuestions:
                         
-                        # if challenge.endTimestamp.strftime("%Y") < ("2900"):
-                        #     challDueDate.append(challenge.endTimestamp)
-                        # else:
-                        #     challDueDate.append("")
-                        challDueDate.append(challenge.dueDate)
+                        if challenge.hasDueDate:
+                            challDueDate.append(challenge.dueDate)
+                        else:
+                            challDueDate.append("")
                     
                         chall_ID.append(challenge.challengeID) #pk
                         chall_Name.append(challenge.challengeName)
@@ -206,7 +204,6 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
     else:
         optionSelected = 0
 
-    defaultTime = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
     currentTime = utcDate()
 
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
@@ -220,7 +217,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
             if not str(user) == str(studentId):
                 condition = Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, courseID=currentCourse)
             else:
-                condition = Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, isVisible=True, courseID=currentCourse).filter(Q(startTimestamp__lt=currentTime) | Q(startTimestamp=defaultTime), Q(endTimestamp__gt=currentTime) | Q(endTimestamp=defaultTime))
+                condition = Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, isVisible=True, courseID=currentCourse).filter(Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False), Q(endTimestamp__gt=currentTime) | Q(hasEndTimestamp=False))
             
             if condition:
                 challenge = challt.challengeID
@@ -228,7 +225,11 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
                     challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
                 
                     if challQuestions:
-                        challDueDate.append(challenge.dueDate)
+                        if challenge.hasDueDate:
+                            challDueDate.append(challenge.dueDate)
+                        else:
+                            challDueDate.append("")
+
                         chall_ID.append(challenge.challengeID) #pk
                         chall_Name.append(challenge.challengeName)
                         chall_position.append(challenge.challengePosition)

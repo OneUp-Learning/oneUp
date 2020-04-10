@@ -14,7 +14,7 @@ from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
 from Instructors.views.instructorHomeView import instructorHome
-from django.utils import timezone
+from django.utils.timezone import now
 
 # Create your models here.
  
@@ -48,9 +48,8 @@ def avatarImageUploadLocation(instance,filename):
 
 #class for Avatar Images
 class UploadedAvatarImage(models.Model):
-        avatarImage = models.FileField(max_length=500,
-                                       upload_to= 'images/uploadedAvatarImages')
-        avatarImageFileName = models.CharField(max_length=200, default='')
+    avatarImage = models.FileField(max_length=500, upload_to= 'images/uploadedAvatarImages')
+    avatarImageFileName = models.CharField(max_length=200, default='')
     
 # Table listing all the students and the respective courses they are currently registered for   
 class StudentRegisteredCourses(models.Model):
@@ -69,8 +68,8 @@ class StudentChallenges(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True, default=1)
     challengeID = models.ForeignKey(Challenges, on_delete=models.CASCADE, verbose_name="the related challenge", db_index=True)
-    startTimestamp = models.DateTimeField()
-    endTimestamp = models.DateTimeField()
+    startTimestamp = models.DateTimeField(default=now)
+    endTimestamp = models.DateTimeField(default=now)
     testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the student
     scoreAdjustment = models.DecimalField(decimal_places=2, max_digits=6, default=0) # Individual adjustment to the score 
     adjustmentReason = models.CharField(max_length=1000,default="")
@@ -96,7 +95,7 @@ class StudentChallengeQuestions(models.Model):
     challengeQuestionID = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name="the related challenge_question", db_index=True) 
     questionScore = models.DecimalField(decimal_places=2, max_digits=6)
     questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
-    usedHint = models.BooleanField(default=True)
+    usedHint = models.BooleanField(default=False)
     instructorFeedback = models.CharField(max_length=200)
     seed = models.IntegerField(default=0)
     def __str__(self):              
@@ -106,6 +105,17 @@ class StudentChallengeQuestions(models.Model):
 class StudentChallengeAnswers(models.Model):
     studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question", db_index=True)
     studentAnswer = models.CharField(max_length=10000)
+    def __str__(self):              
+        return str(self.studentChallengeQuestionID) +","+str(self.studentAnswer)
+
+# This table stores the hints per question for a student
+class StudentAnswerHints(models.Model):
+    studentAnswerHintsID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    challengeQuestionID =  models.IntegerField(default=0) #we need to hold it temporarily, we update studentChallengeQuestionID aftwards with the instance
+    usedBasicHint = models.BooleanField(default=False)
+    usedStrongHint = models.BooleanField(default=False)
+    studentChallengeQuestionID = models.ForeignKey(StudentChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related student_challenge_question hint",null=True)
     def __str__(self):              
         return str(self.studentChallengeQuestionID) +","+str(self.studentAnswer)
 
@@ -139,7 +149,7 @@ class StudentVirtualCurrency(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a virtual currency award
-    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
+    timestamp = models.DateTimeField(default=now) # AV # Timestamp for badge assignment date
     value = models.IntegerField(verbose_name='The amount that was given to the student', default=0)
     vcName = models.CharField(max_length=300, null=True, blank=True)  
     vcDescription = models.CharField(max_length=4000, null=True, blank=True)
@@ -156,7 +166,7 @@ class StudentGoalSetting(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
     goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
-    timestamp = models.DateTimeField(default=timezone.now) # AV # Timestamp for date the goal was created
+    timestamp = models.DateTimeField(default=now) # AV # Timestamp for date the goal was created
     targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
     progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
     recurringGoal = models.BooleanField(verbose_name='A boolean value to indicate whether goal has recurrence.', default=True)
@@ -168,8 +178,11 @@ class StudentActivities(models.Model):
     studentActivityID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     activityID = models.ForeignKey(Activities, on_delete=models.CASCADE, verbose_name="the related activity", db_index=True)
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)      
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)     
+
     timestamp = models.DateTimeField(default= now, verbose_name="Grading Timestamp") # represents when the activity was graded (if it has been)
+    hasTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
+
     activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
     instructorFeedback = models.CharField(max_length=200, default="No feedback yet ")
     bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
@@ -217,7 +230,7 @@ class StudentEventLog(models.Model):
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the student", db_index=True)
     course = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Course in Which event occurred", db_index=True)
     event = models.IntegerField(default=-1,verbose_name="the event which occurred.  Should be a reference to the Event enum", db_index=True)
-    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="timestamp", db_index=True)
+    timestamp = models.DateTimeField(default=now, verbose_name="timestamp", db_index=True)
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum")
     objectID = models.IntegerField(verbose_name="index into the appropriate table")
     
@@ -242,7 +255,7 @@ class StudentVirtualCurrencyTransactions(models.Model):
     noteForStudent = models.CharField(max_length=600)
     instructorNote = models.CharField(max_length=600)
     transactionReason = models.CharField(max_length=600, default="") # Reason for making the transaction
-    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="timestamp", db_index=True, blank=True, null=True)
+    timestamp = models.DateTimeField(default=now, verbose_name="timestamp", db_index=True, blank=True, null=True)
 
     
     def __str__(self):
@@ -289,8 +302,8 @@ class StudentLeaderboardHistory(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     leaderboardPosition = models.IntegerField(default=0) # Position is ranked starting from 1.
-    startTimestamp = models.DateTimeField(auto_now_add=True, verbose_name="Start Timestamp", db_index=True)
-    endTimestamp = models.DateTimeField(null=True, blank=True, verbose_name="End Timestamp", db_index=True)
+    startTimestamp = models.DateTimeField(default=now, verbose_name="Start Timestamp", db_index=True)
+    endTimestamp = models.DateTimeField(default=now, null=True, blank=True, verbose_name="End Timestamp", db_index=True)
 
     def __str__(self):              
         return str(self.id)+", "+str(self.studentID)+", Position: "+str(self.leaderboardPosition)+", Start Timestamp: "+str(self.startTimestamp)+", End Timestamp: "+str(self.endTimestamp)                             
@@ -304,8 +317,8 @@ class DuelChallenges(models.Model):
     vcBet = models.IntegerField(default=0) # the amount of virtual currency being bet
     challenger = models.ForeignKey(Student, related_name='challenger',on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     challengee = models.ForeignKey(Student, related_name='challengee',on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
-    sendTime = models.DateTimeField(auto_now_add=True, verbose_name="Send Timestamp", db_index=True)
-    acceptTime = models.DateTimeField(auto_now_add=True, verbose_name="Accept Timestamp", db_index=True)
+    sendTime = models.DateTimeField(default=now, verbose_name="Send Timestamp", db_index=True)
+    acceptTime = models.DateTimeField(default=now, verbose_name="Accept Timestamp", db_index=True)
     startTime = models.IntegerField(default=1440) # time in minutes, Default 24 hours
     timeLimit = models.IntegerField(default=120)  # time in minutes, Default 1 hour
     customMessage = models.CharField(max_length=6000, default='')
@@ -335,8 +348,8 @@ class Callouts(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     challengeID = models.ForeignKey(Challenges, on_delete=models.CASCADE, verbose_name="the related challenge", db_index=True)
     sender = models.ForeignKey(Student, related_name="sender" ,on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
-    sendTime = models.DateTimeField(auto_now_add=True, verbose_name="Send Timestamp", db_index=True)
-    endTime = models.DateTimeField(verbose_name="End Time", db_index=True)
+    sendTime = models.DateTimeField(default=now, verbose_name="Send Timestamp", db_index=True)
+    endTime = models.DateTimeField(default=now, verbose_name="End Time", db_index=True)
     customMessage = models.CharField(max_length=6000, default='')
     hasEnded = models.BooleanField(default=False) # Indicates whether the callout  has ended
     isIndividual = models.BooleanField() # Indicates whether the callout  is individual if it is true or whole class if it is not true
@@ -360,7 +373,7 @@ class CalloutStats(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     studentChallenge =  models.ForeignKey(StudentChallenges, on_delete=models.CASCADE, verbose_name="the related student challenge", db_index=True)
     calloutVC = models.IntegerField()
-    submitTime = models.DateTimeField(auto_now_add=True, verbose_name="Send Timestamp", db_index=True) # record submit time if there is any submit
+    submitTime = models.DateTimeField(default=now, verbose_name="Send Timestamp", db_index=True) # record submit time if there is any submit
 
     def __str__(self):
         return "calloutID: "+str(self.calloutID)+", studentID: "+str(self.studentID)+", courseID: "+str(self.courseID)+", student challenge: "+str(self.studentChallenge) +", callout vc: "+str(self.calloutID) + ", submit time "+ str(self.submitTime)
@@ -369,7 +382,7 @@ class StudentStreaks(models.Model):
     studentStreakID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
-    streakStartDate = models.DateTimeField(null=True, blank=True, verbose_name="The date the streak reset on")
+    streakStartDate = models.DateTimeField(default=now, null=True, blank=True, verbose_name="The date the streak reset on")
     streakType = models.IntegerField(default=0)
     objectID = models.IntegerField(default=0) #0 badge 1 vc
     currentStudentStreakLength = models.IntegerField(default=0)
@@ -381,7 +394,7 @@ class StudentProgressiveUnlocking(models.Model):
     pUnlockingRuleID = models.ForeignKey(ProgressiveUnlocking, on_delete=models.CASCADE, verbose_name="the progressive unlocking rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
-    timestamp = models.DateTimeField(auto_now_add=True) # AV # Timestamp for badge assignment date
+    timestamp = models.DateTimeField(default=now) # AV # Timestamp for badge assignment date
     isFullfilled = models.BooleanField(verbose_name='Did the student fullfill the unlocking rule', default=False)
     
     def __str__(self):

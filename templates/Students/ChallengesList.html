@@ -23,12 +23,12 @@
                      {% if not ccparams.seriousChallengesGrouped %}
                      <table class="responsive-table">
                         <thead>
-                           <th>Name</th>
-                           <th>Due Date</th>
-                           <th>Score</th>
-                           <th>Remaining Attempts</th>
-                           <th>Adjustment Reason</th>
-                           <th class="secondary-content">
+                           <th style="padding-bottom: .1em;">Name</th>
+                           <th style="padding-bottom: .1em;">Due Date</th>
+                           <th style="padding-bottom: .1em;">Score</th>
+                           <th style="padding-bottom: .1em;">Remaining Attempts</th>
+                           <th style="padding-bottom: .1em;">Adjustment Reason</th>
+                           <th class="secondary-content" style="padding-bottom: .1em;">
                               <a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="top" data-delay="50" data-tooltip="Display"><i class="material-icons" >filter_list</i></a>
                               <ul id='dropdown1' class='dropdown-content'>
                                  <li><a href="/oneUp/students/ChallengesList?ID={{1}}{% if is_teacher %}&userID={{student}}{% endif %}">Latest Score</a></li>
@@ -40,9 +40,9 @@
                         </thead>
                         <tbody>
                            {% for i,chall_ID,chall_Name,grade,numberOfAttempts,adjusmentReason,chall_position, challDueDate, isUnlocked in challenge_range %}
-                           <tr style="padding-bottom: .1em;">
-                                <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
-                                <td style="padding-bottom: .1em;">{{challDueDate|default_date}}</td>
+                           <tr>
+                                <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis; padding-bottom: .1em;">{{chall_Name}}</td>	
+                                <td style="padding-bottom: .1em;">{{challDueDate}}</td>
                                 <td style="padding-bottom: .1em;">{{grade}}</td>
                                 {% if numberOfAttempts == 99999 %}
                                 <td style="padding-bottom: .1em;">Unlimited</td>
@@ -50,29 +50,44 @@
                                 <td style="padding-bottom: .1em;">{{numberOfAttempts}}</td>
                                 {% endif %}		
                                 <td style="padding-bottom: .1em;">{{adjusmentReason}}</td>
-                              {% if isUnlocked.isFullfilled %}
+                              
                               <td class="right-align" style="padding-bottom: .1em;">
+                                 <div class="row" style="margin: 0;">
+                                 {% if isUnlocked.isFullfilled %}
                                  {% if is_teacher %} 
+                                 <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
+                                 </div>
                                  {% else %}
-                                 {% if passed_current_time %}
+                                 {% if challDueDate|passed_current_time %}
+                                 <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
                                  <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                 </div>
                                  {% else %}
+                                 <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
+                                 </div>
                                  {% endif %}
+                                 <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}"><i class="material-icons left">visibility</i>View</a>   
+                                 </div>
                                  {% endif %}
-                              </td>
-                              {% else %}
-                              <td class="right-align" style="padding-bottom: .1em;">
-                                 {% if not is_teacher %}
-                                    <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a> 
-                                    <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
                                  {% else %}
-                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
+                                 {% if not is_teacher %}
+                                    <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                    <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>
+                                    </div>
+                                    <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                    <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a> 
+                                    </div>  
+                                 {% else %}
+                                    <div class="col s12">
+                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a> 
+                                    </div>  
                                  {% endif %}
-                              </td>   
-                              {% endif %}
+                                 {% endif %}
+                                 </div>
+                              </td>
                            </tr>
                            {% empty %}
                            <tr style="padding-bottom: .1em;">
@@ -116,7 +131,7 @@
                                        <input type="hidden" name="challengeID" value="{{chall_ID}}">
                                        <tr>
                                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
-                                             <td>{{challDueDate|default_date}}</td>
+                                             <td>{{challDueDate}}</td>
                                              <td>{{grade}}</td>
                                              {% if numberOfAttempts == 99999 %}
                                              <td>Unlimited</td>
@@ -124,25 +139,45 @@
                                              <td>{{numberOfAttempts}}</td>
                                              {% endif %}		
                                              <td>{{adjusmentReason}}</td>
-                                           {% if isUnlocked.isFullfilled %}
+                                           
                                            <td class="right-align">
-                                              {% if is_teacher %} 
-                                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>   
+                                             <div class="row" style="margin: 0;">
+                                             {% if isUnlocked.isFullfilled %}
+                                             {% if is_teacher %} 
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
+                                                </div>
+                                                {% else %}
+                                                {% if challDueDate|passed_current_time %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                                </div>
+                                                {% else %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
+                                                </div>
+                                                {% endif %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}"><i class="material-icons left">visibility</i>View</a>   
+                                                </div>
+                                                {% endif %}
+
                                               {% else %}
-                                              {% if challDueDate|passed_current_time %}
-                                              <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
-                                              {% else %}
-                                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
+                                              {% if not is_teacher %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>
+                                                </div>
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a> 
+                                                </div>  
+                                             {% else %}
+                                                <div class="col s12">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a> 
+                                                </div>  
+                                             {% endif %}
                                               {% endif %}
-                                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}"><i class="material-icons left">visibility</i>View</a>   
-                                              {% endif %}
+                                              </div>
                                            </td>
-                                           {% else %}
-                                           <td class="right-align">
-                                              <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>   
-                                              <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a>   
-                                           </td>   
-                                           {% endif %}
                                         </tr>
                                         {% empty %}
                                         <tr>

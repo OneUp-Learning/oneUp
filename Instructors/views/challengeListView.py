@@ -7,7 +7,7 @@ Last updated 07/15/2017
 from django.shortcuts import render
 
 from Instructors.models import Courses, Challenges, ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
-from Instructors.constants import  unspecified_topic_name, default_time_str
+from Instructors.constants import  unspecified_topic_name
 from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
@@ -103,18 +103,21 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
             else:
                 chall_visible.append("Not Visible")
                     
-            if item.startTimestamp.strftime("%Y") < ("2900"):
+            if item.hasStartTimestamp:
                 start_Timestamp.append(item.startTimestamp)
             else:
                 start_Timestamp.append("")
             
-            if item.endTimestamp.strftime("%Y") < ("2900"):
-               
+            if item.hasEndTimestamp:
                 end_Timestamp.append(item.endTimestamp)
             else:
                 end_Timestamp.append("")
 
-            chall_due_date.append(item.dueDate)
+            if item.hasDueDate:
+                chall_due_date.append(item.dueDate)
+            else:
+                chall_due_date.append("")
+
                
     # The range part is the index numbers.
     context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[7])  ##,chall_Category
@@ -214,18 +217,20 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                         else:
                             chall_visible.append("Not Visible")
                                 
-                        if item.startTimestamp.strftime("%Y") < ("2900"):
+                        if item.hasStartTimestamp:
                             start_Timestamp.append(item.startTimestamp)
                         else:
                             start_Timestamp.append("")
                         
-                        if item.endTimestamp.strftime("%Y") < ("2900"):
-                        
+                        if item.hasEndTimestamp:
                             end_Timestamp.append(item.endTimestamp)
                         else:
                             end_Timestamp.append("")
 
-                        chall_due_date.append(item.dueDate)
+                        if item.hasDueDate:
+                            chall_due_date.append(item.dueDate)
+                        else:
+                            chall_due_date.append("")
                     
         return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: tup[7])
     else:

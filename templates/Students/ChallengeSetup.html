@@ -29,7 +29,8 @@
    </style>
 
    <script src="/static/ThirdParty/js-parsons-master/lib/prettify.js"></script>
-   <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script>
+   <!-- GGM deleted this because omar included a newer version in scripts, but leaving this as a comment just in case we need it. 
+      Was originally used for old parsons, but other files may rely on it.<script src="https://code.jquery.com/ui/1.8.23/jquery-ui.min.js"></script> -->
    <script src="/static/ThirdParty/js-parsons-master/lib/jquery.ui.touch-punch.min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/underscore-min.js"></script>
    <script src="/static/ThirdParty/js-parsons-master/lib/lis.js"></script>
@@ -149,7 +150,40 @@
             });
          }
       });
-      
+
+      function showHint(problemID, type, hint){
+         let previous;
+         switch(type){
+            case 0:
+               previous = document.getElementById(problemID + "-basicButton");
+               hint = "Weak Hint: " + hint;
+               break;
+            case 1:
+               previous = document.getElementById(problemID + "-strongButton");
+               hint = "Strong Hint: " + hint;
+               break;
+         }
+         previous.style.display = "none";
+         let hintTag =  "<p id="+ problemID +"-" + type +">"+hint+"</p>";
+         previous.insertAdjacentHTML('afterEnd', hintTag);
+
+      }
+
+      function hintClickedByStudent(problemID, type){
+         let xhttp = new XMLHttpRequest();
+         xhttp.open("POST", "/oneUp/students/hintsUsed", true);
+         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+         xhttp.send("challengeQuestionID=" + problemID + "&type="+ type +"&csrfmiddlewaretoken={{csrf_token}}");
+         xhttp.onreadystatechange = function(){
+            if (xhttp.readyState == 4){
+               let responseText = JSON.parse(xhttp.responseText);
+               let hintID = responseText['hintID'];
+               let hint = responseText['hint'];
+               document.getElementById(problemID).value = hintID;
+               showHint(problemID, type, hint);
+            }
+         }
+      }
       
    </script>
 </head>

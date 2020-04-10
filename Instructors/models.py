@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 from django.template.defaultfilters import default
 from datetime import datetime
 from django.utils.timezone import now
-from Instructors.constants import uncategorized_activity, default_time_str
 
 from django.conf.global_settings import MEDIA_URL
 from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
@@ -39,10 +38,9 @@ class Instructors(models.Model):
         
 class Courses(models.Model):
     courseID = models.AutoField(primary_key=True)
-     #instrucorID = models.ForeignKey(InstructorInfo, verbose_name="the related instructor", db_index=True) 
     courseName = models.CharField(max_length=75)
-    courseDescription=models.CharField(max_length=2000, default="")
-   #semester = models.CharField(max_length=75) 
+    courseDescription = models.CharField(max_length=2000, default="")
+
     def __str__(self):              
         return self.courseName
 
@@ -53,7 +51,7 @@ class Universities(models.Model):
     universityTimezone = models.CharField(max_length=100, default="America/New_York")
    
     def __str__(self):              
-        return str(self.universityID) +", "+ self.universityName  +", "+ self.universityDescription  
+        return f"{self.universityID} - {self.universityName} - {self.universityDescription} - {self.universityTimezone}"
 
 class UniversityCourses(models.Model):
     universityCourseID = models.AutoField(primary_key=True)
@@ -68,22 +66,6 @@ class InstructorRegisteredCourses(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     def __str__(self):
         return str(self.instructorID) + "," + str(self.courseID)
-    
-    
-       
-#class Difficulty(models.Model):
-    #difficultyID = models.AutoField(primary_key=True)
-    #difficulty = models.CharField(max_length=75, default="")
-    #def __str__(self):              
-        #return str(self.difficulty)
-
-    
-# class Topics(models.Model):
-#     topicID = models.AutoField(primary_key=True)
-#     topicName = models.CharField(max_length=75)
-#     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)  
-#     def __str__(self):
-#         return  str(self.topicID) +","+self.topicName
 
 class Questions(models.Model):
     questionID = models.AutoField(primary_key=True)
@@ -92,31 +74,24 @@ class Questions(models.Model):
     type = models.IntegerField(default=0)
     difficulty = models.CharField(max_length=50, default="")
     author = models.CharField(max_length=100, default="")
-    strongHint = models.CharField(max_length=100, default="")
+    isHintUsed = models.BooleanField(default=False)
     basicHint = models.CharField(max_length=100, default="") 
-#     topicID = models.ForeignKey(Topics, verbose_name="the related topic", db_index=True) 
+    strongHint = models.CharField(max_length=100, default="")
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              
-        return str(self.questionID)+","+self.preview
-
+        return f"{self.questionID} - {self.preview}"
 class QuestionProgrammingFiles(models.Model):
     programmingFileID = models.AutoField(primary_key=True)
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, null=True, verbose_name= 'the related question')
     programmingFileName = models.CharField(max_length=200)
     programmingFileFolderName = models.CharField(max_length=200)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(default=now)
     programmingFileUploader = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name="Creator", db_index=True)
      
 class StaticQuestions(Questions):
     questionText = models.CharField(max_length=10000)
     correctAnswerFeedback = models.CharField(max_length=1000, default="")
-    incorrectAnswerFeedback = models.CharField(max_length=1000, default="")
-    
-# class ParsonsQuestions(Questions):
-#     questionText = models.CharField(max_length=10000)
-#     modelSolution = models.CharField(max_length=20000)  # contains the codeLines entered by the instructors
-    #codeLinePartialOrder = models.CharField(max_length=10000)  # contains a specification of partial order: for each codeLine - a list of lines that can possibly follow it directly
-    #numberDistractors = models.IntegerField(default=0)    
+    incorrectAnswerFeedback = models.CharField(max_length=1000, default="") 
 
 class CodeLibrary(models.Model):
     name = models.CharField(max_length=200)
@@ -159,36 +134,49 @@ class Goals(models.Model):
     goalID = models.AutoField(primary_key=True)
     goalAuthor = models.CharField(max_length=75)
     goalsCol = models.CharField(max_length=75, default="")
-    #...
+
     def __str__(self):
-        return self.goalAuthor
+        return f"{self.goalAuthor} - {self.goalsCol}"
         
 class Challenges(models.Model):
     challengeID = models.AutoField(primary_key=True)
     challengeName = models.CharField(max_length=100)
-    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
-    isGraded = models.BooleanField(default=False)
+    courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True)
+
+    isGraded = models.BooleanField(default=False) # Is the challenge of type serious (true) or warmup (false) 
+
     isRandomized = models.BooleanField(default=False)
+
     totalScore = models.DecimalField(decimal_places=2, max_digits=6, default=0)  #Total score for the automatically graded part
     manuallyGradedScore = models.DecimalField(decimal_places=2, max_digits=6, default=0, verbose_name="number of possible points for a manually graded part of the challenge")  
     curve = models.DecimalField(decimal_places=2, max_digits=6, default=0) 
+
     numberAttempts = models.IntegerField()
     timeLimit = models.IntegerField(verbose_name="time limit for the challenge in minutes")
-    #feedbackOption = models.IntegerField()
+
     displayCorrectAnswer = models.BooleanField(default=True)
     displayCorrectAnswerFeedback = models.BooleanField(default=False)
     displayIncorrectAnswerFeedback = models.BooleanField(default=False)
+
     challengeAuthor = models.CharField(max_length=75)
     challengeDifficulty = models.CharField(max_length=45, default="")
     isVisible = models.BooleanField(default=True)
+
     startTimestamp = models.DateTimeField(default=now, blank=True)
     endTimestamp = models.DateTimeField(default=now, blank=True)
+    dueDate = models.DateTimeField(default=now, blank=True)
+
+    hasStartTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
+    hasEndTimestamp = models.BooleanField(default=False)
+    hasDueDate = models.BooleanField(default=False)
+
     challengePassword = models.CharField(default='',max_length=30) # Empty string represents no password required.
     challengePosition = models.IntegerField(default = 0)
-    dueDate = models.DateTimeField(default=now, blank=True)
+    
     
     def __str__(self):              
-        return str(self.challengeID)+","+self.challengeName       
+        return f"{self.challengeID} - {self.challengeName}"
+
     def getCombinedScore(self):
         score = self.totalScore + self.manuallyGradedScore 
         if score > 0:
@@ -244,7 +232,8 @@ class ChallengesQuestions(models.Model):
     questionPosition = models.IntegerField(default = 0)
     points = models.DecimalField(decimal_places=2, max_digits=6, default=0)
     def __str__(self):              
-        return str(self.pk) + ","+str(self.challengeID)+","+str(self.questionID)
+        return f"{self.pk} - {self.challengeID} - {self.questionID} - {self.points}"
+        
     @staticmethod
     def addQuestionToChallenge(question, challenge, points, position):
         cq = ChallengesQuestions()
@@ -268,33 +257,49 @@ class ActivitiesCategory(models.Model):
 
 class Activities(models.Model):
     activityID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True) 
+
     activityName = models.CharField(max_length=75)
     description = models.CharField(max_length=200, default="")
+
     points =  models.DecimalField(decimal_places=3, max_digits=6, default=0)
+
     isGraded = models.BooleanField(default=False,verbose_name = "Activity points will be added to the course grade")
-    courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)  
+     
     isFileAllowed = models.BooleanField(default = True)
     uploadAttempts = models.IntegerField(default=0)
+
     instructorNotes = models.CharField(max_length=300, default="")
     author = models.CharField(max_length=100) 
+
     startTimestamp = models.DateTimeField(default=now, blank=True)
     endTimestamp = models.DateTimeField(default=now, blank=True )
     deadLine = models.DateTimeField(default=now, blank=True)
+
+    hasStartTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
+    hasEndTimestamp = models.BooleanField(default=False)
+    hasDeadline = models.BooleanField(default=False)
+
     category = models.ForeignKey(ActivitiesCategory,on_delete=models.CASCADE, verbose_name = "Activities Category", db_index=True, default = 1)
     activityPosition = models.IntegerField(default = 0)
     def __str__(self):              
-        return str(self.activityID)+","+self.activityName  
+        return f"{self.activityID} - {self.activityName} - {self.points} - {self.category} - {self.isGraded}" 
         
 class Announcements(models.Model):
     announcementID = models.AutoField(primary_key=True)
     authorID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Author", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
-    startTimestamp = models.DateTimeField()
-    endTimestamp = models.DateTimeField()
+
+    startTimestamp = models.DateTimeField(default=now)
+    endTimestamp = models.DateTimeField(default=now)
+
+    hasStartTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
+    hasEndTimestamp = models.BooleanField(default=False)
+
     subject = models.CharField(max_length=100, default="")
     message = models.CharField(max_length=1000, default="")
     def __str__(self):              
-        return str(self.announcementID)+","+str(self.authorID)+","+str(self.startTimestamp)
+        return f"{self.announcementID} - {self.authorID} - {self.startTimestamp} - {self.subject}"
 
 class Topics(models.Model):
     topicID = models.AutoField(primary_key=True)
@@ -344,10 +349,10 @@ def imageUploadPath(instance,filename):
 #Uploaded Images
 class UploadedImages(models.Model):
     imageID = models.AutoField(primary_key=True)
-    # image = models.ImageField(upload_to = 'images/uploadedInstructorImages', default = 'images/uploadedInstructorImages')
     imageFile = models.FileField(max_length=500, upload_to= 'images/uploadedInstructorImages')
     imageDescription = models.CharField(max_length=200, default='')
     imageCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
+
     def __str__(self):              
         return str(self.imageID)+","+str(self.imageFile)+","+self.imageDescription
     
@@ -362,7 +367,7 @@ def fileUploadPath(instance,filename):
 class UploadedFiles(models.Model):
         uploadedFile = models.FileField(max_length=500,upload_to= fileUploadPath)
         uploadedFileName = models.CharField(max_length=200, default='')
-        uploaded_at = models.DateTimeField(auto_now_add=True)
+        uploaded_at = models.DateTimeField(default=now)
         uploadedFileCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
         
         def delete(self):
@@ -378,7 +383,7 @@ class UploadedActivityFiles(models.Model):
         activity = models.ForeignKey(Activities, on_delete=models.SET_NULL, null=True, verbose_name= 'the related activity')
         activityFile = models.FileField(max_length=500,upload_to= activityUploadPath)
         activityFileName = models.CharField(max_length=200, default='')
-        uploaded_at = models.DateTimeField(auto_now_add=True)
+        uploaded_at = models.DateTimeField(default=now)
         activityFileCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
         latest = models.BooleanField(default = True)
         
@@ -429,4 +434,30 @@ class QuestionLibrary(models.Model):
     ID = models.AutoField(primary_key=True) 
     question = models.ForeignKey(Questions, on_delete=models.CASCADE)
     library = models.ForeignKey(LuaLibrary, on_delete=models.CASCADE)
+
+class FlashCards(models.Model):
+    flashID = models.AutoField(primary_key=True)
+    flashName = models.CharField(max_length=500,default='Flashcard') 
+    front = models.CharField(max_length=5000)
+    back = models.CharField (max_length=5000)
+    def __str__(self):              
+        return str(self.flashID)+","+self.flashName+","+self.front+","+self.back
+class FlashCardGroup(models.Model):
+    groupID = models.AutoField(primary_key=True)
+    groupName = models.CharField(max_length=500)
+    def __str__(self):              
+        return str(self.groupID)+","+self.groupName
+        
+class FlashCardToGroup(models.Model):
+    groupID = models.ForeignKey(FlashCardGroup,on_delete=models.CASCADE, db_index=True)
+    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, db_index=True)
+    def __str__(self):              
+        return str(self.flashID)+","+str(self.groupID)
+class FlashCardGroupCourse(models.Model):
+    groupID = models.ForeignKey(FlashCardGroup,on_delete=models.CASCADE,verbose_name ="Group Name", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    availabilityDate=models.DateTimeField(default=datetime.now, blank=True)
+    groupPos = models.IntegerField(default=0)
+    def __str__(self):              
+        return str(self.groupID)+","+str(self.courseID)+","+str(self.availabilityDate)
     
