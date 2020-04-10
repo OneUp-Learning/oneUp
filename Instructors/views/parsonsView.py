@@ -76,6 +76,7 @@ def parsonsForm(request):
             question.strongHint = request.POST['strongHint']
         if 'basicHint' in request.POST:
             question.basicHint = request.POST['basicHint']
+        question.isHintUsed = "hintUsed" in request.POST   
         question.save();  
         
         # Save the entered model solution as "correctAnswer"        
@@ -263,6 +264,7 @@ def parsonsForm(request):
                     context_dict['points'] = 0
                 context_dict['basicHint'] = question.basicHint
                 context_dict['strongHint'] = question.strongHint
+                context_dict['hintUsed'] = question.isHintUsed
                 
 
             #print("loaded feedback")

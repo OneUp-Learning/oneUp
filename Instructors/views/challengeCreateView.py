@@ -348,10 +348,10 @@ def challengeCreateView(request):
             context_dict['curve'] = '0'
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
 
-            if ccp.courseStartDate < utcDate().now().date():
+            if ccp.hasCourseStartDate and ccp.courseStartDate < utcDate().now().date():
                 context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
                     "%m/%d/%Y %I:%M %p")
-            if ccp.courseEndDate > utcDate().now().date():
+            if ccp.hasCourseEndDate and ccp.courseEndDate > utcDate().now().date():
                 context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
                     "%m/%d/%Y %I:%M %p")
                 context_dict['dueDate'] = ccp.courseEndDate.strftime(
