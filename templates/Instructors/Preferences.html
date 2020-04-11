@@ -450,6 +450,17 @@
                             <div class="card-content">
                                 <span class="card-title">Badges Configuration</span>
                                 <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Badges
+                                            {% if badgesUsed %}
+                                            <input name="badgesUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="badgesUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
                                     <div class="input-field col s12">
                                         <p style="font-size: 0.8rem;">Number of recent badges to be displayed on 
                                             course home pages</p>
