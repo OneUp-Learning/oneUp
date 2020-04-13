@@ -32,7 +32,7 @@ by James Cherry -->
          <div class="row">
             <div class="col s12 m10 offset-m1">
                <div class="card-panel">
-                  <table>
+                  <table class="responsive-table">
                      <thead>
                         <tr>
                            <th>Goal</th>
@@ -68,14 +68,26 @@ by James Cherry -->
                                  {% csrf_token %} 
                                  <input type="hidden" name="goal_id" value="{{goal_id}}">
                                  <input type="hidden" name="delete">
-                                 <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='goal{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                 <ul id='goal{{i}}' class='dropdown-content'>     
-                                    {% if can_edit %}                            	
-                                    <li><a href="/oneUp/students/goal?goal_id={{goal_id}}">Edit</a></li>                                    	                                   
-                                    <li class="divider"></li>          
-                                    {% endif %}                       	
-                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
-                                 </ul>
+                                 <div class="hide-on-med-and-down">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='goal{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                    <ul id='goal{{i}}' class='dropdown-content'>     
+                                       {% if can_edit %}                            	
+                                       <li><a href="/oneUp/students/goal?goal_id={{goal_id}}">Edit</a></li>                                    	                                   
+                                       <li class="divider"></li>          
+                                       {% endif %}                       	
+                                       <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                    </ul>
+                                 </div>
+                                 <div class="hide-on-large-only">
+                                    <div class="row right-align" style="margin: 0">
+                                        <div class="col s12">
+                                          {% if can_edit %}   
+                                          <a class="waves-effect waves-light btn" href="/oneUp/students/goal?goal_id={{goal_id}}">Edit</a>
+                                          {% endif %}
+                                          <a class="modal-trigger waves-effect waves-light btn" href="#modal_delete{{i}}">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
                                  <div id="modal_delete{{i}}" class="modal">
                                     <div class="modal-content">
                                        <h5>Are you sure you want to delete?</h5>
