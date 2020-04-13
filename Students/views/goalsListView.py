@@ -53,15 +53,8 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
     goal_variables = [sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True] \
                     + [PeriodicVariables.periodicVariables[PeriodicVariables.xp_ranking]]
 
-    limit = None
-    if courseHome:
-        limit = 3
-    
     current_time = utcDate()
     for goal in goals:
-
-        if limit and limit == 0:
-            break
 
         goal_ID.append(goal.studentGoalID) #pk
         student_ID.append(goal.studentID)
@@ -86,15 +79,28 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
         recurring_goal.append("Yes" if goal.recurringGoal else "No")    
         
         if current_time >= endDate:
-            if limit:
-                limit -= 1
             if goal.recurringGoal:
-                new_recurring_goal(goal, endDate)
+                # Create new recurring goal
+                duplicate_goal = StudentGoalSetting()        
+                duplicate_goal.courseID = goal.courseID
+                duplicate_goal.studentID = goal.studentID
+                duplicate_goal.goalType = goal.goalType
+                duplicate_goal.targetedNumber = goal.targetedNumber
+                duplicate_goal.timestamp = end_date  
+                duplicate_goal.progressToGoal = process_goal(goal.courseID, goal.studentID, goal.goalType)
+                duplicate_goal.recurringGoal = True       
+                duplicate_goal.save()
+
                 goal.recurringGoal = False
                 goal.save() 
       
     status_order = ['In Progress',  'Not Achieved', 'Completed']
     context_dict['goal_range'] = sorted(list(zip(range(1,goals.count()+1),goal_ID,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit)), key=lambda x: (status_order.index(x[9]), x[5]))
+
+    if courseHome:
+        limit = 3
+        context_dict['goal_range'] = context_dict['goal_range'][:limit]
+
     return context_dict
 
 def calculate_progress(starting_progress, goal_var, course, student, goal_target):
@@ -112,15 +118,3 @@ def goal_status_str(progress_percentage, end_date, current_time):
         return "Not Achieved"
     else:
         return "In Progress"
-    
-def new_recurring_goal(goal, end_date):
-
-    duplicate_goal = StudentGoalSetting()        
-    duplicate_goal.courseID = goal.courseID
-    duplicate_goal.studentID = goal.studentID
-    duplicate_goal.goalType = goal.goalType
-    duplicate_goal.targetedNumber = goal.targetedNumber
-    duplicate_goal.timestamp = end_date  
-    duplicate_goal.progressToGoal = goal.progressToGoal
-    duplicate_goal.recurringGoal = True       
-    duplicate_goal.save()

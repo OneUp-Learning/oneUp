@@ -50,7 +50,6 @@ def goal_view(request):
         goal.targetedNumber = request.POST['goal_target']
         goal.timestamp = utcDate()
         goal.progressToGoal = process_goal(current_course, context_dict['student'], int(request.POST['goal_variable']))
-        # goal.progressToGoal = -100
         goal.recurringGoal = "recurring_goal" in request.POST
         
         goal.save()  
@@ -72,33 +71,3 @@ def goal_view(request):
 def process_goal(course, student, var):
     result = getSysValues(student, var, ObjectTypes.none, course)[0][4]
     return result
-
-def goalProgressFxn(goalType, course, student):
-    goalType = str(goalType)
-    # TODO: This function needs to be updated 
-    print ("Type {}".format(goalType))
-    if goalType == str(Goal.warmup10):
-        return systemVariables.getNumberOfUniqueWarmupChallengesAttempted(course, student)
-    if goalType == str(Goal.warmup70):
-        return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan70Percent(course, student)
-    if goalType == str(Goal.warmup80):
-        return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan80Percent(course, student)
-    if goalType == str(Goal.warmup90):
-        return systemVariables.getNumberOfUniqueWarmupChallengesGreaterThan90Percent(course, student)
-    if goalType == str(Goal.streak10):
-        return systemVariables.getConsecutiveDaysWarmUpChallengesTaken30Percent(course, student, goalType)
-    if goalType == str(Goal.streak70):
-        return systemVariablesgetConsecutiveDaysWarmUpChallengesTaken70Percent(course, student, goalType)
-    if goalType == str(Goal.streak80):
-        return systemVariables.getConsecutiveDaysWarmUpChallengesTaken80Percent(course, student, goalType)
-    if goalType == str(Goal.streak90):
-        return systemVariables.getConsecutiveDaysWarmUpChallengesTaken90Percent(course, student, goalType)
-    if goalType == str(Goal.courseBucks):
-        studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
-        return studentReg.virtualCurrencyAmount
-    if goalType == str(Goal.courseXP):
-        studentReg = StudentRegisteredCourses.objects.get(studentID=student, courseID=course)
-        xp = studentReg.xp
-        return xp
-    if goalType == str(Goal.courseBadges):
-        return systemVariables.getNumberOfBadgesEarned(course, student)

@@ -1,19 +1,17 @@
 import os
-
-from django.db import models
-from django import forms
-
-from django.contrib.auth.models import User
-from django.template.defaultfilters import default
 from datetime import datetime
-from django.utils.timezone import now
+from decimal import Decimal
 
+from django import forms
 from django.conf.global_settings import MEDIA_URL
-from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
-
+from django.contrib.auth.models import User
+from django.db import models
+from django.template.defaultfilters import default
+from django.utils.timezone import now
 from django_celery_beat.models import PeriodicTask
 
-from decimal import Decimal
+from oneUp.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL
+
 
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
@@ -129,14 +127,6 @@ class Prompts(models.Model):
     promptText = models.CharField(max_length=5000, default="")
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True)
     answerID = models.ForeignKey('Instructors.Answers', on_delete=models.CASCADE, verbose_name="the correct answer for this prompt")
-    
-class Goals(models.Model):    
-    goalID = models.AutoField(primary_key=True)
-    goalAuthor = models.CharField(max_length=75)
-    goalsCol = models.CharField(max_length=75, default="")
-
-    def __str__(self):
-        return f"{self.goalAuthor} - {self.goalsCol}"
         
 class Challenges(models.Model):
     challengeID = models.AutoField(primary_key=True)
@@ -460,4 +450,3 @@ class FlashCardGroupCourse(models.Model):
     groupPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.groupID)+","+str(self.courseID)+","+str(self.availabilityDate)
-    
