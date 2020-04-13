@@ -11,7 +11,7 @@ from Badges.enums import Goal
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (Challenges, ChallengesTopics, CoursesSkills,
                                 CoursesTopics)
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, utcDate
 from oneUp.decorators import instructorsCheck
 from Students.models import (StudentChallenges, StudentCourseSkills,
                              StudentGoalSetting, StudentRegisteredCourses)
@@ -113,7 +113,7 @@ def classAchievementsViz(request):
         user_Names = []
                             
         #Displaying the list of challenges from database
-                             
+        current_time = utcDate()
         for student in students:
             completed = 0
             failed = 0
@@ -125,9 +125,9 @@ def classAchievementsViz(request):
                 created += 1
                 progressPercent = calculate_progress(g.progressToGoal, g.goalType, g.courseID, g.studentID, g.targetedNumber)
                 endDate = g.timestamp + timedelta(days=7)
-                if goal_status_str(progressPercent, endDate) == "Completed":
+                if goal_status_str(progressPercent, endDate, current_time) == "Completed":
                     completed += 1
-                if goal_status_str(progressPercent, endDate) == "Not Achieved":
+                if goal_status_str(progressPercent, endDate, current_time) == "Not Achieved":
                     failed += 1
             
             if created:        

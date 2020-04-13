@@ -91,7 +91,8 @@
             </div>
             </div>
             {% endif %}   
-            {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal and scparams.displayGoal %}
+            {% if ccparams.gamificationUsed  and ccparams.goalsUsed %}
+            {% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
             <div class="row">
             	<div class="col s12 m10 offset-m1">            
                         <div class="card">
@@ -250,9 +251,10 @@
                                     }
                             });
                         </script>
-           		</div>
-            </div>
-            {% endif %}
+           		    </div>
+                </div>
+                {% endif %}
+                {% endif %}
                {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
                <div class="row">
                   <div class="col s12 m12">
