@@ -513,7 +513,7 @@
                                 <span class="card-title">Hints Configuration</span>
                                 <div class="switch col s12">
                                     <label>
-                                        Enable Hints
+                                        Enable Hints:
                                         {% if hintsUsed %}
                                         <input name="hintsUsed" type="checkbox" checked>
                                         {% else %}
@@ -524,6 +524,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s10">
+                                        Reducing student score for using hints:
                                         <p style="font-size: 0.8rem;">Weight of <i>basic hint (in %)</i>
                                         </p>
                                         <input value="{{weightBasicHint}}" name="weightBasicHint"

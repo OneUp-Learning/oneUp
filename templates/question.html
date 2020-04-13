@@ -104,7 +104,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     {% endfor %}
     {% if hintsUsed and q.questionHasHintsEnabled %}
     <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
-    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Basic Hint</button>
+    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Weak Hint</button>
     <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
     {% endif %}
   </div>
@@ -147,7 +147,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
   </div>
   {% if hintsUsed and q.questionHasHintsEnabled %}
   <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
-  <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Basic Hint</button>
+  <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Weak Hint</button>
   <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
   {% endif %}
 </div>
@@ -329,9 +329,12 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <label for="{{i}}ans2">False</label>
     </p>
     {% if hintsUsed and q.questionHasHintsEnabled %}
+    <div class="right-align">
     <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
-    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Basic Hint</button>
-    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
+    <br>
+    <button class="btn waves-effect waves-light" style="z-index: 0;" onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Weak Hint</button>
+    <button class="btn waves-effect waves-light" style="z-index: 0;" onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
+    </div>
     {% endif %}
   </div>
 </div>
@@ -450,7 +453,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     </div>
     {% if hintsUsed and q.questionHasHintsEnabled %}
     <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
-    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Basic Hint</button>
+    <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Weak Hint</button>
     <button class="btn waves-effect waves-light"  onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
     {% endif %}
 	</div>
