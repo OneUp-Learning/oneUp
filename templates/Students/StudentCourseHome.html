@@ -98,12 +98,12 @@
                             <div class="card-content">
                                 <span class="card-title">Goals</span>
 			            		<div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; margin-bottom: 10px;">
-			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal in goal_range %}                                                           
+			            			{% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal,can_edit in goal_range %}                                                           
 			                          <div style="width: 240px; height: 240px; margin-bottom: 24px; margin-top: 8px;">
                                         <div style="padding-left: 8px; padding-right: 8px; height: 40px;">
-                                            <p>{{goal_Type}}</p>
+                                            <p>{{goal_name}}</p>
                                         </div>
-                                        <div id="goal-container-{{i}}" class="goalindicator" data-goalprogress="20" data-title="{{goal_Type}}" title="{{goal_Type}} by {{student_ID}}" data-target="100"></div>
+                                        <div id="goal-container-{{i}}" class="goalindicator" data-goalprogress="{{goal_progress}}" data-title="{{goal_name}}" title="{{goal_name}} by {{student_ID}}" data-target="{{goal_target}}"></div>
                                             
                                         <div style="padding-left: 8px; padding-right: 8px; text-align: center;">
                                             <p>End Date: {{end_date}}</p>
@@ -118,20 +118,20 @@
                                 <div class="hide-on-med-and-up">
                                     <div class="row center-align">
                                        <div class="col s12">
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>
                                        </div>
                                     </div>
                                     <div class="row center-align">
                                        <div class="col s12">
-                                            <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                            <a class="waves-effect waves-light btn" href="/oneUp/students/goalslist"><i class="material-icons right">navigate_next</i>View All Goals</a>
                                        </div>
                                     </div>
                                  </div>
                                  <div class="hide-on-small-only">
                                     <div class="row right-align" style="margin: 0">
                                        <div class="col s12">
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/goalslist"><i class="material-icons right">navigate_next</i>View All Goals</a>
                                        </div>
                                     </div>
                                  </div>

@@ -1,43 +1,45 @@
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.models import Challenges, CoursesSkills, ChallengesTopics, CoursesTopics
-from Instructors.views.utils import initialContextDict
-from Students.models import StudentChallenges, StudentCourseSkills, StudentRegisteredCourses, StudentGoalSetting
-from oneUp.decorators import instructorsCheck
-
-from Badges.enums import Goal
-from Badges import systemVariables
-from Students.views.goalsListView import goalsList, calculateProgress, goalStatus
-from datetime import datetime, date, time, timedelta
-
-from Instructors.constants import unassigned_problems_challenge_name
-
 import json
+from datetime import date, datetime, time, timedelta
+
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count
-    
+from django.shortcuts import render
+
+from Badges import systemVariables
+from Badges.enums import Goal
+from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.models import (Challenges, ChallengesTopics, CoursesSkills,
+                                CoursesTopics)
+from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import (StudentChallenges, StudentCourseSkills,
+                             StudentGoalSetting, StudentRegisteredCourses)
+from Students.views.goalsListView import calculate_progress, goal_status_str
+
+
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def classAchievementsViz(request):
 
     context_dict, currentCourse = initialContextDict(request)
     
-    serious = 0
-    warmUp = 0
-    skills = 0
-    goals = 0
+    serious = False
+    warmUp = False
+    skills = False
+    goals = False
     if 'serious' in request.GET:
-        serious = 1
-        context_dict['serious']= 1
+        serious = True
+        context_dict['serious'] = serious
     elif 'warmUp' in request.GET:
-        warmUp = 1
-        context_dict['warmUp']= 1
+        warmUp = True
+        context_dict['warmUp'] = warmUp
     elif 'goals' in request.GET:    #4.4.19 - JC
-        goals = 1
-        context_dict['goals'] = 1
+        goals = True
+        context_dict['goals'] = goals
     else:
-        skills = 1
-        context_dict['skills']= 1   
+        skills = True
+        context_dict['skills']= skills 
         
     st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse).exclude(studentID__isTestStudent=True)                
     students = []                                         
@@ -121,14 +123,14 @@ def classAchievementsViz(request):
             
             for g in goals:
                 created += 1
-                progressPercent = calculateProgress(g.progressToGoal, g.goalType, g.courseID, g.studentID, g.targetedNumber)
+                progressPercent = calculate_progress(g.progressToGoal, g.goalType, g.courseID, g.studentID, g.targetedNumber)
                 endDate = g.timestamp + timedelta(days=7)
-                if (goalStatus(progressPercent, endDate) == "Completed"):
+                if goal_status_str(progressPercent, endDate) == "Completed":
                     completed += 1
-                if (goalStatus(progressPercent, endDate) == "Not Achieved"):
+                if goal_status_str(progressPercent, endDate) == "Not Achieved":
                     failed += 1
             
-            if (created):        
+            if created:        
                 user_Names.append(str(student.user.first_name+' '+student.user.last_name))   
                 goals_Created.append(created)
                 goals_Completed.append(completed)
@@ -228,4 +230,3 @@ def classAchievementsViz(request):
         context_dict['challengesCount'] = len(challenges)
                                 
     return render(request,'Instructors/ClassAchievementsViz.html', context_dict)
-
