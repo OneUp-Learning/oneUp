@@ -8,10 +8,16 @@
       {% include 'chartTheme.html' %}
       <style>
         
-      @media only screen and (max-width : 992px) {
+        @media only screen and (max-width : 992px) {
             #sidenav-desktop {
                 display: none;
             }
+            .show-on-mobile {
+                display: block !important;
+            }
+        }
+        .show-on-mobile {
+            display: none;
         }
       </style>
    </head>
@@ -207,473 +213,574 @@
                 <div class="col s12">
                    <h3>Welcome!</h3>
                 </div>
-             </div>
-         {% if ccparams.progressBarUsed and ccparams.gamificationUsed %}
-         <div class="row">
-            <div class="col s12 m10 offset-m1">
-                <div class="card">
-                    <div class="card-content">
-                        {% if ccparams.progressBarGroupUsed %}
-                        <span class="card-title">Group Progress</span>
-                        {% else %}
-                        <span class="card-title">Your Progress</span>
-                        {% endif %}
-                        <div id="progressbar" style="height: 80px"></div>
+            </div>
+            <div class="show-on-mobile">
+                <div class="row">
+                    <div class="col s12 m10 offset-m1">
+                        <div class="card-panel">
+                            <table class="responsive-table">
+                                <thead>
+                                    <th style="font-size: 1.64rem;font-weight: 400;">Experience Points</th>
+                                    {% if ccparams.warmupsUsed %}
+                                    <th style="font-size: 1.64rem;font-weight: 400;">Practice Points</th>
+                                    {% endif %}
+                                    {% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
+                                    <th style="font-size: 1.64rem;font-weight: 400;">Your Course Bucks</th>
+                                    {% endif %}
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="font-size:26px" class="primary-colored-text">{{studentXP_range}}</td>
+                                        {% if ccparams.warmupsUsed %}
+                                        <td style="font-size:26px"><span class="primary-colored-text">{{totalWCEarnedPoints|floatformat}}</span> / <span class="primary-colored-text">{{totalWCPossiblePoints|floatformat}}</span></td>
+                                        {% endif %}
+                                        {% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
+                                        <td style="font-size:26px" class="primary-colored-text">{{course_Bucks}}</td>
+                                        {% endif %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            <script type='text/javascript'>
-               // PROGRESS BAR
-               $(function() {
-                   var PointsEarnedData = function() {
-                       return {{currentEarnedPoints}};
-                   };
-                   var RemainingChallengePoints = function() {
-                       return {{remainingPointsToEarn}};
-                   };
-                   var ChallengePointsmissed = function() {
-                       return {{missedPoints}};
-                   };
-                   var ChallengePointsProjected = function() {
-                       return {{projectedEarnedPoints}};
-                   };
-                   var ChallengesMaxPoints = function() {
-                       return {{progressBarTotalPoints}};
-                   };
-                   //Your Progress
-                   $('#progressbar').highcharts({
-                       chart: {
-                           type: 'bar',
-                           borderWidth: 0,
-                           borderColor: '#333300',
-                           margin: [0],
-                           events: {
-                                load: function () {
-                                    // set up the updating of the chart every 5 minutes
-                                    
-                                    {% if not ccparams.progressBarGroupUsed %}
-                                    var earned_series = this.series[2];
-                                    var unclaimed_series = this.series[1];
-                                    var missed_series = this.series[0];
-                                    var projected_series = this.series[3];
-                                    {% else %}
-                                    var unclaimed_series = this.series[0];
-                                    var earned_series = this.series[1];
-                                    {% endif %}
-                                    var y_axis_max = this.yAxis[0];
-                                    setInterval(function () {
-                                        $.ajax({
-                                            type: "GET",
-                                            url: "/oneUp/students/progressBarData",
-                                            // data: {'class_scores': true, 'metric_average': false},
-                                            success: function (response) {     
-                                                if(response['status'] == 'success'){
-                                                    var earned_value = response['currentEarnedPoints'];
-                                                    // var earned_value = Math.round(Math.random() * 100);
-                                                    var max = response['progressBarTotalPoints'];
-                                                    var rest = max - earned_value;
+            {% if ccparams.progressBarUsed and ccparams.gamificationUsed %}
+            <div class="row">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card">
+                        <div class="card-content">
+                            {% if ccparams.progressBarGroupUsed %}
+                            <span class="card-title">Group Progress</span>
+                            {% else %}
+                            <span class="card-title">Your Progress</span>
+                            {% endif %}
+                            <div id="progressbar" style="height: 80px"></div>
+                        </div>
+                    </div>
+                </div>
+                <script type='text/javascript'>
+                // PROGRESS BAR
+                $(function() {
+                    var PointsEarnedData = function() {
+                        return {{currentEarnedPoints}};
+                    };
+                    var RemainingChallengePoints = function() {
+                        return {{remainingPointsToEarn}};
+                    };
+                    var ChallengePointsmissed = function() {
+                        return {{missedPoints}};
+                    };
+                    var ChallengePointsProjected = function() {
+                        return {{projectedEarnedPoints}};
+                    };
+                    var ChallengesMaxPoints = function() {
+                        return {{progressBarTotalPoints}};
+                    };
+                    //Your Progress
+                    $('#progressbar').highcharts({
+                        chart: {
+                            type: 'bar',
+                            borderWidth: 0,
+                            borderColor: '#333300',
+                            margin: [0],
+                            events: {
+                                    load: function () {
+                                        // set up the updating of the chart every 5 minutes
+                                        
+                                        {% if not ccparams.progressBarGroupUsed %}
+                                        var earned_series = this.series[2];
+                                        var unclaimed_series = this.series[1];
+                                        var missed_series = this.series[0];
+                                        var projected_series = this.series[3];
+                                        {% else %}
+                                        var unclaimed_series = this.series[0];
+                                        var earned_series = this.series[1];
+                                        {% endif %}
+                                        var y_axis_max = this.yAxis[0];
+                                        setInterval(function () {
+                                            $.ajax({
+                                                type: "GET",
+                                                url: "/oneUp/students/progressBarData",
+                                                // data: {'class_scores': true, 'metric_average': false},
+                                                success: function (response) {     
+                                                    if(response['status'] == 'success'){
+                                                        var earned_value = response['currentEarnedPoints'];
+                                                        // var earned_value = Math.round(Math.random() * 100);
+                                                        var max = response['progressBarTotalPoints'];
+                                                        var rest = max - earned_value;
 
-                                                    y_axis_max.setExtremes(0, max);
+                                                        y_axis_max.setExtremes(0, max);
 
-                                                    {% if not ccparams.progressBarGroupUsed %}
-                                                    var missed_value = response['missedPoints'];
-                                                    var projected_value = response['projectedEarnedPoints'];
-                                                    rest = max - missed_value - earned_value;
-                                                    
-                                                    missed_series.setData([missed_value], false, false);
-                                                    projected_series.setData([projected_value], false, false);
-                                                    earned_series.setData([earned_value], false, false);
-                                                    unclaimed_series.setData([rest], true, true)
-                                                    {% else %}
-                                                    earned_series.setData([earned_value], false, false);
-                                                    unclaimed_series.setData([rest], true, true)
-                                                    {% endif %}
-                                                                    
-                                                    
-                                                    
+                                                        {% if not ccparams.progressBarGroupUsed %}
+                                                        var missed_value = response['missedPoints'];
+                                                        var projected_value = response['projectedEarnedPoints'];
+                                                        rest = max - missed_value - earned_value;
+                                                        
+                                                        missed_series.setData([missed_value], false, false);
+                                                        projected_series.setData([projected_value], false, false);
+                                                        earned_series.setData([earned_value], false, false);
+                                                        unclaimed_series.setData([rest], true, true)
+                                                        {% else %}
+                                                        earned_series.setData([earned_value], false, false);
+                                                        unclaimed_series.setData([rest], true, true)
+                                                        {% endif %}
+                                                                        
+                                                        
+                                                        
+                                                    }
+                                                    console.table(response)
                                                 }
-                                                console.table(response)
-                                            }
-                                        });
-                                    }, 300000);
-                                    // }, 1000);
+                                            });
+                                        }, 300000);
+                                        // }, 1000);
+                                    }
                                 }
-                            }
-                       },
-                       credits: {
-                           enabled: false
-                       },
-                       title: {
-                           text: ''
-                       },
-                       legend: {
-                           enabled: false
-                       },
-                       xAxis: {
-                           lineWidth: 0,
-                           minorGridLineWidth: 0,
-                           lineColor: 'transparent',
-                           labels: {
-                               enabled: false
-                           },
-                           minorTickLength: 0,
-                           tickLength: 0
-                       },
-                       yAxis: {
-                        //    tickInterval: 5,
-                           allowDecimals: false,
-                           tickColor: '#ccc',
-                           tickWidth: 0,
-                           tickLength: 300,
-                           lineColor: '#eee',
-                           lineWidth: 0,
-                           gridLineWidth: 0,
-                           gridLineColor: 'rgba(255,255,255,.15)',
-                           endOnTick: true,
-                           title: {
-                               text: ''
-                           },
-                           min: 0,
-                           max: [ChallengesMaxPoints()],
-                           endOnTick: true,
-                           startOnTick: false,
-                           labels: {
-                               style: {
-                                   fontSize: '9px'
-                               }
-                           },
-                           {% if not ccparams.progressBarGroupUsed %}
-                           plotLines: [{
-                                value: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0)],
-                                width: 2,
-                                zIndex: 4,
-                                //Progressbar marker black color
-                                color: 'darkblue'
-                            }],
-                            {% endif %}
-                       },
-                       tooltip: {
-                           useHTML: true,
-                           headerFormat: '',
-                       },
-                       plotOptions: {
-                           bar: {
-                               grouping: false,
-                               shadow: false,
-                               borderWidth: 0,
-                               pointPadding: .25,
-                               groupPadding: 0
-                           },
-                           {% if not ccparams.progressBarGroupUsed %}
-                           scatter: {
-                                marker: {
-                                    symbol: 'line',
-                                    lineWidth: 0,
-                                    radius: 9,
-                                    lineColor: '#333'
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        title: {
+                            text: ''
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        xAxis: {
+                            lineWidth: 0,
+                            minorGridLineWidth: 0,
+                            lineColor: 'transparent',
+                            labels: {
+                                enabled: false
+                            },
+                            minorTickLength: 0,
+                            tickLength: 0
+                        },
+                        yAxis: {
+                            //    tickInterval: 5,
+                            allowDecimals: false,
+                            tickColor: '#ccc',
+                            tickWidth: 0,
+                            tickLength: 300,
+                            lineColor: '#eee',
+                            lineWidth: 0,
+                            gridLineWidth: 0,
+                            gridLineColor: 'rgba(255,255,255,.15)',
+                            endOnTick: true,
+                            title: {
+                                text: ''
+                            },
+                            min: 0,
+                            max: [ChallengesMaxPoints()],
+                            endOnTick: true,
+                            startOnTick: false,
+                            labels: {
+                                style: {
+                                    fontSize: '9px'
                                 }
-                            }
-                            {% endif %}
-                       },
-                       series: [
-                       {% if not ccparams.progressBarGroupUsed %}
-                       {
-                            name: 'Points Already Lost',
+                            },
+                            {% if not ccparams.progressBarGroupUsed %}
+                            plotLines: [{
+                                    value: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0)],
+                                    width: 2,
+                                    zIndex: 4,
+                                    //Progressbar marker black color
+                                    // color: 'darkblue'
+                                    color: '#3399ff'
+                                }],
+                                {% endif %}
+                        },
+                        tooltip: {
+                            useHTML: true,
+                            headerFormat: '',
+                        },
+                        plotOptions: {
+                            bar: {
+                                grouping: false,
+                                shadow: false,
+                                borderWidth: 0,
+                                pointPadding: .25,
+                                groupPadding: 0
+                            },
+                            {% if not ccparams.progressBarGroupUsed %}
+                            scatter: {
+                                    marker: {
+                                        symbol: 'line',
+                                        lineWidth: 0,
+                                        radius: 9,
+                                        lineColor: '#333'
+                                    }
+                                }
+                                {% endif %}
+                        },
+                        series: [
+                        {% if not ccparams.progressBarGroupUsed %}
+                        {
+                                name: 'Points Already Lost',
+                                enableMouseTracking: true,
+                                borderWidth: 0,
+                                borderRadius: 0,
+                                stacking: 'normal',
+                                grouping: false,
+                                //progress bar red color points already lost
+                                color: 'red', //darkred
+                                data: [ChallengePointsmissed()]
+                            },
+                            {% endif %}    
+                        {
+                            name: 'Points Unclaimed',
                             enableMouseTracking: true,
                             borderWidth: 0,
                             borderRadius: 0,
                             stacking: 'normal',
                             grouping: false,
-                            //progress bar red color points already lost
-                            color: 'red', //darkred
-                            data: [ChallengePointsmissed()]
+                            //Progress bar yellow color points remaining.
+                            //color: '#a7daff', 
+                            color: '#FFEB42',
+                            //color: '#9966FF',
+                            {% if not ccparams.progressBarGroupUsed %}
+                            data: [ChallengesMaxPoints() - ChallengePointsmissed() - PointsEarnedData()]
+                            {% else %}
+                            data: [ChallengesMaxPoints() - PointsEarnedData()]
+                            {% endif %}
+                        }, {
+                            //pointRange:1.1,
+                            name: 'Points Earned',
+                            enableMouseTracking: true,
+                            borderWidth: 0,
+                            borderRadius: 0,
+                            stacking: 'normal',
+                            grouping: false,
+                            //Progressbar purple color points earned.
+                            {% if not ccparams.progressBarGroupUsed %}
+                            color: '#9966FF', 
+                            {% else %}
+                            color:'#3f51b5',
+                            {% endif %}
+                            //color: '#FFFF33',
+                            data: [PointsEarnedData()]
                         },
-                        {% endif %}    
-                       {
-                           name: 'Points Unclaimed',
-                           enableMouseTracking: true,
-                           borderWidth: 0,
-                           borderRadius: 0,
-                           stacking: 'normal',
-                           grouping: false,
-                           //Progress bar yellow color points remaining.
-                           //color: '#a7daff', 
-                           color: '#FFEB42',
-                           //color: '#9966FF',
-                           {% if not ccparams.progressBarGroupUsed %}
-                           data: [ChallengesMaxPoints() - ChallengePointsmissed() - PointsEarnedData()]
-                           {% else %}
-                           data: [ChallengesMaxPoints() - PointsEarnedData()]
-                           {% endif %}
-                       }, {
-                           //pointRange:1.1,
-                           name: 'Points Earned',
-                           enableMouseTracking: true,
-                           borderWidth: 0,
-                           borderRadius: 0,
-                           stacking: 'normal',
-                           grouping: false,
-                           //Progressbar purple color points earned.
-                           {% if not ccparams.progressBarGroupUsed %}
-                           color: '#9966FF', 
-                           {% else %}
-                           color:'#3f51b5',
-                           {% endif %}
-                           //color: '#FFFF33',
-                           data: [PointsEarnedData()]
-                       },
-                       {% if not ccparams.progressBarGroupUsed %}
-                        {
-                            name: 'Projected Total Points',
-                            //Progress bar total projected points black color.
-                            color: 'darkblue',
-                            //color:'#9966FF',
-                            pointRange: .5,
-                            zIndex: 1,
-                            data: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0)]
-                        }
-                        {% endif %}
-                    ]
-                   });
-               });
-           </script>
-         </div>
-        {% endif %}
-        {% if scparams.displayBadges and ccparams.gamificationUsed and ccparams.badgesUsed %}                            
-        <div class="row">
-           <div class="col s12 m10 offset-m1">
-              <div class="card">
-                  <div class="card-content">
-                     <span class="card-title">Your Badges</span>
-                     <div style="display: flex; flex-wrap: wrap;">
-                        {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in studentBadges %}
-                        <div style="height: 64px; width: fit-content; margin: 2px;">
-                           <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
-                              height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
-                        </div>
-                        {% empty %}
-                        <div><i class="center-align" style="flex: 1;">No badges earned</i></div>
-                        {% endfor %}
-                     </div>
-                  </div>
-              </div>
-           </div>
-        </div>
-         <div class="row">
-            <div class="col s12 m10 offset-m1">
-               <div class="card">
-                  <div class="card-content">
-                     <span class="card-title">Latest Group Badges</span>
-                     <div style="display: flex; flex-wrap: wrap;">
-                        {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %}
-                        <div style="height: 64px; width: fit-content; margin: 2px;">
-                           <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
-                              height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
-                           <img alt="Avatar Image" width="30px" height="30px"
-                                 src="{{avatarImage}}" data-position="top" data-delay="50">
-                        </div>
-                        {% empty %}
-                        <div><i class="center-align" style="flex: 1;">No badges earned</i></div>
-                        {% endfor %}
-                     </div>
-                  </div>
-              </div>
+                        {% if not ccparams.progressBarGroupUsed %}
+                            {
+                                name: 'Projected Total Points',
+                                //Progress bar total projected points black color.
+                                // color: 'darkblue',
+                                color:'#3399ff',
+                                pointRange: .5,
+                                zIndex: 1,
+                                data: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0)]
+                            }
+                            {% endif %}
+                        ]
+                    });
+                });
+                </script>
             </div>
-         </div>
-         {% endif %}  
-         {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal and scparams.displayGoal %}
+            {% endif %}
+            {% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
+            <div class="show-on-mobile">
+                <div class="row">
+                    <div class="col s12 m5 l4 offset-m1 offset-l2" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid; margin-right: 5px" >
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
+                                <h5 style="text-align: center">Duels</h5>
+                                <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                                    <div style="max-width: 100px; min-width: 100px;">
+                                        <div style="font-size: 16px; text-align: center;">
+                                            Wins
+                                        </div>
+                                        <div class="primary-colored-text" style="font-size: 26px; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                                            {{numOfDuelWon}}
+                                        </div>
+                                    </div>
+                                    <div style="max-width: 100px; min-width: 100px;">
+                                        <div style="font-size: 16px; text-align: center;">
+                                            Losses
+                                        </div>
+                                        <div class="primary-colored-text" style="font-size: 26px; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                                            {{numOfDuelLost}}
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div style="text-align: center; display: flex; justify-content: space-evenly; margin-top:10px">
+                                    <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfDuelSent}}</span> sent</span>
+                                    <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfDuelAccepted}}</span> accepted</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col s12 m5 l4" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
+                                <h5 style="text-align: center">Callouts</h5>
+                                <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                                    <div>
+                                        <div style="font-size: 16px; text-align: center;">
+                                            Wins
+                                        </div>
+                                        <div class="primary-colored-text" style="font-size: 26px; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                                            {{numOfCalloutWon}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="text-align: center; display: flex; justify-content: space-evenly; margin-top:10px">
+                                    <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfCalloutSent}}</span> sent</span>
+                                    <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfCalloutRequest}}</span> requested</span>
+                                    <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfCalloutLost}}</span> lost</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if scparams.displayBadges and ccparams.gamificationUsed and ccparams.badgesUsed %}                            
             <div class="row">
-            	<div class="col s12 m10 offset-m1">            
-	            	<div class="card">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Your Badges</span>
+                            <div style="display: flex; flex-wrap: wrap;">
+                                {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in studentBadges %}
+                                <div style="height: 64px; width: fit-content; margin: 2px;">
+                                <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
+                                    height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
+                                </div>
+                                {% empty %}
+                                <div><i class="center-align" style="flex: 1;">No badges earned</i></div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Latest Group Badges</span>
+                            <div style="display: flex; flex-wrap: wrap;">
+                                {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %}
+                                <div style="height: 64px; width: fit-content; margin: 2px;">
+                                <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
+                                    height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
+                                <img alt="Avatar Image" width="30px" height="30px"
+                                        src="{{avatarImage}}" data-position="top" data-delay="50">
+                                </div>
+                                {% empty %}
+                                <div><i class="center-align" style="flex: 1;">No badges earned</i></div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}  
+            {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal and scparams.displayGoal %}
+            <div class="row">
+                <div class="col s12 m10 offset-m1">            
+                    <div class="card">
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">Goals</span>
-			            		<div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; margin-bottom: 10px;">
-			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal in goal_range %}                                                           
-			                          <div style="width: 240px; height: 240px; margin-bottom: 24px; margin-top: 8px;">
+                                <div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; margin-bottom: 10px;">
+                                    {% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal,can_edit in goal_range %}                                                           
+                                    <div style="width: 240px; height: 240px; margin-bottom: 24px; margin-top: 8px;">
                                         <div style="padding-left: 8px; padding-right: 8px; height: 40px;">
-                                            <p>{{goal_Type}}</p>
+                                            <p>{{goal_name}}</p>
                                         </div>
-                                        <div id="goal-container-{{i}}" class="goalindicator" data-goalprogress="20" data-title="{{goal_Type}}" title="{{goal_Type}} by {{student_ID}}" data-target="100"></div>
+                                        <div id="goal-container-{{i}}" class="goalindicator" data-goalprogress="{{goal_progress}}" data-title="{{goal_name}}" title="{{goal_name}} by {{student_ID}}" data-target="{{goal_target}}" data-status="{{goal_status}}"></div>
                                             
                                         <div style="padding-left: 8px; padding-right: 8px; text-align: center;">
                                             <p>End Date: {{end_date}}</p>
                                         </div>
-                                        </div>
-			                         {% empty %} 
-			                            <div class="center-align"><i>No goals created</i></div>
-                                  {% endfor %}	
+                                    </div>
+                                    {% empty %} 
+                                    <div class="center-align"><i>No goals created</i></div>
+                                    {% endfor %}	
                                 </div>
                             </div>
                             <div class="card-action right-align">
                                 <div class="hide-on-med-and-up">
                                     <div class="row center-align">
-                                       <div class="col s12">
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
-                                       </div>
+                                        <div class="col s12">
+                                            <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                        </div>
                                     </div>
                                     <div class="row center-align">
-                                       <div class="col s12">
-                                            <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
-                                       </div>
+                                        <div class="col s12">
+                                            <a class="waves-effect waves-light btn" href="/oneUp/students/goalslist"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                        </div>
                                     </div>
-                                 </div>
-                                 <div class="hide-on-small-only">
+                                </div>
+                                <div class="hide-on-small-only">
                                     <div class="row right-align" style="margin: 0">
-                                       <div class="col s12">
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
-                                       </div>
+                                        <div class="col s12">
+                                            <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                            <a class="waves-effect waves-light btn" href="/oneUp/students/goalslist"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                        </div>
                                     </div>
-                                 </div>
+                                </div>
                             </div>
                         </div>
                         <script type='text/javascript'>
-                            $(document).ready(function () {
-                                var chart_settings = {
-                                        chart: {
-                                            type: 'solidgauge',
-                                            height: '200px',
+                        $(document).ready(function () {
+                            var chart_settings = {
+                                chart: {
+                                    type: 'solidgauge',
+                                    height: '200px',
+                                },
 
-                                        },
+                                title: {
+                                    text: '',
+                                    enabled: false,
+                                },
 
-                                        title: {
-                                            text: '',
-                                            enabled: false,
-                                        },
+                                tooltip: {
+                                    borderWidth: 0,
+                                    backgroundColor: 'none',
+                                    shadow: false,
+                                    style: {
+                                        fontSize: '16px'
+                                    },
+                                    valueSuffix: '%',
+                                    pointFormat: '{series.name}<br><span style="font-size:2em; color: {point.color}; font-weight: bold">{point.y}</span>',
+                                    positioner: {},
+                                },
 
-                                        tooltip: {
-                                            borderWidth: 0,
-                                            backgroundColor: 'none',
-                                            shadow: false,
-                                            style: {
-                                                fontSize: '16px'
-                                            },
-                                            valueSuffix: '%',
-                                            pointFormat: '{series.name}<br><span style="font-size:2em; color: {point.color}; font-weight: bold">{point.y}</span>',
-                                            positioner: function (labelWidth) {
-                                                return {
-                                                    x: (this.chart.chartWidth - labelWidth + 3) / 2,
-                                                    y: (this.chart.plotHeight / 2)
-                                                };
-                                            }
-                                        },
+                                pane: {
+                                    startAngle: 0,
+                                    endAngle: 360,
+                                    background: [{ 
+                                        outerRadius: '112%',
+                                        innerRadius: '88%',
+                                        backgroundColor: Highcharts.color(Highcharts.getOptions().colors[4])
+                                            .setOpacity(0.3)
+                                            .get(),
+                                        borderWidth: 0
+                                    }]
+                                },
 
-                                        pane: {
-                                            startAngle: 0,
-                                            endAngle: 360,
-                                            background: [{ // Track for Move
-                                                outerRadius: '112%',
-                                                innerRadius: '88%',
-                                                backgroundColor: Highcharts.color(Highcharts.getOptions().colors[4])
-                                                    .setOpacity(0.3)
-                                                    .get(),
-                                                borderWidth: 0
-                                            }]
-                                        },
+                                yAxis: {
+                                    min: 0,
+                                    max: 100,
+                                    lineWidth: 0,
+                                    tickPositions: [],
+                                },
 
-                                        yAxis: {
-                                            min: 0,
-                                            max: 100,
-                                            lineWidth: 0,
-                                            tickPositions: []
-                                        },
-
-                                        plotOptions: {
-                                            solidgauge: {
-                                                dataLabels: {
-                                                    enabled: false
-                                                },
-                                                linecap: 'round',
-                                                stickyTracking: false,
-                                                rounded: true
-                                            }
-                                        },
-                                        credits: {
+                                plotOptions: {
+                                    solidgauge: {
+                                        dataLabels: {
                                             enabled: false
                                         },
-
-                                        series: [{
-                                            name: '',
-                                            data: [{
-                                                color: Highcharts.getOptions().colors[4],
-                                                radius: '112%',
-                                                innerRadius: '88%',
-                                                y: 80
-                                            }]
-                                        },]
-                                    };
-                                    var indicatorsFound = document.getElementsByClassName("goalindicator");
-                                    console.log(indicatorsFound.length)
-                                    for(var i = 0; i < indicatorsFound.length; i++){
-                                        chart_settings.chart.renderTo = `goal-container-${i+1}`;
-                                        var chart = new Highcharts.Chart(chart_settings);
-                                        // chart.title.text = indicatorsFound[i].dataset.title;
-                                        // chart.setTitle({text: indicatorsFound[i].dataset.title});
-                                        
-                                        var progress_data = indicatorsFound[i].dataset.goalprogress;
-                                        if (progress_data <= 100){
-                                            progress_data = parseInt(progress_data);
-                                        }
-                                        else {
-                                            progress_data = 100;
-                                        }
-                                        chart.series[0].points[0].update(progress_data);
-
-                                        chart.series[0].points[0].onMouseOver(); // Show the hover marker
-                                        chart.tooltip.refresh(chart.series[0].points[0]); // Show the tooltip
-                                        chart.tooltip.hide = function () {};
-
-                                        // createProgressBar(indicatorsFound[i].dataset.goalprogress, indicatorsFound[i].dataset.target, indicatorsFound.item(i));
+                                        linecap: 'round',
+                                        stickyTracking: false,
+                                        rounded: true
                                     }
-                                    
-                            });
+                                },
+                                credits: {
+                                    enabled: false
+                                },
+
+                                series: [{
+                                    name: '',
+                                    data: [{
+                                        color: Highcharts.getOptions().colors[4],
+                                        radius: '112%',
+                                        innerRadius: '88%',
+                                        y: 80
+                                    }]
+                                },]
+                            };
+                            var indicatorsFound = document.getElementsByClassName("goalindicator");
+                            // Colors array is in ChartTheme.html
+                            var colors = {'In Progress': Highcharts.getOptions().colors[4], 
+                                        'Not Achieved': Highcharts.getOptions().colors[5], 
+                                        'Completed': Highcharts.getOptions().colors[2]
+                                };
+                            var background_colors = {'In Progress': Highcharts.color(Highcharts.getOptions().colors[4]).setOpacity(0.3).get(), 
+                                        'Not Achieved': Highcharts.color(Highcharts.getOptions().colors[5]).setOpacity(0.3).get(), 
+                                        'Completed': Highcharts.color(Highcharts.getOptions().colors[2]).setOpacity(0.3).get()
+                                };
+                            for(var i = 0; i < indicatorsFound.length; i++){
+                                // Have to deep copy settings since highcharts uses references
+                                var copied_settings = JSON.parse(JSON.stringify(chart_settings));
+                                copied_settings.chart.renderTo = indicatorsFound[i].id;
+                                copied_settings.tooltip.positioner = function (labelWidth) {
+                                        return {
+                                            x: (this.chart.chartWidth - labelWidth + 3) / 2,
+                                            y: (this.chart.plotHeight / 2)
+                                        };
+                                    };
+                                var status = indicatorsFound[i].dataset.status;
+                                copied_settings.pane.background[0].backgroundColor = background_colors[status];
+
+                                var chart = new Highcharts.Chart(copied_settings);
+                                var progress_data = indicatorsFound[i].dataset.goalprogress;
+                                
+                                if (progress_data <= 100){
+                                    progress_data = parseInt(progress_data);
+                                }
+                                else {
+                                    progress_data = 100;
+                                }
+                                
+                                chart.series[0].points[0].color = colors[status];
+                                chart.series[0].points[0].update(progress_data);
+                                
+                                // always show the label
+                                chart.series[0].points[0].onMouseOver(); 
+                                chart.tooltip.refresh(chart.series[0].points[0]);
+                                chart.tooltip.hide = function () {};
+                            }
+                        });
                         </script>
-           		</div>
+                    </div>
+                </div>
             </div>
             {% endif %}
-         {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
-         <div class="row">
-            <div class="col s12 s12 m10 offset-m1">
-               <div class="row" style="display: flex;">
-                  <div class="col s12 m6"></div>
-                  {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %}
-                  <div class="col s12">
-                     <div class="card-panel">
-                        <table>
-                           <caption>
-                              <h5>{{leaderboardNames}}</h5>
-                           </caption>
-                           <thead>
-                              <th>Student</th>
-                              <th>Points</th>
-                           </thead>
-                           <tbody>
-                              {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
-                              <tr>
-                                 <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
-                                 </td>
-                                 <td>{{points}}</td>
-                              </tr>
-                              {% empty %}
-                              <tr>
-                                 <td class="center-align" colspan="2"><i>No students with enough XP to place
-                                       on leaderboard</i></td>
-                              </tr>
-                              {% endfor %}
-                           </tbody>
-                        </table>
-                     </div>
-                  </div>
-
-                  {% endfor %}
-                  <div class="col s12 m6"></div>
-               </div>
+            {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
+            <div class="row">
+                <div class="col s12 s12 m10 offset-m1">
+                    <div class="row" style="display: flex;">
+                        <div class="col s12 m6"></div>
+                        {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %}
+                        <div class="col s12">
+                            <div class="card-panel">
+                                <table>
+                                    <caption>
+                                        <h5>{{leaderboardNames}}</h5>
+                                    </caption>
+                                    <thead>
+                                        <th>Student</th>
+                                        <th>Points</th>
+                                    </thead>
+                                    <tbody>
+                                        {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
+                                        <tr>
+                                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+                                            </td>
+                                            <td>{{points}}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td class="center-align" colspan="2"><i>No students with enough XP to place
+                                                on leaderboard</i></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="col s12 m6"></div>
+                    </div>
+                </div>
             </div>
-         </div>
-         {% endif %}
-         </div>
-      </main>
-      {% include 'footer.html' %}
+            {% endif %}
+        </div>
+    </main>
+    {% include 'footer.html' %}
    </body>
 </html>

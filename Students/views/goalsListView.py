@@ -5,167 +5,116 @@ Based on announcementsListView.html as a template
 
 @author: James Cherry
 '''
-from django.template import RequestContext
+import logging
+from datetime import timedelta
+
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.models import Announcements, Instructors, Courses, Goals
-from Instructors.views.utils import utcDate, initialContextDict
-from datetime import datetime, date, time, timedelta
-from oneUp.decorators import instructorsCheck   
-from Students.models import StudentGoalSetting, Student
-from Students.views.utils import studentInitialContextDict
-from Students.views.allAnnouncementsView import createContextForAnnouncementList
 
+from Badges.periodicVariables import PeriodicVariables
+from Badges.systemVariables import SystemVariable
+from Instructors.views.utils import utcDate
 from Students.models import StudentGoalSetting
-from Badges.enums import Goal
-from Badges import systemVariables
-from Students.views import goalCreateView
-from Students.views.goalCreateView import goalCreate
+from Students.views.goalView import process_goal
+from Students.views.utils import studentInitialContextDict
 
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
-# Added boolean to check if viewing from announcements page or course home page
-def createContextForGoalsList(currentCourse, context_dict, courseHome, user):
-
-    student = Student.objects.get(user=user)
-
-    studentGoal_ID = []      
-    student_ID = []
-    course_ID = []
-    start_date = []
-    edit_allowed = []
-    end_date = []
-    goal_Type = []
-    targeted_Number = []
-    goal_progress = []
-    goal_status = []
-    recurring_goal = []
-        
-    goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
-    
-    
-    index = 0
-    if not courseHome: # Shows all the announcements
-        print("Here")
-        for goal in goals:
-            studentGoal_ID.append(goal.studentGoalID) #pk
-            student_ID.append(goal.studentID)
-            start_date.append(goal.timestamp.strftime('%m/%d/%y'))
-            course_ID.append(goal.courseID) 
-             
-            # if default end date (= unlimited) is stored, we don't want to display it on the webpage  
-            
-            edit_allowed.append(editGoal(goal.timestamp))
-                             
-            endDate = goal.timestamp + timedelta(days=7)
-            end_date.append(endDate.strftime('%m/%d/%y'))           
-            #end_date calculation function here            
-            goal_Type.append(goalTypeToString(goal.goalType))
-            targeted_Number.append(goal.targetedNumber) 
-                            
-            progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)  
-            
-            if (progressPercent <= 100): 
-                goal_progress.append(progressPercent)
-            else:
-                goal_progress.append(100)
-            
-            status = goalStatus(progressPercent, endDate)
-            goal_status.append(status)
-            
-            recurring_goal.append("Yes" if goal.recurringGoal else "No")    
-            
-            if (utcDate() >= endDate):
-                goalRecurrence(goal.recurringGoal, goal.courseID, goal.studentID, goal.goalType, goal.targetedNumber, goal.progressToGoal, endDate)
-                sgi = goal.studentGoalID
-                goal = StudentGoalSetting.objects.get(pk=int(sgi))
-                goal.recurringGoal = False
-                goal.save()
-            
-    else: # Only shows the first three
-        print("h")
-        for goal in goals:                        
-            if index < 1:
-                studentGoal_ID.append(goal.studentGoalID) #pk
-                student_ID.append(goal.studentID)
-                course_ID.append(goal.courseID)              
-                
-                edit_allowed.append(editGoal(goal.timestamp))
-                
-                start_date.append(goal.timestamp.strftime('%m/%d/%y'))
-                endDate = goal.timestamp + timedelta(days=7)
-                end_date.append(endDate.strftime('%m/%d/%y')) 
-                goal_Type.append(goalTypeToString(goal.goalType))
-                targeted_Number.append(goal.targetedNumber)
-                
-                progressPercent = calculateProgress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)
-                goal_progress.append(progressPercent)
-                
-                status = goalStatus(progressPercent, endDate)
-                goal_status.append(status)
-                
-                recurring_goal.append("Yes" if goal.recurringGoal else "No")
-                
-                if (utcDate() >= endDate):
-                    index += 1    
-      
-    # The range part is the index numbers.
-    print (student_ID)
-    context_dict['goal_range'] = zip(range(1,goals.count()+1),studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal)
-    print(context_dict['goal_range'])
-    return context_dict
-
-    
 @login_required
-def goalsList(request):
+def goals_list(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
 
-    context_dict = createContextForGoalsList(currentCourse, context_dict, False, request.user)
+    context_dict = createContextForGoalsList(currentCourse, context_dict, False)
     
     return render(request,'Students/GoalsList.html', context_dict)
 
-def goalTypeToString(gt):
-    genums = Goal.goals
-    #gname = 'Blank'    
-    return genums[gt].get('displayName')
+def createContextForGoalsList(currentCourse, context_dict, courseHome):
+    if not 'student' in context_dict:
+        logger.error("You must pass student object through context_dict")
+        return context_dict
 
-def calculateProgress(initialGoalTarget, goalType, course, student, target):
-    gcv = goalCreateView
-    
-    newProgress = gcv.goalProgressFxn(goalType, course, student)
-    
-    progressPercent = ((newProgress - initialGoalTarget) / target) * 100
-    
-    return round(progressPercent, 0)
+    goal_ID = []      
+    student_ID = []
+    course_ID = []
+    start_date = []
+    end_date = []
+    goal_name = []
+    goal_target = []
+    goal_progress = []
+    goal_status = []
+    recurring_goal = []
+    can_edit = []
 
-def goalStatus(progressPercent, endDate):
-    if (progressPercent >= 100):
+    student = context_dict['student']
+    goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
+
+    goal_variables = [sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True] \
+                    + [PeriodicVariables.periodicVariables[PeriodicVariables.xp_ranking]]
+
+    current_time = utcDate()
+    for goal in goals:
+
+        goal_ID.append(goal.studentGoalID) #pk
+        student_ID.append(goal.studentID)
+        # start_date.append(goal.timestamp.strftime('%m/%d/%y'))
+        start_date.append(goal.timestamp)
+        course_ID.append(goal.courseID) 
+                                                    
+        endDate = goal.timestamp + timedelta(days=7)
+        # end_date.append(endDate.strftime('%m/%d/%y'))
+        end_date.append(endDate)               
+        goal_var = [var['displayName'] for var in goal_variables if var['index'] == goal.goalType]
+        goal_name.append(goal_var[0])
+        goal_target.append(goal.targetedNumber) 
+                        
+        progress_percentage = calculate_progress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)  
+        goal_progress.append(min(progress_percentage, 100))
+        
+        status = goal_status_str(progress_percentage, endDate, current_time)
+        goal_status.append(status)
+        can_edit.append(status == 'In Progress')
+        
+        recurring_goal.append("Yes" if goal.recurringGoal else "No")    
+        
+        if current_time >= endDate:
+            if goal.recurringGoal:
+                # Create new recurring goal
+                duplicate_goal = StudentGoalSetting()        
+                duplicate_goal.courseID = goal.courseID
+                duplicate_goal.studentID = goal.studentID
+                duplicate_goal.goalType = goal.goalType
+                duplicate_goal.targetedNumber = goal.targetedNumber
+                duplicate_goal.timestamp = end_date  
+                duplicate_goal.progressToGoal = process_goal(goal.courseID, goal.studentID, goal.goalType)
+                duplicate_goal.recurringGoal = True       
+                duplicate_goal.save()
+
+                goal.recurringGoal = False
+                goal.save() 
+      
+    status_order = ['In Progress',  'Not Achieved', 'Completed']
+    context_dict['goal_range'] = sorted(list(zip(range(1,goals.count()+1),goal_ID,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit)), key=lambda x: (status_order.index(x[9]), x[5]))
+
+    if courseHome:
+        limit = 3
+        context_dict['goal_range'] = context_dict['goal_range'][:limit]
+
+    return context_dict
+
+def calculate_progress(starting_progress, goal_var, course, student, goal_target):
+    
+    new_progression = process_goal(course, student, goal_var)
+    
+    percentage = ((new_progression - starting_progress) / goal_target) * 100
+    
+    return round(percentage, 0)
+
+def goal_status_str(progress_percentage, end_date, current_time):
+    if (progress_percentage >= 100):
         return "Completed"
-    elif (utcDate() >= endDate):
+    elif (current_time >= end_date):
         return "Not Achieved"
     else:
         return "In Progress"
-    
-def editGoal(startDate):
-    editDeadline = startDate + timedelta(hours=24)
-    
-    if (utcDate() < editDeadline):
-        return True
-    else:
-        return False  
-    
-def goalRecurrence(recur, course, student, goalType, target, progress, endDate):
-    if (recur):
-        goal = StudentGoalSetting()        
-        goal.courseID = course
-        goal.studentID = student
-        goal.goalType = goalType
-        goal.targetedNumber = target
-        goal.timestamp = endDate  
-        print("Goal endDate is: ", endDate) 
-        print("New goal start date is: ", goal.timestamp)      
-        goal.progressToGoal = progress
-        goal.recurringGoal = recur       
-        goal.save();  #Writes to database.
-    
-    
