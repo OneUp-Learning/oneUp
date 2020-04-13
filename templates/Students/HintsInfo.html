@@ -15,17 +15,8 @@
             <div class="col s12 m10 offset-m1">
                <div class="card">
                   <div class="card-content">
-                     <table {% if challenge_range %}class="responsive-table"{% else %}class="table"{% endif%}>
-                        <thead>
-                           <th>Name</th>
-                           <th>Description</th>
-                        </thead>
-                        <tbody>
-                           <tr>
-                              <td>Hints</td>
-                              <td>Weak Hint Reduction: {{weakHint}}%, Strong Hint Reduction: {{strongHint}}%</td>
-                           </tr>
-                        </tbody>
+                     <table>
+                        <td>If enabled in the problem, Weak Hints Reduction: {{weakHint}}%, Strong Hint Reduction: {{strongHint}}%</td>
                      </table>
                   </div>
                   <div class="card-action right-align">
