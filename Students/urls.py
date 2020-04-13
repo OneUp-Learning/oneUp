@@ -35,7 +35,7 @@ from Students.views.duelChallengeView import (
     get_create_duel_topics_difficulties, validate_duel_challenge_creation)
 from Students.views.goalsListView import goals_list
 from Students.views.goalView import goal_view
-from Students.views.hintsView import hintsUsed
+from Students.views.hintsView import hintsUsed, hintInfoView
 from Students.views.leaderboardInfoView import leaderboardInfoView
 from Students.views.leaderboardView import LeaderboardView
 from Students.views.logoutView import LogoutView
@@ -77,6 +77,7 @@ urlpatterns = [
     url(r'^ChallengeSetup', ChallengeSetup, name='ChallengeSetup'),
     url(r'^ChallengeResults', ChallengeResults, name='ChallengeResults'),
     url(r'^hintsUsed', hintsUsed, name='hintsUsed'),
+    url(r'^hintInfoView', hintInfoView, name='hintInfoView'),
     url(r'^ChallengesTaken', ChallengesTaken, name='ChallengesTaken'),
     url(r'^CourseInformation', CourseInformation, name='CourseInformation'),
     url(r'^CoursePerformance', CoursePerformance, name='CoursePerformance'),

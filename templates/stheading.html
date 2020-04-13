@@ -311,7 +311,10 @@
 						{% endif %}	
 						{%if  ccparams.leaderboardUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
-						{% endif %}						
+						{% endif %}
+						{% if ccparams.hintsUsed %}
+						<li><a class="waves-effect" href="/oneUp/students/hintInfoView">Hints Info</a></li>
+						{% endif %}		
 						{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
 						<li><a class="waves-effect " href="/oneUp/badges/CourseBadges">Course Badges</a></li>
 						{% endif %}
@@ -431,7 +434,10 @@
 									{% endif %}
 									{% if ccparams.skillLeaderboardDisplayed %}
 									<li><a class="waves-effect" href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
-									{% endif %}						
+									{% endif %}
+									{% if ccparams.hintsUsed %}
+									<li><a class="waves-effect" href="/oneUp/students/hintInfoView">Hints Info</a></li>
+									{% endif %}
 									{% if ccparams.gamificationUsed and ccparams.badgesUsed %}
 									<li><a class="waves-effect" href="/oneUp/badges/CourseBadges">Course Badges</a></li>
 									{% endif %}
