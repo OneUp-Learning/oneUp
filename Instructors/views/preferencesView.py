@@ -3,16 +3,15 @@ Created on Sep 15, 2016
 #Updated The order of the fields to match the templates
 @author: Vendhan
 '''
-from django.shortcuts import redirect
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
+
 from Badges.models import CourseConfigParams, LeaderboardsConfig
-from Students.models import StudentRegisteredCourses
+from Badges.tasks import refresh_xp
+from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
-from Badges.tasks import refresh_xp
-
-from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
+from Students.models import StudentRegisteredCourses
 
 
 @login_required
@@ -157,7 +156,8 @@ def preferencesView(request):
         ccparams.weightBasicHint = request.POST["weightBasicHint"]
         context_dict = ccparams.weightStrongHint = request.POST["weightStrongHint"]
 
-        ## 4.3.2019  JC
+        # Goals
+        ccparams.goalsUsed = "goalsUsed" in request.POST
         ccparams.studCanChangeGoal = "studCanChangeGoal" in request.POST
 
        #moved to course config  
@@ -253,7 +253,9 @@ def preferencesView(request):
             context_dict["weightStrongHint"] = ccparams.weightStrongHint
 
             # Goals
+            context_dict['goalsUsed'] = ccparams.goalsUsed
             context_dict['studCanChangeGoal'] = ccparams.studCanChangeGoal
+            
             # Streaks
             #moved to course config
             #context_dict["streaksUsed"] = ccparams.streaksUsed

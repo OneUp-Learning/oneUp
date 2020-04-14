@@ -50,9 +50,6 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
     student = context_dict['student']
     goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
 
-    goal_variables = [sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True] \
-                    + [PeriodicVariables.periodicVariables[PeriodicVariables.xp_ranking]]
-
     current_time = utcDate()
     for goal in goals:
 
@@ -65,8 +62,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
         endDate = goal.timestamp + timedelta(days=7)
         # end_date.append(endDate.strftime('%m/%d/%y'))
         end_date.append(endDate)               
-        goal_var = [var['displayName'] for var in goal_variables if var['index'] == goal.goalType]
-        goal_name.append(goal_var[0])
+        goal_name.append(goal_type_to_name(goal.goalType))
         goal_target.append(goal.targetedNumber) 
                         
         progress_percentage = calculate_progress(goal.progressToGoal, goal.goalType, goal.courseID, goal.studentID, goal.targetedNumber)  
@@ -102,6 +98,14 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
         context_dict['goal_range'] = context_dict['goal_range'][:limit]
 
     return context_dict
+
+def goal_type_to_name(goal_type):
+    goal_variables = [sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True] \
+                    + [PeriodicVariables.periodicVariables[PeriodicVariables.xp_ranking]]
+
+    goal_var = [var['displayName'] for var in goal_variables if var['index'] == goal_type]
+
+    return goal_var[0] if len(goal_var) == 1 else "invalid"
 
 def calculate_progress(starting_progress, goal_var, course, student, goal_target):
     

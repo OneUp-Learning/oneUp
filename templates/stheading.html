@@ -347,7 +347,7 @@
 						{% if ccparams.avatarUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/avatar">Avatar Selection</a></li>
 						{% endif %}
-						{% if ccparams.studCanChangeGoal %}
+						{% if ccparams.goalsUsed and ccparams.studCanChangeGoal %}
 						<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
 						{% endif %}
 						<!-- {% if ccparams.chatUsed %}
@@ -471,7 +471,7 @@
 									{% if ccparams.avatarUsed %}
 									<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
 									{% endif %}
-									{% if ccparams.studCanChangeGoal %}
+									{% if ccparams.goalsUsed and ccparams.studCanChangeGoal %}
 									<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
 									{% endif %}
 									<!-- {% if ccparams.chatUsed %}

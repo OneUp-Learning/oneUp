@@ -510,6 +510,28 @@
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
+                                <span class="card-title">Student Goals</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable the use of goal setting for students
+                                            {% if goalsUsed %}
+                                            <input name="goalsUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="goalsUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
                                 <span class="card-title">Hints Configuration</span>
                                 <div class="switch col s12">
                                     <label>
