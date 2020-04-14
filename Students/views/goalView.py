@@ -7,6 +7,7 @@ Modeled after announcementCreateView.py
 '''
 
 import logging
+from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -14,6 +15,7 @@ from django.shortcuts import redirect, render
 from Badges.enums import ObjectTypes
 from Badges.periodicVariables import PeriodicVariables
 from Badges.systemVariables import SystemVariable
+from Badges.tasks import create_goal_expire_event
 from Instructors.views.debugSysVars import getSysValues
 from Instructors.views.utils import utcDate
 from Students.models import StudentGoalSetting, StudentRegisteredCourses
@@ -42,8 +44,6 @@ def goal_view(request):
         else:
             goal = StudentGoalSetting()
         
-        
-
         goal.courseID = current_course
         goal.studentID = context_dict['student']
         goal.goalType = request.POST['goal_variable']
@@ -51,8 +51,9 @@ def goal_view(request):
         goal.timestamp = utcDate()
         goal.progressToGoal = process_goal(current_course, context_dict['student'], int(request.POST['goal_variable']))
         goal.recurringGoal = "recurring_goal" in request.POST
-        
         goal.save()  
+
+        create_goal_expire_event(request, context_dict['student'].pk, goal.pk, goal.timestamp + timedelta(days=7), request.session['django_timezone'])
                 
         return redirect('goalslist')
 
