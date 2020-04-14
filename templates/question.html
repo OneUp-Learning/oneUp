@@ -332,8 +332,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     <div class="right-align">
     <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
     <br>
-    <button class="btn waves-effect waves-light" style="z-index: 0;" onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Weak Hint</button>
-    <button class="btn waves-effect waves-light" style="z-index: 0;" onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
+    <button class="btn waves-effect waves-light" onclick="hintClickedByStudent({{q.challenge_question_id}}, 0)" type="button" id="{{q.challenge_question_id}}-basicButton">Get Weak Hint</button>
+    <button class="btn waves-effect waves-light" onclick="hintClickedByStudent({{q.challenge_question_id}}, 1)" type="button" id="{{q.challenge_question_id}}-strongButton">Get Strong Hint</button>
     </div>
     {% endif %}
   </div>
