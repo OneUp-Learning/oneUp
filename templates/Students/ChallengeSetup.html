@@ -164,7 +164,7 @@
                break;
          }
          previous.style.display = "none";
-         let hintTag =  "<p id="+ problemID +"-" + type +">"+hint+"</p>";
+         let hintTag =  "<p class=\"right-align\" id="+ problemID +"-" + type +">"+hint+"</p>";
          previous.insertAdjacentHTML('afterEnd', hintTag);
 
       }
@@ -192,7 +192,7 @@
    {% include 'stheading.html' %}
    <main>
       <div style="height: 64px">
-         <nav id="menu" data-target="menu" style="z-index: 1;">
+         <nav id="menu" data-target="menu" style="z-index: 2;">
             <div class="row" style="max-height: 100%; display: flex;">
                <div class="col s12 m10 offset-m1" style="display: flex; justify-content: space-between; max-height: 100%;">
                   

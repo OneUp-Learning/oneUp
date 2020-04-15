@@ -42,7 +42,6 @@
         
     {% include 'scripts.html' %}
 
-    <script type="text/javascript" src="/static/ThirdParty/progressbar.js/progressbar.js"></script>
     <script src="/static/ThirdParty/Highcharts-stable/highcharts.src.js"></script>
     {% include 'chartTheme.html' %}
 
@@ -715,7 +714,7 @@
                         width: 2,
                         zIndex: 4,
                         //Progressbar marker black color
-                        color: 'darkblue'
+                        color: '#3399ff'
                     }],
                     labels: {
                         style: {
@@ -779,8 +778,8 @@
                 }, {
                     name: 'Projected Total Points',
                     //Progress bar total projected points black color.
-                    color: 'darkblue',
-                    //color:'#9966FF',
+                    // color: 'darkblue',
+                    color:'#3399ff',
                     pointRange: .5,
                     zIndex: 1,
                     data: [Math.max(Math.min(ChallengePointsProjected(),ChallengesMaxPoints()), 0) ]
@@ -812,12 +811,12 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="font-size:26px">{{studentXP_range}}</td>
+                                <td style="font-size:26px" class="primary-colored-text">{{studentXP_range}}</td>
                                 {% if ccparams.warmupsUsed %}
-                                <td style="font-size:26px"> {{totalWCEarnedPoints|floatformat}} / {{totalWCPossiblePoints|floatformat}}</td>
+                                <td style="font-size:26px"><span class="primary-colored-text">{{totalWCEarnedPoints|floatformat}}</span> / <span class="primary-colored-text">{{totalWCPossiblePoints|floatformat}}</span></td>
                                 {% endif %}
                                 {% if ccparams.virtualCurrencyUsed %}
-                                <td style="font-size:26px"> {{course_Bucks}}</td>
+                                <td style="font-size:26px" class="primary-colored-text">{{course_Bucks}}</td>
                                 {% endif %}
                             </tr>
                         </tbody>
@@ -889,22 +888,36 @@
         </div>
         {% endif %}
 
-        {% if ccparams.challengeClassmates %}
+        {% if ccparams.classmatesChallenges %}
 
         <div class="row">
             <div class="col s12 m5 l4 offset-m1 offset-l2" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid; margin-right: 5px" >
                 <div class="card" style="transform: translateZ(0);">
                     <div class="card-content">
-                    <h5 style="text-align: center">Duel </h5>
-                    <div style="text-align: center">
-                        <label style="white-space: pre-wrap; font-size:16px">    Wins                   Losses</label>
-                    </div>
-                    <div style="text-align: center;">
-                        <label style="font-size:26px">{{numOfDuelWon}} - {{numOfDuelLost}}<label>
-                    </div>
-                    <div style="text-align: center; margin-top:10px">
-                        <label style="white-space: pre-wrap; font-size:16px;">            {{numOfDuelSent}} sent                                {{numOfDuelAccepted}} accepted </label>
-                    </div>
+                        <h5 style="text-align: center">Duels</h5>
+                        <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                            <div style="max-width: 100px; min-width: 100px;">
+                                <div style="font-size: 16px; text-align: center;">
+                                    Wins
+                                </div>
+                                <div class="primary-colored-text" style="font-size: 26px; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                                    {{numOfDuelWon}}
+                                </div>
+                            </div>
+                            <div style="max-width: 100px; min-width: 100px;">
+                                <div style="font-size: 16px; text-align: center;">
+                                    Losses
+                                </div>
+                                <div class="primary-colored-text" style="font-size: 26px; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                                    {{numOfDuelLost}}
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div style="text-align: center; display: flex; justify-content: space-evenly; margin-top:10px">
+                            <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfDuelSent}}</span> sent</span>
+                            <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfDuelAccepted}}</span> accepted</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -912,17 +925,22 @@
             <div class="col s12 m5 l4" style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                 <div class="card" style="transform: translateZ(0);">
                     <div class="card-content">
-                    
-                    <h5 style="text-align: center">Callout </h5>
-                    <div style="text-align: center">
-                        <label style="font-size:16px">Wins</label>
-                    </div>
-                    <div style="text-align: center;">
-                        <label style="font-size:26px">{{numOfCalloutWon}}<label>
-                    </div>
-                    <div style="text-align: center; margin-top:10px">
-                        <label style="white-space: pre-wrap; font-size:16px;">     {{numOfCalloutSent}} sent        {{numOfCalloutRequest}} requested        {{numOfCalloutLost}} lost</label>
-                    </div>
+                        <h5 style="text-align: center">Callouts</h5>
+                        <div style="text-align: center; display: flex; justify-content: space-evenly;">
+                            <div>
+                                <div style="font-size: 16px; text-align: center;">
+                                    Wins
+                                </div>
+                                <div class="primary-colored-text" style="font-size: 26px; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                                    {{numOfCalloutWon}}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; display: flex; justify-content: space-evenly; margin-top:10px">
+                            <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfCalloutSent}}</span> sent</span>
+                            <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfCalloutRequest}}</span> requested</span>
+                            <span style="white-space: pre-wrap; font-size:16px; font-weight: 300; min-width: 80px;"><span class="primary-colored-text" style="font-weight: 300;">{{numOfCalloutLost}}</span> lost</span>
+                        </div>
                     </div>
                 </div>
             </div>

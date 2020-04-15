@@ -1,7 +1,9 @@
 from django.conf import settings
-from Badges.celeryApp import app
+
 import Badges.datamine_tasks
+from Badges.celeryApp import app
 from Badges.models import CeleryTestResult
+
 
 @app.task
 def process_event_offline(eventpk, minireq, student, objectId):
@@ -307,7 +309,56 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
             'timezone': timezone,
             }, eta=localized_due_date, expires=localized_due_date + timedelta(minutes=1), serializer='pickle')
 
+
+
+@app.task(ignore_result=True)
+def process_expired_goal(course_id, student_id, goal_id, end_date, timezone):
+    from Instructors.models import Courses
+    from Instructors.views.utils import localizedDate
+    from Students.views.goalsListView import goal_type_to_name
+    from Students.models import Student, StudentGoalSetting
+    from notify.signals import notify
+    from datetime import datetime, timedelta
+    import json
+
+    course = Courses.objects.get(pk=int(course_id))
+    student = Student.objects.get(pk=int(student_id))
+    currentTime = localizedDate(None, str(datetime.utcnow().replace(microsecond=0)), "%Y-%m-%d %H:%M:%S", timezone)
+
+    goal = StudentGoalSetting.objects.filter(courseID=course, studentID=student).first()
+    # If the goal is deleted don't calculate the send event
+    if goal:
+        goal_end_date = goal.timestamp + timedelta(days=7)
+
+        print("Passed End Date: {}".format(end_date))
+        print("Goal End Date: {}".format(goal_end_date))
+        print("Current Time: {}".format(currentTime))
+        # If the end date hasn't changed and the current time is at or passed the end date send the event
+        if (end_date == goal_end_date and currentTime >= goal_end_date):
+            print("Sending goal notification")
+            notify.send(None, recipient=student.user, actor=student.user, verb=f"{goal_type_to_name(goal.goalType)} personal goal is due", nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName), "related_link": '/oneUp/students/goalslist'}))
             
+            # Maybe can register a event that a goal has expired
+
+def create_goal_expire_event(request, student_id, goal_id, end_date, tz_info):
+    ''' This will register a task to be called when a goal end time has been reach'''
+
+    from datetime import timedelta
+    from django.utils.timezone import make_naive
+    from Instructors.views.utils import localizedDate
+    # Make date naive since celery eta accepts only naive datetimes then localize it
+    end_date = make_naive(end_date)
+    localized_end_date = localizedDate(request, str(end_date), "%Y-%m-%d %H:%M:%S")
+    # Setup the task and run at a later time (end_date)
+    # Will delete itself after one minute once it has finished running
+
+    process_expired_goal.apply_async(kwargs={'course_id': request.session['currentCourseID'],
+            'student_id': student_id,
+            'goal_id': goal_id,
+            'end_date': localized_end_date,
+            'timezone': tz_info,
+            }, eta=localized_end_date, expires=localized_end_date + timedelta(minutes=1), serializer='pickle')
+
 if settings.CELERY_ENABLED:
     schedule_celery_task_checker()
     
@@ -318,4 +369,3 @@ def testTask(uniqid,sequence):
     ctr.sequence=sequence
     ctr.save()
     return uniqid,sequence
-

@@ -10,6 +10,16 @@ from django.http import JsonResponse
 from Students.models import Student, StudentAnswerHints
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import ChallengesQuestions, Questions
+from Badges.models import CourseConfigParams
+
+@login_required
+def hintInfoView(request):
+    context_dict, currentCourse = studentInitialContextDict(request)
+    ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
+        
+    context_dict['weakHint'] = ccparams.weightBasicHint
+    context_dict['strongHint'] = ccparams.weightStrongHint
+    return render(request,'Students/HintsInfo.html',context_dict)
 
 @login_required
 def hintsUsed(request):

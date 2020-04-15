@@ -1,10 +1,11 @@
 from django import forms
-from django.forms.formsets import formset_factory
-
 from django.forms import ModelForm
+from django.forms.formsets import formset_factory
 from django.forms.models import BaseInlineFormSet
 
-from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Prompts, Goals, Challenges, Skills
+from Instructors.models import (Answers, Challenges, CorrectAnswers,
+                                DynamicQuestions, Prompts, Questions, Skills,
+                                StaticQuestions)
 
 
 class MultipleChoiceQuestionsFormSet(BaseInlineFormSet):
@@ -67,5 +68,4 @@ class ParsonsForm(forms.ModelForm):
         # Provide an association between the ModelForm and a model
         model = Questions
         fields = ('preview', 'instructorNotes', 'difficulty', 'author')
-
 

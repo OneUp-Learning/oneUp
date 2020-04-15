@@ -1,16 +1,11 @@
-from Badges.enums import Event, ObjectTypes
-
+import logging
 from datetime import datetime
 
-from Instructors.models import Challenges, Activities, Questions, Topics,\
-    ActivitiesCategory
+from Badges.enums import Event, ObjectTypes
 from Instructors.constants import unlimited_constant
-from django.utils import timezone
-import logging
-from billiard.connection import CHALLENGE
-from django.conf.urls.static import static
-from dateutil.utils import today
-from Instructors.views.utils import localizedDate, current_utctime
+from Instructors.models import (Activities, ActivitiesCategory, Challenges,
+                                Questions, Topics)
+from Instructors.views.utils import current_utctime, localizedDate
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -176,6 +171,8 @@ def getAllChallenges(course,student, isGraded):
         Returns the total score for either a serious or warmup challenge.
         isGraded when True is serious
         isGraded when False is warmup
+
+        NOTE: This will consider all challenge attempts including if the challenge is no longer available
     '''
     from Students.models import StudentChallenges
     from Instructors.models import ChallengesQuestions
@@ -1356,13 +1353,14 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activity: activityScore,
                 ObjectTypes.challenge: challengeScore
-            }    
+            },
+            'studentGoal': False,   
         },
         totalScoreForWarmupChallenges:{
             'index': totalScoreForWarmupChallenges,
             'name':'totalScoreForWarmupChallenges',
-            'displayName':'Warmup Challenge Total Score',
-            'description':'The student total score for a warmup challenge. Takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
+            'displayName':'Warmup Challenges Total Score',
+            'description':'The student total score for all attempted warmup challenges. Takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1370,12 +1368,13 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getTotalScoreForWarmupChallenges
             },
+            'studentGoal': False,
         },
         totalScoreForSeriousChallenges:{
             'index': totalScoreForSeriousChallenges,
             'name':'totalScoreForSeriousChallenges',
-            'displayName':'Serious Challenge Total Score',
-            'description':'The student total score for a serious challenge. Takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
+            'displayName':'Serious Challenges Total Score',
+            'description':'The student total score for all attempted serious challenges. Takes the earned points only from the first attempt of each challenge for the static problems but the highest score for the dynamic problems',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1383,6 +1382,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getTotalScoreForSeriousChallenges
             },
+            'studentGoal': False,
         },
         maxTestScore:{
             'index': maxTestScore,
@@ -1397,7 +1397,8 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge: getMaxTestScore,
                 ObjectTypes.activity: getMaxActivityScore
-            }
+            },
+            'studentGoal': False,
         },
         minTestScore:{
             'index': minTestScore,
@@ -1412,7 +1413,8 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge: getMinTestScore,
                 ObjectTypes.activity: getMinActivityScore
-            }
+            },
+            'studentGoal': False,
         },
         averageTestScore:{
             'index': averageTestScore,
@@ -1426,6 +1428,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge:getAverageTestScore
             },
+            'studentGoal': False,
         }, 
         averageActivityScore:{
             'index':averageActivityScore,
@@ -1438,7 +1441,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activity: getAverageActivityScore
-            }
+            },
+            'studentGoal': False,
         },
         sumOfScoreOfEveryStudentActivity:{
             'index':sumOfScoreOfEveryStudentActivity,
@@ -1451,7 +1455,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activity: getSumOfScoreOfEveryStudentActivity
-            }
+            },
+            'studentGoal': False,
         },
         minScoreOfStudentsActivitiesCategory:{
             'index':minScoreOfStudentsActivitiesCategory,
@@ -1464,7 +1469,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getMinScoreOfStudentsActivitiesCategory
-            }
+            },
+            'studentGoal': False,
         },
         maxScoreOfStudentsActivitiesCategory:{
             'index':maxScoreOfStudentsActivitiesCategory,
@@ -1477,7 +1483,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getMaxScoreOfStudentsActivitiesCategory
-            }
+            },
+            'studentGoal': False,
         },
         averageScoreOfStudentsActivitiesCategory:{
             'index':averageScoreOfStudentsActivitiesCategory,
@@ -1490,7 +1497,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getAverageScoreOfStudentsActivitiesCategory
-            }
+            },
+            'studentGoal': False,
         },
         averageScoreOfStudentActivitiesCategory:{
             'index':averageScoreOfStudentActivitiesCategory,
@@ -1503,7 +1511,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getAveOfScore
-            }
+            },
+            'studentGoal': False,
         },
         sumOfScoreOfAllStudentsActivitiesCategory:{
             'index':sumOfScoreOfAllStudentsActivitiesCategory,
@@ -1516,7 +1525,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getSumOfScoreOfAllStudentsActivitiesCategory
-            }
+            },
+            'studentGoal': False,
         },
         sumOfScoreOfAllStudentActivitiesCategory:{
             'index':sumOfScoreOfAllStudentActivitiesCategory,
@@ -1529,7 +1539,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getSumOfScoreOfAllStudentActivitiesCategory
-            }
+            },
+            'studentGoal': False,
         },
         percentOfScoreOutOfMaxChallengeScore:{
             'index': percentOfScoreOutOfMaxChallengeScore,
@@ -1543,6 +1554,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
             },
+            'studentGoal': False,
         },  
         percentOfFirstAttemptScoreOutOfChallengeScore:{
             'index': percentOfFirstAttemptScoreOutOfChallengeScore,
@@ -1556,6 +1568,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge: getPercentOfFirstAttemptScoreOutOfChallengeScore
             },
+            'studentGoal': False,
         },  
         percentageOfMaxActivityScore:{
             'index': percentageOfMaxActivityScore,
@@ -1569,6 +1582,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activity:getPercentageOfMaxActivityScore
             },
+            'studentGoal': False,
         },
         percentageOfCorrectAnswersPerChallengePerStudent:{
             'index': percentageOfCorrectAnswersPerChallengePerStudent,
@@ -1582,6 +1596,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge:getPercentageOfCorrectAnswersPerChallengePerStudent
             },
+            'studentGoal': False,
         }, 
         percentageOfActivityScore:{
             'index': percentageOfActivityScore,
@@ -1595,6 +1610,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activity:getPercentageOfActivityScore
             },
+            'studentGoal': False,
         }, 
         scorePercentageDifferenceFromPreviousActivity:{
             'index': scorePercentageDifferenceFromPreviousActivity,
@@ -1608,6 +1624,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activity:getScorePercentageDifferenceFromPreviousActivity
             },
+            'studentGoal': False,
         },
         scoreDifferenceFromPreviousActivity:{
             'index': scoreDifferenceFromPreviousActivity,
@@ -1621,6 +1638,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activity:getScoreDifferenceFromPreviousActivity
             },
+            'studentGoal': False,
         },
         activityScoreDifferenceByCategory:{
             'index': activityScoreDifferenceByCategory,
@@ -1634,6 +1652,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activity: activityScoreDifferenceFromPreviousAveragedScoresByCategory
             },
+            'studentGoal': False,
         },
         dateOfFirstChallengeSubmission:{
             'index': dateOfFirstChallengeSubmission,
@@ -1646,7 +1665,8 @@ class SystemVariable():
             'type':'date',
             'functions':{
                 ObjectTypes.challenge: getDateOfFirstChallengeSubmission
-            }
+            },
+            'studentGoal': False,
         },
         earliestChallengeSubmissionInClass:{
             'index': earliestChallengeSubmissionInClass,
@@ -1660,6 +1680,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge:earliest_challenge_submission_in_class
             },
+            'studentGoal': False,
         },
         seriousChallengeReachedDueDate:{
             'index': seriousChallengeReachedDueDate,
@@ -1673,6 +1694,7 @@ class SystemVariable():
             'functions': {
                 ObjectTypes.challenge: sc_reached_due_date
             },
+            'studentGoal': False,
         },
         isWarmUp:{
             'index': isWarmUp,
@@ -1686,19 +1708,21 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge:isWarmUpChallenge
             },
+            'studentGoal': False,
         },
         timeSpentOnChallenges:{
             'index': timeSpentOnChallenges,
             'name':'timeSpentOnChallenges',
-            'displayName':'Time Spent On Challenges (Minutes)',
-            'description':'The total time in minutes a student has spent completing challenges',
+            'displayName':'Time Minutes Spent On Challenges',
+            'description':'The total time in minutes a student has spent completing both warmup and serious challenges',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
             },
             'type':'int',
             'functions':{
                 ObjectTypes.none: totalTimeSpentOnChallenges
-            }
+            },
+            'studentGoal': False,
         },
         totalMinutesSpentOnWarmupChallenges:{
             'index': totalMinutesSpentOnWarmupChallenges,
@@ -1712,6 +1736,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getTotalMinutesSpentOnWarmupChallenges
             },
+            'studentGoal': False,
         },
         totalMinutesSpentOnSeriousChallenges:{
             'index': totalMinutesSpentOnSeriousChallenges,
@@ -1725,6 +1750,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getTotalMinutesSpentOnSeriousChallenges
             },
+            'studentGoal': False,
         },
         timeSpentOnQuestions:{
             'index': timeSpentOnQuestions,
@@ -1737,7 +1763,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none: totalTimeSpentOnQuestions
-            }
+            },
+            'studentGoal': False,
         },
         differenceFromLastChallengeScore:{
             'index': differenceFromLastChallengeScore,
@@ -1751,6 +1778,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge:getConsecutiveScoresDifference
             },
+            'studentGoal': False,
         },
         consecutiveDaysLoggedIn:{
             'index':consecutiveDaysLoggedIn,
@@ -1763,7 +1791,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none: getConsecutiveDaysLoggedIn
-            }
+            },
+            'studentGoal': True,
         },                  
         consecutiveDaysWarmUpChallengesTaken30Percent:{
             'index': consecutiveDaysWarmUpChallengesTaken30Percent,
@@ -1776,7 +1805,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken30Percent
-            }
+            },
+            'studentGoal': False,
         },
         consecutiveDaysWarmUpChallengesTaken75Percent:{
             'index': consecutiveDaysWarmUpChallengesTaken75Percent,
@@ -1789,7 +1819,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getConsecutiveDaysWarmUpChallengesTaken75Percent
-            }
+            },
+            'studentGoal': False,
         },
         numDaysSubmissionEarlier:{
             'index': numDaysSubmissionEarlier,
@@ -1804,7 +1835,8 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge: calcNumDaysSubmissionEarly,
                 ObjectTypes.activity: getNumDaysSubmissionEarlyActivity
-            }
+            },
+            'studentGoal': False,
         },
         numDaysSubmissionLate:{
             'index': numDaysSubmissionLate,
@@ -1819,7 +1851,8 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.challenge: calcNumDaysSubmissionLate,
                 ObjectTypes.activity: getNumDaysSubmissionLateActivity,
-            } 
+            },
+            'studentGoal': False,
         },
         numAttempts:{
             'index': numAttempts,
@@ -1832,7 +1865,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getNumAttempts
-            }
+            },
+            'studentGoal': False,
         },
         activitiesCompleted:{
             'index':activitiesCompleted,
@@ -1845,7 +1879,8 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none: getActivitiesCompleted
-            }
+            },
+            'studentGoal': False,
         },
         badgesEarned:{
             'index': badgesEarned,
@@ -1859,11 +1894,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfBadgesEarned
             },
+            'studentGoal': True,
         }, 
         uniqueSeriousChallengesAttempted:{
             'index': uniqueSeriousChallengesAttempted,
             'name':'uniqueSeriousChallengesAttempted',
-            'displayName':'Unique Serious Challenges Completed',
+            'displayName':'# of Unique Serious Challenges Completed',
             'description':'The number of serious challenges that a student has attempted at least once with a score > 0.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
@@ -1872,11 +1908,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesAttempted
             },
+            'studentGoal': True,
         },
         uniqueWarmupChallengesAttempted:{
             'index': uniqueWarmupChallengesAttempted,
             'name':'uniqueWarmupChallengesAttempted',
-            'displayName':'Unique Warmup Challenges Completed',
+            'displayName':'# of Unique Warmup Challenges Completed',
             'description':'The number of warmup challenges that a student has attempted at least once.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge],
@@ -1885,12 +1922,13 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesAttempted
             },
+            'studentGoal': True,
         },   
         uniqueWarmupChallengesGreaterThan60Percent:{
             'index': uniqueWarmupChallengesGreaterThan60Percent,
             'name':'uniqueWarmupChallengesGreaterThan60Percent',
-            'displayName':'Warmup Challenges Score (equal or greater than 60% correct)',
-            'description':'# of Warmup Challenges with Score >= 60% of Total Challenge Score.',
+            'displayName':'# of Warmup Challenges Score (equal or greater than 60% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than or equal 60%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
             },
@@ -1898,11 +1936,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan60Percent
             },
+            'studentGoal': True,
         },
         uniqueWarmupChallengesGreaterThan75Percent:{
             'index': uniqueWarmupChallengesGreaterThan75Percent,
             'name':'uniqueWarmupChallengesGreaterThan75Percent',
-            'displayName':'Warmup Challenges Score (equal or greater than 75% correct)',
+            'displayName':'# of Warmup Challenges Score (equal or greater than 75% correct)',
             'description':'The number of warmup challenges a student has completed with a score greater than or equal 75%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
@@ -1911,11 +1950,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75Percent
             },
+            'studentGoal': True,
         },
         uniqueWarmupChallengesGreaterThan80Percent:{
             'index': uniqueWarmupChallengesGreaterThan80Percent,
             'name':'uniqueWarmupChallengesGreaterThan80Percent',
-            'displayName':'Warmup Challenges Score (equal or greater than 80% correct)',
+            'displayName':'# of Warmup Challenges Score (equal or greater than 80% correct)',
             'description':'The number of warmup challenges a student has completed with a score greater than or equal to 80%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
@@ -1924,11 +1964,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan80Percent
             },
+            'studentGoal': True,
         },
         uniqueWarmupChallengesGreaterThan90Percent:{
             'index': uniqueWarmupChallengesGreaterThan90Percent,
             'name':'uniqueWarmupChallengesGreaterThan90Percent',
-            'displayName':'Warmup Challenges Score (equal or greater than 90% correct)',
+            'displayName':'# of Warmup Challenges Score (equal or greater than 90% correct)',
             'description':'The number of warmup challenges a student has completed with a score greater than or equal 90%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.endChallenge, Event.adjustment],
@@ -1937,6 +1978,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan90Percent
             },
+            'studentGoal': True,
         },
         uniqueSeriousChallengesGreaterThan30Percent:{
             'index': uniqueSeriousChallengesGreaterThan30Percent,
@@ -1950,6 +1992,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan30Percent
             },
+            'studentGoal': True,
         },
         uniqueSeriousChallengesGreaterThan75Percent:{
             'index': uniqueSeriousChallengesGreaterThan75Percent,
@@ -1963,6 +2006,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan75Percent
             },
+            'studentGoal': True,
         },
         uniqueSeriousChallengesGreaterThan90Percent:{
             'index': uniqueSeriousChallengesGreaterThan90Percent,
@@ -1976,6 +2020,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan90Percent
             },
+            'studentGoal': True,
         },
         uniqueWarmupChallengesGreaterThan75PercentForTopic:{
             'index': uniqueWarmupChallengesGreaterThan75PercentForTopic,
@@ -1989,6 +2034,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic
             },
+            'studentGoal': False,
         },  
         uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
             'index': uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt,
@@ -2002,6 +2048,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
             },
+            'studentGoal': True,
         },  
         uniqueWarmupChallengesGreaterThan70PercentTopic:{
             'index': uniqueWarmupChallengesGreaterThan70PercentTopic,
@@ -2015,6 +2062,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic
             },
+            'studentGoal': False,
         },  
         uniqueWarmupChallengesGreaterThan85PercentTopic:{
             'index': uniqueWarmupChallengesGreaterThan85PercentTopic,
@@ -2028,6 +2076,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic
             },
+            'studentGoal': False,
         },  
         warmupChallengesTopicGreaterThan70Percent:{
             'index': warmupChallengesTopicGreaterThan70Percent,
@@ -2041,6 +2090,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.topic:allWarmupChallengesTopicGreaterThan70Percent
             },
+            'studentGoal': False,
         },  
         warmupChallengesTopicGreaterThan85Percent:{
             'index': warmupChallengesTopicGreaterThan85Percent,
@@ -2054,6 +2104,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.topic:allWarmupChallengesTopicGreaterThan85Percent
             },
+            'studentGoal': False,
         },  
         averagePercentageOfWarmupsForTopic:{
             'index': averagePercentageOfWarmupsForTopic,
@@ -2067,11 +2118,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.topic:getAveragePercentageOfWarmupsForTopic
             },
+            'studentGoal': False,
         },  
         totalEarndVC:{
             'index': totalEarndVC,
             'name':'totalEarndVC',
-            'displayName':'Total amount of VC earned',
+            'displayName':'Total Amount of VC Earned',
             'description':'Return the total amount of virtual currency earned by a student',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.virtualCurrencyEarned],
@@ -2080,11 +2132,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getEarnedVCTotal
             },
+            'studentGoal': True,
         },  
         totalSpentVC:{
             'index': totalSpentVC,
             'name':'totalSpentVC',
-            'displayName':'Total amount of VC spent',
+            'displayName':'Total Amount of VC Spent',
             'description':'Return the total amount of virtual currency spent by a student',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.spendingVirtualCurrency],
@@ -2093,6 +2146,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getSpentVCTotal
             },
+            'studentGoal': False,
         },  
         duelsSent:{
             'index': duelsSent,
@@ -2106,6 +2160,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsSent
             },
+            'studentGoal': False,
         },  
         duelsAccepted:{
             'index': duelsAccepted,
@@ -2119,6 +2174,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsAccepted
             },
+            'studentGoal': False,
         },     
         duelsWon:{
             'index': duelsWon,
@@ -2132,6 +2188,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsWon
             },
+            'studentGoal': True,
         },       
         duelsParticipated:{
             'index': duelsParticipated,
@@ -2145,6 +2202,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsParticipated
             },
+            'studentGoal': True,
         },   
         duelsLost:{
             'index': duelsLost,
@@ -2158,6 +2216,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsLost
             },
+            'studentGoal': False,
         },   
         calloutSent:{
             'index': calloutSent,
@@ -2171,6 +2230,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutSent
             },
+            'studentGoal': False,
         },  
         calloutParticipate:{
             'index': calloutParticipate,
@@ -2184,6 +2244,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutParticipate
             },
+            'studentGoal': True,
         },     
         calloutParticipationWon:{
             'index': calloutParticipationWon,
@@ -2197,6 +2258,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutParticipationWon
             },
+            'studentGoal': True,
         },    
         calloutParticipationLost:{
             'index': calloutParticipationLost,
@@ -2210,6 +2272,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutParticipationLost
             },
+            'studentGoal': False,
         },   
         calloutRequested:{
             'index': calloutRequested,
@@ -2223,13 +2286,14 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutRequested
             },
+            'studentGoal': False,
         },                                                                  
     }
 
 if __debug__:
     # Check for mistakes in the systemVariables enum, such as duplicate
     # id numbers or mismatches between eventsWhichCanChangeThis and functions
-    expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions']
+    expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions', 'studentGoal']
     
     sysVarNames = [sv for sv in SystemVariable.__dict__ if sv[:1] != '_' and sv != 'systemVariables']
     sysVarNumSet = set()
@@ -2246,5 +2310,6 @@ if __debug__:
         assert len([obj for obj in functionsList if obj not in eventsList]) == 0, "System variable structure has a functions entry for an object type for which it has no events entry. %s " % sysVarName
         if ObjectTypes.none in eventsList:
             assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the global scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
+        assert type(dictEntry['studentGoal']) == bool, "System variable field studentGoal is not of type boolean. %s" % (sysVarName)
 
     assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."

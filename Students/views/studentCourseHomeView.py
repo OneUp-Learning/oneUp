@@ -2,31 +2,29 @@
 Created on Sep 14, 2016
 
 '''
-from django.shortcuts import render
-from django.http import JsonResponse
+import json
+import logging
+from collections import defaultdict
 
-from Instructors.models import Courses
-from Students.models import StudentConfigParams,Student,StudentRegisteredCourses, StudentBadges, StudentEventLog
-from Instructors.views.announcementListView import createContextForAnnouncementList
-from Instructors.views.upcommingChallengesListView import createContextForUpcommingChallengesList
-from Instructors.views.dynamicLeaderboardView import generateLeaderboards
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
 
 from Badges.enums import Event
-from Badges.models import  CourseConfigParams
 from Badges.events import register_event
-from django.contrib.auth.decorators import login_required
-from Students.views.utils import studentInitialContextDict
-
+from Badges.models import CourseConfigParams
+from Badges.periodicVariables import TimePeriods, studentScore
+from Instructors.models import Courses
+from Instructors.views.announcementListView import \
+    createContextForAnnouncementList
+from Instructors.views.dynamicLeaderboardView import generateLeaderboards
+from Instructors.views.upcommingChallengesListView import \
+    createContextForUpcommingChallengesList
+from Students.models import (Student, StudentBadges, StudentConfigParams,
+                             StudentEventLog, StudentRegisteredCourses)
 from Students.views.avatarView import checkIfAvatarExist
-
-from Badges.periodicVariables import studentScore
-
 from Students.views.goalsListView import createContextForGoalsList
-
-from collections import defaultdict
-import json
-
-import logging
+from Students.views.utils import studentInitialContextDict
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -46,7 +44,7 @@ def StudentCourseHome(request):
 
 	context_dict = createContextForAnnouncementList(currentCourse, context_dict, True)
 	context_dict = createContextForUpcommingChallengesList(currentCourse, context_dict)
-	context_dict = createContextForGoalsList(currentCourse, context_dict, True, request.user)
+	context_dict = createContextForGoalsList(currentCourse, context_dict, True)
 	print(context_dict)
 	progress_data = progress_bar_data(currentCourse, context_dict['ccparams'], for_student=student)
 
@@ -229,4 +227,3 @@ def studentBadges(currentCourse, student=None):
 			return list(zip(range(1,ccparams.numBadgesDisplayed+1),studentBadgeID,studentID,badgeID, badgeName, badgeImage,avatarImage))
 		
 	return None 
-	

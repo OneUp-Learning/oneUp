@@ -365,12 +365,12 @@ else:
             local by_type = {
                 ["NUMBER"] =
                     function ()
-                        return '<input type="text" name="'..fullname..'">'..
+                        return '<input type="text" autocomplete="off" name="'..fullname..'">'..
                                '<span class="helper-text">'..name..'</span>'
                     end,
                 ["STRING"] = 
                     function ()
-                        return '<input type="text" name="'..fullname..'">'..
+                        return '<input type="text" autocomplete="off" name="'..fullname..'">'..
                                '<span class="helper-text">'..name..'</span>'
                     end
             }
