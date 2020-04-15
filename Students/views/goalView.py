@@ -48,7 +48,7 @@ def goal_view(request):
         goal.studentID = context_dict['student']
         goal.goalType = request.POST['goal_variable']
         goal.targetedNumber = request.POST['goal_target']
-        goal.timestamp = utcDate()
+        goal.timestamp = utcDate() # TODO: Use current localtime
         goal.progressToGoal = process_goal(current_course, context_dict['student'], int(request.POST['goal_variable']))
         goal.recurringGoal = "recurring_goal" in request.POST
         goal.save()  
