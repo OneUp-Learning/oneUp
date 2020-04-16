@@ -3,25 +3,25 @@ Created on May 27, 2015
 Updated 06/09/2017
 
 '''
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-
-from Instructors.models import Skills, Challenges, CoursesSkills, Activities, Milestones
-from Students.models import StudentCourseSkills, StudentChallenges, StudentBadges, StudentRegisteredCourses, StudentActivities
-from Badges.models import CourseConfigParams
-from Students.views import classResults
-from Students.views.utils import studentInitialContextDict
-from Students.models import StudentConfigParams, StudentEventLog
-
-from Badges.periodicVariables import studentScore, TimePeriods
-from Students.views.studentCourseHomeView import progress_bar_data
-from Badges.events import register_event
-from Badges.enums import Event
 from audioop import reverse
-
-from Students.models import StudentStreaks
-from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule
 from datetime import datetime, timedelta
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+from Badges.enums import Event
+from Badges.events import register_event
+from Badges.models import (CourseConfigParams, PeriodicBadges,
+                           VirtualCurrencyPeriodicRule)
+from Badges.periodicVariables import TimePeriods, studentScore
+from Instructors.models import Activities, Challenges, CoursesSkills, Skills
+from Students.models import (StudentActivities, StudentBadges,
+                             StudentChallenges, StudentConfigParams,
+                             StudentCourseSkills, StudentEventLog,
+                             StudentRegisteredCourses, StudentStreaks)
+from Students.views import classResults
+from Students.views.studentCourseHomeView import progress_bar_data
+from Students.views.utils import studentInitialContextDict
 
 
 @login_required

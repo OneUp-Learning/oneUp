@@ -322,16 +322,6 @@ class ChallengesTopics(models.Model):
     challengeID = models.ForeignKey('Instructors.Challenges', on_delete=models.CASCADE, verbose_name="challenges")  
     def __str__(self):              
         return str(self.challengeID)+","+str(self.topicID)
-    
-class Milestones(models.Model):
-    milestoneID = models.AutoField(primary_key=True)
-    milestoneName = models.CharField(max_length=75)
-    description = models.CharField(max_length=200, default="")
-    points =  models.IntegerField()
-    authorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Author", db_index=True)
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
-    def __str__(self):              
-        return str(self.milestoneID)+","+self.milestoneName
 
 def imageUploadPath(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedInstructorImages'),filename)
