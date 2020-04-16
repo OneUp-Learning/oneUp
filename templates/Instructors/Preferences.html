@@ -448,6 +448,42 @@
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
+                                <span class="card-title">Leveling</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable the use of leveling
+                                            {% if levelingUsed %}
+                                            <input name="levelingUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="levelingUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                 <div class="row">
+                                        <div class="input-field col s12">
+                                            <p style="font-size: 0.8rem;">Amount of XP to level 1</p>
+                                            <input value={{levelTo1XP}} name="levelTo1XP" id="levelTo1XP" maxlength="3"
+                                                type="number" min="0" required>
+                                        </div>
+                                    </div>
+                                 <div class="row">
+                                        <div class="input-field col s12">
+                                            <p style="font-size: 0.8rem;">Percentage to next levevl after level 1</p>
+                                            <input value={{nextLevelPercent}} name="nextLevelPercent" id="nextLevelPercent" maxlength="3"
+                                                type="number" min="0" max="100" required>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
                                 <span class="card-title">Badges Configuration</span>
                                 <div class="row">
                                     <div class="switch col s12">

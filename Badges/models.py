@@ -286,6 +286,8 @@ class CourseConfigParams(models.Model):
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
 
     levelingUsed = models.BooleanField(default=False)                 ##
+    levelTo1XP = models.DecimalField(decimal_places=2, max_digits=100, default=10)
+    nextLevelPercent = models.DecimalField(decimal_places=2, max_digits=100, default=50)
     
     # Duels related
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs

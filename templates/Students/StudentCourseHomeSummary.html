@@ -164,6 +164,20 @@
             
             {% endif %}
 
+            {% if ccparams.levelingUsed %}
+              <div class="divider" style="margin-bottom: 8px;"></div>
+                <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
+                    <div style="max-width: 80px; min-width: 80px; margin-top: 20px">
+                        <div style="font-size: 1.9em;font-weight: 300; text-align: center;">
+                            Level
+                        </div>
+                        <div class="primary-colored-text" style="font-size: 4.6em; justify-content: center; font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                            {{level}}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
             <!-- {% if challengeClassmates %}
             <div class="divider" style="margin-bottom: 8px; margin-top: 0;"></div>
             <div  style="padding-left: 32px; padding-right: 8px;">
