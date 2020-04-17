@@ -34,7 +34,7 @@
 
 // 1. Colors
 // ==========================================================================
-$dark-mode: false;
+$dark-mode: true;
 
 $primary-color: if($dark-mode, lighten(#3044ad, 25%), color("indigo", "base")) !default; //color("indigo", "lighten-1") !default;
 $primary-color-light: lighten($primary-color, 15%) !default;
