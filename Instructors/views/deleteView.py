@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
-from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones, FlashCardGroup
+from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, Announcements, Activities, FlashCardGroup
 from Badges.models import VirtualCurrencyCustomRuleInfo
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (Activities, Announcements, Challenges,

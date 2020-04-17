@@ -3,7 +3,7 @@ from django.contrib import admin
 from Instructors.models import Courses, InstructorRegisteredCourses, Tags, ResourceTags, ChallengesQuestions, CoursesSkills, QuestionsSkills, ChallengeTags,\
     TemplateDynamicQuestions, Topics, CoursesTopics, ChallengesTopics, ActivitiesCategory
 from Instructors.models import Questions, StaticQuestions, DynamicQuestions, Answers, CorrectAnswers, Challenges, MatchingAnswers, UploadedImages, UploadedFiles
-from Instructors.models import Skills, Activities, Prompts, Goals, Announcements, Milestones, Instructors, TemplateTextParts, LuaLibrary, DependentLibrary,\
+from Instructors.models import Skills, Activities, Prompts, Announcements, Instructors, TemplateTextParts, LuaLibrary, DependentLibrary,\
     QuestionLibrary, UploadedFiles, UploadedActivityFiles, QuestionProgrammingFiles, FlashCardGroup, FlashCardGroupCourse, FlashCards, FlashCardToGroup
 from django.template.backends.django import Template
 
