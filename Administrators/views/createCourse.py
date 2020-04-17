@@ -1,20 +1,26 @@
-from django.template import RequestContext
-from django.shortcuts import render, redirect
-from django.utils import timezone
-
-from Instructors.models import Courses, Instructors, InstructorRegisteredCourses, Challenges, Topics, CoursesTopics, ActivitiesCategory
-from Instructors.constants import uncategorized_activity
-from Badges.models import CourseConfigParams, VirtualCurrencyCustomRuleInfo
-
-from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 
-from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, anonymous_avatar, unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
-from Instructors.views.utils import localizedDate, str_datetime_to_local
-from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from oneUp.decorators import adminsCheck
+from django.shortcuts import redirect, render
+from django.template import RequestContext
+from django.utils import timezone
+
+from Badges.models import CourseConfigParams, VirtualCurrencyCustomRuleInfo
+from Instructors.constants import (anonymous_avatar,
+                                   unassigned_problems_challenge_name,
+                                   uncategorized_activity,
+                                   unspecified_topic_name,
+                                   unspecified_vc_manual_rule_description,
+                                   unspecified_vc_manual_rule_name)
+from Instructors.models import (ActivitiesCategory, Challenges, Courses,
+                                CoursesTopics, InstructorRegisteredCourses,
+                                Instructors, Topics)
+from Instructors.views.utils import str_datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
+from oneUp.decorators import adminsCheck
+from Students.models import (Student, StudentConfigParams,
+                             StudentRegisteredCourses)
 
 
 def add_instructor_test_student(instructor, course):

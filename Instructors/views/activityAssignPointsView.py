@@ -2,24 +2,26 @@
 # Created on  11/20/2015
 # Dillon Perry, Austin Hodge
 #
-from django.utils import timezone
-from datetime import datetime
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from Students.models import StudentRegisteredCourses, Student, StudentFile
-from Instructors.models import Courses, Activities
-from Instructors.views.utils import localizedDate, initialContextDict, current_localtime
-from Students.models import StudentActivities
-from Badges.events import register_event
-from Badges.enums import Event
-from Badges.models import CourseConfigParams
-from Instructors.views.activityListView import createContextForActivityList
-from django.template.context_processors import request
-from notify.signals import notify
-from decimal import Decimal
-from oneUp.decorators import instructorsCheck
 import json
+from datetime import datetime
+from decimal import Decimal
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
+from django.template.context_processors import request
+from django.utils import timezone
+from notify.signals import notify
+
+from Badges.enums import Event
+from Badges.events import register_event
+from Badges.models import CourseConfigParams
 from Badges.tasks import refresh_xp
+from Instructors.models import Activities, Courses
+from Instructors.views.activityListView import createContextForActivityList
+from Instructors.views.utils import current_localtime, initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import (Student, StudentActivities, StudentFile,
+                             StudentRegisteredCourses)
 
 default_student_points = -1
 default_student_bonus = 0

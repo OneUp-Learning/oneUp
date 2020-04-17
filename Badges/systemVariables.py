@@ -5,7 +5,7 @@ from Badges.enums import Event, ObjectTypes
 from Instructors.constants import unlimited_constant
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
                                 Questions, Topics)
-from Instructors.views.utils import current_utctime, localizedDate
+from Instructors.views.utils import current_utctime
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {

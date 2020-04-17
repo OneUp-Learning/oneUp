@@ -13,7 +13,8 @@ from django.shortcuts import render
 
 from Badges.periodicVariables import PeriodicVariables
 from Badges.systemVariables import SystemVariable
-from Instructors.views.utils import utcDate, current_localtime, datetime_to_local
+from Instructors.views.utils import (current_localtime, datetime_to_local,
+                                     utcDate)
 from Students.models import StudentGoalSetting
 from Students.views.goalView import process_goal
 from Students.views.utils import studentInitialContextDict
@@ -90,7 +91,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
                 goal.recurringGoal = False
                 goal.save() 
       
-    status_order = ['In Progress',  'Not Achieved', 'Completed']
+    status_order = ['In Progress', 'Completed', 'Not Achieved']
     context_dict['goal_range'] = sorted(list(zip(range(1,goals.count()+1),goal_ID,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit)), key=lambda x: (status_order.index(x[9]), x[5]))
 
     if courseHome:

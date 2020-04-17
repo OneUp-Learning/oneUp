@@ -3,20 +3,23 @@ Created on Nov 3, 2014
 Last modified 09/02/2016
 
 '''
-from django.shortcuts import render
-from django.utils import timezone
-
-import glob, os
+import glob
+import os
 
 from django.contrib.auth.decorators import login_required
-from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
-from Instructors.views.utils import initialContextDict, localizedDate, current_localtime
-from Badges.models import Badges, BadgesInfo, PeriodicBadges
+from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.views.decorators.http import condition
-from django.shortcuts import redirect
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_badge,\
-    delete_periodic_task
+
+from Badges.conditions_util import (databaseConditionToJSONString,
+                                    setUpContextDictForConditions)
+from Badges.models import Badges, BadgesInfo, PeriodicBadges
+from Badges.periodicVariables import (PeriodicVariables, TimePeriods,
+                                      delete_periodic_task,
+                                      setup_periodic_badge)
+from Instructors.views.utils import current_localtime, initialContextDict
 from Students.models import Student
+
 
 @login_required
 def timeBasedBadgeView(request):

@@ -3,18 +3,18 @@ Created on Nov 3, 2014
 Last modified 09/02/2016
 
 '''
-from django.shortcuts import render
-from django.utils import timezone
-
-from django.contrib.auth.decorators import login_required
-from Instructors.views.utils import initialContextDict, localizedDate, current_localtime
-from Badges.models import VirtualCurrencyPeriodicRule
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_vc, delete_periodic_task
-from django.shortcuts import redirect
-from Students.models import StudentRegisteredCourses
+import logging
 import random
 
-import logging
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from Badges.models import VirtualCurrencyPeriodicRule
+from Badges.periodicVariables import (PeriodicVariables, TimePeriods,
+                                      delete_periodic_task, setup_periodic_vc)
+from Instructors.views.utils import current_localtime, initialContextDict
+from Students.models import StudentRegisteredCourses
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
