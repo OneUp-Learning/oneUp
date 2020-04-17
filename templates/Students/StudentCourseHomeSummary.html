@@ -81,6 +81,19 @@
                 <!-- <div class="subheader" style="color: black; font-size: 1.64rem;font-weight: 400;">Experience Points</div>
                 <div style="font-size: 1.3em;font-weight: 300;">100</div> -->
             </div>
+            {% if ccparams.gamificationUsed and ccparams.levelingUsed %}
+              <div class="divider" style="margin-bottom: 8px;"></div>
+                <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly;">
+                    <div style="max-width: 80px; min-width: 80px;">
+                        <div style="padding-left: 16px; padding-right: 8px; margin-bottom: 8px; font-size: 1.4rem; text-align: center;">
+                            Level
+                        </div>
+                        <div class="primary-colored-text" style="font-size: 2.6em; justify-content: center; font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
+                            {{level}}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
             {% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
             <div class="divider" style="margin-bottom: 8px;"></div>
             <div style="padding-left: 16px; padding-right: 8px; margin-bottom: 8px; font-size: 1.4rem;">
@@ -164,19 +177,7 @@
             
             {% endif %}
 
-            {% if ccparams.levelingUsed %}
-              <div class="divider" style="margin-bottom: 8px;"></div>
-                <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly; margin-bottom: 8px; margin-top: 8px;">
-                    <div style="max-width: 80px; min-width: 80px; margin-top: 20px">
-                        <div style="font-size: 1.9em;font-weight: 300; text-align: center;">
-                            Level
-                        </div>
-                        <div class="primary-colored-text" style="font-size: 4.6em; justify-content: center; font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
-                            {{level}}
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+            
 
             <!-- {% if challengeClassmates %}
             <div class="divider" style="margin-bottom: 8px; margin-top: 0;"></div>
