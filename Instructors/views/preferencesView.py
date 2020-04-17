@@ -31,7 +31,6 @@ def preferencesView(request):
             # Creation of course config parameters is when creating a new course
             redirect('/oneUp/instructors/instructorCourseHome', "", "")
 
-
         # Badges
         ccparams.badgesUsed = "badgesUsed" in request.POST
         if ccparams.badgesUsed == True:
@@ -44,18 +43,24 @@ def preferencesView(request):
 
         # Progress Bar
         ccparams.progressBarUsed = "progressBarUsed" in request.POST
-        ccparams.progressBarTotalPoints = request.POST.get('progressBarTotalPoints')
+        ccparams.progressBarTotalPoints = request.POST.get(
+            'progressBarTotalPoints')
         ccparams.progressBarGroupUsed = "progressBarGroupUsed" in request.POST
-        ccparams.progressBarGroupAverage = request.POST.get('progressBarGroupAverage')
+        ccparams.progressBarGroupAverage = request.POST.get(
+            'progressBarGroupAverage')
 
         # Student Starting Page
-        ccparams.displayStudentStartPageSummary = request.POST.get('displayStudentStartPageSummary')
+        ccparams.displayStudentStartPageSummary = request.POST.get(
+            'displayStudentStartPageSummary')
 
         # Student Achievement Page
         ccparams.displayAchievementPage = "displayAchievementPage" in request.POST
 
         # Leveling
         ccparams.levelingUsed = "levelingUsed" in request.POST
+        if ccparams.levelingUsed:
+            ccparams.levelTo1XP = request.POST.get('levelTo1XP')
+            ccparams.nextLevelPercent = request.POST.get('nextLevelPercent')
 
         # Duels & callouts
         ccparams.classmatesChallenges = "classmatesChallenges" in request.POST
@@ -151,7 +156,7 @@ def preferencesView(request):
         ccparams.thresholdToLevelDifficulty = request.POST.get(
             'thresholdToLevelDifficulty')
 
-        #hints
+        # hints
         ccparams.hintsUsed = "hintsUsed" in request.POST
         ccparams.weightBasicHint = request.POST["weightBasicHint"]
         context_dict = ccparams.weightStrongHint = request.POST["weightStrongHint"]
@@ -160,7 +165,7 @@ def preferencesView(request):
         ccparams.goalsUsed = "goalsUsed" in request.POST
         ccparams.studCanChangeGoal = "studCanChangeGoal" in request.POST
 
-       #moved to course config  
+       # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()
 
@@ -184,7 +189,6 @@ def preferencesView(request):
             context_dict["progressBarGroupUsed"] = ccparams.progressBarGroupUsed
             context_dict["progressBarGroupAverage"] = ccparams.progressBarGroupAverage
 
-
             # Student Start Page
             context_dict["displayStudentStartPageSummary"] = ccparams.displayStudentStartPageSummary
 
@@ -193,6 +197,10 @@ def preferencesView(request):
 
             # Leveling
             context_dict["levelingUsed"] = ccparams.levelingUsed
+            context_dict["levelTo1XP"] = int(
+                ccparams.levelTo1XP) if ccparams.levelTo1XP % 2 == 0 else ccparams.levelTo1XP
+            context_dict['nextLevelPercent'] = int(
+                ccparams.nextLevelPercent) if ccparams.nextLevelPercent % 2 == 0 else ccparams.nextLevelPercent
 
             # Leaderboard
             context_dict["leaderboardUsed"] = ccparams.leaderboardUsed
@@ -247,17 +255,17 @@ def preferencesView(request):
             context_dict["vc_duel_max_bet"] = ccparams.vcDuelMaxBet
             context_dict["calloutAfterWarmup"] = ccparams.calloutAfterWarmup
 
-            #Hints
-            context_dict["hintsUsed"] = ccparams.hintsUsed 
+            # Hints
+            context_dict["hintsUsed"] = ccparams.hintsUsed
             context_dict["weightBasicHint"] = ccparams.weightBasicHint
             context_dict["weightStrongHint"] = ccparams.weightStrongHint
 
             # Goals
             context_dict['goalsUsed'] = ccparams.goalsUsed
             context_dict['studCanChangeGoal'] = ccparams.studCanChangeGoal
-            
+
             # Streaks
-            #moved to course config
+            # moved to course config
             #context_dict["streaksUsed"] = ccparams.streaksUsed
 
         return render(request, 'Instructors/Preferences.html', context_dict)

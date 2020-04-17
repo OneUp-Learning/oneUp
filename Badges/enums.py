@@ -253,6 +253,8 @@ class Event():
     virtualCurrencyEarned = 880
     badgeEarned = 881
 
+    levelUp = 882
+
 
 
     events = {

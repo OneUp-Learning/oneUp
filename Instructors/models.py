@@ -303,35 +303,12 @@ class CoursesTopics(models.Model):
     topicPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.courseID)+","+str(self.topicID)+","+str(self.topicPos)
-    
-class CoursesSubTopics(models.Model):
-    subTopicID = models.AutoField(primary_key=True)
-    topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")    
-    courseID = models.ForeignKey('Instructors.Courses', on_delete=models.CASCADE, verbose_name="courses")
-    subTopicName = models.CharField(max_length=100)
-    subTopicPos = models.IntegerField(default=0)
-    thresholdXP = models.IntegerField(default=0)
-    thresholdSP = models.IntegerField(default=0)
-    displayDate = models.DateTimeField(default=now, blank=True)
-    
-    def __str__(self):              
-        return str(self.courseID)+","+str(self.topicID)+","+str(self.subTopicID)
 
 class ChallengesTopics(models.Model):
     topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")
     challengeID = models.ForeignKey('Instructors.Challenges', on_delete=models.CASCADE, verbose_name="challenges")  
     def __str__(self):              
         return str(self.challengeID)+","+str(self.topicID)
-    
-class Milestones(models.Model):
-    milestoneID = models.AutoField(primary_key=True)
-    milestoneName = models.CharField(max_length=75)
-    description = models.CharField(max_length=200, default="")
-    points =  models.IntegerField()
-    authorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Author", db_index=True)
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
-    def __str__(self):              
-        return str(self.milestoneID)+","+self.milestoneName
 
 def imageUploadPath(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedInstructorImages'),filename)

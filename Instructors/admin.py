@@ -9,7 +9,7 @@ from Instructors.models import (Activities, ActivitiesCategory, Announcements,
                                 CoursesTopics, DependentLibrary,
                                 DynamicQuestions, InstructorRegisteredCourses,
                                 Instructors, LuaLibrary, MatchingAnswers,
-                                Milestones, Prompts, QuestionLibrary,
+                                Prompts, QuestionLibrary,
                                 QuestionProgrammingFiles, Questions,
                                 QuestionsSkills, ResourceTags, Skills,
                                 StaticQuestions, Tags,
@@ -39,7 +39,6 @@ admin.site.register(ResourceTags)
 admin.site.register(ChallengesQuestions)
 admin.site.register(ChallengeTags)
 admin.site.register(ChallengesTopics)
-admin.site.register(Milestones)
 admin.site.register(InstructorRegisteredCourses)
 admin.site.register(UploadedImages)
 admin.site.register(UploadedFiles)

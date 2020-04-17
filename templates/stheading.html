@@ -336,7 +336,7 @@
 				<li><a class="waves-effect" href="/oneUp/students/achievements">Achievements</a></li>
 				{% endif %}
 				
-				{% if ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or is_test_student is False %}
+				{% if ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or  ccparams.goalsUsed or is_test_student is False %}
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
 					<ul id="coursetools" class="dropdown-content">
@@ -344,8 +344,10 @@
 						{% if ccparams.avatarUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/avatar">Avatar Selection</a></li>
 						{% endif %}
-						{% if ccparams.goalsUsed and ccparams.studCanChangeGoal %}
+						{% if ccparams.goalsUsed %}
+						{% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
 						<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
+						{% endif %}
 						{% endif %}
 						<!-- {% if ccparams.chatUsed %}
 						<li><a class="waves-effect " href="/oneUp/chat/api">Chat</a></li>
@@ -456,7 +458,7 @@
 						{%if ccparams.gamificationUsed and ccparams.displayAchievementPage %}
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/achievements"><i class="material-icons">flare</i>Achievements</a></li>
 						{% endif %}
-						{% if ccparams.chatUsed or ccparams.classmatesChallenges or ccparams.avatarUsed or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or is_test_student is False %}
+						{% if ccparams.chatUsed or ccparams.classmatesChallenges or ccparams.avatarUsed or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or ccparams.goalsUsed or is_test_student is False %}
 						<li>
 							<a class="collapsible-header"><i class="material-icons">build</i>Tools</a>
 							<div class="collapsible-body">
@@ -465,8 +467,10 @@
 									{% if ccparams.avatarUsed %}
 									<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
 									{% endif %}
-									{% if ccparams.goalsUsed and ccparams.studCanChangeGoal %}
+									{% if ccparams.goalsUsed %}
+									{% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
 									<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
+									{% endif %}
 									{% endif %}
 									<!-- {% if ccparams.chatUsed %}
 										<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>

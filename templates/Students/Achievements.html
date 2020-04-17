@@ -808,6 +808,9 @@
                             {% if ccparams.virtualCurrencyUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Your Course Bucks</th>
                             {% endif %}
+                            {% if ccparams.levelingUsed %}
+                            <th style="font-size: 1.64rem;font-weight: 400;">Your Level</th>
+                            {% endif %}
                         </thead>
                         <tbody>
                             <tr>
@@ -817,6 +820,9 @@
                                 {% endif %}
                                 {% if ccparams.virtualCurrencyUsed %}
                                 <td style="font-size:26px" class="primary-colored-text">{{course_Bucks}}</td>
+                                {% endif %}
+                                {% if ccparams.levelingUsed %}
+                                <td style="font-size:26px" class="primary-colored-text">{{level}}</td>
                                 {% endif %}
                             </tr>
                         </tbody>
