@@ -121,9 +121,25 @@
 			} catch {
 				return;
 			}
-			// console.log(json)
-            $(el).html(json['name'])
+		   
+		   if (json['name'])
+             $(el).html(json['name'])
+		   else
+		   	$(el).html('')
 		})
+		$(".related-link").each((j, el2) => {
+			try{
+				var json = JSON.parse($(el2).attr("href"))
+			} catch {
+				el2.href = '#'
+				return;
+			}
+			if(json['related_link'])
+            	el2.href = json['related_link']
+			else
+				el2.href = '#'
+		})
+		
 	})
 </script>
 </html>

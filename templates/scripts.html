@@ -36,10 +36,9 @@
 <script src="https://code.jquery.com/jquery-migrate-3.0.1.min.js"></script>
 <script type="text/javascript" src="/static/assets/js/moment.js"></script>
 <!-- Compiled and minified JavaScript -->
+<script src="/static/assets/js/jquery-ui.js"></script>
 <script src="/static/assets/js/materialize.js"></script>
 <script src="/static/assets/js/materialDateTimePicker.js"></script>
-
- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
  
 <script>
     $( document ).ready(function(){
@@ -49,6 +48,7 @@
       document.querySelectorAll('.select-wrapper').forEach(t => t.addEventListener('click', e=>e.stopPropagation()))
       Materialize.updateTextFields();
       $('.modal').modal();
+      // $('.tooltipped').tooltip();
     }); 
 </script>
 <style>

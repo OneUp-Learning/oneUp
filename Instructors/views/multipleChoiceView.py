@@ -78,7 +78,8 @@ def multipleChoiceForm(request):
         if 'strongHint' in request.POST:
             question.strongHint = request.POST['strongHint']
         if 'basicHint' in request.POST:
-            question.basicHint = request.POST['basicHint']    
+            question.basicHint = request.POST['basicHint']   
+        question.isHintUsed = "hintUsed" in request.POST 
         question.save()  #Writes to database.
         
         # The number of answers is always sent.
@@ -255,6 +256,7 @@ def multipleChoiceForm(request):
         
             context_dict['basicHint'] = question.basicHint
             context_dict['strongHint'] = question.strongHint
+            context_dict['hintUsed'] = question.isHintUsed  
                             
         # If we didn't run that code to load the values for the answers, then we make
         # blank lists.  We do this because we need to use a zipped list and a for

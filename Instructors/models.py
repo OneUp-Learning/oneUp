@@ -1,19 +1,17 @@
 import os
-
-from django.db import models
-from django import forms
-
-from django.contrib.auth.models import User
-from django.template.defaultfilters import default
 from datetime import datetime
-from django.utils.timezone import now
+from decimal import Decimal
 
+from django import forms
 from django.conf.global_settings import MEDIA_URL
-from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
-
+from django.contrib.auth.models import User
+from django.db import models
+from django.template.defaultfilters import default
+from django.utils.timezone import now
 from django_celery_beat.models import PeriodicTask
 
-from decimal import Decimal
+from oneUp.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL
+
 
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
@@ -74,12 +72,12 @@ class Questions(models.Model):
     type = models.IntegerField(default=0)
     difficulty = models.CharField(max_length=50, default="")
     author = models.CharField(max_length=100, default="")
-    strongHint = models.CharField(max_length=100, default="")
+    isHintUsed = models.BooleanField(default=False)
     basicHint = models.CharField(max_length=100, default="") 
-
+    strongHint = models.CharField(max_length=100, default="")
+#     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              
         return f"{self.questionID} - {self.preview}"
-
 class QuestionProgrammingFiles(models.Model):
     programmingFileID = models.AutoField(primary_key=True)
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, null=True, verbose_name= 'the related question')
@@ -129,14 +127,6 @@ class Prompts(models.Model):
     promptText = models.CharField(max_length=5000, default="")
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True)
     answerID = models.ForeignKey('Instructors.Answers', on_delete=models.CASCADE, verbose_name="the correct answer for this prompt")
-    
-class Goals(models.Model):    
-    goalID = models.AutoField(primary_key=True)
-    goalAuthor = models.CharField(max_length=75)
-    goalsCol = models.CharField(max_length=75, default="")
-
-    def __str__(self):
-        return f"{self.goalAuthor} - {self.goalsCol}"
         
 class Challenges(models.Model):
     challengeID = models.AutoField(primary_key=True)
@@ -313,35 +303,12 @@ class CoursesTopics(models.Model):
     topicPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.courseID)+","+str(self.topicID)+","+str(self.topicPos)
-    
-class CoursesSubTopics(models.Model):
-    subTopicID = models.AutoField(primary_key=True)
-    topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")    
-    courseID = models.ForeignKey('Instructors.Courses', on_delete=models.CASCADE, verbose_name="courses")
-    subTopicName = models.CharField(max_length=100)
-    subTopicPos = models.IntegerField(default=0)
-    thresholdXP = models.IntegerField(default=0)
-    thresholdSP = models.IntegerField(default=0)
-    displayDate = models.DateTimeField(default=now, blank=True)
-    
-    def __str__(self):              
-        return str(self.courseID)+","+str(self.topicID)+","+str(self.subTopicID)
 
 class ChallengesTopics(models.Model):
     topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")
     challengeID = models.ForeignKey('Instructors.Challenges', on_delete=models.CASCADE, verbose_name="challenges")  
     def __str__(self):              
         return str(self.challengeID)+","+str(self.topicID)
-    
-class Milestones(models.Model):
-    milestoneID = models.AutoField(primary_key=True)
-    milestoneName = models.CharField(max_length=75)
-    description = models.CharField(max_length=200, default="")
-    points =  models.IntegerField()
-    authorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Author", db_index=True)
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
-    def __str__(self):              
-        return str(self.milestoneID)+","+self.milestoneName
 
 def imageUploadPath(instance,filename):
     return os.path.join(os.path.join(os.path.abspath(MEDIA_ROOT), 'images/uploadedInstructorImages'),filename)
@@ -460,4 +427,3 @@ class FlashCardGroupCourse(models.Model):
     groupPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.groupID)+","+str(self.courseID)+","+str(self.availabilityDate)
-    

@@ -1,25 +1,22 @@
-from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTasks
-from Badges.celeryApp import app
-from django.utils import timezone
+import json
+import logging
+import random
+from _datetime import date, datetime
+from contextlib import contextmanager
 from datetime import timedelta
 
-import json
-import random
-from _datetime import date
-from celery.bin.result import result
-
-from celery.five import monotonic
-from contextlib import contextmanager
-from django.core.cache import cache
-
 import _cffi_backend
-from _datetime import datetime
-from dateutil.utils import today
 from billiard.connection import CHALLENGE
-
+from celery.bin.result import result
+from celery.five import monotonic
+from dateutil.utils import today
 from django.conf import settings
+from django.core.cache import cache
+from django.utils import timezone
+from django_celery_beat.models import (CrontabSchedule, PeriodicTask,
+                                       PeriodicTasks)
 
-import logging
+from Badges.celeryApp import app
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)

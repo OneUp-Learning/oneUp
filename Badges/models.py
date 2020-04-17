@@ -1,12 +1,14 @@
 from datetime import datetime
-from django.utils.timezone import now
 
-from django.db import models
-from Instructors.models import Courses, Challenges, Skills, Activities, Topics, ActivitiesCategory
-from Badges.enums import Event, OperandTypes, Action, AwardFrequency
-from Badges.systemVariables import SystemVariable
-from django_celery_beat.models import PeriodicTask
 from django.contrib.auth.models import User
+from django.db import models
+from django.utils.timezone import now
+from django_celery_beat.models import PeriodicTask
+
+from Badges.enums import Action, AwardFrequency, Event, OperandTypes
+from Badges.systemVariables import SystemVariable
+from Instructors.models import (Activities, ActivitiesCategory, Challenges,
+                                Courses, Skills, Topics)
 
 
 # Conditions Table
@@ -284,6 +286,8 @@ class CourseConfigParams(models.Model):
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
 
     levelingUsed = models.BooleanField(default=False)                 ##
+    levelTo1XP = models.DecimalField(decimal_places=2, max_digits=100, default=10)
+    nextLevelPercent = models.DecimalField(decimal_places=2, max_digits=100, default=50)
     
     # Duels related
     classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
@@ -355,19 +359,24 @@ class CourseConfigParams(models.Model):
     streaksUsed = models.BooleanField(default = False)                 ##
     
     ## Student Goal Setting
-    studCanChangeGoal = models.BooleanField(default = True)    ## Allows student to change the visibility of goals component
+    goalsUsed = models.BooleanField(default=False)                    ## Enables the use of goal setting for students
+    studCanChangeGoal = models.BooleanField(default=True)             ## Allows student to change the visibility of goals component
+
     #Options to disable Warmups, Serious Challenges, and the Gradebook
     warmupsUsed = models.BooleanField(default=True)
     seriousChallengesUsed = models.BooleanField(default=True)
     gradebookUsed = models.BooleanField(default=True)
+
     #Options to disable activities, skills, and announcements
     activitiesUsed = models.BooleanField(default=True)  
     skillsUsed = models.BooleanField(default=False)
     announcementsUsed = models.BooleanField(default=True)
+
     #hints system
     hintsUsed = models.BooleanField(default = False)
     weightBasicHint = models.IntegerField(default=0)     ##  Costs as a percentage of points lost for accepting the hint.
     weightStrongHint = models.IntegerField(default=0) ##     
+
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -492,4 +501,3 @@ class CeleryTestResult(models.Model):
     sequence = models.IntegerField()
     def __str__(self):
         return "Test "+self.sequence+":"+self.uniqid
-

@@ -130,7 +130,7 @@
 			}
 			// console.log(json)
 			$(`#course-name-${id}`).html(json['name'])
-			$(`#notification-link-${id}`).click(() => {
+			$(`[data-id="notification-link-${id}"`).click(() => {
                 if('related_link' in json)
                     window.location = json['related_link']
                 else
@@ -166,21 +166,24 @@
         function countNotifications(){
 			var all_notifications_count = $('nav .notification-box-list').children().length / 2;
 
-            // Remove magic "no new notifications yet" element when there are no notifications and add a customized one
+            // Remove magic "no notifications" element when there are no notifications and add a customized one
             let notifications = $('nav .notification-box-list').children();
             if(notifications.length == 0){
                 $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect " href="/oneUp/students/NotificationPage">No notifications (View all)</a></li>');
-            }
+				$('#mobile-viewall, #mobile-clearall').hide();
+			}
 			var empty = all_notifications_count == 1;
             var removed_empty = false;
             for(var i = notifications.length-1; i >= 0; i--){
 				// This is our custom one just set notification count to 0
                 if(notifications[i].innerHTML == '<a class="no-notifications waves-effect " href="/oneUp/students/NotificationPage">No notifications (View all)</a>'){
                     if(all_notifications_count == 1 && empty){
-                        all_notifications_count = 0;
+						all_notifications_count = 0;
+						$('#mobile-viewall, #mobile-clearall').hide();
                         break;
                     } else {
-                        notifications[i].remove();
+						notifications[i].remove();
+						$('#mobile-viewall, #mobile-clearall').show();
                         if(removed_empty == false)
                             all_notifications_count--;
                         continue;
@@ -193,9 +196,11 @@
                         all_notifications_count = 0;
                         // Add "No notifications" for mobile and desktop
                         $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect " href="/oneUp/students/NotificationPage">No notifications (View all)</a></li>');
-                        break;
+						$('#mobile-viewall, #mobile-clearall').hide();
+						break;
                     } else {
-                        notifications[i].remove();
+						notifications[i].remove();
+						$('#mobile-viewall, #mobile-clearall').show();
                         if(removed_empty == false)
 							all_notifications_count--;
 						continue;
@@ -306,7 +311,10 @@
 						{% endif %}	
 						{%if  ccparams.leaderboardUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
-						{% endif %}						
+						{% endif %}
+						{% if ccparams.hintsUsed %}
+						<li><a class="waves-effect" href="/oneUp/students/hintInfoView">Hints Info</a></li>
+						{% endif %}		
 						{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
 						<li><a class="waves-effect " href="/oneUp/badges/CourseBadges">Course Badges</a></li>
 						{% endif %}
@@ -331,7 +339,7 @@
 				<li><a class="waves-effect" href="/oneUp/students/achievements">Achievements</a></li>
 				{% endif %}
 				
-				{% if ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or is_test_student is False %}
+				{% if ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or  ccparams.goalsUsed or is_test_student is False %}
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
 					<ul id="coursetools" class="dropdown-content">
@@ -339,8 +347,10 @@
 						{% if ccparams.avatarUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/avatar">Avatar Selection</a></li>
 						{% endif %}
-						{% if ccparams.studCanChangeGoal %}
-						<li><a class="waves-effect" href="/oneUp/students/GoalsList">Goals</a></li>
+						{% if ccparams.goalsUsed %}
+						{% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
+						<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
+						{% endif %}
 						{% endif %}
 						<!-- {% if ccparams.chatUsed %}
 						<li><a class="waves-effect " href="/oneUp/chat/api">Chat</a></li>
@@ -426,7 +436,10 @@
 									{% endif %}
 									{% if ccparams.skillLeaderboardDisplayed %}
 									<li><a class="waves-effect" href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
-									{% endif %}						
+									{% endif %}
+									{% if ccparams.hintsUsed %}
+									<li><a class="waves-effect" href="/oneUp/students/hintInfoView">Hints Info</a></li>
+									{% endif %}
 									{% if ccparams.gamificationUsed and ccparams.badgesUsed %}
 									<li><a class="waves-effect" href="/oneUp/badges/CourseBadges">Course Badges</a></li>
 									{% endif %}
@@ -451,7 +464,7 @@
 						{%if ccparams.gamificationUsed and ccparams.displayAchievementPage %}
 						<li><a class="collapsible-header waves-effect" href="/oneUp/students/achievements"><i class="material-icons">flare</i>Achievements</a></li>
 						{% endif %}
-						{% if ccparams.chatUsed or ccparams.classmatesChallenges or ccparams.avatarUsed or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or is_test_student is False %}
+						{% if ccparams.chatUsed or ccparams.classmatesChallenges or ccparams.avatarUsed or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or ccparams.goalsUsed or is_test_student is False %}
 						<li>
 							<a class="collapsible-header"><i class="material-icons">build</i>Tools</a>
 							<div class="collapsible-body">
@@ -460,8 +473,10 @@
 									{% if ccparams.avatarUsed %}
 									<li><a class="waves-effect" href="/oneUp/students/avatar">Avatar Selection</a></li>
 									{% endif %}
-									{% if ccparams.studCanChangeGoal %}
-									<li><a class="waves-effect" href="/oneUp/students/GoalsList">Goals</a></li>
+									{% if ccparams.goalsUsed %}
+									{% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
+									<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
+									{% endif %}
 									{% endif %}
 									<!-- {% if ccparams.chatUsed %}
 										<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
@@ -496,8 +511,9 @@
 								<ul>
 									<div id="notifications-mobile" class="notification-box-list">
 									{% user_notifications for box %}
-									</div>			
-									<li><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
+									</div>
+									<li id="mobile-viewall"><a class="waves-effect" href="/oneUp/students/NotificationPage"><i class="material-icons">pageview</i>View All</a></li>
+									<li id="mobile-clearall"><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
 								</ul>
 							</div>
 						</li>

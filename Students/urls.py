@@ -3,53 +3,59 @@ Created on May 1, 2014
 
 @author: iiscs
 '''
-from django.conf.urls import include, url
 from django.conf import settings
+from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from Students.views.achievementsView import achievements
-from Students.views.allAnnouncementsView import allAnnouncements
+from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
+from Students.views.achievementsView import (Track_class_avg_button_clicks,
+                                             achievements)
 from Students.views.activitesView import ActivityList
 from Students.views.activityDescription import ActivityDetail
-from Students.views.avatarView import avatar
+from Students.views.allAnnouncementsView import allAnnouncements
 from Students.views.avatarUploadView import avatarUpload
-from Students.views.challengesListView import ChallengesList
-from Students.views.challengesWarmUpListView import ChallengesWarmUpList
+from Students.views.avatarView import avatar
+from Students.views.calloutsView import (
+    callout_create, callout_description,
+    get_class_callout_qualified_challenges,
+    get_individual_callout_qualified_challenges)
 from Students.views.challengeDescriptionView import ChallengeDescription
-from Students.views.challengeSetupView import ChallengeSetup
 from Students.views.challengeResultsView import ChallengeResults
+from Students.views.challengeSetupView import ChallengeSetup
+from Students.views.challengesListView import ChallengesList
 from Students.views.challengesTakenView import ChallengesTaken
+from Students.views.challengesWarmUpListView import ChallengesWarmUpList
 from Students.views.courseInfoView import CourseInformation
 from Students.views.coursePerformanceView import CoursePerformance
-
+from Students.views.duelChallengeView import (
+    callouts_list, duel_challenge_accept, duel_challenge_create,
+    duel_challenge_delete, duel_challenge_description,
+    get_create_duel_topics_difficulties, validate_duel_challenge_creation)
+from Students.views.goalsListView import goals_list
+from Students.views.goalView import goal_view
+from Students.views.hintsView import hintsUsed, hintInfoView
+from Students.views.leaderboardInfoView import leaderboardInfoView
+from Students.views.leaderboardView import LeaderboardView
 from Students.views.logoutView import LogoutView
 from Students.views.preferencesView import preferencesView
-from Students.views.resetPasswordView import resetPasswordView
-from Students.views.studentCourseHomeView import StudentCourseHome, progressBarData
+from Students.views.resetPasswordView import (resetPasswordView,
+                                              validateResetPassword)
+from Students.views.studentCourseHomeView import (StudentCourseHome,
+                                                  progressBarData)
+from Students.views.studentEarnedTransactions import earnedTransactionsView
 from Students.views.studentHomeView import StudentHome
-from Students.views.transactionsView import transactionsView, filterTransactions, save_transaction_reason
+from Students.views.studentNotifications import (studentNotifications,
+                                                 updateNotificationTable)
+from Students.views.studentQA import studentQA
+from Students.views.switchToInstructorView import switchToInstructorView
 from Students.views.transactionNotesView import transactionNotesView
+from Students.views.transactionsView import (filterTransactions,
+                                             save_transaction_reason,
+                                             transactionsView)
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
-from Students.views.studentEarnedTransactions import earnedTransactionsView
-from Students.views.studentNotifications import studentNotifications, updateNotificationTable
-from Students.views.studentQA import studentQA
-from Students.views.leaderboardView import LeaderboardView
-from Students.views.switchToInstructorView import switchToInstructorView
-from Students.views.duelChallengeView import callouts_list, duel_challenge_create, duel_challenge_accept, duel_challenge_description, duel_challenge_delete, validate_duel_challenge_creation, get_create_duel_topics_difficulties
-from Students.views.calloutsView import callout_create, get_class_callout_qualified_challenges, get_individual_callout_qualified_challenges, callout_description
-from Students.views.resetPasswordView import validateResetPassword
-from Students.views.leaderboardInfoView import leaderboardInfoView
-
-from Students.views.goalsListView import goalsList
-from Students.views.goalCreateView import goalCreate
-from Students.views.goalDeleteView import deleteStudentGoal
-
-from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
-
-from Students.views.achievementsView import Track_class_avg_button_clicks
 
 admin.autodiscover()
 
@@ -70,6 +76,8 @@ urlpatterns = [
     url(r'^Announcements', allAnnouncements, name='allAnnouncements'),
     url(r'^ChallengeSetup', ChallengeSetup, name='ChallengeSetup'),
     url(r'^ChallengeResults', ChallengeResults, name='ChallengeResults'),
+    url(r'^hintsUsed', hintsUsed, name='hintsUsed'),
+    url(r'^hintInfoView', hintInfoView, name='hintInfoView'),
     url(r'^ChallengesTaken', ChallengesTaken, name='ChallengesTaken'),
     url(r'^CourseInformation', CourseInformation, name='CourseInformation'),
     url(r'^CoursePerformance', CoursePerformance, name='CoursePerformance'),
@@ -116,8 +124,7 @@ urlpatterns = [
         name="dynamic question engine AJAX"),
     url(r'SaveTransactionReason', save_transaction_reason,
         name="Save Transaction Reason"),
-    url(r'^GoalsList',goalsList, name='GoalsList'),
-    url(r'^GoalCreate', goalCreate, name='GoalCreate'),
-    url(r'^GoalDelete',deleteStudentGoal, name='GoalDelete'),
+    url(r'^goalslist',goals_list, name='goalslist'),
+    url(r'^goal', goal_view, name='goal'),
 
 ]

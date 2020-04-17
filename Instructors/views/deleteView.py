@@ -5,16 +5,21 @@ Updated 02/28/2015
 @author: dichevad, irwink
 '''
 
-from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+from django.shortcuts import redirect
 
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, CoursesSubTopics, Announcements, Activities, Milestones, FlashCardGroup
+from Badges.models import VirtualCurrencyCustomRuleInfo
 from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.models import (Activities, Announcements, Challenges,
+                                ChallengesQuestions, Courses, Questions,
+                                Skills, Topics)
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
-from Badges.models import VirtualCurrencyCustomRuleInfo
+from Students.models import (Student, StudentConfigParams,
+                             StudentRegisteredCourses)
 
 
 @login_required
@@ -276,34 +281,6 @@ def deleteTopic(request):
 
     return redirect('/oneUp/instructors/warmUpChallengeList', context_dict)
 
-
-@login_required
-@user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
-def deleteSubTopic(request):
-
-    context_dict, currentCourse = initialContextDict(request)
-    if request.POST:
-
-        try:
-            if request.POST['subTopicID']:
-                subTopic = CoursesSubTopics.objects.get(
-                    pk=int(request.POST['subTopicID']))
-                print(subTopic)
-                message = "subTopic #" + \
-                    str(subTopic.subTopicID) + " " + \
-                    subTopic.subTopicName+" successfully deleted"
-                subTopic.delete()
-        except subTopic.DoesNotExist:
-            message = "There was a problem deleting SubTopic #" + \
-                str(subTopic.subTopicID) + " "+subTopic.subTopicName
-
-        context_dict['message'] = message
-
-    response = redirect('/oneUp/instructors/subTopicsListView', context_dict)
-    response['Location'] += '?topicID=' + str(subTopic.topicID.topicID)
-    return response
-
-
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
 def deleteActivity(request):
@@ -351,30 +328,6 @@ def deleteAnnouncement(request):
         context_dict['message'] = message
 
     return redirect('/oneUp/instructors/announcementList', context_dict)
-
-
-@login_required
-@user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
-def deleteMilestone(request):
-
-    context_dict, currentCourse = initialContextDict(request)
-
-    if request.POST:
-        try:
-            if request.POST['milestoneID']:
-                milestone = Milestones.objects.get(
-                    pk=int(request.POST['milestoneID']))
-                message = "Milestone #"+str(milestone.milestoneID) + ": "+str(
-                    milestone.milestoneID) + "was successfully deleted"
-                milestone.delete()
-        except Milestones.DoesNotExist:
-            message = "There was a problem deleting Milestone #" + \
-                str(milestone.milestoneID)
-
-        context_dict['message'] = message
-
-    return redirect('/oneUp/instructors/milestonesList', context_dict)
-
 
 @login_required
 def deleteManualSpendRule(request):

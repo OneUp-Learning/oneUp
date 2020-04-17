@@ -1,39 +1,44 @@
-from Instructors.views.whoAddedVCAndBadgeView import whoAddedBadgeAndVC
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from Instructors.views.activityAssignPointsView import assignedPointsList, activityAssignPointsView
-from Instructors.views.activityCreateView import activityCreateView, removeFileFromActivty
-from Instructors.views.activityListView import activityList
+from Instructors.views.activityAssignPointsView import (
+    activityAssignPointsView, assignedPointsList)
+from Instructors.views.activityCategories import (activityCatCreate,
+                                                  activityCatDelete,
+                                                  activityCatList)
+from Instructors.views.activityCreateView import (activityCreateView,
+                                                  removeFileFromActivty)
+from Instructors.views.activityListView import activityList, reorderActivities
 from Instructors.views.activityScoreView import activityScore
-from Instructors.views.activityCategories import activityCatList, activityCatCreate, activityCatDelete
+from Instructors.views.addExistingStudentView import (addExistingStudent,
+                                                      addStudentListView)
 from Instructors.views.announcementCreateView import announcementCreateView
 from Instructors.views.announcementListView import announcementList
-
-from Instructors.views.challengeAddQuestionsView import challengeAddQuestionsView
+from Instructors.views.attendanceStreaks import attendanceStreaks
+from Instructors.views.CalloutReportView import (callout_challenge_report,
+                                                 callout_report)
+from Instructors.views.challengeAddQuestionsView import \
+    challengeAddQuestionsView
+from Instructors.views.challengeAdjusmentView import (adjustmentList,
+                                                      challengeAdjustmentView)
 from Instructors.views.challengeCreateView import challengeCreateView
-from Instructors.views.challengeQuestionsListView import challengeQuestionsListView, deleteProblemsButFilterTakenByStudent
-from Instructors.views.challengeExportImportView import exportChallenges, saveExportedChallenges, importChallenges, uploadChallenges
-from Instructors.views.challengeListView import challengesList, warmUpChallengeList
-from Instructors.views.challengeAdjusmentView import challengeAdjustmentView, adjustmentList
-from Instructors.views.exportGradeBookView import exportGradebook
-
-from Instructors.views.challengeSaveSelectedQuestionsView import challengeSaveSelectedQuestions
-from Instructors.views.reorderChallengeSaveQuestions import reorderChallengeSaveQuestions
-from Instructors.views.reorderChallengesView import reorderChallenges
-
-from Instructors.views.debugStudentEventLog import debugEventVars
-from Instructors.views.debugSysVars import debugSysVars
-from Instructors.views.debugSysVars import getObjsForSysVar
-
+from Instructors.views.challengeExportImportView import (
+    exportChallenges, importChallenges, saveExportedChallenges,
+    uploadChallenges)
+from Instructors.views.challengeListView import (challengesList,
+                                                 warmUpChallengeList)
+from Instructors.views.challengeQuestionsListView import (
+    challengeQuestionsListView, deleteProblemsButFilterTakenByStudent)
+from Instructors.views.challengeSaveSelectedQuestionsView import \
+    challengeSaveSelectedQuestions
 from Instructors.views.classAchievementsView import classAchievements
 from Instructors.views.classAchievementsVizView import classAchievementsViz
-
-from Instructors.views.courseImportExportView import exportCourse, validateCourseExport, importCourse
-
-from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.courseConfiguration import courseConfigurationView
+from Instructors.views.courseImportExportView import (exportCourse,
+                                                      importCourse,
+                                                      validateCourseExport)
+from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
@@ -41,34 +46,67 @@ from Instructors.views.deleteView import deleteQuestion, deleteChallenge, delete
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
 
+from Instructors.views.createStudentView import (createStudentViewUnchecked,
+                                                 validateCreateStudent)
+from Instructors.views.debugStudentEventLog import debugEventVars
+from Instructors.views.debugSysVars import debugSysVars, getObjsForSysVar
+from Instructors.views.deleteView import (deleteActivity, deleteAnnouncement,
+                                          deleteChallenge,
+                                          deleteManualSpendRule,
+                                          deleteQuestion,
+                                          deleteQuestionFromChallenge,
+                                          deleteSkill, deleteStudent,
+                                          deleteTopic, deleteUser)
+from Instructors.views.DuelReportView import duel_challenge_report, duel_report
+from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
+# Dynamic Questions Stuff
+from Instructors.views.dynamicQuestionView import (dynamicQuestionForm,
+                                                   dynamicQuestionPartAJAX)
+from Instructors.views.exportGradeBookView import exportGradebook
+from Instructors.views.imageView import imageDelete, imageList, imageUpload
+from Instructors.views.importStudentsView import (importStudents,
+                                                  saveImportStudentsPasswords)
 from Instructors.views.instructorCourseHomeView import instructorCourseHome
 from Instructors.views.instructorHomeView import instructorHome
+from Instructors.views.instructorNotifications import (
+    instructorNotifications, updateNotificationTable)
 from Instructors.views.instructorQA import instructorQA
-from Instructors.views.instructorNotifications import instructorNotifications, updateNotificationTable
-
+from Instructors.views.leaderboardView import LeaderboardInstructorsView
+from Instructors.views.luaLibUploadView import (libDelete,
+                                                libDeleteConfirmView, libEdit,
+                                                luaLibUpload)
+from Instructors.views.luaTestView import luaTestView
 from Instructors.views.matchingView import matchingForm
-#from Instructors.views.milestoneCreateView import milestoneCreateView
-#from Instructors.views.milestoneListView import milestoneList
 from Instructors.views.multipleAnswersView import multipleAnswersForm
 from Instructors.views.multipleChoiceView import multipleChoiceForm
 from Instructors.views.parsonsView import parsonsForm
 from Instructors.views.preferencesView import preferencesView
-
+from Instructors.views.reorderChallengeSaveQuestions import \
+    reorderChallengeSaveQuestions
+from Instructors.views.reorderChallengesView import reorderChallenges
+from Instructors.views.reorderViews import (reorderActivities, reorderBadges,
+                                            reorderCategories, reorderChalls,
+                                            reorderQuestions, reorderTopics,
+                                            reorderVCRules)
+from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
 from Instructors.views.skillsCreateView import skillsCreateView
 from Instructors.views.skillsListView import skillsListView
 from Instructors.views.studentAchievementsView import studentAchievements
-
+from Instructors.views.studentAttendanceReportView import \
+    studentAttendanceReportView
+from Instructors.views.studentAttendanceView import studentAttendance
 from Instructors.views.studentSkillsEarnedView import studentSkillsEarned
 from Instructors.views.studentSummaryView import studentSummary
-from Instructors.views.subTopicsCreateView import subTopicsCreateView
-from Instructors.views.subTopicsListView import subTopicsListView
-
+from Instructors.views.switchToStudentView import switchToStudentView
+from Instructors.views.templateDynamicQuestionsView import (
+    removeFileFromQuestion, templateDynamicQuestionForm)
 from Instructors.views.topicsCreateView import topicsCreateView
 from Instructors.views.topicsListView import topicsListView
 from Instructors.views.trueFalseView import trueFalseNewForm
 from Instructors.views.views import index
+from Instructors.views.whoAddedVCAndBadgeView import whoAddedBadgeAndVC
 
 # Dynamic Questions Stuff
 from Instructors.views.dynamicQuestionView import dynamicQuestionForm
@@ -137,7 +175,6 @@ urlpatterns = [
         name='validateCourseExport'),
     url(r'^importCourse', importCourse, name='importCourse'),
     url(r'^courseInformation', courseInformation, name='courseInformation'),
-    #url(r'^createMilestone', milestoneCreateView, name='milestoneCreateView'),
     url(r'^createStudentList', createStudentListView,
         name='createStudentListView'),
     url(r'^createStudent', createStudentViewUnchecked, name='createStudentView'),
@@ -149,7 +186,6 @@ urlpatterns = [
     url(r'^deleteActivity', deleteActivity, name='deleteActivity'),
     url(r'^deleteAnnouncement', deleteAnnouncement, name='deleteAnnouncement'),
     url(r'^deleteChallenge', deleteChallenge, name='deleteChallenge'),
-    url(r'^deleteMilestone', deleteMilestone, name='deleteMilestone'),
     url(r'^deleteProblemsButFilterTakenByStudent', deleteProblemsButFilterTakenByStudent, name='deleteProblemsButFilterTakenByStudent'),
     url(r'^deleteQuestionFromChallenge', deleteQuestionFromChallenge,
         name='deleteQuestionFromChallenge'),
@@ -158,7 +194,6 @@ urlpatterns = [
     url(r'^deleteManualSpendRule', deleteManualSpendRule,
         name='deleteManualSpendRule'),
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
-    url(r'^deleteSubTopic', deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
@@ -186,7 +221,6 @@ urlpatterns = [
         name='instructorCourseHome'),
     url(r'^instructorHome', instructorHome, name='instructorHome'),
     url(r'^instructorQA', instructorQA, name='instructorQA'),
-    #url(r'^milestonesList', milestoneList, name='milestoneList'),
     url(r'^NotificationPage', instructorNotifications,
         name='instructorNotifications'),
     url(r'^NotificationPageUpdate', updateNotificationTable,
@@ -204,8 +238,6 @@ urlpatterns = [
     url(r'^studentAchievements', studentAchievements, name='studentAchievements'),
     url(r'^studentSkillsEarned', studentSkillsEarned, name='studentSkillsEarned'),
     url(r'^studentSummary', studentSummary, name='studentSummary'),
-    url(r'^subTopicsCreate', subTopicsCreateView, name='subTopicsCreateView'),
-    url(r'^subTopicsListView', subTopicsListView, name='subTopicsListView'),
     url(r'^topicsCreate', topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList', topicsListView, name='topicsListView'),
     url(r'^uploadChallenges', uploadChallenges, name='uploadChallenges'),

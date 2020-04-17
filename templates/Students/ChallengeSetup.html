@@ -150,7 +150,40 @@
             });
          }
       });
-      
+
+      function showHint(problemID, type, hint){
+         let previous;
+         switch(type){
+            case 0:
+               previous = document.getElementById(problemID + "-basicButton");
+               hint = "Weak Hint: " + hint;
+               break;
+            case 1:
+               previous = document.getElementById(problemID + "-strongButton");
+               hint = "Strong Hint: " + hint;
+               break;
+         }
+         previous.style.display = "none";
+         let hintTag =  "<p class=\"right-align\" id="+ problemID +"-" + type +">"+hint+"</p>";
+         previous.insertAdjacentHTML('afterEnd', hintTag);
+
+      }
+
+      function hintClickedByStudent(problemID, type){
+         let xhttp = new XMLHttpRequest();
+         xhttp.open("POST", "/oneUp/students/hintsUsed", true);
+         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+         xhttp.send("challengeQuestionID=" + problemID + "&type="+ type +"&csrfmiddlewaretoken={{csrf_token}}");
+         xhttp.onreadystatechange = function(){
+            if (xhttp.readyState == 4){
+               let responseText = JSON.parse(xhttp.responseText);
+               let hintID = responseText['hintID'];
+               let hint = responseText['hint'];
+               document.getElementById(problemID).value = hintID;
+               showHint(problemID, type, hint);
+            }
+         }
+      }
       
    </script>
 </head>
@@ -159,7 +192,7 @@
    {% include 'stheading.html' %}
    <main>
       <div style="height: 64px">
-         <nav id="menu" data-target="menu" style="z-index: 1;">
+         <nav id="menu" data-target="menu" style="z-index: 2;">
             <div class="row" style="max-height: 100%; display: flex;">
                <div class="col s12 m10 offset-m1" style="display: flex; justify-content: space-between; max-height: 100%;">
                   

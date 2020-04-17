@@ -146,17 +146,27 @@ def adjustmentList(request):
 
     student_list = sorted(list(zip(range(1, len(student_ID)+1), student_ID, student_Name,
                                    student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason)))
-    # we have to find the index for the test student and remove them from the sorted list
-    test_index = [y[2] for y in student_list].index('Test Student')
-    test_student_ob = student_list[test_index]
-    del student_list[test_index]
 
-    # then we insert them back into the list at the very end where they belong
-    student_list.append(test_student_ob)
-
+    student_list = moveTestStudentObjToBottom(student_list)
     #context_dict['challengeAdjustment_range'] = zip(range(1,len(student_ID)+1),student_ID,student_Name,student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason)
     context_dict['challengeAdjustment_range'] = student_list
     context_dict['isVcUsed'] = CourseConfigParams.objects.get(
         courseID=currentCourse).virtualCurrencyUsed
 
     return render(request, 'Instructors/ChallengeAdjustmentForm.html', context_dict)
+
+
+def moveTestStudentObjToBottom(student_list):   
+    test_student_list = []
+    for i in range(0, len(student_list)):
+        if student_list[i][2] == 'Test Student':  
+            test_student_list.append(student_list[i])
+
+    for student in student_list:
+        if student in test_student_list:  
+            student_list.remove(student)
+    
+    for test_student in test_student_list:
+        student_list.append(test_student)
+    return student_list
+    

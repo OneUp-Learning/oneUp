@@ -224,7 +224,7 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input value="{{numberAttempts}}" name="numberAttempts" id="num_attempts" maxlength="4" type="number" class="validate" min="0" max="999" {%if view%}readonly{%endif%}>
+                              <input value="{{numberAttempts}}" name="numberAttempts" id="num_attempts" maxlength="4" type="number" class="validate" min="0" max="999" {% if unlimitedAttempts %} disabled {% endif %} {%if view%}readonly{%endif%}>
                               <label for="num_attempts">Number of Attempts</label>
                            </div>
                            <div class="col s12">
@@ -234,7 +234,7 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <input value="{{timeLimit}}" name="timeLimit" id="time_limit" maxlength="4" type="number" class="validate" min="0" max="999" {%if view%}readonly{%endif%}>
+                              <input value="{{timeLimit}}" name="timeLimit" id="time_limit" maxlength="4" type="number" class="validate" min="0" max="999"  {% if unlimitedTime %} disabled {% endif %} {%if view%}readonly{%endif%}>
                               <label for="time_limit">Time Limit (Minutes)</label>
                            </div>
                            <div class="col s12">
