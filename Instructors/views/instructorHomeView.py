@@ -46,7 +46,7 @@ def instructorHome(request):
     due_date = []
       
     num_challenges = 0
-    currentTime = timezone.localtime(timezone.now()) # TODO: Use current localtime
+    currentTime = current_localtime() #timezone.localtime(timezone.now()) # TODONE: Use current localtime
     # get only the courses of the logged in user        
     reg_crs = InstructorRegisteredCourses.objects.filter(instructorID=request.user)
     

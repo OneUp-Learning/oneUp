@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from Instructors.models import Courses
 from Badges.models import LeaderboardsConfig
-from Instructors.views.utils import initialContextDict, CoursesSkills, Skills
+from Instructors.views.utils import initialContextDict, CoursesSkills, Skills, current_localtime
 from django.shortcuts import redirect
 from Badges.models import CourseConfigParams
 from django.contrib.auth.decorators import login_required
@@ -157,7 +157,7 @@ def dynamicLeaderboardView(request):
                     oldPeriodicVariableForLeaderboard.append(leaderboard.periodicVariable)
                 leaderboard.periodicVariable = int(periodicVariableSelected[index])
                 
-            leaderboard.lastModified = timezone.now() # TODO: Use current localtime
+            leaderboard.lastModified = current_localtime()#timezone.now() # TODONE: Use current localtime
             leaderboard.save()
             
             #if we must append because there was a change NOT in name or description
@@ -190,7 +190,7 @@ def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboar
             else:
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboardToOldPeriodicVariableDict[leaderboard], award_type="leaderboard", course=leaderboard.courseID)
             leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
-            leaderboard.lastModified = timezone.now() # TODO: Use current localtime
+            leaderboard.lastModified = current_localtime() #timezone.now() # TODONE: Use current localtime
             leaderboard.save()
 
 def deleteLeaderboardConfigObjects(leaderboards):
@@ -217,7 +217,7 @@ def createXPLeaderboard(currentCourse, request):
     xpLeaderboard.leaderboardName = "XP Leaderboard"
     xpLeaderboard.numStudentsDisplayed = 0
     xpLeaderboard.displayOnCourseHomePage = True
-    xpLeaderboard.lastModified = timezone.now() # TODO: Use current localtime
+    xpLeaderboard.lastModified = current_localtime() #timezone.now() # TODONE: Use current localtime
     xpLeaderboard.save()
     return xpLeaderboard
 def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDisplayedNum, courseID):

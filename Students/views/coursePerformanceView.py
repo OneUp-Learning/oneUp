@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from Students.models import StudentChallenges, StudentActivities
 from Instructors.models import Challenges, Activities
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, current_localtime
 from Students.views.utils import studentInitialContextDict
 from django.db.models import Q
 from Students.views.utils import studentInitialContextDict
@@ -38,7 +38,7 @@ def CoursePerformance(request):
     assignmentFeedback = []
     isExpired = []
 
-    currentTime = timezone.now() # TODO: Use current localtime 
+    currentTime = current_localtime() #timezone.now() # TODONE: Use current localtime 
     
     stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(hasTimestamp=False))
     for sa in stud_activities:

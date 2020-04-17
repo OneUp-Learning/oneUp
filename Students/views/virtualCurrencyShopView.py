@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, current_localtime
 
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentChallenges, StudentActivities, StudentEventLog
 from Students.views.utils import studentInitialContextDict
@@ -85,7 +85,7 @@ def virtualCurrencyShopView(request):
             challenges_name = []
 
             if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
-                currentTime = timezone.now() # TODO: Use current localtime
+                currentTime = current_localtime() #timezone.now() # TODONE: Use current localtime
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(
                     Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
                 activites = Activities.objects.filter(courseID=currentCourse).filter(
@@ -121,7 +121,7 @@ def virtualCurrencyShopView(request):
             challenges_id = []
             challenges_name = []
 
-            currentTime = timezone.now() # TODO: Use current localtime
+            currentTime = current_localtime()#timezone.now() # TODONE: Use current localtime
             print("Current Time: {}".format(currentTime))
             challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).filter(
                 Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
@@ -239,7 +239,7 @@ def virtualCurrencyShopView(request):
                             studentVCTransaction.objectID = int(
                                 request.POST[challenge_for_id])
                         studentVCTransaction.status = 'Requested'
-                        studentVCTransaction.timestamp = timezone.now() # TODO: Use current localtime 
+                        studentVCTransaction.timestamp = current_localtime() #timezone.now() # TODONE: Use current localtime 
                         studentVCTransaction.save()
 
             # Send notification to Instructor that student has bought item from shop

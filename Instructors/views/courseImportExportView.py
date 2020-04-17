@@ -30,7 +30,7 @@ from Instructors.questionTypes import QuestionTypes
 
 from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields, operand_types_to_char, get_events_for_condition
 from Badges.periodicVariables import setup_periodic_badge, setup_periodic_vc, setup_periodic_leaderboard
-from Instructors.views.utils import initialContextDict, localizedDate
+from Instructors.views.utils import initialContextDict, localizedDate, current_localtime
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity, unspecified_vc_manual_rule_name
 
 from decimal import Decimal
@@ -2647,7 +2647,7 @@ def import_badges_from_json(badges_jsons, badge_type, current_course, context_di
 
             elif badge_type == 'periodic':
                 # Add the periodic fields to badge
-                periodic_badge_fields_to_update = {'lastModified': timezone.now()} # TODO: Use current localtime
+                periodic_badge_fields_to_update = {'lastModified': current_localtime()}#timezone.now()} # TODONE: Use current localtime
                 badge = create_model_instance(badge, badge_json, custom_fields_to_save=periodic_badge_fields_to_update, modify=True)
                 badge.save()
                 
@@ -2706,7 +2706,7 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
 
             elif vc_rule_type == 'periodic':
                 # Add the periodic fields to vc rule
-                periodic_vc_rule_fields_to_update = {'lastModified': timezone.now()} # TODO: Use current localtime
+                periodic_vc_rule_fields_to_update = {'lastModified': current_localtime()} #timezone.now()} # TODONE: Use current localtime
                 vc_rule = create_model_instance(vc_rule, vc_rule_json, custom_fields_to_save=periodic_vc_rule_fields_to_update, modify=True)
                 vc_rule.save()
                 
@@ -2760,7 +2760,7 @@ def import_leaderboards_from_json(leaderboards_jsons, current_course, id_map=Non
         for leaderboard_json in leaderboards_jsons:
 
             # Create the leaderboard model instance
-            leaderboard_fields_to_save = {'lastModified': timezone.now(), 'courseID': current_course} # TODO: Use current localtime
+            leaderboard_fields_to_save = {'lastModified': current_localtime(), 'courseID': current_course} #timezone.now(), 'courseID': current_course} # TODONE: Use current localtime
             leaderboard = create_model_instance(LeaderboardsConfig, leaderboard_json, custom_fields_to_save=leaderboard_fields_to_save)
             leaderboard.save()
 

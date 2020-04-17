@@ -458,6 +458,9 @@ def datetime_to_selected(db_datetime, to_format="%m/%d/%Y %I:%M %p"):
     ''' Converts datetime object to what was actually selected in the interface '''
     return timezone.make_naive(db_datetime.replace(microsecond=0)).strftime(to_format)
 
+def date_to_selected(db_date, to_format="%m/%d/%Y"):
+    ''' Converts date object to what was actually selected in the interface '''
+    return db_date.strftime(to_format)
 
 def localizedDate(request, date_str, date_format, timezone=None):
     if not timezone:

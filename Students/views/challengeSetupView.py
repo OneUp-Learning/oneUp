@@ -12,7 +12,7 @@ import pytz
 from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
 from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
 from Students.models import DuelChallenges, CalloutParticipants, StudentAnswerHints, Student
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, current_localtime, datetime_to_local
 from Instructors.constants import unlimited_constant
 from Students.views.utils import studentInitialContextDict
 from Badges.events import register_event
@@ -79,8 +79,8 @@ def ChallengeSetup(request):
                     context_dict['isduration'] = True
                     total_time = duel_challenge.acceptTime + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
-                            minutes=duel_challenge.timeLimit) # TODO: convert datetime to local
-                    remaing_time = total_time-timezone.now() # TODO: Use current localtime
+                            minutes=duel_challenge.timeLimit) # *unsure about this one* TODO: convert datetime to local
+                    remaing_time = total_time - current_localtime() #timezone.now() # TODONE: Use current localtime
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['testDuration'] = difference_minutes
                     context_dict['isDuel'] = True
@@ -91,8 +91,7 @@ def ChallengeSetup(request):
                         pk=int(call_out_part_id))
                     context_dict['challengeName'] = call_out_part.calloutID.challengeID.challengeName
                     context_dict['isduration'] = True
-                    time_left = (call_out_part.calloutID.endTime -
-                                 timezone.now()).total_seconds() / 60.0 # TODO: Use current localtime and convert datetime to local
+                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0 #(call_out_part.calloutID.endTime - timezone.now()).total_seconds() / 60.0 # TODONE: Use current localtime and convert datetime to local
                     context_dict['testDuration'] = time_left
                     context_dict['isCallout'] = True
                     context_dict['calloutPartID'] = call_out_part_id
@@ -106,7 +105,7 @@ def ChallengeSetup(request):
                     context_dict['isDuel'] = False
 
 
-                starttimestring = timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M:%S %p") # TODO: Use current localtime before format
+                starttimestring = current_localtime().strftime("%m/%d/%Y %I:%M:%S %p")#timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M:%S %p") # TODONE: Use current localtime before format
                 context_dict['startTime'] = starttimestring
 
                 attemptId = 'challenge:'+challengeId + '@' + starttimestring

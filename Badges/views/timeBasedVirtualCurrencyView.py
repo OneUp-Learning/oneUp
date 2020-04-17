@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from django.contrib.auth.decorators import login_required
-from Instructors.views.utils import initialContextDict, localizedDate
+from Instructors.views.utils import initialContextDict, localizedDate, current_localtime
 from Badges.models import VirtualCurrencyPeriodicRule
 from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_vc, delete_periodic_task
 from django.shortcuts import redirect
@@ -80,7 +80,7 @@ def timeBasedVirtualCurrencyView(request):
             periodicVC.timePeriodID = request.POST['timePeriodSelected']
             periodicVC.threshold = request.POST['threshold']
             periodicVC.operatorType = request.POST['operator']
-            periodicVC.lastModified = timezone.now() # TODO: Use current localtime
+            periodicVC.lastModified = current_localtime() # TODONE: Use current localtime
             
             if 'selectors' in request.POST:
                 periodicVC.periodicType = selectorMap[selectors]

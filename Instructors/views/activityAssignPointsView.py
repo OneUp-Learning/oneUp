@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Students.models import StudentRegisteredCourses, Student, StudentFile
 from Instructors.models import Courses, Activities
-from Instructors.views.utils import localizedDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict, current_localtime
 from Students.models import StudentActivities
 from Badges.events import register_event
 from Badges.enums import Event
@@ -68,7 +68,7 @@ def activityAssignPointsView(request):
                     if studentPoints != stud_activity.activityScore:
                         # A score exists and a new score has been assigned.
                         stud_activity.activityScore = studentPoints
-                        stud_activity.timestamp = timezone.localtime(timezone.now()) # TODO: Use current localtime
+                        stud_activity.timestamp = current_localtime() # TODONE: Use current localtime
                         print(f'{timezone.get_default_timezone_name()} {timezone.now()}')
                         print(f'{timezone.get_current_timezone_name()} {timezone.localtime(timezone.now())}')
                         print(f'{activity.startTimestamp} {timezone.localtime(activity.startTimestamp)}')
@@ -104,7 +104,7 @@ def activityAssignPointsView(request):
                     stud_activity.instructorFeedback = ""
 
                 stud_activity.bonusPointsAwarded = studentBonus
-                stud_activity.timestamp = timezone.localtime(timezone.now())
+                stud_activity.timestamp = current_localtime() #TODONE:timezone.localtime(timezone.now())
                 stud_activity.courseID = currentCourse
                 stud_activity.graded = True
                 stud_activity.save()

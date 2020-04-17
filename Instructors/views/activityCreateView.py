@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.utils import timezone
 from Instructors.models import Activities, UploadedActivityFiles, ActivitiesCategory
-from Instructors.views.utils import initialContextDict, localizedDate
+from Instructors.views.utils import initialContextDict, localizedDate, current_localtime, str_datetime_to_local, datetime_to_selected, date_to_selected
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
 from Badges.models import CourseConfigParams
 from datetime import datetime
@@ -84,22 +84,19 @@ def activityCreateView(request):
 
         # Set the start date and end data to show the activity
         try:
-            activity.startTimestamp = localizedDate(
-                request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")  # TODO: Use current localtime
+            activity.startTimestamp = str_datetime_to_local(request.POST['startTime'])#localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")  # TODONE: Use current localtime
             activity.hasStartTimestamp = True
         except ValueError:
             activity.hasStartTimestamp = False
 
         try:
-            activity.endTimestamp = localizedDate(
-                request, request.POST['endTime'], "%m/%d/%Y %I:%M %p") # TODO: Use current localtime
+            activity.endTimestamp = str_datetime_to_local(request.POST['endTime'])#localizedDate(request, request.POST['endTime'], "%m/%d/%Y %I:%M %p") # TODONE: Use current localtime
             activity.hasEndTimestamp = True
         except ValueError:
             activity.hasEndTimestamp = False
 
         try:
-            activity.deadLine = localizedDate(
-                request, request.POST['deadLine'], "%m/%d/%Y %I:%M %p") # TODO: Use current localtime
+            activity.deadLine = str_datetime_to_local(request.POST['deadLine']) #localizedDate(request, request.POST['deadLine'], "%m/%d/%Y %I:%M %p") # TODONE: Use current localtime
             activity.hasDeadline = True
         except ValueError:
             activity.hasDeadline = False
@@ -155,20 +152,20 @@ def activityCreateView(request):
 
             
             if activity.hasStartTimestamp:
-                context_dict['startTimestamp'] = timezone.localtime(activity.startTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
+                context_dict['startTimestamp'] = datetime_to_selected(activity.startTimestamp) #timezone.localtime(activity.startTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODONE: Show actual datetime selected
             else:
                 context_dict['startTimestamp'] = ""
 
             
             if activity.hasEndTimestamp:
-                context_dict['endTimestamp'] = timezone.localtime(activity.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
+                context_dict['endTimestamp'] = datetime_to_selected(activity.endTimestamp)#timezone.localtime(activity.endTimestamp).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODONE: Show actual datetime selected
             else:
                 context_dict['endTimestamp'] = ""
 
             # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
             
             if activity.hasDeadline:
-                context_dict['deadLineTimestamp'] = timezone.localtime(activity.deadLine).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODO: Show actual datetime selected
+                context_dict['deadLineTimestamp'] = datetime_to_selected(activity.deadLine) #timezone.localtime(activity.deadLine).replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") # TODONE: Show actual datetime selected
             else:
                 context_dict['deadLineTimestamp'] = ""
 
@@ -181,14 +178,11 @@ def activityCreateView(request):
                 print('No activity files found')
         else:
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
-            if ccp.courseStartDate < timezone.now().date(): # TODO: Use current localtime
-                context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
-            if ccp.courseEndDate > timezone.now().date(): # TODO: Use current localtime
-                context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
-                context_dict['deadLineTimestamp'] = ccp.courseEndDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
+            if ccp.hasCourseStartDate and ccp.courseStartDate <= current_localtime().date():#timezone.localtime(timezone.now()).date(): #***Throws errors. Date field instead of datetime?*** TODONE: Use current localtime
+                context_dict['startTimestamp'] = date_to_selected(ccp.courseStartDate) #ccp.courseStartDate.strftime("%m/%d/%Y %I:%M %p") # TODONE: Show actual datetime selected
+            if ccp.hasCourseEndDate and ccp.courseEndDate > current_localtime().date(): #timezone.localtime(timezone.now()).date(): # TODONE: Use current localtime
+                context_dict['endTimestamp'] = date_to_selected(ccp.courseEndDate) #ccp.courseEndDate.strftime("%m/%d/%Y %I:%M %p") # TODONE: Show actual datetime selected
+                context_dict['deadLineTimestamp'] = date_to_selected(ccp.courseEndDate)
 
     return render(request, 'Instructors/ActivityCreateForm.html', context_dict)
 

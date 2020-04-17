@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, current_localtime
 from Instructors.constants import unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
@@ -108,6 +108,7 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                 studentVC.save()
 
                 studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.timestamp = current_localtime()
                 studentAddBadgeLog.courseID = course
                 vc_award_type = "Add" if accumulative_type == 'combine' else "Set"
                 log_data = create_badge_vc_log_json(

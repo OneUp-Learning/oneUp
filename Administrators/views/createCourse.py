@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import datetime
 
 from Instructors.constants import unassigned_problems_challenge_name, unspecified_topic_name, anonymous_avatar, unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, str_datetime_to_local
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.models import User
 from oneUp.decorators import adminsCheck
@@ -143,13 +143,13 @@ def courseCreateView(request):
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
                 if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
-                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+                    ccp.courseStartDate = str_datetime_to_local(request.POST['courseStartDate'], to_format="%B %d, %Y") # TODONE: Use str to localtime with the format
                     ccp.hasCourseStartDate = True
                 else:
                     ccp.hasCourseStartDate = False
 
                 if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+                    ccp.courseEndDate = str_datetime_to_local(request.POST['courseEndDate'], to_format="%B %d, %Y") # TODONE: Use str to localtime with the format
                     ccp.hasCourseEndDate = True
                 else:
                     ccp.hasCourseEndDate = False
@@ -191,13 +191,13 @@ def courseCreateView(request):
 
                 ccp = CourseConfigParams.objects.get(courseID=course)
                 if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
-                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+                    ccp.courseStartDate = str_datetime_to_local(request.POST['courseStartDate'], to_format="%B %d, %Y") # TODONE: Use str to localtime with the format
                     ccp.hasCourseStartDate = True
                 else:
                     ccp.hasCourseStartDate = False
 
                 if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+                    ccp.courseEndDate = str_datetime_to_local(request.POST['courseEndDate'], to_format="%B %d, %Y") # TODONE: Use str to localtime with the format
                     ccp.hasCourseEndDate = True
                 else:
                     ccp.hasCourseEndDate = False
@@ -227,12 +227,12 @@ def courseCreateView(request):
                 ccp = CourseConfigParams()
                 ccp.courseID = course
                 if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
-                    ccp.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+                    ccp.courseStartDate = str_datetime_to_local(request.POST['courseStartDate'], to_format="%B %d, %Y") # TODONE: Use str to localtime with the format
 
                     ccp.hasCourseStartDate = True
 
                 if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-                    ccp.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+                    ccp.courseEndDate = str_datetime_to_local(request.POST['courseEndDate'], to_format="%B %d, %Y") # TODONE: Use str to localtime with the format
                     ccp.hasCourseEndDate = True
 
                 ccp.save()

@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required,user_passes_test
 from Badges.models import CourseConfigParams
-from Instructors.views.utils import initialContextDict, localizedDate
+from Instructors.views.utils import initialContextDict, localizedDate, str_datetime_to_local
 from Badges.systemVariables import logger
 from oneUp.decorators import instructorsCheck     
 @login_required
@@ -41,15 +41,15 @@ def courseConfigurationView(request):
 
         logger.debug(request.POST['courseStartDate'])
 
-        if 'courseStartDate' in request.POST and request.POST['courseStartDate'] == "":
-            ccparams.courseStartDate = localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+        if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
+            ccparams.courseStartDate = str_datetime_to_local(request.POST['courseStartDate'], to_format="%B %d, %Y") #localizedDate(request, request.POST['courseStartDate'], "%B %d, %Y") # TODONE: Use str to localtime with the format
             ccparams.hasCourseStartDate = True
         else:
             ccparams.hasCourseStartDate = False
             
 
         if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-            ccparams.courseEndDate = localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODO: Use str to localtime with the format
+            ccparams.courseEndDate = str_datetime_to_local(request.POST['courseEndDate'], to_format="%B %d, %Y")# localizedDate(request, request.POST['courseEndDate'], "%B %d, %Y") # TODONE: Use str to localtime with the format
             ccparams.hasCourseEndDate = True
         else:
              ccparams.hasCourseEndDate = False

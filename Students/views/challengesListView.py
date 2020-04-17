@@ -8,13 +8,12 @@ from django.utils import timezone
 from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
 from Instructors.models import Challenges , ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, current_localtime
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
 from django.db.models import Q
 from Badges.enums import ObjectTypes
 from Badges.models import ProgressiveUnlocking
 from datetime import datetime
-
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -46,7 +45,7 @@ def ChallengesList(request):
             # TODO: 
             # filtering
             #studentId = Student.objects.filter(user=request.user)
-            currentTime = timezone.now() # TODO: Use current localtime
+            currentTime = current_localtime() #timezone.now() # TODONE: Use current localtime
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
@@ -206,7 +205,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
     else:
         optionSelected = 0
 
-    currentTime = timezone.now() # TODO: Use current localtime
+    currentTime = current_localtime() #timezone.now() # TODONE: Use current localtime
 
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
     for challID in chall:

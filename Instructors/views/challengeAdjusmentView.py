@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import Challenges, Courses
 from Students.models import StudentRegisteredCourses, StudentChallenges
-from Instructors.views.utils import localizedDate, initialContextDict
+from Instructors.views.utils import localizedDate, initialContextDict, current_localtime
 from Badges.events import register_event
 from Badges.enums import Event
 from Badges.models import CourseConfigParams
@@ -87,8 +87,8 @@ def challengeAdjustmentView(request):
                             studentChallenge.bonusPointsAwarded = 0
 
                         studentChallenge.courseID = course
-                        studentChallenge.startTimestamp = timezone.now() # TODO: Use current localtime
-                        studentChallenge.endTimestamp = timezone.now() # TODO: Use current localtime
+                        studentChallenge.startTimestamp = current_localtime() #timezone.now() # TODONE: Use current localtime
+                        studentChallenge.endTimestamp = current_localtime() #timezone.now() # TODONE: Use current localtime
                         studentChallenge.testScore = 0
                         studentChallenge.save()
 

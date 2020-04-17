@@ -10,7 +10,7 @@ import glob, os
 
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
-from Instructors.views.utils import initialContextDict, localizedDate
+from Instructors.views.utils import initialContextDict, localizedDate, current_localtime
 from Badges.models import Badges, BadgesInfo, PeriodicBadges
 from django.views.decorators.http import condition
 from django.shortcuts import redirect
@@ -81,7 +81,7 @@ def timeBasedBadgeView(request):
             periodic_badge.timePeriodID = request.POST['timePeriodSelected']
             periodic_badge.threshold = request.POST['threshold']
             periodic_badge.operatorType = request.POST['operator']
-            periodic_badge.lastModified = timezone.now() # TODO: Use current localtime
+            periodic_badge.lastModified = current_localtime() # TODONE: Use current localtime
 
             streakObject = determineIfStreakAward(int(request.POST['periodicVariableSelected']))
     

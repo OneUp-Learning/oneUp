@@ -20,6 +20,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from Badges.events import register_event
 from Badges.enums import Event
+from Instructors.views.utils import current_localtime
 #from requests.api import request
 
 
@@ -227,7 +228,7 @@ def makeFileObjects(studentId, currentCourse, files, studentActivities):
 
 def isDisplayTimePassed(endTimeStamp):
 
-    if endTimeStamp < timezone.now(): # TODO: Use current localtime
+    if endTimeStamp < current_localtime(): #timezone.now(): # TODONE: Use current localtime
         return False
     else:
         return True
@@ -235,8 +236,8 @@ def isDisplayTimePassed(endTimeStamp):
 
 def checkTimes(endTimestamp, deadLine):
 
-    endMax = max((endTimestamp, timezone.now())) # TODO: Use current localtime
-    deadMax = max((deadLine, timezone.now())) # TODO: Use current localtime
+    endMax = max((endTimestamp, current_localtime()))#max((endTimestamp, timezone.now())) # TODONE: Use current localtime
+    deadMax = max((deadLine, current_localtim()))#max((deadLine, timezone.now())) # TODONE: Use current localtime
 
     if(endMax == endMax and deadMax == deadLine):
         return True

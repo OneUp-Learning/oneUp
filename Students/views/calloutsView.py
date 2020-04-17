@@ -4,6 +4,7 @@ Created on Apr 2, 2019
 '''
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from Instructors.views.utils import current_localtime, datetime_to_local
 from Students.views.utils import studentInitialContextDict
 from Badges.models import CourseConfigParams, BadgesVCLog
 from Students.models import StudentRegisteredCourses, Callouts, StudentChallenges, CalloutParticipants, StudentConfigParams, StudentVirtualCurrency, CalloutStats, DuelChallenges, Student
@@ -69,6 +70,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             # Record this trasaction in the log to show that the system awarded this vc
             studentAddBadgeLog = BadgesVCLog()
+            studentAddBadgeLog.timestamp = current_localtime()
             studentAddBadgeLog.courseID = current_course
             log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
             studentAddBadgeLog.log_data = json.dumps(log_data)
@@ -134,6 +136,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
                 # Record this trasaction in the log to show that the system awarded this vc
                 studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.timestamp = current_localtime()
                 studentAddBadgeLog.courseID = current_course
                 log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
                 studentAddBadgeLog.log_data = json.dumps(log_data)
@@ -215,6 +218,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
                 # Record this trasaction in the log to show that the system awarded this vc
                 studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.timestamp = current_localtime()
                 studentAddBadgeLog.courseID = current_course
                 log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
                 studentAddBadgeLog.log_data = json.dumps(log_data)
@@ -321,7 +325,7 @@ def callout_create(request):
         callout.courseID = current_course
         callout.sender = student_id
         # Get utc time
-        time = timezone.now() # TODO: Use current localtime
+        time = current_localtime() #timezone.now() # TODONE: Use current localtime
         # send time is when the callout is being created
         callout.sendTime = time
         # end time is send time plus a week. Basically the callout expires afte a week
@@ -929,7 +933,7 @@ def callout_description(request):
             calloutID=call_out_id, courseID=current_course)
         context_dict['call_out'] = call_out
 
-        if (call_out.endTime + timedelta(seconds=5)) <= timezone.now(): # TODO: Use current localtime and convert datetime to local
+        if (datetime_to_local(call_out.endTime + timedelta(seconds=5))) <= current_localtime():#(call_out.endTime + timedelta(seconds=5)) <= timezone.now(): # TODONE: Use current localtime and convert datetime to local
             try:
                 call_out.hasEnded = True
                 call_out.save()
@@ -937,8 +941,7 @@ def callout_description(request):
                 print("error")
 
         # get the remaing time before the call out is expired in seconds
-        context_dict['time_left'] = (
-            call_out.endTime - timezone.now()).total_seconds() # TODO: Use current localtime and convert datetime to local
+        context_dict['time_left'] = (datetime_to_local(call_out.endTime) - current_localtime()).total_seconds()#(call_out.endTime - timezone.now()).total_seconds() # TODONE: Use current localtime and convert datetime to local
 
         # get sender pure challenge higest score without curve and adjustment, and also call out virtual currency
         sender_call_out_stat = CalloutStats.objects.get(
@@ -965,7 +968,7 @@ def callout_description(request):
             studentID__user__id=participant_id, courseID=current_course).avatarImage
         call_out = call_out_participant.calloutID
 
-        if (call_out.endTime + timedelta(seconds=5)) <= timezone.now(): # TODO: Use current localtime and convert datetime to local
+        if (datetime_to_local(call_out.endTime + timedelta(seconds=5))) <= current_localtime():#(call_out.endTime + timedelta(seconds=5)) <= timezone.now(): # TODONE: Use current localtime and convert datetime to local
             try:
                 call_out.hasEnded = True
                 call_out.save()
@@ -983,8 +986,7 @@ def callout_description(request):
             studentID=call_out.sender, courseID=current_course).avatarImage
 
         # get the remaing time before the call out is expired in seconds
-        context_dict['time_left'] = (
-            call_out.endTime - timezone.now()).total_seconds() # TODO: Use current localtime and convert datetime to local
+        context_dict['time_left'] = (datetime_to_local(call_out.endTime) - current_localtime()).total_seconds()#(call_out.endTime - timezone.now()).total_seconds() # TODONE: Use current localtime and convert datetime to local
 
         context_dict = get_details(
             call_out, sender_score, is_sent_call_out, participant_id, context_dict)
@@ -1016,7 +1018,7 @@ def call_out_list(student_id, current_course):
         # else append a string statig this is for the whole class
         else:
             sent_avatars_or_whole_class.append("Whole Class")
-        time_left = (sent_call_out.endTime - timezone.now()).total_seconds() / 60.0 # TODO: Use current localtime and convert datetime to local
+        time_left = (datetime_to_local(sent_call_out.endTime) - current_localtime()).total_seconds() / 60.0 #(sent_call_out.endTime - timezone.now()).total_seconds() / 60.0 # TODONE: Use current localtime and convert datetime to local
 
         sent_times_left.append(time_left)
 
@@ -1037,8 +1039,7 @@ def call_out_list(student_id, current_course):
     requested_call_out_topics = []
     for call_out_participant in call_out_participants:
         requested_call_outs.append(call_out_participant)
-        time_left = (call_out_participant.calloutID.endTime -
-                     timezone.now()).total_seconds() / 60.0 # TODO: Use current localtime and convert datetime to local
+        time_left = (datetime_to_local(call_out_participant.calloutID.endTime) - current_localtime()).total_seconds() / 60.0 #(call_out_participant.calloutID.endTime - timezone.now()).total_seconds() / 60.0 # TODONE: Use current localtime and convert datetime to local
 
         requested_times_left.append(time_left)
         sender_avatars.append(StudentRegisteredCourses.objects.get(

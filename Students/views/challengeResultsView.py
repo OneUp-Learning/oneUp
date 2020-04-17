@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import datetime
-from Instructors.views.utils import localizedDate
+from Instructors.views.utils import localizedDate, current_localtime, str_datetime_to_local
 from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
     ChallengesQuestions
 from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats, StudentAnswerHints
@@ -96,9 +96,9 @@ def ChallengeResults(request):
                     context_dict['isWarmUp'] = True
 
                 print("Start Time: "+request.POST['startTime'])
-                startTime = localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p") # TODO: convert str datetime to local
+                startTime = str_datetime_to_local(request.POST['startTime'], to_format= "%m/%d/%Y %I:%M:%S %p") #localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p") # *included format due to '%S'* TODONE: convert str datetime to local
                 # end time of the test is the current time when it is navigated to this page
-                endTime = timezone.now() # TODO: Use current localtime
+                endTime = current_localtime() #timezone.now() # TODONE: Use current localtime
                 print("End Time:" + endTime.strftime("%m/%d/%Y %I:%M %p"))
 
                 attemptId = 'challenge:'+challengeId + \

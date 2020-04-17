@@ -21,7 +21,7 @@ def ChallengeDescription(request):
     if 'currentCourseID' in request.session:
         chall_ID = []
         chall_Name = []
-        currentTime = timezone.now() # TODO: Use current localtime
+        currentTime = current_localtime() # timezone.now() # TODONE: Use current localtime
         string_attributes = ['challengeName', 'courseID', 'isGraded',  # 'challengeCategory','timeLimit','numberAttempts',
                              'challengeAuthor',
                              'displayCorrectAnswer', 'displayCorrectAnswerFeedback', 'displayIncorrectAnswerFeedback',
@@ -87,15 +87,14 @@ def ChallengeDescription(request):
                     total_time = datetime_to_local(duel_challenge.acceptTime) + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
                             minutes=duel_challenge.timeLimit)
-                    remaing_time = remaing_time = total_time-timezone.now() # TODO: Use current localtime
+                    remaing_time = remaing_time = total_time - current_localtime() #timezone.now() # TODONE: Use current localtime
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['timeLimit'] = ("%.2f" % difference_minutes)
                     if difference_minutes <= 0:
                         return redirect('/oneUp/students/DuelChallengeDescription?duelChallengeID=' +
                                         str(duel_challenge.duelChallengeID))
                 elif is_callout:
-                    time_left = (call_out_part.calloutID.endTime -
-                                 timezone.now()).total_seconds() / 60.0 # TODO: Use current localtime and convert datetime to local
+                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0 #(call_out_part.calloutID.endTime - timezone.now()).total_seconds() / 60.0 # TODONE: Use current localtime and convert datetime to local
                     context_dict['timeLimit'] = ("%.2f" % time_left)
                     if time_left <= 0:
                         return redirect('/oneUp/students/CalloutDescription?call_out_participant_id=' + str(call_out_part.id) + '&participant_id=' + str(call_out_part.participantID.user.id))
