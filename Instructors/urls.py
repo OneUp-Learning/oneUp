@@ -50,8 +50,7 @@ from Instructors.views.deleteView import (deleteActivity, deleteAnnouncement,
                                           deleteQuestion,
                                           deleteQuestionFromChallenge,
                                           deleteSkill, deleteStudent,
-                                          deleteSubTopic, deleteTopic,
-                                          deleteUser)
+                                          deleteTopic, deleteUser)
 from Instructors.views.DuelReportView import duel_challenge_report, duel_report
 from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 # Dynamic Questions Stuff
@@ -94,8 +93,6 @@ from Instructors.views.studentAttendanceReportView import \
 from Instructors.views.studentAttendanceView import studentAttendance
 from Instructors.views.studentSkillsEarnedView import studentSkillsEarned
 from Instructors.views.studentSummaryView import studentSummary
-from Instructors.views.subTopicsCreateView import subTopicsCreateView
-from Instructors.views.subTopicsListView import subTopicsListView
 from Instructors.views.switchToStudentView import switchToStudentView
 from Instructors.views.templateDynamicQuestionsView import (
     removeFileFromQuestion, templateDynamicQuestionForm)
@@ -162,7 +159,6 @@ urlpatterns = [
     url(r'^deleteManualSpendRule', deleteManualSpendRule,
         name='deleteManualSpendRule'),
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
-    url(r'^deleteSubTopic', deleteSubTopic, name='deleteSubTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
@@ -206,8 +202,6 @@ urlpatterns = [
     url(r'^studentAchievements', studentAchievements, name='studentAchievements'),
     url(r'^studentSkillsEarned', studentSkillsEarned, name='studentSkillsEarned'),
     url(r'^studentSummary', studentSummary, name='studentSummary'),
-    url(r'^subTopicsCreate', subTopicsCreateView, name='subTopicsCreateView'),
-    url(r'^subTopicsListView', subTopicsListView, name='subTopicsListView'),
     url(r'^topicsCreate', topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList', topicsListView, name='topicsListView'),
     url(r'^uploadChallenges', uploadChallenges, name='uploadChallenges'),

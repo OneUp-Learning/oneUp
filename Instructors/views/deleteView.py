@@ -11,9 +11,9 @@ from django.shortcuts import redirect
 
 from Badges.models import VirtualCurrencyCustomRuleInfo
 from Instructors.constants import unassigned_problems_challenge_name
-from Instructors.models import (
-    Activities, Announcements, Challenges, ChallengesQuestions, Courses,
-    CoursesSubTopics, Questions, Skills, Topics)
+from Instructors.models import (Activities, Announcements, Challenges,
+                                ChallengesQuestions, Courses, Questions,
+                                Skills, Topics)
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import (Student, StudentConfigParams,
@@ -278,34 +278,6 @@ def deleteTopic(request):
         context_dict['message'] = message
 
     return redirect('/oneUp/instructors/warmUpChallengeList', context_dict)
-
-
-@login_required
-@user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
-def deleteSubTopic(request):
-
-    context_dict, currentCourse = initialContextDict(request)
-    if request.POST:
-
-        try:
-            if request.POST['subTopicID']:
-                subTopic = CoursesSubTopics.objects.get(
-                    pk=int(request.POST['subTopicID']))
-                print(subTopic)
-                message = "subTopic #" + \
-                    str(subTopic.subTopicID) + " " + \
-                    subTopic.subTopicName+" successfully deleted"
-                subTopic.delete()
-        except subTopic.DoesNotExist:
-            message = "There was a problem deleting SubTopic #" + \
-                str(subTopic.subTopicID) + " "+subTopic.subTopicName
-
-        context_dict['message'] = message
-
-    response = redirect('/oneUp/instructors/subTopicsListView', context_dict)
-    response['Location'] += '?topicID=' + str(subTopic.topicID.topicID)
-    return response
-
 
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')

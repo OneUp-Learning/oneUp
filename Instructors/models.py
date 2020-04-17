@@ -303,19 +303,6 @@ class CoursesTopics(models.Model):
     topicPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.courseID)+","+str(self.topicID)+","+str(self.topicPos)
-    
-class CoursesSubTopics(models.Model):
-    subTopicID = models.AutoField(primary_key=True)
-    topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")    
-    courseID = models.ForeignKey('Instructors.Courses', on_delete=models.CASCADE, verbose_name="courses")
-    subTopicName = models.CharField(max_length=100)
-    subTopicPos = models.IntegerField(default=0)
-    thresholdXP = models.IntegerField(default=0)
-    thresholdSP = models.IntegerField(default=0)
-    displayDate = models.DateTimeField(default=now, blank=True)
-    
-    def __str__(self):              
-        return str(self.courseID)+","+str(self.topicID)+","+str(self.subTopicID)
 
 class ChallengesTopics(models.Model):
     topicID = models.ForeignKey('Instructors.Topics', on_delete=models.CASCADE, verbose_name="topic")
