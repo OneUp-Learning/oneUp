@@ -18,26 +18,26 @@ by James Cherry -->
                {% if is_teacher %} 
                <h3>Goals for {{student}}</h3>
                {% else %}   
-               <h3>Goals for {{username}}</h3>
+               <h3>Goals</h3>
                {% endif %}
             </div>
          </div>
          <div class="row right-align">
          {% if not is_teacher %}
          	<div class="col s12 m10 offset-m1">
-         	   <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>       
+         	   <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>       
          	</div>
          {% endif %}
          </div>
          <div class="row">
             <div class="col s12 m10 offset-m1">
                <div class="card-panel">
-                  <table>
+                  <table class="responsive-table">
                      <thead>
                         <tr>
+                           <th>Goal</th>
                            <th>Start Date</th>
                            <th>End Date</th>
-                           <th>Goal Type</th>
                            <th>Target</th>
                            <th>Progress %</th>
                            <th>Status</th>
@@ -45,12 +45,12 @@ by James Cherry -->
                         </tr>
                      </thead>
                      <tbody>
-                        {% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed, recurring_goal in goal_range %}
+                        {% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit in goal_range %}
                         <tr>
+                           <td>{{goal_name}}</td>
                            <td>{{start_date}}</td>
                            <td>{{end_date}}</td>
-                           <td>{{goal_Type}}</td>
-                           <td>{{targeted_Number}}</td>
+                           <td>{{goal_target}}</td>
                            <td>{{goal_progress}}%</td>   
                            <td>
                            		{% if goal_status == "Not Achieved" %}
@@ -62,21 +62,32 @@ by James Cherry -->
                            		{% endif %}
                            </td>
                            <td>{{recurring_goal}}</td>  
+                           {% if not is_teacher %}
                            <td>
-                              {% if not is_teacher %}
-                              <form action="/oneUp/students/GoalDelete" method="POST">
+                              <form action="/oneUp/students/goal" method="POST">
                                  {% csrf_token %} 
-                                 <input type="hidden" name="studentGoalID" value="{{studentGoal_ID}}">
-                                 <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='goal{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                 <ul id='goal{{i}}' class='dropdown-content'>                                 	
-                                    {% if edit_allowed %}
-                                    <li><a href="/oneUp/students/GoalCreate?studentGoalID={{studentGoal_ID}}">Edit</a></li>                                    	                                   
-                                    <li class="divider"></li>                                 	
-                                    <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
-                                    {% else %}
-                                    <li>Too late to modify, please try your best!</li>
-                                    {% endif %}
-                                 </ul>
+                                 <input type="hidden" name="goal_id" value="{{goal_id}}">
+                                 <input type="hidden" name="delete">
+                                 <div class="hide-on-med-and-down">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='goal{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+                                    <ul id='goal{{i}}' class='dropdown-content'>     
+                                       {% if can_edit %}                            	
+                                       <li><a href="/oneUp/students/goal?goal_id={{goal_id}}">Edit</a></li>                                    	                                   
+                                       <li class="divider"></li>          
+                                       {% endif %}                       	
+                                       <li><a class="modal-trigger" href="#modal_delete{{i}}">Delete</a></li>
+                                    </ul>
+                                 </div>
+                                 <div class="hide-on-large-only">
+                                    <div class="row right-align" style="margin: 0">
+                                        <div class="col s12">
+                                          {% if can_edit %}   
+                                          <a class="waves-effect waves-light btn" href="/oneUp/students/goal?goal_id={{goal_id}}">Edit</a>
+                                          {% endif %}
+                                          <a class="modal-trigger waves-effect waves-light btn" href="#modal_delete{{i}}">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
                                  <div id="modal_delete{{i}}" class="modal">
                                     <div class="modal-content">
                                        <h5>Are you sure you want to delete?</h5>
@@ -88,8 +99,8 @@ by James Cherry -->
                                     </div>
                                  </div>
                               </form>
-                              {% endif %}
                            </td>
+                           {% endif %}
                         </tr>
                         {% empty %}
                         <tr>
@@ -104,7 +115,7 @@ by James Cherry -->
          <div class="row right-align">
          {% if not is_teacher %}
          	<div class="col s12 m10 offset-m1">
-         	   <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>       
+         	   <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>       
          	</div>
          {% endif %}
          </div>

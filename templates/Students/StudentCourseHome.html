@@ -91,20 +91,20 @@
             </div>
             </div>
             {% endif %}   
-            {% if ccparams.gamificationUsed and ccparams.studCanChangeGoal and scparams.displayGoal %}
+            {% if ccparams.gamificationUsed  and ccparams.goalsUsed %}
+            {% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
             <div class="row">
             	<div class="col s12 m10 offset-m1">            
-	            	<div class="card">
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">Goals</span>
 			            		<div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; margin-bottom: 10px;">
-			            			{% for i,studentGoal_ID,student_ID,course_ID,start_date,end_date,goal_Type,targeted_Number,goal_progress,goal_status,edit_allowed,recurring_goal in goal_range %}                                                           
+			            			{% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal,can_edit in goal_range %}                                                           
 			                          <div style="width: 240px; height: 240px; margin-bottom: 24px; margin-top: 8px;">
                                         <div style="padding-left: 8px; padding-right: 8px; height: 40px;">
-                                            <p>{{goal_Type}}</p>
+                                            <p>{{goal_name}}</p>
                                         </div>
-                                        <div id="goal-container-{{i}}" class="goalindicator" data-goalprogress="20" data-title="{{goal_Type}}" title="{{goal_Type}} by {{student_ID}}" data-target="100"></div>
+                                        <div id="goal-container-{{i}}" class="goalindicator" data-goalprogress="{{goal_progress}}" data-title="{{goal_name}}" title="{{goal_name}} by {{student_ID}}" data-target="{{goal_target}}" data-status="{{goal_status}}"></div>
                                             
                                         <div style="padding-left: 8px; padding-right: 8px; text-align: center;">
                                             <p>End Date: {{end_date}}</p>
@@ -119,20 +119,20 @@
                                 <div class="hide-on-med-and-up">
                                     <div class="row center-align">
                                        <div class="col s12">
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>
                                        </div>
                                     </div>
                                     <div class="row center-align">
                                        <div class="col s12">
-                                            <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                            <a class="waves-effect waves-light btn" href="/oneUp/students/goalslist"><i class="material-icons right">navigate_next</i>View All Goals</a>
                                        </div>
                                     </div>
                                  </div>
                                  <div class="hide-on-small-only">
                                     <div class="row right-align" style="margin: 0">
                                        <div class="col s12">
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalCreate"><i class="material-icons left">add_circle</i>Create New Goal</a>
-                                        <a class="waves-effect waves-light btn" href="/oneUp/students/GoalsList"><i class="material-icons right">navigate_next</i>View All Goals</a>
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/goal"><i class="material-icons left">add_circle</i>Create New Goal</a>
+                                        <a class="waves-effect waves-light btn" href="/oneUp/students/goalslist"><i class="material-icons right">navigate_next</i>View All Goals</a>
                                        </div>
                                     </div>
                                  </div>
@@ -161,12 +161,7 @@
                                             },
                                             valueSuffix: '%',
                                             pointFormat: '{series.name}<br><span style="font-size:2em; color: {point.color}; font-weight: bold">{point.y}</span>',
-                                            positioner: function (labelWidth) {
-                                                return {
-                                                    x: (this.chart.chartWidth - labelWidth + 3) / 2,
-                                                    y: (this.chart.plotHeight / 2)
-                                                };
-                                            }
+                                            positioner: {},
                                         },
 
                                         pane: {
@@ -214,34 +209,52 @@
                                         },]
                                     };
                                     var indicatorsFound = document.getElementsByClassName("goalindicator");
-                                    console.log(indicatorsFound.length)
+                                    // Colors array is in ChartTheme.html
+                                    var colors = {'In Progress': Highcharts.getOptions().colors[4], 
+                                                'Not Achieved': Highcharts.getOptions().colors[5], 
+                                                'Completed': Highcharts.getOptions().colors[2]
+                                        };
+                                    var background_colors = {'In Progress': Highcharts.color(Highcharts.getOptions().colors[4]).setOpacity(0.3).get(), 
+                                                'Not Achieved': Highcharts.color(Highcharts.getOptions().colors[5]).setOpacity(0.3).get(), 
+                                                'Completed': Highcharts.color(Highcharts.getOptions().colors[2]).setOpacity(0.3).get()
+                                        };
                                     for(var i = 0; i < indicatorsFound.length; i++){
-                                        chart_settings.chart.renderTo = `goal-container-${i+1}`;
-                                        var chart = new Highcharts.Chart(chart_settings);
-                                        // chart.title.text = indicatorsFound[i].dataset.title;
-                                        // chart.setTitle({text: indicatorsFound[i].dataset.title});
-                                        
+                                        // Have to deep copy settings since highcharts uses references
+                                        var copied_settings = JSON.parse(JSON.stringify(chart_settings));
+                                        copied_settings.chart.renderTo = indicatorsFound[i].id;
+                                        copied_settings.tooltip.positioner = function (labelWidth) {
+                                                return {
+                                                    x: (this.chart.chartWidth - labelWidth + 3) / 2,
+                                                    y: (this.chart.plotHeight / 2)
+                                                };
+                                            };
+                                        var status = indicatorsFound[i].dataset.status;
+                                        copied_settings.pane.background[0].backgroundColor = background_colors[status];
+
+                                        var chart = new Highcharts.Chart(copied_settings);
                                         var progress_data = indicatorsFound[i].dataset.goalprogress;
+                                        
                                         if (progress_data <= 100){
                                             progress_data = parseInt(progress_data);
                                         }
                                         else {
                                             progress_data = 100;
                                         }
+                                        
+                                        chart.series[0].points[0].color = colors[status];
                                         chart.series[0].points[0].update(progress_data);
-
-                                        chart.series[0].points[0].onMouseOver(); // Show the hover marker
-                                        chart.tooltip.refresh(chart.series[0].points[0]); // Show the tooltip
+                                        
+                                        // always show the label
+                                        chart.series[0].points[0].onMouseOver(); 
+                                        chart.tooltip.refresh(chart.series[0].points[0]);
                                         chart.tooltip.hide = function () {};
-
-                                        // createProgressBar(indicatorsFound[i].dataset.goalprogress, indicatorsFound[i].dataset.target, indicatorsFound.item(i));
                                     }
-                                    
                             });
                         </script>
-           		</div>
-            </div>
-            {% endif %}
+           		    </div>
+                </div>
+                {% endif %}
+                {% endif %}
                {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
                <div class="row">
                   <div class="col s12 m12">

@@ -139,7 +139,7 @@
 			}
 			// console.log(json)
             $(`#course-name-${id}`).html(json['name'])
-            $(`#notification-link-${id}`).click(() => {
+            $(`[data-id="notification-link-${id}"`).click(() => {
                 if('related_link' in json)
                     window.location = json['related_link']
                 else
@@ -173,10 +173,11 @@
 
             var all_notifications_count = $('nav .notification-box-list').children().length / 2;
 
-            // Remove magic "no new notifications yet" element when there are no notifications and add a customized one
+            // Remove magic "no notifications" element when there are no notifications and add a customized one
             let notifications = $('nav .notification-box-list').children();
             if(notifications.length == 0){
                 $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect " href="/oneUp/instructors/NotificationPage">No notifications (View all)</a></li>');
+                $('#mobile-viewall, #mobile-clearall').hide();
             }
             var empty = all_notifications_count == 1;
             var removed_empty = false;
@@ -185,8 +186,10 @@
                 if(notifications[i].innerHTML == '<a class="no-notifications waves-effect " href="/oneUp/instructors/NotificationPage">No notifications (View all)</a>'){
                     if(all_notifications_count == 1 && empty){
                         all_notifications_count = 0;
+                        $('#mobile-viewall, #mobile-clearall').hide();
                         break;
                     } else {
+                        $('#mobile-viewall, #mobile-clearall').show();
                         notifications[i].remove();
                         if(removed_empty == false)
                             all_notifications_count--;
@@ -200,9 +203,11 @@
                         all_notifications_count = 0;
                         // Add "No notifications" for mobile and desktop
                         $('nav .notification-box-list').append('<li><a class="no-notifications waves-effect " href="/oneUp/instructors/NotificationPage">No notifications (View all)</a></li>');
+                        $('#mobile-viewall, #mobile-clearall').hide();
                         break;
                     } else {
                         notifications[i].remove();
+                        $('#mobile-viewall, #mobile-clearall').show();
                         if(removed_empty == false)
                             all_notifications_count--;
                         continue;
@@ -337,7 +342,9 @@
         <li><a class="waves-effect " href="/oneUp/instructors/classAchievementsViz?skills">Skills</a></li>  
         {% endif %}
         {% endif %}
+        {% if ccparams.gamificationUsed and ccparams.goalsUsed %}
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?goals">Goals</a></li>
+        {% endif %}
     </ul>
     <ul id="visualization-mobile" class="dropdown-content">
         {% if ccparams.seriousChallengesUsed %}
@@ -351,7 +358,9 @@
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills</a></li>  
         {% endif %}
         {% endif %}
+        {% if ccparams.gamificationUsed and ccparams.goalsUsed %}
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?goals">Goals</a></li>
+        {% endif %}
     </ul>
     <ul id="logs" class="dropdown-content">
         {% if ccparams.badgesUsed%}
@@ -489,7 +498,7 @@
                     {% endif %}
                     {% endif %}
                     
-                    {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed  %}
+                    {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed or ccparams.goalsUsed %}
                     <li><a class="dropdown-button-visualization nav-dropdown-link" style="cursor: default !important;" href="#!" data-activates="visualization">Visualization</a></li>
                     {% endif %}
                     {% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
@@ -597,7 +606,6 @@
                                 {% if ccparams.skillsUsed %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/skillsList">Targeted Skills</a></li>
                                 {% endif %}
-                                <li><a class="waves-effect" href="/oneUp/instructors/milestonesList">Course Milestones</a></li>
                                 {% endif %}
                                 {% if ccparams.activitiesUsed %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/activityCats">Activity Categories</a></li>
@@ -651,7 +659,7 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/whoAddedBadgeAndVC?type=vc">VC Log</a></li>
                                 {% endif %}
                                 {% endif %}
-                                {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed  %}
+                                {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed or ccparams.skillsUsed or ccparams.goalsUsed %}
                                 <li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="visualization-mobile">Visualization<i class="material-icons right">more_vert</i></a></li>
                                 {% endif %}
                                 {% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
@@ -696,7 +704,8 @@
                                 <div id="notifications-mobile" class="notification-box-list">
                                 {% user_notifications for box %}
                                 </div>			
-                                <li><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
+                                <li id="mobile-viewall"><a class="waves-effect" href="/oneUp/instructors/NotificationPageID=1"><i class="material-icons">pageview</i>View All</a></li>
+                                <li id="mobile-clearall"><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
                             </ul>
                         </div>
                     </li>
