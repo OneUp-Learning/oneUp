@@ -5,14 +5,18 @@ Modified 09/27/2016
 
 @author: Dillon Perry
 '''
-from django.template import RequestContext
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.models import Announcements, Instructors, Courses
-from Instructors.views.utils import localizedDate, initialContextDict, str_datetime_to_local, current_localtime, datetime_to_selected
 from datetime import datetime
-from oneUp.decorators import instructorsCheck   
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+from django.template import RequestContext
 from django.utils import timezone
+
+from Instructors.models import Announcements, Courses, Instructors
+from Instructors.views.utils import (current_localtime, datetime_to_selected,
+                                     initialContextDict, str_datetime_to_local)
+from oneUp.decorators import instructorsCheck
+
 
 # Added boolean to check if viewing from announcements page or course home page
 def createContextForAnnouncementList(currentCourse, context_dict, courseHome):
@@ -82,6 +86,3 @@ def removeExpired():
     for announcement in announcements:
         if announcement.hasEndTimestamp and currentTime > announcement.endTimestamp:
             announcement.delete()
-            
-    
-    

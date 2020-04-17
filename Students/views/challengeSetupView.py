@@ -1,29 +1,34 @@
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
 import random
-from datetime import datetime, timedelta
-import sys
-
 # GGM import Regular Expression, re
 import re
 import string
-import pytz
-from Instructors.models import Challenges, Answers, DynamicQuestions, Questions
-from Instructors.models import ChallengesQuestions, MatchingAnswers, StaticQuestions
-from Students.models import DuelChallenges, CalloutParticipants, StudentAnswerHints, Student
-from Instructors.views.utils import localizedDate, current_localtime, datetime_to_local
-from Instructors.constants import unlimited_constant
-from Students.views.utils import studentInitialContextDict
-from Badges.events import register_event
-from Badges.enums import Event
-from Badges.models import CourseConfigParams
-from Instructors.questionTypes import QuestionTypes, staticQuestionTypesSet, dynamicQuestionTypesSet, questionTypeFunctions
-from Instructors.lupaQuestion import lupa_available, LupaQuestion, CodeSegment
-from Instructors.views.dynamicQuestionView import makeLibs
+import sys
+from datetime import datetime, timedelta
 from locale import currency
+
+import pytz
+from django.contrib.auth.decorators import login_required
 from django.db.models.functions.window import Lead
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from Badges.enums import Event
+from Badges.events import register_event
+from Badges.models import CourseConfigParams
+from Instructors.constants import unlimited_constant
+from Instructors.lupaQuestion import CodeSegment, LupaQuestion, lupa_available
+from Instructors.models import (Answers, Challenges, ChallengesQuestions,
+                                DynamicQuestions, MatchingAnswers, Questions,
+                                StaticQuestions)
+from Instructors.questionTypes import (QuestionTypes, dynamicQuestionTypesSet,
+                                       questionTypeFunctions,
+                                       staticQuestionTypesSet)
+from Instructors.views.dynamicQuestionView import makeLibs
+from Instructors.views.utils import current_localtime, datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
+from Students.models import (CalloutParticipants, DuelChallenges, Student,
+                             StudentAnswerHints)
+from Students.views.utils import studentInitialContextDict
 
 
 def remove_old_challenge_session_entries(session):
@@ -77,10 +82,10 @@ def ChallengeSetup(request):
                         pk=int(duel_id))
                     context_dict['challengeName'] = duel_challenge.duelChallengeName
                     context_dict['isduration'] = True
-                    total_time = duel_challenge.acceptTime + \
+                    total_time = datetime_to_local(duel_challenge.acceptTime) + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
-                            minutes=duel_challenge.timeLimit) # *unsure about this one* TODO: convert datetime to local
-                    remaing_time = total_time - current_localtime() #timezone.now() # TODONE: Use current localtime
+                            minutes=duel_challenge.timeLimit)
+                    remaing_time = total_time - current_localtime()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['testDuration'] = difference_minutes
                     context_dict['isDuel'] = True
@@ -91,7 +96,7 @@ def ChallengeSetup(request):
                         pk=int(call_out_part_id))
                     context_dict['challengeName'] = call_out_part.calloutID.challengeID.challengeName
                     context_dict['isduration'] = True
-                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0 #(call_out_part.calloutID.endTime - timezone.now()).total_seconds() / 60.0 # TODONE: Use current localtime and convert datetime to local
+                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0
                     context_dict['testDuration'] = time_left
                     context_dict['isCallout'] = True
                     context_dict['calloutPartID'] = call_out_part_id
@@ -105,7 +110,7 @@ def ChallengeSetup(request):
                     context_dict['isDuel'] = False
 
 
-                starttimestring = current_localtime().strftime("%m/%d/%Y %I:%M:%S %p")#timezone.localtime(timezone.now()).strftime("%m/%d/%Y %I:%M:%S %p") # TODONE: Use current localtime before format
+                starttimestring = current_localtime().strftime("%m/%d/%Y %I:%M:%S %p")
                 context_dict['startTime'] = starttimestring
 
                 attemptId = 'challenge:'+challengeId + '@' + starttimestring

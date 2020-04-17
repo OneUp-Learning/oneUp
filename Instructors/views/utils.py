@@ -1,15 +1,20 @@
 #import nltk
-from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses
-from Instructors.constants import unspecified_topic_name
-from Badges.enums import ObjectTypes
+import json
 import re
 import string
-from django.contrib.auth.decorators import login_required
-from oneUp.logger import logger
-import json
-import pytz
-from django.utils import timezone
 from datetime import datetime
+
+import pytz
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+
+from Badges.enums import ObjectTypes
+from Instructors.constants import unspecified_topic_name
+from Instructors.models import (ChallengesTopics, ChallengeTags, Courses,
+                                CoursesSkills, CoursesTopics, QuestionsSkills,
+                                ResourceTags, Skills, Tags, Topics)
+from oneUp.logger import logger
+
 
 def saveSkills(skillstring, resource, resourceIndicator):
     #if skillstring is not null or empty
@@ -462,13 +467,13 @@ def date_to_selected(db_date, to_format="%m/%d/%Y"):
     ''' Converts date object to what was actually selected in the interface '''
     return db_date.strftime(to_format)
 
-def localizedDate(request, date_str, date_format, timezone=None):
-    if not timezone:
-        tz = pytz.timezone(request.session['django_timezone'])
-    else:
-        tz = pytz.timezone(timezone)
+# def localizedDate(request, date_str, date_format, timezone=None):
+#     if not timezone:
+#         tz = pytz.timezone(request.session['django_timezone'])
+#     else:
+#         tz = pytz.timezone(timezone)
     
-    return tz.localize(datetime.strptime(date_str, date_format))
+#     return tz.localize(datetime.strptime(date_str, date_format))
 
 # def addHintsToQuestion(course,question):
 # def removeHintsFromQuestion(course, question):

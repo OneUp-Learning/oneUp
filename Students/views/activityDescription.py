@@ -4,23 +4,26 @@ Created on Aug 30, 2017
 @author: Joel A. Evans
 '''
 import os
-from django.core.files import File
-from oneUp.settings import MEDIA_ROOT
-from zipfile import ZipFile
 import zipfile
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from Instructors.models import Activities, UploadedFiles, UploadedActivityFiles
-from Students.models import StudentActivities, Student, StudentFile
-from Students.views.utils import studentInitialContextDict
-from datetime import datetime, date
-from django.contrib.auth.decorators import login_required
-from Badges.systemVariables import activityScore
-from django.core.exceptions import ObjectDoesNotExist
+from datetime import date, datetime
+from zipfile import ZipFile
+
 from django.contrib import messages
-from Badges.events import register_event
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.files import File
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
 from Badges.enums import Event
+from Badges.events import register_event
+from Badges.systemVariables import activityScore
+from Instructors.models import Activities, UploadedActivityFiles, UploadedFiles
 from Instructors.views.utils import current_localtime
+from oneUp.settings import MEDIA_ROOT
+from Students.models import Student, StudentActivities, StudentFile
+from Students.views.utils import studentInitialContextDict
+
 #from requests.api import request
 
 
@@ -228,7 +231,7 @@ def makeFileObjects(studentId, currentCourse, files, studentActivities):
 
 def isDisplayTimePassed(endTimeStamp):
 
-    if endTimeStamp < current_localtime(): #timezone.now(): # TODONE: Use current localtime
+    if endTimeStamp < current_localtime():
         return False
     else:
         return True
@@ -236,8 +239,8 @@ def isDisplayTimePassed(endTimeStamp):
 
 def checkTimes(endTimestamp, deadLine):
 
-    endMax = max((endTimestamp, current_localtime()))#max((endTimestamp, timezone.now())) # TODONE: Use current localtime
-    deadMax = max((deadLine, current_localtim()))#max((deadLine, timezone.now())) # TODONE: Use current localtime
+    endMax = max((endTimestamp, current_localtime()))
+    deadMax = max((deadLine, current_localtim()))
 
     if(endMax == endMax and deadMax == deadLine):
         return True

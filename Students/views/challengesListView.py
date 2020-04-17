@@ -3,18 +3,23 @@ Created on May 7, 2014
 
 @author: Swapna
 '''
+from datetime import datetime
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import render
 from django.utils import timezone
-from Students.models import StudentChallenges, StudentProgressiveUnlocking
-from Students.views.utils import studentInitialContextDict
-from Instructors.models import Challenges , ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
-from Instructors.views.utils import localizedDate, current_localtime
-from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
-from django.db.models import Q
+
 from Badges.enums import ObjectTypes
 from Badges.models import ProgressiveUnlocking
-from datetime import datetime
-from django.contrib.auth.decorators import login_required
+from Instructors.constants import (unassigned_problems_challenge_name,
+                                   unspecified_topic_name)
+from Instructors.models import (Challenges, ChallengesQuestions,
+                                ChallengesTopics, CoursesTopics, Topics)
+from Instructors.views.utils import current_localtime
+from Students.models import StudentChallenges, StudentProgressiveUnlocking
+from Students.views.utils import studentInitialContextDict
+
 
 @login_required
 def ChallengesList(request):
@@ -40,12 +45,9 @@ def ChallengesList(request):
         if not context_dict['ccparams'].seriousChallengesGrouped:
             chall_ID = []      
             chall_Name = []         
-            #chall_Difficulty = []
             chall_position = []
-            # TODO: 
-            # filtering
-            #studentId = Student.objects.filter(user=request.user)
-            currentTime = current_localtime() #timezone.now() # TODONE: Use current localtime
+            
+            currentTime = current_localtime()
             if not str(user) == str(studentId):
                 challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True)
             else:
@@ -205,7 +207,7 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
     else:
         optionSelected = 0
 
-    currentTime = current_localtime() #timezone.now() # TODONE: Use current localtime
+    currentTime = current_localtime()
 
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=currentCourse)
     for challID in chall:
@@ -290,4 +292,3 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
 
         # The range part is the index numbers.
     return sorted(list(zip(range(1,len(challenge_topics)+1),chall_ID,chall_Name,grade, numberOfAttempts,adjusmentReason, chall_position, challDueDate,isUnlocked)), key=lambda tup: tup[6])
-

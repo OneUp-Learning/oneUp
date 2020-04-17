@@ -3,32 +3,39 @@ Created on Nov 2, 2018
 @author: omar
 '''
 
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from Students.views.utils import studentInitialContextDict
-from Instructors.views.utils import localizedDate, current_localtime, datetime_to_local
-from Badges.models import CourseConfigParams, BadgesVCLog
-from Students.models import StudentRegisteredCourses, DuelChallenges, StudentChallenges, Winners, StudentConfigParams, StudentVirtualCurrency, Callouts, Student, CalloutParticipants, StudentEventLog
-from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
-from random import randint
-from notify.signals import notify
-from datetime import datetime, timedelta
-from django.contrib.auth.decorators import login_required
-from celery import Celery
 import json
-from Instructors.views.courseInfoView import courseInformation
-from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
-from Students.views.calloutsView import call_out_list
-from Instructors.constants import unspecified_topic_name
+from datetime import datetime, timedelta
+from random import randint
+
+from celery import Celery
+from django.contrib.auth.decorators import login_required
+from django.db import OperationalError, transaction
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from notify.signals import notify
+
 from Badges.enums import Event
 from Badges.events import register_event, register_event_simple
+from Badges.models import BadgesVCLog, CourseConfigParams
+from Instructors.constants import unspecified_topic_name
+from Instructors.models import (Challenges, ChallengesQuestions,
+                                ChallengesTopics, Courses, CoursesTopics,
+                                Topics)
+from Instructors.views.courseInfoView import courseInformation
+from Instructors.views.utils import current_localtime, datetime_to_local
+from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from oneUp.settings import DATABASES
+from Students.models import (CalloutParticipants, Callouts, DuelChallenges,
+                             Student, StudentChallenges, StudentConfigParams,
+                             StudentEventLog, StudentRegisteredCourses,
+                             StudentVirtualCurrency, Winners)
+from Students.views.calloutsView import call_out_list
+from Students.views.utils import studentInitialContextDict
 
 postgres_enabled = False
 if len([db for (name,db) in DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
     postgres_enabled = True
 transaction_retry_count = 50
-from django.db import transaction, OperationalError
 if postgres_enabled:
     from psycopg2.extensions import TransactionRollbackError
 else:
@@ -689,7 +696,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3): #chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < timezone.now() + timedelta(weeks=3): # TODONE: Use current localtime and convert datetime to local
+            if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -792,7 +799,7 @@ def duel_challenge_create(request):
         if not chall_t.challengeID.isVisible:
             continue
         # if warmup has a display date, the skip it
-        if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):#chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < timezone.now() + timedelta(weeks=3): # TODONE: Use current localtime and convert datetime to local
+        if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
             continue
 
         # check if challenge has not been taken by challenger and challengee
@@ -857,7 +864,7 @@ def duel_challenge_create(request):
         
         duel_challenge.courseID = current_course
 
-        time = current_localtime() #timezone.now() # TODONE: Use current localtime
+        time = current_localtime()
         duel_challenge.sendTime = time
         custom_message = "This duel is anonymous. Both you and your are opponent are called to solve a challenge/problem(s) selected by the system based on specified topic and difficulty by sender. The duel is"
 
@@ -952,7 +959,7 @@ def duel_challenge_create(request):
 
         ##################################################################################################################################################
         # Automatically makes a duel after a week using Celery 
-        expiration_time = current_localtime() + timedelta(weeks=1)# timezone.now() + timedelta(weeks=1) # TODONE: Use current localtime
+        expiration_time = current_localtime() + timedelta(weeks=1)
         duel_challenge_expire.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=expiration_time)
         ##################################################################################################################################################
 
@@ -1006,7 +1013,7 @@ def get_create_duel_topics_difficulties(request):
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):#chall_t.challengeID.hasEndTimestamp and chall_t.challengeID.endTimestamp < timezone.now() + timedelta(weeks=3): # TODONE: Use current localtime and convert datetime to local
+            if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
                 continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :
@@ -1128,7 +1135,7 @@ def duel_challenge_description(request):
 
         duel_challenge_ID = duel_challenge.duelChallengeID
         # check if the duel hasStartTime reached
-        if (not duel_challenge.hasStarted) and (duel_challenge.status == 2) and ((datetime_to_local(duel_challenge.acceptTime) +timedelta(minutes=duel_challenge.startTime)) <= current_localtime()): #((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)) <= timezone.now()): #  TODONE: Use current localtime and convert datetime to local
+        if (not duel_challenge.hasStarted) and (duel_challenge.status == 2) and ((datetime_to_local(duel_challenge.acceptTime) +timedelta(minutes=duel_challenge.startTime)) <= current_localtime()):
             
             try:
                 with transaction.atomic():
@@ -1146,7 +1153,7 @@ def duel_challenge_description(request):
 
         duel_challenge = DuelChallenges.objects.get(duelChallengeID=duel_challenge_ID)
         # check if the duel hasStartTime + timeLimit reached
-        if (not duel_challenge.hasEnded) and (duel_challenge.hasStarted) and ((datetime_to_local(duel_challenge.acceptTime)+timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) +timedelta(seconds=5)) <= current_localtime()): #timezone.now()): #TODONE: Use current localtime and convert datetime to local
+        if (not duel_challenge.hasEnded) and (duel_challenge.hasStarted) and ((datetime_to_local(duel_challenge.acceptTime)+timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) +timedelta(seconds=5)) <= current_localtime()): 
             '''((duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime)'''                                  
             automatic_evaluator(duel_challenge.duelChallengeID, current_course.courseID)
         
@@ -1160,15 +1167,15 @@ def duel_challenge_description(request):
             context_dict['startTime'] = 0
     
             if duel_challenge.hasStarted:
-                total_time = datetime_to_local(duel_challenge.acceptTime) +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit)#duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit) #+timedelta(seconds=2) #TODONE: convert datetime to local
-                remaing_time = total_time - current_localtime() #timezone.now() # TODONE: Use current localtime 
+                total_time = datetime_to_local(duel_challenge.acceptTime) +timedelta(minutes=duel_challenge.startTime) +timedelta(minutes=duel_challenge.timeLimit)
+                remaing_time = total_time - current_localtime()
                 difference_minutes = remaing_time.total_seconds()/60.0
                 context_dict['testDuration'] = difference_minutes
         else:
-            start_accept_time = datetime_to_local(duel_challenge.acceptTime) +timedelta(minutes=duel_challenge.startTime)#duel_challenge.acceptTime +timedelta(minutes=duel_challenge.startTime) #+timedelta(seconds=2) #TODONE: convert datetime to local
+            start_accept_time = datetime_to_local(duel_challenge.acceptTime) +timedelta(minutes=duel_challenge.startTime)
             print("start_accept_time", start_accept_time)
             print("timezone.now()", timezone.now()) 
-            difference =  start_accept_time - current_localtime() #timezone.now() # TODONE: Use current localtime
+            difference =  start_accept_time - current_localtime()
             difference_minutes = difference.total_seconds()/60.0
         
             context_dict['startTime'] = difference_minutes
@@ -1267,7 +1274,7 @@ def duel_challenge_description(request):
             elif duel_challenge.status == 1:
                 context_dict['acceptance_status'] = 'pending'
                 context_dict['isAccepted'] = False
-                context_dict['expirationTime'] = (datetime_to_local(duel_challenge.sendTime+timedelta(weeks=1)) - current_localtime()).total_seconds()#(duel_challenge.sendTime+timedelta(weeks=1) - timezone.now()).total_seconds() # TODONE: Use current localtime and convert datetime to local
+                context_dict['expirationTime'] = (datetime_to_local(duel_challenge.sendTime+timedelta(weeks=1)) - current_localtime()).total_seconds()
             elif duel_challenge.status == 2:
                 context_dict['acceptance_status'] = 'Accepted'
                 context_dict['isAccepted'] = True
@@ -1313,7 +1320,7 @@ def duel_challenge_description(request):
             elif duel_challenge.status == 1:
                 context_dict['acceptance_status'] = 'pending'
                 context_dict['isAccepted'] = False
-                context_dict['expirationTime'] = (datetime_to_local(duel_challenge.sendTime+timedelta(weeks=1)) - current_localtime()).total_seconds()#(duel_challenge.sendTime+timedelta(weeks=1) - timezone.now()).total_seconds() # TODONE: Use current localtime and convert datetime to local
+                context_dict['expirationTime'] = (datetime_to_local(duel_challenge.sendTime+timedelta(weeks=1)) - current_localtime()).total_seconds()
             elif duel_challenge.status == 2:
                 context_dict['acceptance_status'] = 'Accepted'
                 context_dict['isAccepted'] = True
@@ -1377,7 +1384,7 @@ def duel_challenge_accept(request):
         # toggle status to accpeted
         duel_challenge.status = 2 
         #duel_challenge.hasStarted = True
-        duel_challenge.acceptTime = current_localtime() #timezone.now() # TODONE: Use current localtime
+        duel_challenge.acceptTime = current_localtime()
         duel_challenge.save()
         context_dict['requested_duel_challenge']=duel_challenge
         #context_dict['time_limit'] = convert_time_to_hh_mm(duel_challenge.timeLimit)
@@ -1409,7 +1416,7 @@ def duel_challenge_accept(request):
         ##################################################################################################################################################
         # Automatically evaluate duel after specified time using Celery 
         # get database start time and add 3 seconds to it to be consistent with network latency 
-        evaluation_time = current_localtime() + timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=3)#timezone.now() +timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=3) #TODONE: Use current localtime
+        evaluation_time = current_localtime() + timedelta(minutes=duel_challenge.startTime)+timedelta(minutes=duel_challenge.timeLimit)+timedelta(seconds=3)
         print("evaluation time ", evaluation_time )
         automatic_evaluator.apply_async((duel_challenge.duelChallengeID, duel_challenge.courseID.courseID), eta=evaluation_time)
         print("automatic evaluation duel celery")
@@ -1475,9 +1482,9 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             start_and_limit_time = duel_challenge.startTime + duel_challenge.timeLimit
 
             # get the time when duel was accpeted and add start_and_limit_time to time
-            duel_allowed_time = datetime_to_local(duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time)+timedelta(seconds=2))# duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time)+timedelta(seconds=2) # TODONE: convert datetime to local
+            duel_allowed_time = datetime_to_local(duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time)+timedelta(seconds=2))
             
-            if duel_allowed_time <= current_localtime(): #timezone.now(): # TODONE: Use current localtime 
+            if duel_allowed_time <= current_localtime():
                 
                 # Challenge is expired
                 context_dict['isExpired']=True
@@ -1938,14 +1945,3 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         #context_dict['error']= "Some error has occurred!"
         context_dict['error'] = True
         return context_dict
-
-    
-            
-
-        
-    
-     
-    
-
-        
-

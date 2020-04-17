@@ -80,7 +80,7 @@ def timeBasedVirtualCurrencyView(request):
             periodicVC.timePeriodID = request.POST['timePeriodSelected']
             periodicVC.threshold = request.POST['threshold']
             periodicVC.operatorType = request.POST['operator']
-            periodicVC.lastModified = current_localtime() # TODONE: Use current localtime
+            periodicVC.lastModified = current_localtime()
             
             if 'selectors' in request.POST:
                 periodicVC.periodicType = selectorMap[selectors]

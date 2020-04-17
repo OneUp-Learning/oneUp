@@ -6,10 +6,13 @@ Modified
 @author: Austin Hodge
 '''
 
-from Instructors.models import Challenges
-from Instructors.views.utils import localizedDate, current_localtime, datetime_to_local
 from datetime import datetime
+
 from django.utils import timezone
+
+from Instructors.models import Challenges
+from Instructors.views.utils import current_localtime, datetime_to_local
+
 
 def createContextForUpcommingChallengesList(currentCourse, context_dict):
     chall_ID = []      

@@ -4,22 +4,25 @@ Created on Sept 4, 2018
 @author: joelevans
 '''
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.decorators import instructorsCheck
-
-from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, CoursesTopics
-from Instructors.views.utils import initialContextDict, localizedDate
-from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog, Student
-from Badges.enums import Event, ObjectTypes
-from Badges.systemVariables import SystemVariable, calculate_system_variable
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, get_periodic_variable_results_for_student
-from Students.views.avatarView import checkIfAvatarExist
-from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
-from django.contrib.auth.models import User
+from termios import CRPRNT
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.shortcuts import render
+
+from Badges.enums import Event, ObjectTypes
+from Badges.periodicVariables import (
+    PeriodicVariables, TimePeriods, get_periodic_variable_results_for_student)
+from Badges.systemVariables import SystemVariable, calculate_system_variable
+from Instructors.models import (Activities, ActivitiesCategory, Challenges,
+                                CoursesTopics, Questions)
+from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import (Student, StudentActivities, StudentChallenges,
+                             StudentEventLog, StudentRegisteredCourses)
+from Students.views.avatarView import checkIfAvatarExist
 
 
 @login_required

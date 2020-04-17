@@ -51,7 +51,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
     student = context_dict['student']
     goals = StudentGoalSetting.objects.filter(studentID=student,courseID=currentCourse).order_by('-timestamp')
 
-    current_time = current_localtime() #utcDate() # TODONE: Use current localtime for utcDate
+    current_time = current_localtime()
     for goal in goals:
 
         goal_ID.append(goal.studentGoalID) #pk
@@ -60,7 +60,7 @@ def createContextForGoalsList(currentCourse, context_dict, courseHome):
         start_date.append(goal.timestamp)
         course_ID.append(goal.courseID) 
                                                     
-        endDate = datetime_to_local(goal.timestamp) + timedelta(days=7) #goal.timestamp + timedelta(days=7) # TODONE: Convert datetime to local
+        endDate = datetime_to_local(goal.timestamp) + timedelta(days=7)
         # end_date.append(endDate.strftime('%m/%d/%y'))
         end_date.append(endDate)               
         goal_name.append(goal_type_to_name(goal.goalType))

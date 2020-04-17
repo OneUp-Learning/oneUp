@@ -4,32 +4,44 @@ Updated May/10/2017
 
 @author: iiscs
 '''
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from datetime import datetime
-from Instructors.views.utils import localizedDate, current_localtime, str_datetime_to_local
-from Instructors.models import Questions, CorrectAnswers, Challenges, Courses, QuestionsSkills, Answers, MatchingAnswers, DynamicQuestions, StaticQuestions,\
-    ChallengesQuestions
-from Students.models import StudentCourseSkills, Student, StudentChallenges, StudentChallengeQuestions, StudentChallengeAnswers, DuelChallenges, CalloutParticipants, CalloutStats, StudentAnswerHints
-from Students.views.utils import studentInitialContextDict
-from Students.views.duelChallengeView import duel_challenge_evaluate
-from Students.views.calloutsView import evaluator
-from Badges.events import register_event
-from Badges.event_utils import updateLeaderboard
-from Badges.enums import Event
-from Instructors.questionTypes import QuestionTypes, dynamicQuestionTypesSet, staticQuestionTypesSet, questionTypeFunctions
-from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
-from Instructors.views.dynamicQuestionView import makeLibs
-from Badges.systemVariables import logger
-from Students.views.challengeSetupView import makeSerializableCopyOfDjangoObjectDictionary
-import re
 import math
-import pytz
+import re
+from datetime import datetime
 from decimal import Decimal
-from oneUp.ckeditorUtil import config_ck_editor
-from Students.views.challengeSetupView import remove_old_challenge_session_entries
+
+import pytz
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from Badges.enums import Event
+from Badges.event_utils import updateLeaderboard
+from Badges.events import register_event
+from Badges.systemVariables import logger
 from Badges.tasks import refresh_xp
+from Instructors.lupaQuestion import CodeSegment, LupaQuestion, lupa_available
+from Instructors.models import (Answers, Challenges, ChallengesQuestions,
+                                CorrectAnswers, Courses, DynamicQuestions,
+                                MatchingAnswers, Questions, QuestionsSkills,
+                                StaticQuestions)
+from Instructors.questionTypes import (QuestionTypes, dynamicQuestionTypesSet,
+                                       questionTypeFunctions,
+                                       staticQuestionTypesSet)
+from Instructors.views.dynamicQuestionView import makeLibs
+from Instructors.views.utils import current_localtime, str_datetime_to_local
+from oneUp.ckeditorUtil import config_ck_editor
+from Students.models import (CalloutParticipants, CalloutStats, DuelChallenges,
+                             Student, StudentAnswerHints,
+                             StudentChallengeAnswers,
+                             StudentChallengeQuestions, StudentChallenges,
+                             StudentCourseSkills)
+from Students.views.calloutsView import evaluator
+from Students.views.challengeSetupView import (
+    makeSerializableCopyOfDjangoObjectDictionary,
+    remove_old_challenge_session_entries)
+from Students.views.duelChallengeView import duel_challenge_evaluate
+from Students.views.utils import studentInitialContextDict
+
 
 @login_required
 def ChallengeResults(request):
@@ -96,9 +108,9 @@ def ChallengeResults(request):
                     context_dict['isWarmUp'] = True
 
                 print("Start Time: "+request.POST['startTime'])
-                startTime = str_datetime_to_local(request.POST['startTime'], to_format= "%m/%d/%Y %I:%M:%S %p") #localizedDate(request, request.POST['startTime'], "%m/%d/%Y %I:%M:%S %p") # *included format due to '%S'* TODONE: convert str datetime to local
+                startTime = str_datetime_to_local(request.POST['startTime'], to_format= "%m/%d/%Y %I:%M:%S %p")
                 # end time of the test is the current time when it is navigated to this page
-                endTime = current_localtime() #timezone.now() # TODONE: Use current localtime
+                endTime = current_localtime()
                 print("End Time:" + endTime.strftime("%m/%d/%Y %I:%M %p"))
 
                 attemptId = 'challenge:'+challengeId + \
@@ -152,7 +164,6 @@ def ChallengeResults(request):
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
 
-                    # Todo save challenge question instead of question id
                     studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question)
 
                     # Award skills if the answer was correct.

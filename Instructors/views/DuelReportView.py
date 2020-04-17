@@ -4,12 +4,13 @@ Created on Feb 25, 2019
 @author: omar
 '''
 
-from Students.models import DuelChallenges, Winners, StudentRegisteredCourses, StudentChallenges, Student
-from Instructors.models import ChallengesTopics, Topics, CoursesTopics
-from django.shortcuts import render, redirect
-from Instructors.views.utils import initialContextDict
+from django.shortcuts import redirect, render
+
 from Badges.models import CourseConfigParams
-from Instructors.views.utils import localizedDate
+from Instructors.models import ChallengesTopics, CoursesTopics, Topics
+from Instructors.views.utils import initialContextDict
+from Students.models import (DuelChallenges, Student, StudentChallenges,
+                             StudentRegisteredCourses, Winners)
 
 
 def duel_report(request):

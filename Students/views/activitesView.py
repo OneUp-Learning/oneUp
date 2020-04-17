@@ -3,20 +3,21 @@ Created on Aug 28, 2017
 
 @author: jevans116
 '''
-from django.shortcuts import render
-from django.utils import timezone
-from Students.models import StudentActivities, StudentProgressiveUnlocking
-from Students.views.utils import studentInitialContextDict
-from Instructors.models import Activities, ActivitiesCategory
 import datetime
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-from Instructors.views.utils import current_localtime, datetime_to_local
 
 from django.contrib.auth.decorators import login_required
-from Badges.systemVariables import logger
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+from django.shortcuts import render
+from django.utils import timezone
+
 from Badges.enums import ObjectTypes
 from Badges.models import ProgressiveUnlocking
+from Badges.systemVariables import logger
+from Instructors.models import Activities, ActivitiesCategory
+from Instructors.views.utils import current_localtime, datetime_to_local
+from Students.models import StudentActivities, StudentProgressiveUnlocking
+from Students.views.utils import studentInitialContextDict
 
 
 @login_required
@@ -115,7 +116,7 @@ def category_activities(category, studentId, current_course):
     for act in activity_objects:
         # if today is after the data it was assigninged display it
         # logger.debug(timezone.localtime(act.startTimestamp))
-        if datetime_to_local(act.startTimestamp) <= current_localtime():#timezone.localtime(act.startTimestamp) <= timezone.localtime(timezone.now()): # TODONE: Use current localtime and convert datetime to local
+        if datetime_to_local(act.startTimestamp) <= current_localtime():
             # add the activities to the list so we can display
             activites.append(act)
             if act.isGraded:
@@ -128,7 +129,7 @@ def category_activities(category, studentId, current_course):
         activity_points.append(round(act.points))
         if act.deadLine == None:
             activity_date_status.append("Undated Activity")
-        elif datetime_to_local(act.deadLine) < current_localtime():#timezone.localtime(act.deadLine) < timezone.localtime(timezone.now()): # TODONE: Use current localtime and convert datetime to local
+        elif datetime_to_local(act.deadLine) < current_localtime():
             activity_date_status.append("Past Activity")
         else:
             activity_date_status.append("Upcoming Activity")

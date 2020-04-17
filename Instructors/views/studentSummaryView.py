@@ -4,17 +4,18 @@ Created on Feb 12, 2018
 @author: hodgeaustin
 '''
 
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
 
-from Instructors.models import Challenges, Activities
-from Instructors.views.utils import initialContextDict, localizedDate
-from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog
 from Badges.enums import Event
-from Badges.periodicVariables import studentScore
-from Students.views.avatarView import checkIfAvatarExist
-from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams
+from Badges.periodicVariables import studentScore
+from Instructors.models import Activities, Challenges
+from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import (StudentActivities, StudentChallenges,
+                             StudentEventLog, StudentRegisteredCourses)
+from Students.views.avatarView import checkIfAvatarExist
 
 
 @login_required

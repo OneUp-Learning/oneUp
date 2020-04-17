@@ -1,21 +1,24 @@
-from django.shortcuts import render, redirect
+import copy
+import json
+import logging
+
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 from django.utils import timezone
-from Instructors.views.utils import localizedDate, current_localtime
+from notify.signals import notify
 
-from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentChallenges, StudentActivities, StudentEventLog
-from Students.views.utils import studentInitialContextDict
-
-from Badges.models import VirtualCurrencyRuleInfo, ActionArguments, RuleEvents, VirtualCurrencyCustomRuleInfo
 from Badges.enums import Action, Event, ObjectTypes, dict_dict_to_zipped_list
 from Badges.events import register_event
+from Badges.models import (ActionArguments, CourseConfigParams, RuleEvents,
+                           VirtualCurrencyCustomRuleInfo,
+                           VirtualCurrencyRuleInfo)
 from Instructors.constants import unlimited_constant
-from notify.signals import notify
 from Instructors.models import InstructorRegisteredCourses
-import logging
-import json
-import copy
-from Badges.models import CourseConfigParams
+from Instructors.views.utils import current_localtime
+from Students.models import (StudentActivities, StudentChallenges,
+                             StudentEventLog, StudentRegisteredCourses,
+                             StudentVirtualCurrencyTransactions)
+from Students.views.utils import studentInitialContextDict
 
 
 @login_required
@@ -85,7 +88,7 @@ def virtualCurrencyShopView(request):
             challenges_name = []
 
             if event in [Event.instructorHelp, Event.buyAttempt, Event.extendDeadlineHW, Event.extendDeadlineLab, Event.buyTestTime, Event.buyExtraCreditPoints,  Event.getDifferentProblem, Event.getCreditForOneTestProblem]:
-                currentTime = current_localtime() #timezone.now() # TODONE: Use current localtime
+                currentTime = current_localtime()
                 challenges = Challenges.objects.filter(courseID=currentCourse, isVisible=True).filter(
                     Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
                 activites = Activities.objects.filter(courseID=currentCourse).filter(
@@ -121,7 +124,7 @@ def virtualCurrencyShopView(request):
             challenges_id = []
             challenges_name = []
 
-            currentTime = current_localtime()#timezone.now() # TODONE: Use current localtime
+            currentTime = current_localtime()
             print("Current Time: {}".format(currentTime))
             challenges = Challenges.objects.filter(courseID=currentCourse, isGraded=True).filter(
                 Q(startTimestamp__lt=currentTime) | Q(hasStartTimestamp=False))
@@ -239,7 +242,7 @@ def virtualCurrencyShopView(request):
                             studentVCTransaction.objectID = int(
                                 request.POST[challenge_for_id])
                         studentVCTransaction.status = 'Requested'
-                        studentVCTransaction.timestamp = current_localtime() #timezone.now() # TODONE: Use current localtime 
+                        studentVCTransaction.timestamp = current_localtime()
                         studentVCTransaction.save()
 
             # Send notification to Instructor that student has bought item from shop

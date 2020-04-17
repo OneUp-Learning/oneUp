@@ -1,49 +1,62 @@
 ''' Created by Austin Hodge 5-18-19 '''
 
-from django.shortcuts import redirect, render, HttpResponse
-from django.utils import timezone
-from django.http import JsonResponse
-
-from django.contrib.auth.models import User
-
-from Instructors.models import Courses, Challenges, ChallengesQuestions, StaticQuestions, Questions
-from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
-from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionProgrammingFiles, QuestionLibrary, LuaLibrary
-from Instructors.models import QuestionsSkills, Skills, CoursesSkills
-from Instructors.models import Activities, ActivitiesCategory
-from Instructors.models import Topics, CoursesTopics, ChallengesTopics
-from Instructors.models import Tags, ResourceTags, ChallengeTags
-
-from Badges.models import BadgesInfo, Badges, PeriodicBadges
-from Badges.models import RuleEvents, Rules, Conditions, ActionArguments, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet, ActivityCategorySet, TopicSet
-from Badges.models import VirtualCurrencyCustomRuleInfo, VirtualCurrencyRuleInfo, VirtualCurrencyPeriodicRule
-from Badges.models import LeaderboardsConfig
-from Badges.models import ProgressiveUnlocking
-from Badges.models import AttendanceStreakConfiguration
-
-from Students.models import StudentRegisteredCourses, StudentProgressiveUnlocking
-
-from Badges.models import CourseConfigParams
-
-from Badges.enums import AwardFrequency, ObjectTypes, OperandTypes, Event, Action
-from Instructors.questionTypes import QuestionTypes
-
-from Badges.conditions_util import databaseConditionToJSONString, stringAndPostDictToCondition, chosenObjectSpecifierFields, operand_types_to_char, get_events_for_condition
-from Badges.periodicVariables import setup_periodic_badge, setup_periodic_vc, setup_periodic_leaderboard
-from Instructors.views.utils import initialContextDict, localizedDate, current_localtime
-from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name, uncategorized_activity, unspecified_vc_manual_rule_name
-
-from decimal import Decimal
-
-import os
 import json
+import os
 import zipfile
+from decimal import Decimal
 from distutils.dir_util import copy_tree
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.shortcuts import HttpResponse, redirect, render
+from django.utils import timezone
+
+from Badges.conditions_util import (chosenObjectSpecifierFields,
+                                    databaseConditionToJSONString,
+                                    get_events_for_condition,
+                                    operand_types_to_char,
+                                    stringAndPostDictToCondition)
+from Badges.enums import (Action, AwardFrequency, Event, ObjectTypes,
+                          OperandTypes)
+from Badges.models import (ActionArguments, ActivityCategorySet, ActivitySet,
+                           AttendanceStreakConfiguration, Badges, BadgesInfo,
+                           ChallengeSet, Conditions, ConditionSet,
+                           CourseConfigParams, Dates, FloatConstants,
+                           LeaderboardsConfig, PeriodicBadges,
+                           ProgressiveUnlocking, RuleEvents, Rules,
+                           StringConstants, TopicSet,
+                           VirtualCurrencyCustomRuleInfo,
+                           VirtualCurrencyPeriodicRule,
+                           VirtualCurrencyRuleInfo)
+from Badges.periodicVariables import (setup_periodic_badge,
+                                      setup_periodic_leaderboard,
+                                      setup_periodic_vc)
+from Instructors.constants import (unassigned_problems_challenge_name,
+                                   uncategorized_activity,
+                                   unspecified_topic_name,
+                                   unspecified_vc_manual_rule_name)
+from Instructors.models import (Activities, ActivitiesCategory, Answers,
+                                Challenges, ChallengesQuestions,
+                                ChallengesTopics, ChallengeTags,
+                                CorrectAnswers, Courses, CoursesSkills,
+                                CoursesTopics, DynamicQuestions, LuaLibrary,
+                                MatchingAnswers, QuestionLibrary,
+                                QuestionProgrammingFiles, Questions,
+                                QuestionsSkills, ResourceTags, Skills,
+                                StaticQuestions, Tags,
+                                TemplateDynamicQuestions, TemplateTextParts,
+                                Topics, UploadedFiles)
+from Instructors.questionTypes import QuestionTypes
+from Instructors.views.utils import (current_localtime, date_to_selected,
+                                     initialContextDict)
+from oneUp.decorators import instructorsCheck
+from Students.models import (StudentProgressiveUnlocking,
+                             StudentRegisteredCourses)
+
 # from io import BytesIO
 
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.conf import settings
-from oneUp.decorators import instructorsCheck 
 
 
 #############################################################
@@ -2448,7 +2461,7 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                 operand_2_value = string_constant.stringID
             elif operand_2_type == "Y":
                 # Date Constant
-                date_constant = create_model_instance(Dates, None, custom_fields_to_save={'dateValue': localizedDate(None, value_to_save, '%Y-%M-%d', timezone="utc").date()})
+                date_constant = create_model_instance(Dates, None, custom_fields_to_save={'dateValue': date_to_selected(value_to_save, to_format='%Y-%M-%d').date()})
                 date_constant.save()
                 operand_2_value = date_constant.dateID
 
@@ -2647,7 +2660,7 @@ def import_badges_from_json(badges_jsons, badge_type, current_course, context_di
 
             elif badge_type == 'periodic':
                 # Add the periodic fields to badge
-                periodic_badge_fields_to_update = {'lastModified': current_localtime()}#timezone.now()} # TODONE: Use current localtime
+                periodic_badge_fields_to_update = {'lastModified': current_localtime()}
                 badge = create_model_instance(badge, badge_json, custom_fields_to_save=periodic_badge_fields_to_update, modify=True)
                 badge.save()
                 
@@ -2706,7 +2719,7 @@ def import_vc_rules_from_json(vc_rules_jsons, vc_rule_type, current_course, id_m
 
             elif vc_rule_type == 'periodic':
                 # Add the periodic fields to vc rule
-                periodic_vc_rule_fields_to_update = {'lastModified': current_localtime()} #timezone.now()} # TODONE: Use current localtime
+                periodic_vc_rule_fields_to_update = {'lastModified': current_localtime()}
                 vc_rule = create_model_instance(vc_rule, vc_rule_json, custom_fields_to_save=periodic_vc_rule_fields_to_update, modify=True)
                 vc_rule.save()
                 
@@ -2760,7 +2773,7 @@ def import_leaderboards_from_json(leaderboards_jsons, current_course, id_map=Non
         for leaderboard_json in leaderboards_jsons:
 
             # Create the leaderboard model instance
-            leaderboard_fields_to_save = {'lastModified': current_localtime(), 'courseID': current_course} #timezone.now(), 'courseID': current_course} # TODONE: Use current localtime
+            leaderboard_fields_to_save = {'lastModified': current_localtime(), 'courseID': current_course}
             leaderboard = create_model_instance(LeaderboardsConfig, leaderboard_json, custom_fields_to_save=leaderboard_fields_to_save)
             leaderboard.save()
 

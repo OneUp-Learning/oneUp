@@ -84,7 +84,7 @@ def timeBasedBadgeView(request):
             periodic_badge.timePeriodID = request.POST['timePeriodSelected']
             periodic_badge.threshold = request.POST['threshold']
             periodic_badge.operatorType = request.POST['operator']
-            periodic_badge.lastModified = current_localtime() # TODONE: Use current localtime
+            periodic_badge.lastModified = current_localtime()
 
             streakObject = determineIfStreakAward(int(request.POST['periodicVariableSelected']))
     

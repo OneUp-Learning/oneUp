@@ -4,18 +4,19 @@ Created on Oct 1, 2015
 @author: Alex
 '''
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import render
 from django.utils import timezone
-from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges, ChallengesQuestions
+
+from Badges.enums import ObjectTypes
+from Badges.models import CourseConfigParams, ProgressiveUnlocking
 from Instructors.constants import unspecified_topic_name
+from Instructors.models import (Challenges, ChallengesQuestions,
+                                ChallengesTopics, CoursesTopics, Topics)
+from Instructors.views.utils import current_localtime
 from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
-from Badges.enums import ObjectTypes
-from Badges.models import ProgressiveUnlocking, CourseConfigParams
-from django.db.models import Q
-from Instructors.views.utils import localizedDate, current_localtime
-
-from django.contrib.auth.decorators import login_required
 
 
 def challengesForTopic(request, topic, student, currentCourse):
@@ -27,7 +28,7 @@ def challengesForTopic(request, topic, student, currentCourse):
     isUnlocked = []
     ulockingDescript = []
 
-    currentTime = current_localtime() # timezone.now() # TODONE: Use current localtime
+    currentTime = current_localtime()
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition").filter(Q(challengeID__startTimestamp__lt=currentTime) | Q(
         challengeID__hasStartTimestamp=False), Q(challengeID__endTimestamp__gt=currentTime) | Q(challengeID__hasEndTimestamp=False))
     if challenge_topics:

@@ -3,17 +3,21 @@ Created on Sep 10, 2016
 Last Updated Sep 20, 2016
 
 '''
-from django.template import RequestContext
-from django.shortcuts import render
-from Instructors.models import Courses, InstructorRegisteredCourses, Announcements, Challenges
-from time import strftime
 from datetime import datetime
-from Badges.models import CourseConfigParams
+from time import strftime
+
 from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.decorators import instructorsCheck    
+from django.shortcuts import render
+from django.template import RequestContext
+from django.utils import timezone
+from django.utils.timezone import make_aware, make_naive
+
+from Badges.models import CourseConfigParams
+from Instructors.models import (Announcements, Challenges, Courses,
+                                InstructorRegisteredCourses)
 from Instructors.views.utils import current_localtime, datetime_to_local
-from django.utils import timezone 
-from django.utils.timezone import make_naive, make_aware
+from oneUp.decorators import instructorsCheck
+
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
@@ -46,7 +50,7 @@ def instructorHome(request):
     due_date = []
       
     num_challenges = 0
-    currentTime = current_localtime() #timezone.localtime(timezone.now()) # TODONE: Use current localtime
+    currentTime = current_localtime()
     # get only the courses of the logged in user        
     reg_crs = InstructorRegisteredCourses.objects.filter(instructorID=request.user)
     

@@ -4,24 +4,29 @@ Created on Apr 1, 2014
 @author: irwink
 '''
 
-from django.shortcuts import render, redirect
-
-from Instructors.models import DynamicQuestions, Challenges,ChallengesQuestions, Courses, QuestionLibrary
-from Instructors.lupaQuestion import LupaQuestion, lupa_available, CodeSegment
-
-from Instructors.views import utils
-from Instructors.views.utils import saveTags, extractTags, localizedDate, initialContextDict
-from Instructors.views.templateDynamicQuestionsView import templateToCodeSegments, getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries
-from Instructors.constants import unassigned_problems_challenge_name, unlimited_constant
-from Badges.enums import ObjectTypes
-from Instructors.questionTypes import QuestionTypes
-from oneUp.decorators import instructorsCheck     
-from django.contrib.auth.decorators import login_required, user_passes_test
-from decimal import Decimal
-from oneUp.ckeditorUtil import config_ck_editor
-from datetime import datetime
 import os
+from datetime import datetime
+from decimal import Decimal
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
+
+from Badges.enums import ObjectTypes
+from Instructors.constants import (unassigned_problems_challenge_name,
+                                   unlimited_constant)
+from Instructors.lupaQuestion import CodeSegment, LupaQuestion, lupa_available
+from Instructors.models import (Challenges, ChallengesQuestions, Courses,
+                                DynamicQuestions, QuestionLibrary)
+from Instructors.questionTypes import QuestionTypes
+from Instructors.views import utils
+from Instructors.views.templateDynamicQuestionsView import (
+    getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries,
+    templateToCodeSegments)
+from Instructors.views.utils import extractTags, initialContextDict, saveTags
+from oneUp.ckeditorUtil import config_ck_editor
+from oneUp.decorators import instructorsCheck
 from oneUp.settings import BASE_DIR
+
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -428,6 +433,3 @@ def dynamicQuestionPartAJAX(request):
         context_dict['uniqid'] = uniqid
         context_dict['part'] = partNum
         return render(request,'Instructors/DynamicQuestionAJAXResult.html',context_dict)
-
-        
-        

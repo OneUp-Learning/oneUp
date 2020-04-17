@@ -4,20 +4,22 @@ Created on Feb 17, 2018
 @author: oumar
 '''
 
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.models import Challenges, Courses
-from Students.models import StudentRegisteredCourses, StudentChallenges
-from Instructors.views.utils import localizedDate, initialContextDict, current_localtime
-from Badges.events import register_event
-from Badges.enums import Event
-from Badges.models import CourseConfigParams
-from notify.signals import notify
-from Badges.event_utils import updateLeaderboard
-from oneUp.decorators import instructorsCheck
-from decimal import Decimal
 import json
+from decimal import Decimal
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from notify.signals import notify
+
+from Badges.enums import Event
+from Badges.event_utils import updateLeaderboard
+from Badges.events import register_event
+from Badges.models import CourseConfigParams
+from Instructors.models import Challenges, Courses
+from Instructors.views.utils import current_localtime, initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import StudentChallenges, StudentRegisteredCourses
 
 
 @login_required
@@ -87,8 +89,8 @@ def challengeAdjustmentView(request):
                             studentChallenge.bonusPointsAwarded = 0
 
                         studentChallenge.courseID = course
-                        studentChallenge.startTimestamp = current_localtime() #timezone.now() # TODONE: Use current localtime
-                        studentChallenge.endTimestamp = current_localtime() #timezone.now() # TODONE: Use current localtime
+                        studentChallenge.startTimestamp = current_localtime()
+                        studentChallenge.endTimestamp = current_localtime()
                         studentChallenge.testScore = 0
                         studentChallenge.save()
 

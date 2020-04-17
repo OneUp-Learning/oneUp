@@ -2,17 +2,22 @@
 # Created on  09/24/2015
 # Dillon Perry
 #
-from django.shortcuts import render, redirect
+from datetime import datetime
+
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from notify.signals import notify
 
 from Instructors.models import Announcements, Courses
-from Instructors.views.announcementListView import createContextForAnnouncementList
-from Instructors.views.utils import localizedDate, initialContextDict, str_datetime_to_local, current_localtime, datetime_to_local, datetime_to_selected
-from datetime import datetime
-from notify.signals import notify
-from Students.models import StudentRegisteredCourses
+from Instructors.views.announcementListView import \
+    createContextForAnnouncementList
+from Instructors.views.utils import (current_localtime, datetime_to_local,
+                                     datetime_to_selected, initialContextDict,
+                                     str_datetime_to_local)
 from oneUp.decorators import instructorsCheck
-from django.utils import timezone
+from Students.models import StudentRegisteredCourses
+
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   

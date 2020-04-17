@@ -1,16 +1,19 @@
 import datetime
-from django.shortcuts import render, redirect
-from Instructors.models import Challenges
-from Instructors.views.utils import localizedDate, current_localtime, datetime_to_local
-from Instructors.constants import unlimited_constant
-from Students.models import Student, StudentChallenges, DuelChallenges, CalloutParticipants
-from Students.views.utils import studentInitialContextDict
-from django.db.models import Q
-from time import strftime
-from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
+from time import strftime
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.shortcuts import redirect, render
 from django.utils import timezone
+
+from Instructors.constants import unlimited_constant
+from Instructors.models import Challenges
+from Instructors.views.utils import current_localtime, datetime_to_local
+from Students.models import (CalloutParticipants, DuelChallenges, Student,
+                             StudentChallenges)
+from Students.views.utils import studentInitialContextDict
+
 
 @login_required
 def ChallengeDescription(request):
@@ -21,7 +24,7 @@ def ChallengeDescription(request):
     if 'currentCourseID' in request.session:
         chall_ID = []
         chall_Name = []
-        currentTime = current_localtime() # timezone.now() # TODONE: Use current localtime
+        currentTime = current_localtime()
         string_attributes = ['challengeName', 'courseID', 'isGraded',  # 'challengeCategory','timeLimit','numberAttempts',
                              'challengeAuthor',
                              'displayCorrectAnswer', 'displayCorrectAnswerFeedback', 'displayIncorrectAnswerFeedback',
@@ -87,14 +90,14 @@ def ChallengeDescription(request):
                     total_time = datetime_to_local(duel_challenge.acceptTime) + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
                             minutes=duel_challenge.timeLimit)
-                    remaing_time = remaing_time = total_time - current_localtime() #timezone.now() # TODONE: Use current localtime
+                    remaing_time = remaing_time = total_time - current_localtime()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['timeLimit'] = ("%.2f" % difference_minutes)
                     if difference_minutes <= 0:
                         return redirect('/oneUp/students/DuelChallengeDescription?duelChallengeID=' +
                                         str(duel_challenge.duelChallengeID))
                 elif is_callout:
-                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0 #(call_out_part.calloutID.endTime - timezone.now()).total_seconds() / 60.0 # TODONE: Use current localtime and convert datetime to local
+                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0
                     context_dict['timeLimit'] = ("%.2f" % time_left)
                     if time_left <= 0:
                         return redirect('/oneUp/students/CalloutDescription?call_out_participant_id=' + str(call_out_part.id) + '&participant_id=' + str(call_out_part.participantID.user.id))

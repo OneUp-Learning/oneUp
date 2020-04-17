@@ -4,13 +4,15 @@ Created on Oct 5, 2019
 @author: GGM
 '''
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from Instructors.views.utils import initialContextDict, localizedDate
-from oneUp.decorators import instructorsCheck
-from Badges.models import BadgesVCLog, CourseConfigParams, ActionArguments
-from Chat.serializers import UserSerializer
 import json
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
+from Badges.models import ActionArguments, BadgesVCLog, CourseConfigParams
+from Chat.serializers import UserSerializer
+from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck
 
 
 @login_required
