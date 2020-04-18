@@ -696,7 +696,7 @@ def get_random_challenge(topic, difficulty, current_course, student_id, challeng
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
                 continue
 
             # check if challenge has not been taken by challenger and challengee
@@ -799,7 +799,7 @@ def duel_challenge_create(request):
         if not chall_t.challengeID.isVisible:
             continue
         # if warmup has a display date, the skip it
-        if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
+        if chall_t.challengeID.hasEndTimestamp and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
             continue
 
         # check if challenge has not been taken by challenger and challengee
