@@ -338,7 +338,9 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
 
 def create_due_date_process(request, challenge_id, due_date, tz_info):
     ''' This will register a task to be called when a due date has been reach for a particular challenge'''
-
+    if not settings.CELERY_ENABLED:
+        return
+        
     from datetime import timedelta
     from django.utils.timezone import make_naive, get_current_timezone_name
     from Instructors.views.utils import str_datetime_to_local
@@ -392,6 +394,8 @@ def process_expired_goal(course_id, student_id, goal_id, end_date, timezone):
 
 def create_goal_expire_event(request, student_id, goal_id, end_date, tz_info):
     ''' This will register a task to be called when a goal end time has been reach'''
+    if not settings.CELERY_ENABLED:
+        return
 
     from datetime import timedelta
     from django.utils.timezone import make_naive
@@ -401,7 +405,7 @@ def create_goal_expire_event(request, student_id, goal_id, end_date, tz_info):
     localized_end_date = str_datetime_to_local(str(end_date), to_format="%Y-%m-%d %H:%M:%S")
     # Setup the task and run at a later time (end_date)
     # Will delete itself after one minute once it has finished running
-
+    
     process_expired_goal.apply_async(kwargs={'course_id': request.session['currentCourseID'],
                                              'student_id': student_id,
                                              'goal_id': goal_id,
