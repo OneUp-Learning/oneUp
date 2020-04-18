@@ -172,8 +172,9 @@
                      <div class="card-content">
                         <div class="row">
                            <div class="input-field col s12">
+                              <h6><label for="challenge_name"><span class= "red-text">*</span> Challenge Name</label></h6>
+                              <br>
                               <input placeholder="Name" value="{{challengeName}}" name="challengeName" id="challenge_name" type="text" {% if view == False %}class="validate"{%endif%} pattern=".*\S+.*" {%if view%}readonly{%else%}required{%endif%}>
-                              <label for="challenge_name"><span class= "red-text">*</span> Challenge Name</label>
                            </div>
                         </div>
                         <div class="row">
@@ -184,7 +185,8 @@
                                  <option id="Medium" value="Medium" {%if view%}disabled{%endif%}>Medium</option>
                                  <option id="Hard" value="Hard" {%if view%}disabled{%endif%}>Hard</option>
                               </select>
-                              <label>Difficulty</label>
+                              <label><h6>Difficulty</h6></label>
+                              <br>
                               <script  type="text/javascript"> 
                                  window.onload = function() {
                                  	if ("{{challengeDifficulty}}" != '')  {
@@ -201,7 +203,7 @@
                            </div>
                         <div class="row">
                            <div class="col s12">
-                              <h5>Availability</h5>
+                              <h6>Availability</h6>
                            </div>
                            <div class="col s12">
                               <input class="filled-in" name="isVisible" type="checkbox" id="challenge_visible" {% if isVisible %} checked {% endif %} {%if view%}disabled{%endif%}/>
@@ -258,7 +260,7 @@
 
                                 <input value="{{manuallyGradedScore}}" name="manuallyGradedScore" id="manually_Graded_Score" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" step="any" {%if view%}readonly{%endif%}>
 
-                                <label for="manually_Graded_Score">Possible points for a manually graded section of the challenge</label>
+                                <label for="manually_Graded_Score"><h6>Possible points for a manually graded section of the challenge</h6></label>
                              </div>
                         </div>
                         <div class="row">
@@ -266,24 +268,24 @@
 
                                 <input value="{{curve}}" name="curve" id="curve_id" maxlength="4" type="number" {% if view == False %}class="validate"{%endif%} min="0" max="999" step="any" {%if view%}readonly{%endif%}>
 
-                                <label for="curve_id">Curve</label>
+                                <label for="curve_id"><h6>Curve</h6</label>
                              </div>
                         </div>
                         <div class="row">
                            <div class="col s12">
-                              <label for="topics">Topics</label>
+                              <label for="topics"><h6>Topics</h6></label>
                               <div id="topics" {%if view == False%}class="chips chips-topics-autocomplete"{%endif%}></div>
                            </div>
                         </div>
                         <div class="row">
                            <div class="col s12">
-                              <label for="tags">Tags</label>
+                              <label for="tags"><h6>Tags</h6></label>
                               <div id="tags" {%if view == False%}class="chips chips-tags"{%endif%}></div>
                            </div>
                         </div>
                         <div class="row">
                            <div class="col s12">
-                              <h5>Feedback Options</h5>
+                              <h6>Feedback Options</h6>
                            </div>
                            <div class="col s12">
                               <input class="filled-in" name="displayCorrectAnswer" type="checkbox" id="display_correct" {% if displayCorrectAnswer %} checked {% endif %} {%if view%}disabled{%endif%}/>
