@@ -17,7 +17,7 @@ from Badges.periodicVariables import PeriodicVariables
 from Badges.systemVariables import SystemVariable
 from Badges.tasks import create_goal_expire_event
 from Instructors.views.debugSysVars import getSysValues
-from Instructors.views.utils import current_localtime, utcDate
+from Instructors.views.utils import current_localtime
 from Students.models import StudentGoalSetting, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 

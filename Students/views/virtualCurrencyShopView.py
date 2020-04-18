@@ -3,6 +3,7 @@ import json
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from notify.signals import notify

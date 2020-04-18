@@ -1,5 +1,7 @@
 from django.conf import settings
+
 from Badges.celeryApp import app
+
 
 @app.task(ignore_result=True)
 def student_data_mine_actions():
@@ -18,7 +20,6 @@ def student_data_mine_actions():
 
     from Badges.periodicVariables import periodic_task, TimePeriods
     from django_celery_beat.models import PeriodicTask, PeriodicTasks
-    from Instructors.views.utils import utcDate
     from django.core.exceptions import ObjectDoesNotExist
     import json
     from datetime import timedelta
@@ -274,4 +275,3 @@ def schedule_celery_task_data_mine():
             
 # if settings.CELERY_ENABLED:
 #     schedule_celery_task_data_mine()
-

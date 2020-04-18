@@ -13,8 +13,7 @@ from django.shortcuts import render
 
 from Badges.periodicVariables import PeriodicVariables
 from Badges.systemVariables import SystemVariable
-from Instructors.views.utils import (current_localtime, datetime_to_local,
-                                     utcDate)
+from Instructors.views.utils import current_localtime, datetime_to_local
 from Students.models import StudentGoalSetting
 from Students.views.goalView import process_goal
 from Students.views.utils import studentInitialContextDict
