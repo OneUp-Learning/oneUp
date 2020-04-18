@@ -159,7 +159,7 @@ def challengeCreateView(request):
             challenge.hasStartTimestamp = False
 
         try:
-            challenge.endTimestamp = str_datetime_to_local(request.POST['endtime'])
+            challenge.endTimestamp = str_datetime_to_local(request.POST['endTime'])
             challenge.hasEndTimestamp = True
         except ValueError:
             challenge.hasEndTimestamp = False
