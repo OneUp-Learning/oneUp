@@ -16,9 +16,8 @@ from Badges.conditions_util import (databaseConditionToJSONString,
 from Badges.models import CourseConfigParams
 from Instructors.models import (Activities, ActivitiesCategory,
                                 UploadedActivityFiles)
-from Instructors.views.utils import (current_localtime, date_to_selected,
-                                     datetime_to_selected, initialContextDict,
-                                     str_datetime_to_local)
+from Instructors.views.utils import (current_localtime, datetime_to_selected,
+                                     initialContextDict, str_datetime_to_local)
 from oneUp.decorators import instructorsCheck
 
 
@@ -89,9 +88,11 @@ def activityCreateView(request):
                 activity.uploadAttempts = request.POST['attempts']
 
         # Set the start date and end data to show the activity
+        print(str_datetime_to_local(request.POST['startTime']))
         try:
             activity.startTimestamp = str_datetime_to_local(request.POST['startTime'])
             activity.hasStartTimestamp = True
+            
         except ValueError:
             activity.hasStartTimestamp = False
 
@@ -182,10 +183,11 @@ def activityCreateView(request):
         else:
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
             if ccp.hasCourseStartDate and ccp.courseStartDate <= current_localtime().date():
-                context_dict['startTimestamp'] = date_to_selected(ccp.courseStartDate) 
+                # print(type(ccp.courseStartDate))
+                context_dict['startTimestamp'] = datetime_to_selected(ccp.courseStartDate) 
             if ccp.hasCourseEndDate and ccp.courseEndDate > current_localtime().date(): 
-                context_dict['endTimestamp'] = date_to_selected(ccp.courseEndDate) 
-                context_dict['deadLineTimestamp'] = date_to_selected(ccp.courseEndDate)
+                context_dict['endTimestamp'] = datetime_to_selected(ccp.courseEndDate) 
+                context_dict['deadLineTimestamp'] = datetime_to_selected(ccp.courseEndDate)
 
     return render(request, 'Instructors/ActivityCreateForm.html', context_dict)
 

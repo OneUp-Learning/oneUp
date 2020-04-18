@@ -19,13 +19,10 @@ from Instructors.models import (
     MatchingAnswers, StaticQuestions)
 from Instructors.questionTypes import QuestionTypes, questionTypeFunctions
 from Instructors.views import challengeListView
-from Instructors.views.utils import (addTopicsToChallenge,
-                                     autoCompleteTopicsToJson,
-                                     current_localtime, date_to_selected,
-                                     datetime_to_local, datetime_to_selected,
-                                     extractTags, getTopicsForChallenge,
-                                     initialContextDict, saveTags,
-                                     str_datetime_to_local)
+from Instructors.views.utils import (
+    addTopicsToChallenge, autoCompleteTopicsToJson, current_localtime,
+    datetime_to_local, datetime_to_selected, extractTags,
+    getTopicsForChallenge, initialContextDict, saveTags, str_datetime_to_local)
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import instructorsCheck
 from oneUp.logger import logger
@@ -155,11 +152,12 @@ def challengeCreateView(request):
 
         try:
             challenge.startTimestamp = str_datetime_to_local(request.POST['startTime'])
+            challenge.hasStartTimestamp = True
         except ValueError:
             challenge.hasStartTimestamp = False
 
         try:
-            challenge.endTimestamp = str_datetime_to_local(request.POST['endtime'])
+            challenge.endTimestamp = str_datetime_to_local(request.POST['endTime'])
             challenge.hasEndTimestamp = True
         except ValueError:
             challenge.hasEndTimestamp = False
@@ -255,12 +253,12 @@ def challengeCreateView(request):
 
             
             if challenge.hasStartTimestamp:
-                context_dict['startTimestamp'] = datetime_to_selected(challenge.startTimeStamp)
+                context_dict['startTimestamp'] = datetime_to_selected(challenge.startTimestamp)
             else:
                 context_dict['startTimestamp'] = ""
             
             if challenge.hasEndTimestamp:
-                context_dict['endTimestamp'] = datetime_to_selected(challenge.endTimeStamp)
+                context_dict['endTimestamp'] = datetime_to_selected(challenge.endTimestamp)
             else:
                 context_dict['endTimestamp'] = ""
             
@@ -350,10 +348,10 @@ def challengeCreateView(request):
 
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
             if ccp.hasCourseStartDate and ccp.courseStartDate <= current_localtime().date():
-                context_dict['startTimestamp'] = date_to_selected(ccp.courseStartDate) 
+                context_dict['startTimestamp'] = datetime_to_selected(ccp.courseStartDate) 
             if ccp.hasCourseEndDate and ccp.courseEndDate > current_localtime().date(): 
-                context_dict['endTimestamp'] = date_to_selected(ccp.courseEndDate) 
-                context_dict['dueDate'] = date_to_selected(ccp.courseEndDate) 
+                context_dict['endTimestamp'] = datetime_to_selected(ccp.courseEndDate) 
+                context_dict['dueDate'] = datetime_to_selected(ccp.courseEndDate) 
                 
         context_dict['question_range'] = zip(
             range(1, len(questionObjects)+1), qlist)
