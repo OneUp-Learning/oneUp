@@ -277,62 +277,52 @@ ul.staggered-list li {
 /*********************
   Media Query Classes
 **********************/
-.hide-on-small-only, .hide-on-small-and-down {
-  @media #{$small-and-down} {
-    display: none !important;
-  }
-}
-.hide-on-med-and-down {
-  @media #{$medium-and-down} {
-    display: none !important;
-  }
-}
-.hide-on-med-and-up {
-  @media #{$medium-and-up} {
-    display: none !important;
-  }
-}
-.hide-on-med-only {
-  @media only screen and (min-width: $small-screen) and (max-width: $medium-screen) {
-    display: none !important;
-  }
-}
-.hide-on-large-only {
-  @media #{$large-and-up} {
-    display: none !important;
-  }
-}
-.show-on-large {
-  @media #{$large-and-up} {
-    display: block !important;
-  }
-}
-.show-on-medium {
-  @media only screen and (min-width: $small-screen) and (max-width: $medium-screen) {
-    display: block !important;
-  }
-}
-.show-on-small {
-  @media #{$small-and-down} {
-    display: block !important;
-  }
-}
-.show-on-medium-and-up {
-  @media #{$medium-and-up} {
-    display: block !important;
-  }
-}
-.show-on-medium-and-down {
-  @media #{$medium-and-down} {
-    display: block !important;
-  }
-}
 
-
-// Center text on mobile
-.center-on-small-only {
-  @media #{$small-and-down} {
+@media #{$small-and-down} {
+  .hide-on-small-only, .hide-on-small-and-down {
+    display: none !important;
+  }
+  .show-on-small {
+    display: block !important;
+  }
+  .center-on-small-only {
     text-align: center;
+  }
+}
+
+@media #{$medium-and-down} {
+  .hide-on-med-and-down {
+    display: none !important;
+  }
+  .show-on-medium-and-down {
+    display: block !important;
+  }
+}
+
+@media #{$medium-and-up} {
+  .hide-on-med-and-up {
+    display: none !important;
+  }
+  .show-on-medium-and-up {
+    display: block !important;
+  }
+}
+
+@media only screen and (min-width: $small-screen) and (max-width: $medium-screen) {
+  .hide-on-med-only {
+    display: none !important;
+  }
+  .show-on-medium {
+    display: block !important;
+  }
+}
+
+@media #{$large-and-up} {
+  .hide-on-large-only {
+    display: none !important;
+  }
+  .show-on-large {
+    display: block !important;
   }
 }
 
@@ -414,6 +404,7 @@ td, th{
     border-spacing: 0;
     display: block;
     position: relative;
+    height: fit-content;
 
     td:empty:before {
       content: '\00a0';
@@ -476,6 +467,9 @@ td, th{
       td { border-left: 0; border-right: 0; border-bottom: 0; }
       tr { border: 0; }
       tbody tr { border-right: 1px solid $table-border-color; }
+    }
+    tbody.mobile-table-padding {
+      clear: both;
     }
 
   }
@@ -768,10 +762,10 @@ div.material-table table th.sorting_desc {
   border-color: if($dark-mode, $primary-color, black);
   color: if($dark-mode, $primary-color, black);
 }
-#duels-info, #callouts-info {
+#duels-info, #callouts-info, #goals-info {
   background-color: if($dark-mode, $surface-high-color, #039be50d)
 }
-#duels-drop-icon, #callouts-drop-icon {
+#duels-drop-icon, #callouts-drop-icon, #goals-drop-icon {
   color: if($dark-mode, $primary-text-surface-color, black);
 }
 

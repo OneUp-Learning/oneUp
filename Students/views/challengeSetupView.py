@@ -68,6 +68,8 @@ def ChallengeSetup(request):
         if request.POST:
             if request.POST['challengeId']:
                 ccp = CourseConfigParams.objects.get(courseID=currentCourse)
+                context_dict['strongHintDeduction'] = ccp.weightStrongHint
+                context_dict['weakHintDeduction'] = ccp.weightBasicHint
                 context_dict['hintsUsed'] = ccp.hintsUsed
                 context_dict['questionTypes'] = QuestionTypes
 
