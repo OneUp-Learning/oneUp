@@ -91,7 +91,7 @@
             </div>
             </div>
             {% endif %}   
-            % if ccparams.gamificationUsed and ccparams.goalsUsed %}
+            {% if ccparams.gamificationUsed and ccparams.goalsUsed %}
             {% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
             {% if goal_range|length > 0 %}
             <div class="row">
