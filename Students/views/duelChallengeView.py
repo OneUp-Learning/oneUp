@@ -1013,7 +1013,7 @@ def get_create_duel_topics_difficulties(request):
             if not chall_t.challengeID.isVisible:
                 continue
             # if warmup has a display date, the skip it
-            if datetime_to_local(chall_t.challengeID.hasEndTimestamp) and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
+            if chall_t.challengeID.hasEndTimestamp and datetime_to_local(chall_t.challengeID.endTimestamp) < current_localtime() + timedelta(weeks=3):
                 continue
             # check if challenge has not been taken by challenger and challengee
             if not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID=student_id) and not StudentChallenges.objects.filter(challengeID=chall_t.challengeID, studentID__user__id=challengee_id) :

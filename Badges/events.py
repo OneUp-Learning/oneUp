@@ -48,7 +48,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
 
     # TODO: As of now, not all places pass in a timezone option
     if not 'timezone' in mini_req:
-        mini_req['timezone'] = settings.TIMEZONE
+        mini_req['timezone'] = settings.TIME_ZONE
 
     # Create event entry and fill in details.
     eventEntry = StudentEventLog()
