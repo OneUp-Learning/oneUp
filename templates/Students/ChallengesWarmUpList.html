@@ -34,18 +34,21 @@
                      <input type="hidden" name="topicID" value="{{topic_ID}}">
                      {% if isTopicUnlocked.isFullfilled %}
                      <li>
-                        <div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
-                        {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position,isUnlocked, ulockingDescript in all_challenges %}
-                        			{% if score == 2 %}  <!-- If score have not been taken -->
-                                    <i class="fa fa-square-o" style="margin-right:0;font-size:18px; width:1.3rem;margin-top:2px;"aria-hidden="true"></i>
-                                    {% elif score == 3 %} <!-- If score equals Above Average -->
-                                    <i class="fa fa-square" style="color:green;margin-right:0;font-size:18px;width:1.3rem;margin-top:2px;" aria-hidden="true"></i>
-                                    {% elif score == 4 %} <!-- If score equals Average -->
-                                    <i class="fa fa-square" style="color:blue;margin-right:0;font-size:18px;width:1.3rem;margin-top:2px;" aria-hidden="true"></i>
-                                    {% else %} <!-- If score equals Below Average -->
-                                    <i class="fa fa-square" style="color:red;margin-right:0;font-size:18px;width:1.3rem;margin-top:2px;" aria-hidden="true"></i>
-                                    {% endif %}
-                         {% endfor %}
+                        <div class="collapsible-header">
+                           <i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
+                           <div style="display: flex; flex-wrap: wrap;">
+                              {% for j, challenge_Name,challenge_ID,isWarmup,score, chall_position,isUnlocked, ulockingDescript in all_challenges %}
+                                 {% if score == 2 %}  <!-- If score have not been taken -->
+                                 <i class="fa fa-square-o" style="margin-right:0;font-size:18px; width:1.3rem;margin-top:2px;"aria-hidden="true"></i>
+                                 {% elif score == 3 %} <!-- If score equals Above Average -->
+                                 <i class="fa fa-square" style="color:green;margin-right:0;font-size:18px;width:1.3rem;margin-top:2px;" aria-hidden="true"></i>
+                                 {% elif score == 4 %} <!-- If score equals Average -->
+                                 <i class="fa fa-square" style="color:blue;margin-right:0;font-size:18px;width:1.3rem;margin-top:2px;" aria-hidden="true"></i>
+                                 {% else %} <!-- If score equals Below Average -->
+                                 <i class="fa fa-square" style="color:red;margin-right:0;font-size:18px;width:1.3rem;margin-top:2px;" aria-hidden="true"></i>
+                                 {% endif %}
+                              {% endfor %}
+                           </div>
                            {% if all_challenges != '0' and challenges_count > 0 %}
                            <span class="badge">{{challenges_count}}</span>
                         </div>
