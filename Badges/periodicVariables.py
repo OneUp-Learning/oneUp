@@ -1639,8 +1639,8 @@ class PeriodicVariables:
         unique_warmups: {
             'index': unique_warmups,
             'name': 'unique_warmups',
-            'displayName': 'Unique Warmup Challenges Completed (greater than or equal to 70% correct)',
-            'description': 'The number of unique warmup challenges a student has completed with a score greater than 70%. The student score only includes the student challenge score, adjustment, and curve.',
+            'displayName': 'Unique Warmup Challenges Completed (>= 70% correct)',
+            'description': 'The number of unique warmup challenges a student has completed with a score greater than or equal to 70%. The student score only includes the student challenge score, adjustment, and curve.',
             'function': calculate_unique_warmups,
         },
         xp_ranking: {

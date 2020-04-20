@@ -8,12 +8,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
+import getpass
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
+from django.conf.global_settings import (DATE_FORMAT, LOGIN_URL,
+                                         SESSION_SERIALIZER, STATIC_ROOT)
+
 import oneUp
-import getpass
-from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
-    SESSION_SERIALIZER
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # This is used for uploading AvatarImages
@@ -66,6 +69,7 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        
         'logstash': {
             'level': 'DEBUG',
             'class': 'logstash_async.handler.AsynchronousLogstashHandler',
@@ -81,6 +85,14 @@ LOGGING = {
         'level': LOGGING_LEVEL,
         'propagate': True,
     },
+    'loggers': {
+        'django.request': {
+            'handlers': handlers,
+            'level': LOGGING_LEVEL,
+            'propagate': True,
+        },
+    },
+    
 }
 
 ALLOWED_HOSTS = [
