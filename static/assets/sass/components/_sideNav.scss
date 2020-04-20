@@ -173,9 +173,10 @@
 // Fixed sideNav hide on smaller
 @media #{$medium-and-down} {
   .side-nav {
-    display: none;
+    
     &.fixed {
       transform: translateX(-105%);
+      display: none;
 
       &.right-aligned {
         transform: translateX(105%);
