@@ -253,6 +253,8 @@
                 // Desktop bubble
                 icon_element.removeClass("notification-icon-notify");
                 icon_element.addClass("notification-icon");
+                // Desktop bell icon - If enabled, comment out the two lines above 
+                // icon_element.text("notifications");
                 $(".notification-badge").addClass("hide");
 
                 // Hide badge for mobile view
@@ -263,6 +265,8 @@
                 // Desktop bubble
                 icon_element.removeClass("notification-icon");
                 icon_element.addClass("notification-icon-notify");
+                // Desktop active bell icon - If enabled, comment out the two lines above 
+                icon_element.text("notifications_active");
                 $(".notification-badge").removeClass("hide").html(unread_count);
 
                 // Show badge for mobile view and set count 
