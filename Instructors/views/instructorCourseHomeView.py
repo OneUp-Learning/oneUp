@@ -14,8 +14,6 @@ from Instructors.views.dynamicLeaderboardView import generateLeaderboards, gener
 from Instructors.views.utils import initialContextDict
 from Students.views.avatarView import checkIfAvatarExist
 
-from datetime import datetime
-from datetime import timedelta
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
 import inspect
@@ -53,9 +51,6 @@ def courseLeaderboard(currentCourse, context_dict):
             badgeImage = []
             avatarImage = []
             studentUser = []
-            N = 7
-
-            date_N_days_ago = datetime.now() - timedelta(days=N)
 
             students = []
             for student_in_course in students_registered_in_course:

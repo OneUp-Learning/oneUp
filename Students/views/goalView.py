@@ -17,7 +17,7 @@ from Badges.periodicVariables import PeriodicVariables
 from Badges.systemVariables import SystemVariable
 from Badges.tasks import create_goal_expire_event
 from Instructors.views.debugSysVars import getSysValues
-from Instructors.views.utils import utcDate
+from Instructors.views.utils import current_localtime
 from Students.models import StudentGoalSetting, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 
@@ -48,7 +48,7 @@ def goal_view(request):
         goal.studentID = context_dict['student']
         goal.goalType = request.POST['goal_variable']
         goal.targetedNumber = request.POST['goal_target']
-        goal.timestamp = utcDate()
+        goal.timestamp = current_localtime() 
         goal.progressToGoal = process_goal(current_course, context_dict['student'], int(request.POST['goal_variable']))
         goal.recurringGoal = "recurring_goal" in request.POST
         goal.save()  

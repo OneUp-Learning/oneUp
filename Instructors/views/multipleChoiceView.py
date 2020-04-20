@@ -3,27 +3,24 @@
 # Last updated 07/14/2017
 #
 
-from django.shortcuts import render
-from django.shortcuts import redirect
-
-from Instructors.models import StaticQuestions, Answers, CorrectAnswers
-from Instructors.models import Challenges, ChallengesQuestions
-
-from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
-from Badges.enums import ObjectTypes
-from Instructors.questionTypes import QuestionTypes
-
 from decimal import Decimal
 
-from Instructors.constants import unassigned_problems_challenge_name, unlimited_constant
-
-
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
 
-from oneUp.logger import logger
-from oneUp.decorators import instructorsCheck  
-
+from Badges.enums import ObjectTypes
+from Instructors.constants import (unassigned_problems_challenge_name,
+                                   unlimited_constant)
+from Instructors.models import (Answers, Challenges, ChallengesQuestions,
+                                CorrectAnswers, StaticQuestions)
+from Instructors.questionTypes import QuestionTypes
+from Instructors.views.utils import (addSkillsToQuestion, extractTags,
+                                     getCourseSkills, getSkillsForQuestion,
+                                     initialContextDict, saveTags)
 from oneUp.ckeditorUtil import config_ck_editor
+from oneUp.decorators import instructorsCheck
+from oneUp.logger import logger
+
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 

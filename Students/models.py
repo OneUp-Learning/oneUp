@@ -446,3 +446,14 @@ class StudentActionsLoop(models.Model):
     timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
     def __str__(self):
         return "{} : {} : {}".format(self.studentActionsLoopID, self.studentActionsID, self.timestamp)
+
+class studentFlashCards(models.Model):
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, verbose_name="the flash card",db_index=True)
+    studyDate = models.DateTimeField(default=now, verbose_name="the ideal date the flash card should reappear", db_index=True)
+    cardBin = models.IntegerField(default=0, verbose_name="priority containers for flash cards", db_index=True)
+    timesSeen = models.IntegerField(default=0, verbose_name="times the student has seen the card")
+    timesCorrect = models.IntegerField(default=0, verbose_name="times the student has correctly answered the card")
+
+    def __str__(self):
+        return "{} : {} : {} : {} : {} : {}".format(self.studentID, self.flashID, self.studyDate, self.cardBin, self.timesSeen, self.timesCorrect)

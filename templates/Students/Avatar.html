@@ -40,14 +40,14 @@
                   <div class="card-content">
                      <div class="row">
                         {% for i, avatar in avatarPaths %}
-                        <div class="col s12 m3">
+                        <div class="col s6 m3">
                            <input name="avatar" type="radio" id="a{{i}}" value="/{{avatar}}" />
                            <label for="a{{i}}"><img class="lazy" alt="Avatar Image" width="76px" height="76px"
                                  src="/static/images/avatars/anonymous.png" data-src="/{{avatar}}"></label>
                         </div>
                         {% endfor %}
                         {% for i, upload in uploadedAvatarPaths %}
-                        <div class="col s12 m3">
+                        <div class="col s6 m3">
                            <input name="avatar" type="radio" id="u{{i}}" value="/{{upload}}" />
                            <label for="u{{i}}"><img class="lazy" alt="Avatar Image" width="76px" height="76px"
                                  src="/static/images/avatars/anonymous.png" data-src="/{{upload}}"></label>

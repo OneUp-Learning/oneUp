@@ -10,6 +10,7 @@ from Students.views.studentCourseHomeView import StudentCourseHome
 import random
 import time
 from decimal import Decimal
+from django.utils import timezone
 
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -18,7 +19,6 @@ from Instructors.models import InstructorRegisteredCourses, Courses, Universitie
 from Badges.models import CourseConfigParams, VirtualCurrencyCustomRuleInfo
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 
-from Instructors.views.utils import utcDate
 from Instructors.constants import anonymous_avatar, unassigned_problems_challenge_name, uncategorized_activity, unspecified_topic_name, unspecified_vc_manual_rule_description, unspecified_vc_manual_rule_name, unlimited_constant
 
 
@@ -105,10 +105,8 @@ class StudentCourseHomeTest(TestCase, CommonTestCase):
         # Create course config parameters
         ccparams = CourseConfigParams()
         ccparams.courseID = course
-        ccparams.courseStartDate = utcDate()
-        ccparams.courseEndDate = utcDate()
+        ccparams.courseStartDate = timezone.now() 
         ccparams.hasCourseStartDate = True
-        ccparams.gamificationUsed = True
         ccparams.progressBarUsed = True
         ccparams.progressBarGroupUsed = True
         ccparams.progressBarTotalPoints = 9000
@@ -258,8 +256,8 @@ class StudentCourseHomeTest(TestCase, CommonTestCase):
                     studentChallenge.studentID = student.studentID
                     studentChallenge.courseID = for_course
                     studentChallenge.challengeID = challenge
-                    studentChallenge.startTimestamp = utcDate()
-                    studentChallenge.endTimestamp = utcDate()
+                    studentChallenge.startTimestamp = timezone.localtime(timezone.now())
+                    studentChallenge.endTimestamp = timezone.localtime(timezone.now())
                     # initially its zero and updated after calculation at the end
                     studentChallenge.testScore = 0
                     studentChallenge.save()
@@ -423,10 +421,8 @@ class StudentCourseHomeBrowserTest(StaticLiveServerTestCase, CommonTestCase):
         # Create course config parameters
         ccparams = CourseConfigParams()
         ccparams.courseID = course
-        ccparams.courseStartDate = utcDate()
-        ccparams.courseEndDate = utcDate()
+        ccparams.courseStartDate = timezone.now()
         ccparams.hasCourseStartDate = True
-        ccparams.gamificationUsed = True
         ccparams.progressBarUsed = True
         ccparams.progressBarGroupUsed = True
         ccparams.progressBarTotalPoints = 9000
@@ -577,8 +573,8 @@ class StudentCourseHomeBrowserTest(StaticLiveServerTestCase, CommonTestCase):
                     studentChallenge.studentID = student.studentID
                     studentChallenge.courseID = for_course
                     studentChallenge.challengeID = challenge
-                    studentChallenge.startTimestamp = utcDate()
-                    studentChallenge.endTimestamp = utcDate()
+                    studentChallenge.startTimestamp = timezone.localtime(timezone.now())
+                    studentChallenge.endTimestamp = timezone.localtime(timezone.now())
                     # initially its zero and updated after calculation at the end
                     studentChallenge.testScore = 0
                     studentChallenge.save()

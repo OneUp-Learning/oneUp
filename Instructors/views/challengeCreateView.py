@@ -1,28 +1,32 @@
-from Instructors.questionTypes import questionTypeFunctions, QuestionTypes
-from django.shortcuts import render, redirect
-from Instructors.models import Answers, CorrectAnswers
-from Instructors.models import Challenges, CoursesTopics, StaticQuestions
-from Instructors.models import ChallengesQuestions, MatchingAnswers
-from Instructors.views import challengeListView
-from Badges.models import CourseConfigParams
-from Instructors.views.utils import localizedDate, utcDate, initialContextDict, autoCompleteTopicsToJson, addTopicsToChallenge, saveTags, getTopicsForChallenge, extractTags
-from Badges.conditions_util import databaseConditionToJSONString, setUpContextDictForConditions
-from Instructors.constants import unspecified_topic_name, unlimited_constant
-from django.contrib.auth.decorators import login_required, user_passes_test
-from decimal import Decimal
-from Badges.tasks import create_due_date_process
-from Badges.enums import ObjectTypes
-from django.utils.timezone import make_naive
-from time import time
+import pprint
+import re
 from datetime import datetime
+from decimal import Decimal
+from time import time
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from Badges.conditions_util import (databaseConditionToJSONString,
+                                    setUpContextDictForConditions)
+from Badges.enums import ObjectTypes
+from Badges.models import CourseConfigParams
+from Badges.tasks import create_due_date_process
+from Instructors.constants import unlimited_constant, unspecified_topic_name
+from Instructors.models import (
+    Answers, Challenges, ChallengesQuestions, CorrectAnswers, CoursesTopics,
+    MatchingAnswers, StaticQuestions)
+from Instructors.questionTypes import QuestionTypes, questionTypeFunctions
+from Instructors.views import challengeListView
+from Instructors.views.utils import (
+    addTopicsToChallenge, autoCompleteTopicsToJson, current_localtime,
+    datetime_to_local, datetime_to_selected, extractTags,
+    getTopicsForChallenge, initialContextDict, saveTags, str_datetime_to_local)
+from oneUp.ckeditorUtil import config_ck_editor
+from oneUp.decorators import instructorsCheck
 from oneUp.logger import logger
 
-from oneUp.decorators import instructorsCheck
-from oneUp.ckeditorUtil import config_ck_editor
-
-import re
-import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 
@@ -147,22 +151,19 @@ def challengeCreateView(request):
             displayIncorrectAnswerFeedback)
 
         try:
-            challenge.startTimestamp = localizedDate(
-                request, request.POST['startTime'], "%m/%d/%Y %I:%M %p")
+            challenge.startTimestamp = str_datetime_to_local(request.POST['startTime'])
             challenge.hasStartTimestamp = True
         except ValueError:
             challenge.hasStartTimestamp = False
 
         try:
-            challenge.endTimestamp = localizedDate(
-                request, request.POST['endTime'], "%m/%d/%Y %I:%M %p")
+            challenge.endTimestamp = str_datetime_to_local(request.POST['endTime'])
             challenge.hasEndTimestamp = True
         except ValueError:
             challenge.hasEndTimestamp = False
 
         try:
-            challenge.dueDate = localizedDate(
-                request, request.POST['dueDate'], "%m/%d/%Y %I:%M %p")
+            challenge.dueDate = str_datetime_to_local(request.POST['dueDate']) 
             challenge.hasDueDate = True
         except ValueError:
             challenge.hasDueDate = False
@@ -252,19 +253,17 @@ def challengeCreateView(request):
 
             
             if challenge.hasStartTimestamp:
-                context_dict['startTimestamp'] = localizedDate(request, str(make_naive(challenge.startTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+                context_dict['startTimestamp'] = datetime_to_selected(challenge.startTimestamp)
             else:
                 context_dict['startTimestamp'] = ""
-
             
             if challenge.hasEndTimestamp:
-                context_dict['endTimestamp'] = localizedDate(request, str(make_naive(challenge.endTimestamp.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+                context_dict['endTimestamp'] = datetime_to_selected(challenge.endTimestamp)
             else:
                 context_dict['endTimestamp'] = ""
-            # Make naive to get rid of offset and convert it to localtime what was set before in order to display it
             
             if challenge.hasDueDate:
-                context_dict['dueDate'] = localizedDate(request, str(make_naive(challenge.dueDate.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
+                context_dict['dueDate'] = datetime_to_selected(challenge.dueDate)
             else:
                 context_dict['dueDate'] = ""
 
@@ -346,16 +345,14 @@ def challengeCreateView(request):
             context_dict['displayCorrectAnswer'] = True
             context_dict['manuallyGradedScore'] = '0'
             context_dict['curve'] = '0'
-            ccp = CourseConfigParams.objects.get(courseID=currentCourse)
 
-            if ccp.hasCourseStartDate and ccp.courseStartDate < utcDate().now().date():
-                context_dict['startTimestamp'] = ccp.courseStartDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
-            if ccp.hasCourseEndDate and ccp.courseEndDate > utcDate().now().date():
-                context_dict['endTimestamp'] = ccp.courseEndDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
-                context_dict['dueDate'] = ccp.courseEndDate.strftime(
-                    "%m/%d/%Y %I:%M %p")
+            ccp = CourseConfigParams.objects.get(courseID=currentCourse)
+            if ccp.hasCourseStartDate and ccp.courseStartDate <= current_localtime().date():
+                context_dict['startTimestamp'] = datetime_to_selected(ccp.courseStartDate) 
+            if ccp.hasCourseEndDate and ccp.courseEndDate > current_localtime().date(): 
+                context_dict['endTimestamp'] = datetime_to_selected(ccp.courseEndDate) 
+                context_dict['dueDate'] = datetime_to_selected(ccp.courseEndDate) 
+                
         context_dict['question_range'] = zip(
             range(1, len(questionObjects)+1), qlist)
         # logger.debug("[GET] " + str(context_dict))

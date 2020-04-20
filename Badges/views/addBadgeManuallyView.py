@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, current_localtime
 from Badges.events import register_event
 from Badges.enums import Event
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesInfo, BadgesVCLog, PeriodicBadges, Badges
@@ -139,6 +139,7 @@ def addBadgeManuallyView(request):
                 studentBadge.save()
 
                 studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.timestamp = current_localtime()
                 studentAddBadgeLog.courseID = course
                 log_data = create_badge_vc_log_json(
                     request.user, studentBadge, "Badge", "Manual")

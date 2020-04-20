@@ -1,14 +1,20 @@
 #import nltk
-from Instructors.models import CoursesTopics, Tags, Skills, ChallengeTags, ResourceTags, QuestionsSkills, Topics, ChallengesTopics, CoursesSkills, Courses, FlashCardGroupCourse,FlashCardGroup,FlashCardToGroup
-from Instructors.constants import unspecified_topic_name
-from Badges.enums import ObjectTypes
+import datetime
+import json
 import re
 import string
-from django.contrib.auth.decorators import login_required
-from oneUp.logger import logger
-import json
+
 import pytz
-from datetime import datetime, timezone
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+
+from Badges.enums import ObjectTypes
+from Instructors.constants import unspecified_topic_name
+from Instructors.models import (ChallengesTopics, ChallengeTags, Courses,
+                                CoursesSkills, CoursesTopics, QuestionsSkills,
+                                ResourceTags, Skills, Tags, Topics)
+from oneUp.logger import logger
+
 
 def saveSkills(skillstring, resource, resourceIndicator):
     #if skillstring is not null or empty
@@ -481,28 +487,68 @@ def initialContextDict(request, user=None, session=None):
         
     return (context_dict,currentCourse)
 
-def utcDate(date="None", form="%Y-%m-%d %H:%M:%S.%f"):
-    ''' Converts date str to datetime.datetime object with utc timezone.
-        Method should be used before storing dates in DateTimeField.
-    '''
-    
-    if date == "None":
-        dt = datetime.now(tz=timezone.utc).replace(microsecond=0)
-        # print("Current UTC: ", dt)
-        return dt
-    
-    dt = datetime.strptime(date, form)
-    
-    # print("Converted Time to UTC: " , dt.astimezone(pytz.utc))
-    return dt.replace(tzinfo=timezone.utc)  
+def current_utctime():
+    ''' Return current utc datetime object '''
+    return timezone.now()
 
-def localizedDate(request, date_str, date_format, timezone=None):
-    if not timezone:
-        tz = pytz.timezone(request.session['django_timezone'])
-    else:
-        tz = pytz.timezone(timezone)
+def current_localtime(tz=timezone.get_current_timezone()):
+    ''' Returns current local datetime object '''
+    if type(tz) == str:
+        tz = pytz.timezone(tz)
+
+    return timezone.localtime(current_utctime(), timezone=tz)
+
+def datetime_to_local(db_datetime, tz=timezone.get_current_timezone()):
+    ''' Converts datetime object to local '''
+    if not db_datetime:
+        return None
+
+    if timezone.is_naive(db_datetime):
+        db_datetime = timezone.make_aware(db_datetime)
+
+    if type(tz) == str:
+        tz = pytz.timezone(tz)
+        
+    return timezone.localtime(db_datetime, timezone=tz).replace(microsecond=0)
+
+def datetime_to_utc(db_datetime):
+    ''' Converts datetime object to utc '''
+    if not db_datetime:
+        return None
+        
+    return db_datetime.replace(microsecond=0).astimezone(timezone.utc)
+
+def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p", tz=timezone.get_current_timezone()):
+    ''' Converts string datetime to local timezone datetime object '''
+    return datetime_to_local(datetime.datetime.strptime(str_datetime, to_format), tz=tz)
+
+def str_datetime_to_utc(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
+    ''' Converts string datetime to utc datetime object '''
+    return datetime_to_utc(datetime.datetime.strptime(str_datetime, to_format))
+
+def datetime_to_selected(db_datetime, to_format="%m/%d/%Y %I:%M %p"):
+    ''' Converts datetime object to what was actually selected in the interface '''
+    print(type(db_datetime))
+
+    if type(db_datetime) == datetime.date:
+        db_datetime = datetime.datetime.combine(db_datetime, datetime.datetime.min.time())
+        
+    if timezone.is_naive(db_datetime):
+        db_datetime = timezone.make_aware(db_datetime)
+
+    return timezone.make_naive(db_datetime.replace(microsecond=0)).strftime(to_format)
+
+def date_to_selected(db_date, to_format="%m/%d/%Y"):
+    ''' Converts date object to what was actually selected in the interface '''
+    return db_date.strftime(to_format)
+
+# def localizedDate(request, date_str, date_format, timezone=None):
+#     if not timezone:
+#         tz = pytz.timezone(request.session['django_timezone'])
+#     else:
+#         tz = pytz.timezone(timezone)
     
-    return tz.localize(datetime.strptime(date_str, date_format))
+#     return tz.localize(datetime.strptime(date_str, date_format))
 
 # def addHintsToQuestion(course,question):
 # def removeHintsFromQuestion(course, question):

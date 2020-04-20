@@ -1,14 +1,18 @@
 import datetime
-from django.shortcuts import render, redirect
-from Instructors.models import Challenges
-from Instructors.views.utils import utcDate
-from Instructors.constants import unlimited_constant
-from Students.models import Student, StudentChallenges, DuelChallenges, CalloutParticipants
-from Students.views.utils import studentInitialContextDict
-from django.db.models import Q
-from time import strftime
-from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
+from time import strftime
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from Instructors.constants import unlimited_constant
+from Instructors.models import Challenges
+from Instructors.views.utils import current_localtime, datetime_to_local
+from Students.models import (CalloutParticipants, DuelChallenges, Student,
+                             StudentChallenges)
+from Students.views.utils import studentInitialContextDict
 
 
 @login_required
@@ -17,11 +21,10 @@ def ChallengeDescription(request):
     # The context contains information such as the client's machine details, for example.
 
     context_dict, currentCourse = studentInitialContextDict(request)
-    print("request", request)
     if 'currentCourseID' in request.session:
         chall_ID = []
         chall_Name = []
-        currentTime = utcDate()
+        currentTime = current_localtime()
         string_attributes = ['challengeName', 'courseID', 'isGraded',  # 'challengeCategory','timeLimit','numberAttempts',
                              'challengeAuthor',
                              'displayCorrectAnswer', 'displayCorrectAnswerFeedback', 'displayIncorrectAnswerFeedback',
@@ -35,7 +38,6 @@ def ChallengeDescription(request):
             # Getting the challenge information which the student has selected
             if request.GET['challengeID']:
                 # studentId = 1; # for now student id is 1 as there is no login table.. else studentd id will be the login ID that we get from the cookie or session
-                print("Context Dict", context_dict)
 
                 # Duel flag
                 is_duel = False
@@ -85,18 +87,17 @@ def ChallengeDescription(request):
 
                 data = getattr(challenge, 'timeLimit')
                 if is_duel:
-                    total_time = duel_challenge.acceptTime + \
+                    total_time = datetime_to_local(duel_challenge.acceptTime) + \
                         timedelta(minutes=duel_challenge.startTime) + timedelta(
                             minutes=duel_challenge.timeLimit)
-                    remaing_time = remaing_time = total_time-utcDate()
+                    remaing_time = remaing_time = total_time - current_localtime()
                     difference_minutes = remaing_time.total_seconds()/60.0
                     context_dict['timeLimit'] = ("%.2f" % difference_minutes)
                     if difference_minutes <= 0:
                         return redirect('/oneUp/students/DuelChallengeDescription?duelChallengeID=' +
                                         str(duel_challenge.duelChallengeID))
                 elif is_callout:
-                    time_left = (call_out_part.calloutID.endTime -
-                                 utcDate()).total_seconds() / 60.0
+                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0
                     context_dict['timeLimit'] = ("%.2f" % time_left)
                     if time_left <= 0:
                         return redirect('/oneUp/students/CalloutDescription?call_out_participant_id=' + str(call_out_part.id) + '&participant_id=' + str(call_out_part.participantID.user.id))
@@ -106,7 +107,6 @@ def ChallengeDescription(request):
                     context_dict['timeLimit'] = data
 
                 data = getattr(challenge, 'numberAttempts')
-                print(str(data))
                 if data == unlimited_constant:
                     context_dict['numberAttempts'] = "Unlimited"
                 else:

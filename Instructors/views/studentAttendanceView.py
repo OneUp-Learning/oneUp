@@ -40,7 +40,7 @@ def studentAttendance(request):
             context_dict = getRollByDate(request, context_dict)
             return render(request, 'Instructors/StudentAttendance.html', context_dict)     
         else:#otherwise get the rollby date for today
-            context_dict["rollDate"] = datetime.datetime.today().strftime('%Y-%m-%d')
+            context_dict["rollDate"] = localtime(now()).strftime('%Y-%m-%d')
             context_dict = getRollByDate(request, context_dict)      
 #loads in the student objects if any, in studentattendance table
 #and get the data of the student if they were here or not

@@ -46,6 +46,7 @@ def check_celery_tasks():
         parameters = json.loads(entry.parameters)
         if parameters != kwargs:
             print("DELETED LOG {} - Kwargs doesn't match".format(p_task.name))
+            print(f"{parameters}\n\n{kwargs}")
             entry.delete()
             continue
 
@@ -300,7 +301,7 @@ def calculate_xp(student_reg_course, gradeWarmup=False, gradeSerious=False, grad
 @app.task(ignore_result=True)
 def process_expired_serious_challenges(course_id, user_id, challenge_id, due_date, timezone):
     from Instructors.models import Challenges, Courses
-    from Instructors.views.utils import localizedDate
+    from Instructors.views.utils import current_localtime
     from Students.models import StudentRegisteredCourses
     from Badges.events import register_event_simple
     from Badges.enums import Event
@@ -308,8 +309,7 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
     from datetime import datetime
 
     course = Courses.objects.get(pk=int(course_id))
-    currentTime = localizedDate(None, str(datetime.utcnow().replace(
-        microsecond=0)), "%Y-%m-%d %H:%M:%S", timezone)
+    currentTime = current_localtime(tz=timezone)
 
     challenge = Challenges.objects.filter(
         courseID=course, challengeID=challenge_id).first()
@@ -328,6 +328,7 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
                 mini_req = {
                     'currentCourseID': course_id,
                     'user': User.objects.get(pk=int(user_id)).username,
+                    'timezone': timezone
                 }
                 register_event_simple(
                     Event.challengeExpiration, mini_req, student.studentID, challenge.challengeID)
@@ -337,17 +338,19 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
 
 def create_due_date_process(request, challenge_id, due_date, tz_info):
     ''' This will register a task to be called when a due date has been reach for a particular challenge'''
-
+    if not settings.CELERY_ENABLED:
+        return
+        
     from datetime import timedelta
-    from django.utils.timezone import make_naive
-    from Instructors.views.utils import localizedDate
+    from django.utils.timezone import make_naive, get_current_timezone_name
+    from Instructors.views.utils import str_datetime_to_local
     # Make date naive since celery eta accepts only naive datetimes then localize it
+    # due_date = make_naive(due_date)
     due_date = make_naive(due_date)
-    localized_due_date = localizedDate(
-        request, str(due_date), "%Y-%m-%d %H:%M:%S")
+    localized_due_date = str_datetime_to_local(str(due_date), to_format="%Y-%m-%d %H:%M:%S")
     # Setup the task and run at a later time (due_date)
     # Will delete itself after one minute once it has finished running
-    timezone = request.session['django_timezone']
+    timezone = get_current_timezone_name()
 
     process_expired_serious_challenges.apply_async(kwargs={'course_id': request.session['currentCourseID'],
                                                            'user_id': request.user.id,
@@ -360,7 +363,7 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
 @app.task(ignore_result=True)
 def process_expired_goal(course_id, student_id, goal_id, end_date, timezone):
     from Instructors.models import Courses
-    from Instructors.views.utils import localizedDate
+    from Instructors.views.utils import current_localtime
     from Students.views.goalsListView import goal_type_to_name
     from Students.models import Student, StudentGoalSetting
     from notify.signals import notify
@@ -369,8 +372,7 @@ def process_expired_goal(course_id, student_id, goal_id, end_date, timezone):
 
     course = Courses.objects.get(pk=int(course_id))
     student = Student.objects.get(pk=int(student_id))
-    currentTime = localizedDate(None, str(datetime.utcnow().replace(
-        microsecond=0)), "%Y-%m-%d %H:%M:%S", timezone)
+    currentTime = current_localtime(tz=timezone)
 
     goal = StudentGoalSetting.objects.filter(
         courseID=course, studentID=student).first()
@@ -392,17 +394,18 @@ def process_expired_goal(course_id, student_id, goal_id, end_date, timezone):
 
 def create_goal_expire_event(request, student_id, goal_id, end_date, tz_info):
     ''' This will register a task to be called when a goal end time has been reach'''
+    if not settings.CELERY_ENABLED:
+        return
 
     from datetime import timedelta
     from django.utils.timezone import make_naive
-    from Instructors.views.utils import localizedDate
+    from Instructors.views.utils import str_datetime_to_local
     # Make date naive since celery eta accepts only naive datetimes then localize it
     end_date = make_naive(end_date)
-    localized_end_date = localizedDate(
-        request, str(end_date), "%Y-%m-%d %H:%M:%S")
+    localized_end_date = str_datetime_to_local(str(end_date), to_format="%Y-%m-%d %H:%M:%S")
     # Setup the task and run at a later time (end_date)
     # Will delete itself after one minute once it has finished running
-
+    
     process_expired_goal.apply_async(kwargs={'course_id': request.session['currentCourseID'],
                                              'student_id': student_id,
                                              'goal_id': goal_id,

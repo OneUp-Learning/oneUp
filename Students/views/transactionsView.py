@@ -1,20 +1,23 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-
-from Students.models import StudentRegisteredCourses, StudentVirtualCurrencyTransactions, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased
-from Students.views.utils import studentInitialContextDict
-from Instructors.models import Challenges
-from Instructors.constants import transaction_reasons
-
-from Badges.models import Rules, ActionArguments, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
-from Badges.enums import Action, ObjectTypes
-from Badges.events import register_event
-from Badges.enums import Event, dict_dict_to_zipped_list
-from Instructors.views.utils import utcDate
 from datetime import datetime, timedelta
+
 import pytz
-from Badges.models import CourseConfigParams
-from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from Badges.enums import Action, Event, ObjectTypes, dict_dict_to_zipped_list
+from Badges.events import register_event
+from Badges.models import (ActionArguments, CourseConfigParams, Rules,
+                           VirtualCurrencyCustomRuleInfo,
+                           VirtualCurrencyRuleInfo)
+from Instructors.constants import transaction_reasons
+from Instructors.models import Challenges
+from Instructors.views.utils import current_localtime
+from Students.models import (StudentRegisteredCourses, StudentVirtualCurrency,
+                             StudentVirtualCurrencyRuleBased,
+                             StudentVirtualCurrencyTransactions)
+from Students.views.utils import studentInitialContextDict
+
 #import logging
 
 
@@ -112,8 +115,8 @@ def filterTransactions(request):
 def get_new_trasactions_ids_names(course, student):
     '''Filter the newly made transactions so we can record the reasons for the transactions'''
 
-    timestamp_from = utcDate() - timedelta(seconds=120)
-    timestamp_to = utcDate() + timedelta(seconds=1200)
+    timestamp_from = current_localtime() - timedelta(seconds=120)
+    timestamp_to = current_localtime() + timedelta(seconds=1200)
     transactions = StudentVirtualCurrencyTransactions.objects.filter(
         student=student, course=course, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
     transactionsNames = [t.name for t in transactions]
@@ -144,8 +147,8 @@ def save_transaction_reason(request):
             transactionID=int(request.POST['id']))
         transaction.transactionReason = request.POST['reason']
         transaction.save()
-        timestamp_from = utcDate() - timedelta(seconds=6220)
-        timestamp_to = utcDate() + timedelta(seconds=1200)
+        timestamp_from = current_localtime() - timedelta(seconds=6220) 
+        timestamp_to = current_localtime() + timedelta(seconds=1200) 
         transactions = StudentVirtualCurrencyTransactions.objects.filter(
             student=transaction.student, course=transaction.course, name=transaction.name, transactionReason="", timestamp__gte=timestamp_from, timestamp__lt=timestamp_to)
         for transaction in transactions:

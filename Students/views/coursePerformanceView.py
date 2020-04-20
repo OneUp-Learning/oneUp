@@ -2,15 +2,16 @@
 Created on Feb 22, 2017
 
 '''
-from django.shortcuts import render
-from Students.models import StudentChallenges, StudentActivities
-from Instructors.models import Challenges, Activities
-from Instructors.views.utils import utcDate
-from Students.views.utils import studentInitialContextDict
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.shortcuts import render
+from django.utils import timezone
+
+from Instructors.models import Activities, Challenges
+from Instructors.views.utils import current_localtime
+from Students.models import StudentActivities, StudentChallenges
 from Students.views.utils import studentInitialContextDict
 
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def CoursePerformance(request):
@@ -37,8 +38,7 @@ def CoursePerformance(request):
     assignmentFeedback = []
     isExpired = []
 
-    # Default time is the time that is saved in the database when challenges are created with no dates assigned (AH)
-    currentTime = utcDate()
+    currentTime = current_localtime()
     
     stud_activities = StudentActivities.objects.filter(studentID=student, courseID=currentCourse).filter(Q(timestamp__lt=currentTime) | Q(hasTimestamp=False))
     for sa in stud_activities:

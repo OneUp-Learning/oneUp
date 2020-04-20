@@ -11,7 +11,7 @@ from Badges.enums import Goal
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (Challenges, ChallengesTopics, CoursesSkills,
                                 CoursesTopics)
-from Instructors.views.utils import initialContextDict, utcDate
+from Instructors.views.utils import current_localtime, initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import (StudentChallenges, StudentCourseSkills,
                              StudentGoalSetting, StudentRegisteredCourses)
@@ -113,7 +113,7 @@ def classAchievementsViz(request):
         user_Names = []
                             
         #Displaying the list of challenges from database
-        current_time = utcDate()
+        current_time = current_localtime()
         for student in students:
             completed = 0
             failed = 0

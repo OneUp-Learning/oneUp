@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from Instructors.models import Announcements
 from Students.views.utils import studentInitialContextDict
 from Instructors.views.announcementListView import removeExpired
-from Instructors.views.utils import utcDate
 from datetime import datetime
 
 def createContextForAnnouncementList(currentCourse, context_dict):
