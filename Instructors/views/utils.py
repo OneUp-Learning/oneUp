@@ -1,18 +1,19 @@
 #import nltk
-import datetime
 import json
 import re
 import string
-
 import pytz
+
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from datetime import datetime
 
 from Badges.enums import ObjectTypes
 from Instructors.constants import unspecified_topic_name
 from Instructors.models import (ChallengesTopics, ChallengeTags, Courses,
                                 CoursesSkills, CoursesTopics, QuestionsSkills,
                                 ResourceTags, Skills, Tags, Topics)
+from Instructors.models import FlashCardGroupCourse, FlashCardToGroup, FlashCardGroup
 from oneUp.logger import logger
 
 
@@ -542,14 +543,10 @@ def date_to_selected(db_date, to_format="%m/%d/%Y"):
     ''' Converts date object to what was actually selected in the interface '''
     return db_date.strftime(to_format)
 
-# def localizedDate(request, date_str, date_format, timezone=None):
-#     if not timezone:
-#         tz = pytz.timezone(request.session['django_timezone'])
-#     else:
-#         tz = pytz.timezone(timezone)
+def localizedDate(request, date_str, date_format, timezone=None):
+    if not timezone:
+        tz = pytz.timezone(request.session['django_timezone'])
+    else:
+        tz = pytz.timezone(timezone)
     
-#     return tz.localize(datetime.strptime(date_str, date_format))
-
-# def addHintsToQuestion(course,question):
-# def removeHintsFromQuestion(course, question):
-# def getHintsForQuestion(course, question):
+    return tz.localize(datetime.strptime(date_str, date_format))
