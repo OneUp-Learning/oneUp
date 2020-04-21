@@ -9,7 +9,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import FlashCardGroup,FlashCardGroupCourse
 from Instructors.views import utils
-from Instructors.views.utils import datetime_to_selected
+from Instructors.views.utils import datetime_to_selected, str_datetime_to_local
 from oneUp.decorators import instructorsCheck
 from datetime import datetime
 @login_required
@@ -72,7 +72,7 @@ def groupCreateView(request):
             group.save()
 
             if cg.hasAvailabilityDate:
-                context_dict['availabilityDate'] = datetime_to_selected(activity.availabilityDate)
+                context_dict['availabilityDate'] = datetime_to_selected(cg.availabilityDate)
             else:
                 context_dict['availabilityDate'] = ""
             '''

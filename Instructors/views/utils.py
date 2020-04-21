@@ -6,7 +6,7 @@ import pytz
 
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from datetime import datetime
+import datetime
 
 from Badges.enums import ObjectTypes
 from Instructors.constants import unspecified_topic_name
