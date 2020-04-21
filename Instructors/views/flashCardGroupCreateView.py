@@ -9,7 +9,8 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import FlashCardGroup,FlashCardGroupCourse
 from Instructors.views import utils
-from Instructors.views.utils import localizedDate, utcDate
+from Instructors.views.utils import localizedDate
+#from Instructors.views.utils import localizedDate, utcDate
 from oneUp.decorators import instructorsCheck
 from datetime import datetime
 @login_required
@@ -37,7 +38,7 @@ def groupCreateView(request):
             cardGroup.groupID = group
             cardGroup.courseID = currentCourse
         
-        default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
+        #default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         if('availabilityDate' in request.POST):
             print("ran")
             datetime.strptime(request.POST['availabilityDate'], "%m/%d/%Y %I:%M %p")
