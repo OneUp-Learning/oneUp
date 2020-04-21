@@ -18,31 +18,29 @@ def CreateFlashCards(request):
 
     if request.POST:
         print(request.POST['cardName'])
-        flashCard=None
-        try:
-            flashCard=FlashCards.objects.get(flashID=request.POST['flashID'])
-            flashCard.flashName= request.POST['cardName']
-            flashCard.front = request.POST['front']
-            flashCard.back = request.POST['back']
-            flashCard.save()
-        except:
-            flashCard=FlashCards()
-            flashCard.flashName = request.POST['cardName']
-            flashCard.front = request.POST['front']
-            flashCard.back = request.POST['back']
-            flashCard.save()
+        flashCardExists = FlashCards.objects.filter(flashID=request.POST['flashID']).exists()
+
+        if(flashCardExists):
+            flashCard = FlashCards.objects.filter(flashID=request.POST['flashID'])
+        else: 
+            flashCard = FlashCards()
+        flashCard.flashName= request.POST['cardName']
+        flashCard.front = request.POST['front']
+        flashCard.back = request.POST['back']
+        flashCard.save()
         utils.saveGroupToCards(currentCourse,request.POST['groups'],flashCard)
         return redirect("/oneUp/instructors/groupList")
 
-    #################################
-    #  get request
-    else:
+    if request.GET:
         if 'groupID' in request.GET and 'flashID' in request.GET:
             flashCard = FlashCards.objects.get(pk=int(request.GET['flashID']))
             group = FlashCardGroup.objects.get(pk=int(request.GET['groupID']))
-            if FlashCardToGroup.objects.get(groupID=groupID, flashID=flashCard).exists():
-                    context_dict['groupName']=group.groupName
-                    context_dict['cardName']=flashCard.name
-                    context_dict['front']=flashCard.front
-                    context_dict['back']=flashCard.back
-    return render(request, 'Instructors/groupList.html', context_dict)
+            doesFlashCardToGroupExist = FlashCardToGroup.objects.filter(groupID=group.groupID, flashID=flashCard).exists()
+            
+            if doesFlashCardToGroupExist:
+                flashToGroup = FlashCardToGroup.objects.get(groupID=group.groupID, flashID=flashCard)
+                context_dict['groupName']=flashToGroup.groupID.groupName
+                context_dict['cardName']=flashCard.flashName
+                context_dict['front']=flashCard.front
+                context_dict['back']=flashCard.back
+    return render(request, 'Instructors/groupList', context_dict)
