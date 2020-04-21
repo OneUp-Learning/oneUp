@@ -18,10 +18,10 @@ def CreateFlashCards(request):
 
     if request.POST:
         print(request.POST['cardName'])
-        flashCardExists = FlashCards.objects.filter(flashID=request.POST['flashID']).exists()
-
-        if(flashCardExists):
-            flashCard = FlashCards.objects.filter(flashID=request.POST['flashID'])
+        if('flashID' in request.POST):
+            flashCardExists = FlashCards.objects.filter(flashID=request.POST['flashID']).exists()
+            if(flashCardExists):
+                flashCard = FlashCards.objects.filter(flashID=request.POST['flashID'])
         else: 
             flashCard = FlashCards()
         flashCard.flashName= request.POST['cardName']
@@ -43,4 +43,4 @@ def CreateFlashCards(request):
                 context_dict['cardName']=flashCard.flashName
                 context_dict['front']=flashCard.front
                 context_dict['back']=flashCard.back
-    return render(request, 'Instructors/groupList', context_dict)
+    return render(request, '/oneUp/instructors/createFlashCard', context_dict)
