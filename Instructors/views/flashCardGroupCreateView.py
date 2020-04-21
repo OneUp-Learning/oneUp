@@ -9,7 +9,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.models import FlashCardGroup,FlashCardGroupCourse
 from Instructors.views import utils
-from Instructors.views.utils import localizedDate, utcDate
+from Instructors.views.utils import datetime_to_selected
 from oneUp.decorators import instructorsCheck
 from datetime import datetime
 @login_required
@@ -36,14 +36,26 @@ def groupCreateView(request):
             cardGroup = FlashCardGroupCourse()
             cardGroup.groupID = group
             cardGroup.courseID = currentCourse
+        try:
+            cardGroup.availabilityDate = str_datetime_to_local(request.POST['availabilityDate'])
+            cardGroup.hasAvailabilityDate = True
+            
+        except ValueError:
+            cardGroup.hasAvailabilityDate = False
         
+        if cardGroup.hasAvailabilityDate:
+                context_dict['availabilityDate'] = datetime_to_selected(cardGroup.availabilityDate)
+        else:
+                context_dict['availabilityDate'] = ""
+        '''
         default_date = utcDate(default_time_str, "%m/%d/%Y %I:%M %p")
         if('availabilityDate' in request.POST):
             print("ran")
             datetime.strptime(request.POST['availabilityDate'], "%m/%d/%Y %I:%M %p")
             cardGroup.availabilityDate = localizedDate(request, request.POST['availabilityDate'], "%m/%d/%Y %I:%M %p")
         else:
-            cardGroup.availabilityDate= default_date
+            cardGroup.availabilityDate = default_date
+        '''
         group.save()     
        # cardGroup.groupPos = int(request.POST['groupPos'])
         cardGroup.save()
@@ -58,12 +70,18 @@ def groupCreateView(request):
             cg = FlashCardGroupCourse.objects.get(groupID=group,courseID=currentCourse)
           #  context_dict['groupPos']= str(cg.groupPos)
             group.save()
+
+            if cg.hasAvailabilityDate:
+                context_dict['availabilityDate'] = datetime_to_selected(activity.availabilityDate)
+            else:
+                context_dict['availabilityDate'] = ""
+            '''
             #handles the group date setting in the GET
             availabilityDate = localizedDate(request, str(make_naive(cg.availabilityDate.replace(microsecond=0))), "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%Y %I:%M %p")
             if cg.availabilityDate.replace(microsecond=0).strftime("%m/%d/%Y %I:%M %p") != default_time_str:
                 context_dict['availabilityDate']=availabilityDate
             else:
                 context_dict['availabilityDate']= ""
-                   
+            '''     
     return render(request,'Instructors/flashCardGroupCreate.html', context_dict)
 

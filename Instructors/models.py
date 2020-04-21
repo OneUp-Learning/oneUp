@@ -417,13 +417,14 @@ class FlashCardGroup(models.Model):
         
 class FlashCardToGroup(models.Model):
     groupID = models.ForeignKey(FlashCardGroup,on_delete=models.CASCADE, db_index=True)
-    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, db_index=True)
+    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, db_index=True) 
     def __str__(self):              
         return str(self.flashID)+","+str(self.groupID)
 class FlashCardGroupCourse(models.Model):
     groupID = models.ForeignKey(FlashCardGroup,on_delete=models.CASCADE,verbose_name ="Group Name", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     availabilityDate=models.DateTimeField(default=datetime.now, blank=True)
+    hasAvailabilityDate = models.BooleanField(default = False)
     groupPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.groupID)+","+str(self.courseID)+","+str(self.availabilityDate)
