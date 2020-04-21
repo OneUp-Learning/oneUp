@@ -43,4 +43,4 @@ def CreateFlashCards(request):
                 context_dict['cardName']=flashCard.flashName
                 context_dict['front']=flashCard.front
                 context_dict['back']=flashCard.back
-    return render(request, '/oneUp/instructors/createFlashCard', context_dict)
+    return render(request, 'Instructors/flashCardGroupList.html', context_dict)
