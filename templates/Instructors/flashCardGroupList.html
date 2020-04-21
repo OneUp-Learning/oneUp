@@ -197,14 +197,56 @@
 													</a>
 													<ul id='dropdown-{{i}}-{{card.flashID}}' class='dropdown-content'>
 														<li>
-															<a href="/oneUp/instructors/createFlashCard?flashID={{card.flashID}}&groupID={{groupID}}">Edit</a>
-														</li>
-													
+                                             <a class="modal-trigger" href="#modal-edit{{i}}-{{card.flashID}}">Edit</a>
+                                          </li>
+								
 														<li class="divider"></li>
 														<li>
 															<a class="modal-trigger" href="#modal_delete-{{i}}-{{card.flashID}}">Delete</a>
 														</li>
-													</ul>
+                                       </ul>
+                                       <div id="modal-edit{{i}}-{{card.flashID}}" class="modal">
+                                          <div class="modal-content">
+                                             <div class="row center-align">
+                                                <form id="flashcard" name="flashcard" action="/oneUp/instructors/createFlashCard" method="POST">
+                                                   {% csrf_token %}
+                                                   <div>
+                                                      <h4>Create a Flashcard</h4>
+                                                   </div>
+                                                   
+                                                   <div class="row center-align" style="margin-top: 50px;">
+                                                      
+                                                      <label class="left" for="cardName"><span class= "red-text">*</span> Flashcard Name</label>
+                                                      <input value="{{card.flashName}}" name="cardName" id="cardName" type="text" class="validate">
+                                                      
+                                                   </div>
+                                                   <div class="row center-align" style="margin-top: 50px;">
+                                                      <label class="left" for="front"><span class= "red-text">*</span>Front</label>
+                                                      <textarea id="front" name="front" class="materialize-textarea" data-length="5000" required>{{card.front}}</textarea>
+                                                      
+                                                   </div>
+                                                   <div class="row center-align" style="margin-top: 50px;">
+                                                      <label class="left" for="back"><span class= "red-text">*</span>Back</label>
+                                                      <textarea id="back" name="back" class="materialize-textarea" data-length="5000" required >{{card.back}}</textarea>
+                                                        
+                                                      
+                                                   </div>
+                                                   <div class="row">
+                                                      <div class="col s12">
+                                                         <label class="left" for="groups">Groups</label>
+                                                         <div id="groups"class="chips chips-groups-autocomplete"></div>
+                                                      </div>
+                                                   </div>
+                                                
+                                                   <div class="modal-footer">
+                                                      <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
+                                                      <button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
+                                                      </button>
+                                                   </div>
+                                                </form>
+                                             </div>
+                                          </div>
+                                       </div>
 													<div id="modal_delete-{{i}}-{{card.flashID}}" class="modal">
 														<div class="modal-content">
 															<h5>Are you sure you want to delete?</h5>
