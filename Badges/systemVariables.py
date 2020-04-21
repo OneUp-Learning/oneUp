@@ -2283,7 +2283,7 @@ class SystemVariable():
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.activitySubmission, Event.endChallenge, Event.adjustment],
             },
-            'type':'float',
+            'type':'int',
             'functions':{
                 ObjectTypes.none: getStudentXP
             },
