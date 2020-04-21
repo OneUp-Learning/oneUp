@@ -15,7 +15,7 @@ from Instructors.constants import (anonymous_avatar,
                                    unspecified_vc_manual_rule_name)
 from Instructors.models import (ActivitiesCategory, Challenges, Courses,
                                 CoursesTopics, InstructorRegisteredCourses,
-                                Instructors, Topics)
+                                Instructors, Topics, FlashCardGroup, FlashCardGroupCourse)
 from Instructors.views.utils import str_datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import adminsCheck
