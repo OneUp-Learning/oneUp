@@ -417,7 +417,6 @@ class FlashCardGroup(models.Model):
         
 class FlashCardToGroup(models.Model):
     groupID = models.ForeignKey(FlashCardGroup,on_delete=models.CASCADE, db_index=True)
-    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, db_index=True) 
     def __str__(self):              
         return str(self.flashID)+","+str(self.groupID)
 class FlashCardGroupCourse(models.Model):
