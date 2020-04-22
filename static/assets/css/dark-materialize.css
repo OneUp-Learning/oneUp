@@ -5142,7 +5142,7 @@ button.btn-floating {
 }
 
 .input-field.col .dropdown-content [type=checkbox] + label {
-  top: 1px;
+  top: -10px;
   left: 0;
   height: 18px;
 }
