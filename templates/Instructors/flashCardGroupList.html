@@ -1,289 +1,296 @@
 <!DOCTYPE html>
 
 <html lang="en">
-   <head>
-      {% include 'scripts.html' %} 
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-      <script>
-         $( function() {
-         $( "#sortableGroups" ).sortable({
 
-            stop: function(event, ui) {
+<head>
+   {% include 'scripts.html' %}
+   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+   <script>
+      $(function () {
+         $("#sortableGroups").sortable({
 
-            var itemOrder = $('#sortableGroups').sortable("toArray");
+            stop: function (event, ui) {
 
-            var idsPositions = []
+               var itemOrder = $('#sortableGroups').sortable("toArray");
 
-            for (var i = 0; i < itemOrder.length; i++) {
-               if (itemOrder[i]){
-                  console.log("Position: " + i + " ID: " + itemOrder[i]);
-                  idsPositions.push(String(itemOrder[i])+"---"+String(i));
+               var idsPositions = []
+
+               for (var i = 0; i < itemOrder.length; i++) {
+                  if (itemOrder[i]) {
+                     console.log("Position: " + i + " ID: " + itemOrder[i]);
+                     idsPositions.push(String(itemOrder[i]) + "---" + String(i));
+                  }
                }
-            }
 
-            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+               var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
 
-            console.log(idsPositions)
+               console.log(idsPositions)
 
-            $.post( "/oneUp/instructors/ReorderGroups", {groupIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
-               console.log(data)
+               $.post("/oneUp/instructors/ReorderGroups", {
+                  groupIdsPositions: idsPositions,
+                  csrfmiddlewaretoken: csrftoken,
+               }, function (data) {
+                  console.log(data)
                });
 
             }
-            });
-         
-
-         $('.chips').material_chip();
-          $('.chips-groups-autocomplete').material_chip({
-            data: JSON.parse('{{ groups | escapejs }}'),
-            placeholder: 'Choose a group',
-            autocompleteOptions: {
-              data: JSON.parse('{{ groupsAuto | escapejs }}'),
-              limit: Infinity,
-              minLength: 0
-            }
-          });
-
-          $('.chips-groups-autocomplete').on('chip.add', function(e, chip){
-            var groups = JSON.parse('{{createdGroups | escapejs }}');
-            $.each(groups, function(index, group) {
-              group.tag = group.tag.replace(/\s+/g, '').toLowerCase()
-              chip.tag = chip.tag.replace(/\s+/g, '').toLowerCase()
-              if(chip.tag==group.tag)
-              {
-                chip.id = group.id;
-              }
-            });
-            var data1 = $('.chips-groups-autocomplete').material_chip('data');
-            if(chip.id==undefined)
-            {
-              data1.splice(data1.length-1,1);
-              console.log("need to remove");
-            }
-            $('.chips-groups-autocomplete').material_chip({
-            data: data1,
-            placeholder: 'Choose a group',
-            autocompleteOptions: {
-              data: JSON.parse('{{ groupsAuto | escapejs }}'),
-              limit: Infinity,
-              minLength: 0
-            }
-            });
-            console.log(data1);
-          });
-          $('#flashcard').submit(function(){
-            
-            var groups = $("<input>").attr("type", "hidden").attr("name", "groups").val(JSON.stringify($('.chips-groups-autocomplete').material_chip('data')));
-            
-            $('#flashcard').append($(groups));
-            
-            console.log($('.chips-groups-autocomplete').material_chip('data'));
-        
-          });
          });
-      </script>
-   </head>
-   <body>
-      {% include 'heading.html' %}
-      <main>
-         <div class="row center-align">
-            <div class="col s12">
-               <h3>Flash Card Groups</h3>
-            </div>
+      });
+
+
+   </script>
+</head>
+
+<body>
+   {% include 'heading.html' %}
+   <main>
+      <div class="row center-align">
+         <div class="col s12">
+            <h3>Flash Card Groups</h3>
          </div>
-         <div class="row right-align">
-				<div class="col s12 m10 offset-m1">
-               
-                  <a class="waves-effect waves-light btn" href="/oneUp/instructors/groupCreate">
-                     <i class="material-icons left">add_circle</i>Add New Group</a>
-               
-					<a class="modal-trigger waves-effect waves-light btn" href="#modal-create-flashcard">
-						<i class="modal-trigger material-icons left">add_circle</i>Add A Flashcard</a>
-					<div id="modal-create-flashcard" class="modal">
-						<div class="modal-content">
-							<div class="row center-align">
-								<form id="flashcard" name="flashcard" action="/oneUp/instructors/createFlashCard" method="POST">
-									{% csrf_token %}
-									<div>
-										<h4>Create a Flashcard</h4>
-                           </div>
-                           
-                           <div class="row center-align" style="margin-top: 50px;">
-                              
-										<label class="left" for="cardName"><span class= "red-text">*</span> Flashcard Name</label>
-										<input value="{{cardName}}" name="cardName" id="cardName" type="text" class="validate">
-										
-                           </div>
-                           <div class="row center-align" style="margin-top: 50px;">
-                              <label class="left" for="front"><span class= "red-text">*</span>Front</label>
-										<textarea id="front" name="front" class="materialize-textarea" data-length="5000" required>{{front}}</textarea>
-                              
-                           </div>
-                           <div class="row center-align" style="margin-top: 50px;">
-                              <label class="left" for="back"><span class= "red-text">*</span>Back</label>
-										<textarea id="back" name="back" class="materialize-textarea" data-length="5000" required >{{back}}</textarea>
-                                
-										
-                           </div>
-                           <div class="row">
-                              <div class="col s12">
-                                 <label class="left" for="groups">Groups</label>
-                                 <div id="groups"class="chips chips-groups-autocomplete"></div>
-                              </div>
-                           </div>
-								
-									<div class="modal-footer">
-										<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-										<button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
-										</button>
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
-				</div>
-			
-            
-           
-            
-         </div>
-         <div class="row">
-            <div class="col s12 m10 offset-m1">
-               <div class="card-panel">
-                        
-                        <ul id="sortableGroups" class="collapsible" data-collapsible="expandable">
-                        {% for i,groupID,groupName,groupPosition,all_cards_in_group in group_range %}
-                        <li id={{groupID}}>
-                           <div class="collapsible-header" > <i class="material-icons">swap_vert</i> {{groupName}} &nbsp;&nbsp;
-                           
-                              <span class="badge" >
-                              <form action="/oneUp/instructors/deleteGroup" method="POST">
-                                 {% csrf_token %} 
-                                 <input type="hidden" name="groupID" value="{{groupID}}">
-                                 <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                 <ul id='dropdown-{{i}}' class='dropdown-content'>
-                                    <li><a href="/oneUp/instructors/groupCreate?groupID={{groupID}}">Edit</a></li>
-                                    <li class="divider"></li>
-                                    <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
-                                 </ul>
-                                 <div id="modal_delete-{{i}}" class="modal">
-                                    <div class="modal-content">
-                                       <h5>Are you sure you want to delete?</h5>
-                                    </div>
-                                    <div class="modal-footer">
-                                       <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                                       <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
-                                       </button>                                        
-                                    </div>
-                                 </div>
-                              </form>
-                           </span>
+      </div>
+      <div class="row right-align">
+         <div class="col s12 m10 offset-m1">
+
+            <a class="waves-effect waves-light btn" href="/oneUp/instructors/groupCreate">
+               <i class="material-icons left">add_circle</i>Add New Group</a>
+            <a class="modal-trigger waves-effect waves-light btn" href="#modal-create-flashcard">
+               <i class="modal-trigger material-icons left">add_circle</i>Add A Flashcard</a>
+            <div id="modal-create-flashcard" class="modal">
+               <div class="modal-content">
+                  <div class="row center-align">
+                     <form id="flashcard" name="flashcard" action="/oneUp/instructors/createFlashCard" method="POST">
+                        {% csrf_token %}
+                        <div>
+                           <h4>Create a Flashcard</h4>
                         </div>
-                        <div class="collapsible-body">
-									
-										<ul id="{{groupID}}">
-											{% for card in all_cards_in_group %}
-											<input type="hidden" name="flashID" value="{{card.flashID}}">
-											<li class="row" id={{card.flashID}} > 
-											   <div class="no-padding collapsible-header" > &nbsp&nbsp&nbsp&nbsp&nbsp
-												<i class="material-icons">swap_vert</i>
-												<span style="max-width: 40%;min-width: 40%">{{card.flashName}}</span>
-												
-												<span class="badge right-align">
-													<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-													 data-beloworigin="true" data-activates='dropdown-{{i}}-{{card.flashID}}' data-position="right" data-delay="50"
-													 data-tooltip="Options">
-														<i class="material-icons">more_vert</i>
-													</a>
-													<ul id='dropdown-{{i}}-{{card.flashID}}' class='dropdown-content'>
-														<li>
-                                             <a class="modal-trigger" href="#modal-edit{{i}}-{{card.flashID}}">Edit</a>
-                                          </li>
-								
-														<li class="divider"></li>
-														<li>
-															<a class="modal-trigger" href="#modal_delete-{{i}}-{{card.flashID}}">Delete</a>
-														</li>
-                                       </ul>
-                                       <div id="modal-edit{{i}}-{{card.flashID}}" class="modal">
-                                          <div class="modal-content">
-                                             <div class="row center-align">
-                                                <form id="flashcard" name="flashcard" action="/oneUp/instructors/createFlashCard" method="POST">
-                                                   {% csrf_token %}
-                                                   <div>
-                                                      <h4>Create a Flashcard</h4>
-                                                   </div>
-                                                   
-                                                   <div class="row center-align" style="margin-top: 50px;">
-                                                      
-                                                      <label class="left" for="cardName"><span class= "red-text">*</span> Flashcard Name</label>
-                                                      <input value="{{card.flashName}}" name="cardName" id="cardName" type="text" class="validate">
-                                                      
-                                                   </div>
-                                                   <div class="row center-align" style="margin-top: 50px;">
-                                                      <label class="left" for="front"><span class= "red-text">*</span>Front</label>
-                                                      <textarea id="front" name="front" class="materialize-textarea" data-length="5000" required>{{card.front}}</textarea>
-                                                      
-                                                   </div>
-                                                   <div class="row center-align" style="margin-top: 50px;">
-                                                      <label class="left" for="back"><span class= "red-text">*</span>Back</label>
-                                                      <textarea id="back" name="back" class="materialize-textarea" data-length="5000" required >{{card.back}}</textarea>
-                                                        
-                                                      
-                                                   </div>
-                                                   <div class="row">
-                                                      <div class="col s12">
-                                                         <label class="left" for="groups">Groups</label>
-                                                         <div id="groups"class="chips chips-groups-autocomplete"></div>
-                                                      </div>
-                                                   </div>
-                                                
-                                                   <div class="modal-footer">
-                                                      <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-                                                      <button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
-                                                      </button>
-                                                   </div>
-                                                </form>
-                                             </div>
-                                          </div>
-                                       </div>
-													<div id="modal_delete-{{i}}-{{card.flashID}}" class="modal">
-														<div class="modal-content">
-															<h5>Are you sure you want to delete?</h5>
-															<p>Flash cards will not be deleted. They will be sent to unassigned cards group</p>
-														</div>
-														<div class="modal-footer">
-															<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-															<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete">Delete
-															</button>
-														</div>
-													</div>
-												</span>
-												
-												</div>
-											</li>
-											{% empty %}
-											<li>
-												<td class="center-align" colspan="4">
-													<i>There are no flash cards in this group</i>
-												</td>
-											</li>
-											{% endfor %}
-										</ul>
-									
-								</div>
-                     </li>
+
+                        <div class="row center-align" style="margin-top: 50px;">
+
+                           <label class="left" for="cardName"><span class="red-text">*</span> Flashcard Name</label>
+                           <input value="{{cardName}}" name="cardName" id="cardName" type="text" class="validate">
+
+                        </div>
+                        <div class="row center-align" style="margin-top: 50px;">
+                           <label class="left" for="front"><span class="red-text">*</span>Front</label>
+                           <textarea id="front" name="front" class="materialize-textarea" data-length="5000"
+                              required>{{front}}</textarea>
+
+                        </div>
+                        <div class="row center-align" style="margin-top: 50px;">
+                           <label class="left" for="back"><span class="red-text">*</span>Back</label>
+                           <textarea id="back" name="back" class="materialize-textarea" data-length="5000"
+                              required>{{back}}</textarea>
+
+
+                        </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <select id="create-groups" name="course-groups" multiple>
+                              <option value="" disabled selected>Choose group(s)</option>
+                              {% for group in create_groups %}
+                                <option id="{{group.id}}" value="{{group.id}}">{{group.name}}</option>
+                              {% endfor %}
+                              </select>
+                              <label>Group(s)</label>
+                              
+                             
                            
-                        {% empty %}
-                        
-                        <li class="center-align" colspan="5">No Groups</li>
-                        
-                        {% endfor %}
-                  </ul>
-                    
+                           </div>
+                        </div>
+
+                        <div class="modal-footer">
+                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                              style="color: #00bcd4">Cancel</a>
+                           <button class="btn waves-effect waves-light" type="submit" name="submit"> Save
+                           </button>
+                        </div>
+                     </form>
+                  </div>
                </div>
             </div>
          </div>
-      </main>
-      {% include 'footer.html' %}
-   </body>
+
+
+
+
+      </div>
+      <div class="row">
+         <div class="col s12 m10 offset-m1">
+            <div class="card-panel">
+
+               <ul id="sortableGroups" class="collapsible" data-collapsible="expandable">
+                  {% for i,groupID,groupName,groupPosition,all_cards_in_group in group_range %}
+                  <li id={{groupID}}>
+                     <div class="collapsible-header"> <i class="material-icons">swap_vert</i> {{groupName}} &nbsp;&nbsp;
+
+                        <span class="badge">
+                           <form action="/oneUp/instructors/deleteGroup" method="POST">
+                              {% csrf_token %}
+                              <input type="hidden" name="groupID" value="{{groupID}}">
+                              <a class="dropdown-button tooltipped secondary-content" href="#!"
+                                 data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}'
+                                 data-position="right" data-delay="50" data-tooltip="Options"><i
+                                    class="material-icons">more_vert</i></a>
+                              <ul id='dropdown-{{i}}' class='dropdown-content'>
+                                 <li><a href="/oneUp/instructors/groupCreate?groupID={{groupID}}">Edit</a></li>
+                                 <li class="divider"></li>
+                                 <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
+                              </ul>
+                              <div id="modal_delete-{{i}}" class="modal">
+                                 <div class="modal-content">
+                                    <h5>Are you sure you want to delete?</h5>
+                                 </div>
+                                 <div class="modal-footer">
+                                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                                       style="color: #00bcd4">Cancel</a>
+                                    <button class="modal-action modal-close waves-effect waves-light btn-flat"
+                                       type="submit" name="submit" value="Delete">Delete
+                                    </button>
+                                 </div>
+                              </div>
+                           </form>
+                        </span>
+                     </div>
+                     <div class="collapsible-body">
+
+                        <ul id="{{groupID}}">
+                           {% for j,card, all_groups_of_card in all_cards_in_group %}
+                           <input type="hidden" name="flashID" value="{{card.flashID}}">
+                           <li class="row" id={{card.flashID}}>
+                              <div class="no-padding collapsible-header"> &nbsp&nbsp&nbsp&nbsp&nbsp
+                                 <i class="material-icons">swap_vert</i>
+                                 <span style="max-width: 40%;min-width: 40%">{{card.flashName}}</span>
+
+                                 <span class="badge right-align">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!"
+                                       data-constrainwidth="false" data-beloworigin="true"
+                                       data-activates='dropdown-{{i}}-{{card.flashID}}' data-position="right"
+                                       data-delay="50" data-tooltip="Options">
+                                       <i class="material-icons">more_vert</i>
+                                    </a>
+                                    <ul id='dropdown-{{i}}-{{card.flashID}}' class='dropdown-content'>
+                                       <li>
+                                          <a class="modal-trigger" href="#modal-edit{{i}}-{{card.flashID}}">Edit</a>
+                                       </li>
+
+                                       <li class="divider"></li>
+                                       <li>
+                                          <a class="modal-trigger"
+                                             href="#modal_delete-{{i}}-{{card.flashID}}">Delete</a>
+                                       </li>
+                                    </ul>
+                                    <div id="modal-edit{{i}}-{{card.flashID}}" class="modal">
+                                       <div class="modal-content">
+                                          <div class="row center-align">
+                                             <form id="flashcard" name="flashcard"
+                                                action="/oneUp/instructors/createFlashCard" method="POST">
+                                                {% csrf_token %}
+                                                <div>
+                                                   <h4>Create a Flashcard</h4>
+                                                </div>
+
+                                                <div class="row center-align" style="margin-top: 50px;">
+
+                                                   <label class="left" for="cardName"><span class="red-text">*</span>
+                                                      Flashcard Name</label>
+                                                   <input value="{{card.flashName}}" name="cardName" id="cardName"
+                                                      type="text" class="validate">
+
+                                                </div>
+                                                <div class="row center-align" style="margin-top: 50px;">
+                                                   <label class="left" for="front"><span
+                                                         class="red-text">*</span>Front</label>
+                                                   <textarea id="front" name="front" class="materialize-textarea"
+                                                      data-length="5000" required>{{card.front}}</textarea>
+
+                                                </div>
+                                                <div class="row center-align" style="margin-top: 50px;">
+                                                   <label class="left" for="back"><span
+                                                         class="red-text">*</span>Back</label>
+                                                   <textarea id="back" name="back" class="materialize-textarea"
+                                                      data-length="5000" required>{{card.back}}</textarea>
+
+
+                                                </div>
+                                                <div class="row">
+                                                   <div class="input-field col s12">
+                                                      <select id="create-groups-edit-{{i}}-{{j}}" name="course-groups" multiple>
+                                                      <option value="" disabled selected>Choose group(s)</option>
+                                                      {% for group in create_groups%}
+                                                        <option id="{{group.id}}{{i}}-{{j}}" value="{{group.id}}">{{group.name}}</option>
+                                                      {% endfor %}
+                                                      </select>
+                                                      <label>Group(s)</label>
+                                                   
+                                                      <script  type="text/javascript"> 
+                                                            let edit_IDs{{i}}_{{j}} = JSON.parse(JSON.stringify({{all_groups_of_card|safe}}));
+                                                            console.log(edit_IDs{{i}}_{{j}});
+                                                            edit_IDs{{i}}_{{j}}.forEach(group => {
+                                                               document.getElementById(group.id+"{{i}}-{{j}}").selected = true;
+                                                                
+                                                            });
+                                                            $("#create-groups-edit-{{i}}-{{j}}").material_select();
+                                                         
+                                                      </script> 
+                                                   
+                                                   </div>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                   <a href="#!"
+                                                      class="modal-action modal-close waves-effect waves-light btn-flat"
+                                                      style="color: #00bcd4">Cancel</a>
+                                                   <button class="btn waves-effect waves-light" type="submit"
+                                                      name="submit"> Save
+                                                   </button>
+                                                </div>
+                                             </form>
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <div id="modal_delete-{{i}}-{{card.flashID}}" class="modal">
+                                       <div class="modal-content">
+                                          <h5>Are you sure you want to delete?</h5>
+                                          <p>Flash cards will not be deleted. They will be sent to unassigned cards
+                                             group</p>
+                                       </div>
+                                       <div class="modal-footer">
+                                          <a href="#!"
+                                             class="modal-action modal-close waves-effect waves-light btn-flat"
+                                             style="color: #00bcd4">Cancel</a>
+                                          <button type="button"
+                                             class="modal-action modal-close waves-effect waves-light btn-flat"
+                                             value="Delete">Delete
+                                          </button>
+                                       </div>
+                                    </div>
+                                 </span>
+
+                              </div>
+                           </li>
+                           {% empty %}
+                           <li>
+                              <td class="center-align" colspan="4">
+                                 <i>There are no flash cards in this group</i>
+                              </td>
+                           </li>
+                           {% endfor %}
+                        </ul>
+
+                     </div>
+                  </li>
+
+                  {% empty %}
+
+                  <li class="center-align" colspan="5">No Groups</li>
+
+                  {% endfor %}
+               </ul>
+
+            </div>
+         </div>
+      </div>
+   </main>
+   {% include 'footer.html' %}
+</body>
