@@ -4,8 +4,118 @@
 <head>
    {% include 'scripts.html' %}
 </head>
+<style>
+   .card {
+      -webkit-transition: -webkit-transform 1s;
+      -moz-transition: -moz-transform 1s;
+      -o-transition: -o-transform 1s;
+      transition: transform 1s;
+      -webkit-transform-style: preserve-3d;
+      -moz-transform-style: preserve-3d;
+      -o-transform-style: preserve-3d;
+      transform-style: preserve-3d;
+      -webkit-transform-origin: 50% 50%;
+   }
+
+   .card div {
+      line-height: 260px;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      font-size: 140px;
+      -webkit-backface-visibility: hidden;
+      -moz-backface-visibility: hidden;
+      -o-backface-visibility: hidden;
+      backface-visibility: hidden;
+   }
+
+   .card .front {}
+
+   .card .back {
+      -webkit-transform: rotateY(180deg);
+      -moz-transform: rotateY(180deg);
+      -o-transform: rotateY(180deg);
+      transform: rotateY(180deg);
+   }
+
+   .card.flipped {
+      -webkit-transform: rotateY(-180deg);
+      -moz-transform: rotateY(-180deg);
+      -o-transform: rotateY(-180deg);
+      transform: rotateY(-180deg);
+   }
+</style>
 <script>
-   let flash_cards = JSON.parse({{ flash_range| safe}});
+   let flash_cards = {{ flash_range| safe}};
+   let groupID = {{ groupID| safe}};
+   console.log("flashCards", flash_cards);
+
+   function loadInitialCard() {
+      let question_tag = document.getElementById('question');
+      let answer_tag = document.getElementById('answer');
+      question_tag.innerHTML = flash_cards[0]['question'];
+      answer_tag.innerText = flash_cards[0]['answer'];
+      answer_tag.style.display = 'none';
+   }
+   window.onload = loadInitialCard;
+
+   function showQuestionOrAnswer(card_direction) {
+      let answer_tag = document.getElementById('answer');
+      let question_tag = document.getElementById('question');
+      let flashCard = document.getElementById('flashCard')
+
+      if (card_direction == "front") {
+         answer_tag.style.display = 'block';
+         question_tag.style.display = 'none';
+         flashCard.setAttribute("direction", "back");
+         return;
+      }
+      if (card_direction == "back") {
+         answer_tag.style.display = 'none';
+         question_tag.style.display = 'block';
+         flashCard.setAttribute("direction", "front");
+         return;
+      }
+   }
+
+   function flipCard() {
+      let flashCard = document.getElementById('flashCard');
+      flashCard.classList.toggle('flipped');
+
+      showQuestionOrAnswer(flashCard.getAttribute("direction"));
+   }
+
+   function rightClickedByStudent(flashID, groupID) {
+      let type = checkTagValue(problemID);
+      let xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/oneUp/students/hintsUsed", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("challengeQuestionID=" + problemID + "&type=" + type + "&csrfmiddlewaretoken={{csrf_token}}");
+      xhttp.onreadystatechange = function () {
+         if (xhttp.readyState == 4) {
+            let responseText = JSON.parse(xhttp.responseText);
+            let hintID = responseText['hintID'];
+            let hint = responseText['hint'];
+            //it should respond by moving card up a bin
+         }
+      }
+   }
+
+   function wrongClickedByStudent(flashID, groupID) {
+      let type = checkTagValue(problemID);
+      let xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/oneUp/students/hintsUsed", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("challengeQuestionID=" + problemID + "&type=" + type + "&csrfmiddlewaretoken={{csrf_token}}");
+      xhttp.onreadystatechange = function () {
+         if (xhttp.readyState == 4) {
+            let responseText = JSON.parse(xhttp.responseText);
+            let hintID = responseText['hintID'];
+            let hint = responseText['hint'];
+            //it should respond by moving card up a bin
+         }
+      }
+   }
 </script>
 
 <body>
@@ -19,16 +129,18 @@
       <div class="row">
          <div class="col s12 m6 offset-m3">
             <div class="card-panel">
-               {% for card  in flash_range %}
-               <p class="flow-text">Question: <b>{{card.question}}</b></p>
-               <p class="flow-text">Answer: {{card.answer}} </b></p>
-               {% endfor %}
+               <div class="card" id="flashCard" direction="front" onclick="flipCard();">
+                  <br>
+                     <p class="flow-text front"><b id=question>{{card.question}}</b></p>
+                     <p id=answer class="flow-text back">{{card.answer}}</p>
+               </div>
                <div class="divider"></div>
                <br>
                <div class="row center-align">
-                  <button class="green btn waves-effect waves-light"><i class="material-icons right">check</i>Right</button>
-                  <button class="red btn waves-effect waves-light"><i class="material-icons right">close</i>Wrong</button>
-                  <button class="orange btn waves-effect waves-light"><i class="material-icons right">refresh</i>Reset All</button>
+                  <button class="green btn waves-effect waves-light"><i
+                        class="material-icons right">check</i>Right</button>
+                  <button class="red btn waves-effect waves-light"><i
+                        class="material-icons right">close</i>Wrong</button>
                </div>
             </div>
          </div>
