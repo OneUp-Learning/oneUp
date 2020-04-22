@@ -41,7 +41,7 @@ LOGGING_LEVEL = 'DEBUG'
 LOGSTASH_HOST = 'localhost'
 LOGSTASH_PORT = 5959 # Default value: 5959
 
-ENABLE_LOGSTASH = False
+ENABLE_LOGSTASH = True
 if ENABLE_LOGSTASH:
     handlers = ['console', 'logstash']
 else:
@@ -330,6 +330,6 @@ CELERY_TIMEZONE = TIME_ZONE
 # Note that this is not automatic, but enabled by statements in our
 # code which check its value.  Turning it on or off will only effect
 # oneUp code which uses "if CELERY_ENABLED:" statements
-CELERY_ENABLED = False
+CELERY_ENABLED = True
 
 CURRENTLY_MIGRATING = False

@@ -1,34 +1,43 @@
-from Badges.models import Rules, ActionArguments, Conditions, BadgesInfo, Badges,\
-    ActivitySet, VirtualCurrencyRuleInfo, RuleEvents, BadgesVCLog
-from Badges.models import FloatConstants, StringConstants, ChallengeSet, TopicSet, Activities, ConditionSet, Dates, ActivityCategorySet, ProgressiveUnlocking
-from Badges.enums import OperandTypes, ObjectTypes, Event, Action,\
-    AwardFrequency
-from Students.models import StudentBadges, StudentEventLog, Courses, Student,\
-    StudentRegisteredCourses, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased,StudentProgressiveUnlocking
-from Instructors.models import Challenges, CoursesTopics, ActivitiesCategory,\
-    ChallengesTopics
-from Badges.systemVariables import calculate_system_variable, objectTypeToObjectClass
+import json
+import logging
+
+from django.conf import settings
+from django.db import OperationalError, transaction
+from django.utils.timezone import get_current_timezone_name
+from notify.signals import notify
+
+from Badges.enums import (Action, AwardFrequency, Event, ObjectTypes,
+                          OperandTypes)
+from Badges.models import (ActionArguments, Activities, ActivityCategorySet,
+                           ActivitySet, Badges, BadgesInfo, BadgesVCLog,
+                           ChallengeSet, Conditions, ConditionSet, Dates,
+                           FloatConstants, ProgressiveUnlocking, RuleEvents,
+                           Rules, StringConstants, TopicSet,
+                           VirtualCurrencyRuleInfo)
+from Badges.systemVariables import (calculate_system_variable,
+                                    objectTypeToObjectClass)
+from Badges.tasks import process_event_offline
+from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.models import (ActivitiesCategory, Challenges,
+                                ChallengesTopics, CoursesTopics,
+                                InstructorRegisteredCourses, Topics)
 from Instructors.views.utils import current_localtime
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
-from Instructors.constants import unassigned_problems_challenge_name
-from notify.signals import notify
-from Instructors.models import InstructorRegisteredCourses, Topics
-import json
-from django.conf import settings
-from django.utils.timezone import get_current_timezone_name
-from Badges.tasks import process_event_offline
+from Students.models import (Courses, Student, StudentBadges, StudentEventLog,
+                             StudentGoalSetting, StudentProgressiveUnlocking,
+                             StudentRegisteredCourses, StudentVirtualCurrency,
+                             StudentVirtualCurrencyRuleBased)
+from Students.views.goalView import mark_goal_complete
 
 postgres_enabled = False
 if len([db for (name,db) in settings.DATABASES.items() if "postgres" in db['ENGINE']]) > 0:
     postgres_enabled = True
 transaction_retry_count = 50
-from django.db import transaction, OperationalError
 if postgres_enabled:
     from psycopg2.extensions import TransactionRollbackError
 else:
     TransactionRollbackError = "Dummy Value which won't match things later"
 
-import logging
 logger = logging.getLogger(__name__)
 
 # Method to register events with the database and also to
@@ -483,13 +492,13 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
         for retries in range(0,transaction_retry_count):
             try:
                 with transaction.atomic():
-                    studentBadges = StudentBadges.objects.filter(studentID = studentID, badgeID = badgeId)
+                    studentBadges = StudentBadges.objects.select_for_update().filter(studentID = studentID, badgeID = badgeId)
                     if rule.awardFrequency != AwardFrequency.justOnce:
-                        studentBadges = studentBadges.filter(objectID = objID)
+                        studentBadges = studentBadges.select_for_update().filter(objectID = objID)
                     for existingBadge in studentBadges:
-                        badgeInfo = Badges.objects.get(badgeID = existingBadge.badgeID.badgeID)
+                        badgeInfo = Badges.objects.select_for_update().get(badgeID = existingBadge.badgeID.badgeID)
                         if(not badgeInfo.manual):
-                            autoBadge = Badges.objects.get(badgeID = badgeInfo.badgeID)
+                            autoBadge = Badges.objects.select_for_update().get(badgeID = badgeInfo.badgeID)
                             if autoBadge.ruleID.ruleID == rule.ruleID and autoBadge.courseID.courseID == courseID.courseID:
                             #if existingBadge.badgeID.ruleID.ruleID == rule.ruleID and existingBadge.badgeID.courseID.courseID == courseID.courseID:
                                 print("In Event w/timestamp: "+timestampstr+" Student " + str(studentID) + " has already earned badge " + str(badge))
@@ -547,7 +556,8 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
         StudnetPUnlockingRule.isFullfilled = True
         StudnetPUnlockingRule.save()
         print("Student " + str(studentID) + " just unlocked " + pUnlockingRule.name + " with argument " + str(ruleIdArg))
-        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You have unlocked an '+ ObjectTypes.objectTypes.get(objectType), nf_type='progressiveUnlocking')        
+        # TODO: The related link here should be updated based on the object type
+        notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You have unlocked an '+ ObjectTypes.objectTypes.get(objectType), nf_type='progressiveUnlocking', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/ChallengesList'}))        
 
         return
     
@@ -556,6 +566,33 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
 
         #Create a notification.
         return
+    if actionID == Action.completeGoal:
+        goal_name = args.get(sequenceNumber=1).argumentValue
+        print(f"About to complete goal {goal_name} for {studentID} in course {courseID.courseName}")
+        
+        for retries in range(0,transaction_retry_count):
+            try:
+                with transaction.atomic(): 
+                    goal = StudentGoalSetting.objects.select_for_update().get(ruleID=rule)
+                    if goal.completed:
+                        print(f"[SKIP] The goal, {goal_name}, has already been completed for {studentID} in course {courseID.courseName}")
+                        return
+
+                    notify.send(None, recipient=studentID.user, actor=studentID.user, verb=f"{goal_name} personal goal has been completed", nf_type='goal', extra=json.dumps(
+                        {"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/goalslist'}))
+
+                    mark_goal_complete(goal)
+                    print(f"The goal, {goal_name}, is completed for {studentID} in course {courseID.courseName}")
+
+            except OperationalError as e:
+                if e.__cause__.__class__ == TransactionRollbackError:
+                    continue
+                else:
+                    raise
+            else:
+                break
+
+       
     if (actionID == Action.addSkillPoints):
         #Add skill points to a student
         return
@@ -575,7 +612,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                 with transaction.atomic(): 
                     if actionID == Action.increaseVirtualCurrency:
                         print("[TEST2] Checking if student was already awarded")
-                        previousAwards = StudentVirtualCurrencyRuleBased.objects.filter(studentID = student.studentID, vcRuleID = vcRule)
+                        previousAwards = StudentVirtualCurrencyRuleBased.objects.select_for_update().filter(studentID = student.studentID, vcRuleID = vcRule)
                         if rule.awardFrequency != AwardFrequency.justOnce:
                             previousAwards = previousAwards.filter(objectID = objID)
                         if previousAwards.exists():
@@ -617,7 +654,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
             for retries in range(0,transaction_retry_count):
                 try:
                     with transaction.atomic():
-                        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+                        student = StudentRegisteredCourses.objects.select_for_update().get(studentID = studentID, courseID = courseID)
                         student.virtualCurrencyAmount += vcRuleAmount
                         student.save()
 

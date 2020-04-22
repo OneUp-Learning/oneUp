@@ -127,6 +127,7 @@ def celery_calculate_xp(student_reg_course_id):
                 mini_req = {
                     'currentCourseID': student_reg_course.courseID.courseID,
                     'user': student_reg_course.studentID.user.username,
+                    'timezone': None,
                 }
                 # register event
                 # register_event_simple(
@@ -301,7 +302,7 @@ def calculate_xp(student_reg_course, gradeWarmup=False, gradeSerious=False, grad
 @app.task(ignore_result=True)
 def process_expired_serious_challenges(course_id, user_id, challenge_id, due_date, timezone):
     from Instructors.models import Challenges, Courses
-    from Instructors.views.utils import current_localtime
+    from Instructors.views.utils import current_localtime, datetime_to_local
     from Students.models import StudentRegisteredCourses
     from Badges.events import register_event_simple
     from Badges.enums import Event
@@ -319,7 +320,7 @@ def process_expired_serious_challenges(course_id, user_id, challenge_id, due_dat
         print("Challenge Due Date: {}".format(challenge.dueDate))
         print("Current Time: {}".format(currentTime))
         # If the due date hasn't changed and the current time is at or passed the due date send the event
-        if (due_date == challenge.dueDate and currentTime >= challenge.dueDate):
+        if due_date == challenge.dueDate and currentTime >= datetime_to_local(challenge.dueDate, tz=timezone):
             # Don't send to test students
             registeredStudents = StudentRegisteredCourses.objects.filter(
                 courseID=course, studentID__isTestStudent=False)
@@ -346,7 +347,7 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
     from Instructors.views.utils import str_datetime_to_local
     # Make date naive since celery eta accepts only naive datetimes then localize it
     # due_date = make_naive(due_date)
-    due_date = make_naive(due_date)
+    due_date = make_naive(due_date).replace(microsecond=0)
     localized_due_date = str_datetime_to_local(str(due_date), to_format="%Y-%m-%d %H:%M:%S")
     # Setup the task and run at a later time (due_date)
     # Will delete itself after one minute once it has finished running
@@ -363,7 +364,7 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
 @app.task(ignore_result=True)
 def process_expired_goal(course_id, student_id, goal_id, end_date, timezone):
     from Instructors.models import Courses
-    from Instructors.views.utils import current_localtime
+    from Instructors.views.utils import current_localtime, datetime_to_local
     from Students.views.goalsListView import goal_type_to_name
     from Students.models import Student, StudentGoalSetting
     from notify.signals import notify
@@ -378,15 +379,15 @@ def process_expired_goal(course_id, student_id, goal_id, end_date, timezone):
         courseID=course, studentID=student).first()
     # If the goal is deleted don't calculate the send event
     if goal:
-        goal_end_date = goal.timestamp + timedelta(days=7)
+        goal_end_date = datetime_to_local(goal.timestamp, tz=timezone) + timedelta(days=7)
 
         print("Passed End Date: {}".format(end_date))
         print("Goal End Date: {}".format(goal_end_date))
         print("Current Time: {}".format(currentTime))
         # If the end date hasn't changed and the current time is at or passed the end date send the event
-        if (end_date == goal_end_date and currentTime >= goal_end_date):
+        if not goal.completed and end_date == goal_end_date and currentTime >= goal_end_date:
             print("Sending goal notification")
-            notify.send(None, recipient=student.user, actor=student.user, verb=f"{goal_type_to_name(goal.goalType)} personal goal is due", nf_type='Decrease VirtualCurrency', extra=json.dumps(
+            notify.send(None, recipient=student.user, actor=student.user, verb=f"{goal_type_to_name(goal.goalVariable)} personal goal is due", nf_type='goal', extra=json.dumps(
                 {"course": str(course.courseID), "name": str(course.courseName), "related_link": '/oneUp/students/goalslist'}))
 
             # Maybe can register a event that a goal has expired
@@ -401,7 +402,7 @@ def create_goal_expire_event(request, student_id, goal_id, end_date, tz_info):
     from django.utils.timezone import make_naive
     from Instructors.views.utils import str_datetime_to_local
     # Make date naive since celery eta accepts only naive datetimes then localize it
-    end_date = make_naive(end_date)
+    end_date = make_naive(end_date).replace(microsecond=0)
     localized_end_date = str_datetime_to_local(str(end_date), to_format="%Y-%m-%d %H:%M:%S")
     # Setup the task and run at a later time (end_date)
     # Will delete itself after one minute once it has finished running
