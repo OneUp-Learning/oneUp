@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      {% include 'scripts.html' %}
-   </head>
-   <body>
-      {% include 'stheading.html' %}
-      <main>
-         <div class="row center-align">
-            <div class="col s12">
-               <h3>Flash Cards</h3>
-            </div>
+
+<head>
+   {% include 'scripts.html' %}
+</head>
+<script>
+   let flash_cards = JSON.parse({{ flash_range| safe}});
+</script>
+
+<body>
+   {% include 'stheading.html' %}
+   <main>
+      <div class="row center-align">
+         <div class="col s12 m10 offset-m1">
+            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{group_name}}</h3>
          </div>
-         <div class="row">
-            <div class="col s12 m10 offset-m1">
-               <div class="card">
-                  <div class="card-content">
-                     <table>
-                        <td>If enabled in the problem, Weak Hints Reduction: {{weakHint}}%, Strong Hint Reduction: {{strongHint}}%</td>
-                     </table>
-                  </div>
-                  <div class="card-action right-align">
-                     <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome"><i class="material-icons left">navigate_before</i>Back</a>                         
-                  </div>
+      </div>
+      <div class="row">
+         <div class="col s12 m6 offset-m3">
+            <div class="card-panel">
+               {% for card  in flash_range %}
+               <p class="flow-text">Question: <b>{{card.question}}</b></p>
+               <p class="flow-text">Answer: {{card.answer}} </b></p>
+               {% endfor %}
+               <div class="divider"></div>
+               <br>
+               <div class="row center-align">
+                  <button class="green btn waves-effect waves-light"><i class="material-icons right">check</i>Right</button>
+                  <button class="red btn waves-effect waves-light"><i class="material-icons right">close</i>Wrong</button>
+                  <button class="orange btn waves-effect waves-light"><i class="material-icons right">refresh</i>Reset All</button>
                </div>
             </div>
          </div>
-      </main>
-      {% include 'footer.html' %}
-   </body>
+      </div>
+
+   </main>
+   {% include 'footer.html' %}
+</body>
+
 </html>
