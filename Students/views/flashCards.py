@@ -51,7 +51,7 @@ def getAllCardsForFullStudy():
 def getCardsForStudentForLowestBin():
     True
 @login_required
-def hintsUsed(request):
+def flashCardUsed(request):
     ##this is used to promote a card up a bin
     
     context_dict, currentCourse = studentInitialContextDict(request)
@@ -60,15 +60,25 @@ def hintsUsed(request):
     response = {}
     #dict['hintsUsed'] = {}
 
+    studentFlashCards(models.Model):
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, verbose_name="the flash card",db_index=True)
+    studyDate = models.DateTimeField(default=now, verbose_name="the ideal date the flash card should reappear", db_index=True)
+    cardBin = models.IntegerField(default=0, verbose_name="priority containers for flash cards", db_index=True)
+    timesSeen = models.IntegerField(default=0, verbose_name="times the student has seen the card")
+    timesCorrect
+
     if request.POST:
-        student = Student.objects.get(user=request.user)
-        if 'challengeQuestionID' in request.POST:
-            hintType = convertToEnum(request.POST['type'])
-            studentHintObjectID = createStudentHint(request.POST['challengeQuestionID'], hintType, student).studentAnswerHintsID
-            hint = obtainHint(request.POST['challengeQuestionID'], hintType)
+        if 'flashID' in request.POST and 'groupID' in request.POST:
+            if(studentFlashCards.objects.filter(studentID=request.user).exists()):
+                studentFlashCard = studentFlashCards.objects.get(user=request.user)
+            else:
+                studentFlashCard = studentFlashCards()
+
+            if('gotIt' in request.POST)
             return JsonResponse( 
                 {
-                "hintID" : studentHintObjectID ,
-                "hint": hint
+                "hintID" : True ,
+                "hint": True
                 }
             )

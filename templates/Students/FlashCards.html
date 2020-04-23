@@ -47,16 +47,22 @@
 </style>
 <script>
    let flash_cards = {{ flash_range| safe}};
+   let correct_flash_cards = [];
+   let wrong_flash_cards = [];
+   let flash_card_counter = 0;
    let groupID = {{ groupID| safe}};
 
-   function loadInitialCard() {
+   const buttonType = Object.freeze({"gotIt":1, "tryAgain":2})
+   Object.freeze(buttonType);
+
+   function loadCard() {
       let question_tag = document.getElementById('question');
       let answer_tag = document.getElementById('answer');
-      question_tag.innerHTML = flash_cards[0]['question'];
-      answer_tag.innerText = flash_cards[0]['answer'];
+      question_tag.innerHTML = flash_cards[flash_card_counter]['question'];
+      answer_tag.innerText = flash_cards[flash_card_counter]['answer'];
       answer_tag.style.display = 'none';
    }
-   window.onload = loadInitialCard;
+   window.onload = loadCard;
 
    function showQuestionOrAnswer(card_direction) {
       let answer_tag = document.getElementById('answer');
@@ -84,29 +90,42 @@
       showQuestionOrAnswer(flashCard.getAttribute("direction"));
    }
 
-   const buttonType = Object.freeze({"gotIt":1, "tryAgain":2})
-   Object.freeze(buttonType);
-   function buttonClickedByStudent(groupID, buttonType) {
+   
+
+   function buttonClickedByStudent(type) {
       let xhttp = new XMLHttpRequest();
       let flashID = document.getElementById("flashCard").getAttribute("flashID");
-      xhttp.open("POST", "/oneUp/students/hintsUsed", true);
+      xhttp.open("POST", "/oneUp/students/flashCardUsed", true);
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
       let didTheyGetItFlag = null;
-      if(buttonType == buttonType.gotIt)
+      let actualButtonType;
+      if(buttonType.gotIt == type)
          didTheyGetItFlag = true;
-      if(buttonType == buttonType.tryAgain)
+      if(buttonType.tryAgain == type)
          didTheyGetItFlag = false;
 
-      
       xhttp.send("flashID=" + flashID + "&gotIt="+ didTheyGetItFlag + "&groupID=" + groupID + "&csrfmiddlewaretoken={{csrf_token}}");
       xhttp.onreadystatechange = function () {
          if (xhttp.readyState == 4) {
             let responseText = JSON.parse(xhttp.responseText);
-            let hintID = responseText['hintID'];
-            let hint = responseText['hint'];
+            console.log("reponseText" + responseText);
+            //let hintID = responseText['hintID'];
+            if(didTheyGetItFlag==false)
+               placeWrongCardInList(flashID)
+            moveToNextCard();
             //it should respond by moving card up a bin
          }
       }
+   }
+
+   function placeWrongCardInList(flashID){
+      wrong_flash_cards.push(flashID);
+   }
+   
+   function moveToNextCard(){
+      flash_card_counter++;
+      loadCard();
    }
 </script>
 
@@ -134,9 +153,9 @@
                <div class="divider"></div>
                <br>
                <div class="row center-align">
-                  <button onclick="validateDaysSelected(buttonType.gotIt);" class="green btn waves-effect waves-light"><i
+                  <button onclick="buttonClickedByStudent(1);" class="green btn waves-effect waves-light"><i
                         class="material-icons right">check</i>I Got It</button>
-                  <button onclick="validateDaysSelected(buttonType.tryAgain);" class="red btn waves-effect waves-light"><i
+                  <button onclick="buttonClickedByStudent(2);" class="red btn waves-effect waves-light"><i
                         class="material-icons right">close</i>Try Again</button>
                   <button onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
                            class="material-icons right">arrow_back</i>Return</button>
