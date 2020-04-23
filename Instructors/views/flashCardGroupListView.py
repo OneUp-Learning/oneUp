@@ -41,14 +41,14 @@ def groupListView(request):
         groupID.append(gId)
         groupName.append(group.groupName)
         groupPos.append(cg.groupPos)
-        print(group.groupName)
+        #print(group.groupName)
         cardGroup=FlashCardToGroup.objects.filter(groupID=gId)
         temp=[]
         all_groups_of_card=[]
         for card in cardGroup:
             temp.append(card.flashID)
             all_groups_of_card.append([{"name":group.groupID.groupName, "id" : group.groupID.pk }for group in FlashCardToGroup.objects.filter(flashID=card.flashID)])
-            print("****************************",card.flashID)
+            #print("****************************",card.flashID)
         all_cards_in_group.append(zip(range(len(temp)),temp, all_groups_of_card))
 
     #context entry for displaying groups in modal create

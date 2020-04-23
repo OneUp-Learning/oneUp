@@ -165,13 +165,13 @@
                                  <span class="badge right-align">
                                     <a class="dropdown-button tooltipped secondary-content" href="#!"
                                        data-constrainwidth="false" data-beloworigin="true"
-                                       data-activates='dropdown-{{i}}-{{card.flashID}}' data-position="right"
+                                       data-activates='dropdown-{{i}}-{{groupID}}-{{card.flashID}}' data-position="right"
                                        data-delay="50" data-tooltip="Options">
                                        <i class="material-icons">more_vert</i>
                                     </a>
-                                    <ul id='dropdown-{{i}}-{{card.flashID}}' class='dropdown-content'>
+                                    <ul id='dropdown-{{i}}-{{groupID}}-{{card.flashID}}' class='dropdown-content'>
                                        <li>
-                                          <a class="modal-trigger" href="#modal-edit{{i}}-{{card.flashID}}">Edit</a>
+                                          <a class="modal-trigger" href="#modal-edit{{i}}-{{groupID}}-{{card.flashID}}">Edit</a>
                                        </li>
 
                                        <li class="divider"></li>
@@ -180,7 +180,7 @@
                                              href="#modal_delete-{{i}}-{{card.flashID}}">Delete</a>
                                        </li>
                                     </ul>
-                                    <div id="modal-edit{{i}}-{{card.flashID}}" class="modal">
+                                    <div id="modal-edit{{i}}-{{groupID}}-{{card.flashID}}" class="modal">
                                        <div class="modal-content">
                                           <div class="row center-align">
                                              <form id="flashcard" name="flashcard"
