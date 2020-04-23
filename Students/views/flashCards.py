@@ -60,13 +60,13 @@ def flashCardUsed(request):
     response = {}
     #dict['hintsUsed'] = {}
 
-    studentFlashCards(models.Model):
-    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
-    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, verbose_name="the flash card",db_index=True)
-    studyDate = models.DateTimeField(default=now, verbose_name="the ideal date the flash card should reappear", db_index=True)
-    cardBin = models.IntegerField(default=0, verbose_name="priority containers for flash cards", db_index=True)
-    timesSeen = models.IntegerField(default=0, verbose_name="times the student has seen the card")
-    timesCorrect
+    # studentFlashCards(models.Model):
+    # studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    # flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, verbose_name="the flash card",db_index=True)
+    # studyDate = models.DateTimeField(default=now, verbose_name="the ideal date the flash card should reappear", db_index=True)
+    # cardBin = models.IntegerField(default=0, verbose_name="priority containers for flash cards", db_index=True)
+    # timesSeen = models.IntegerField(default=0, verbose_name="times the student has seen the card")
+    # timesCorrect
 
     if request.POST:
         if 'flashID' in request.POST and 'groupID' in request.POST:
@@ -75,7 +75,7 @@ def flashCardUsed(request):
             else:
                 studentFlashCard = studentFlashCards()
 
-            if('gotIt' in request.POST)
+            # if('gotIt' in request.POST)
             return JsonResponse( 
                 {
                 "hintID" : True ,

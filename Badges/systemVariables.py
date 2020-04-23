@@ -1254,6 +1254,10 @@ def getStudentXP(course, student):
     from Students.models import StudentRegisteredCourses
     return float(StudentRegisteredCourses.objects.get(courseID=course, studentID=student).xp)
 
+def getStudentVC(course, student):
+    from Students.models import StudentRegisteredCourses
+    return float(StudentRegisteredCourses.objects.get(courseID=course, studentID=student).virtualCurrencyAmount)
+
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -1323,6 +1327,7 @@ class SystemVariable():
     sumOfScoreOfAllStudentsActivitiesCategory = 975
     averageScoreOfStudentActivitiesCategory = 976
     studentXP = 977 # Returns the current amount of XP a student has
+    studentVC = 978 # Returns the current amount of VC a student has
 
     
 
@@ -2288,7 +2293,21 @@ class SystemVariable():
                 ObjectTypes.none: getStudentXP
             },
             'studentGoal': True,
-        }                                                                
+        },
+        studentVC: {
+            'index': studentVC,
+            'name':'studentVC',
+            'displayName':'Student VC',
+            'description':'The amount of VC a student currently has',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.virtualCurrencyEarned],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none: getStudentVC
+            },
+            'studentGoal': True,
+        }                                                                     
     }
 
 if __debug__:

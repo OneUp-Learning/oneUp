@@ -492,17 +492,23 @@ def current_utctime():
     ''' Return current utc datetime object '''
     return timezone.now()
 
-def current_localtime(tz=timezone.get_current_timezone()):
+def current_localtime(tz=None):
     ''' Returns current local datetime object '''
+    if tz == None:
+        tz = timezone.get_current_timezone()
+
     if type(tz) == str:
         tz = pytz.timezone(tz)
 
     return timezone.localtime(current_utctime(), timezone=tz)
 
-def datetime_to_local(db_datetime, tz=timezone.get_current_timezone()):
+def datetime_to_local(db_datetime, tz=None):
     ''' Converts datetime object to local '''
     if not db_datetime:
         return None
+    
+    if tz == None:
+        tz = timezone.get_current_timezone()
 
     if timezone.is_naive(db_datetime):
         db_datetime = timezone.make_aware(db_datetime)
@@ -519,7 +525,7 @@ def datetime_to_utc(db_datetime):
         
     return db_datetime.replace(microsecond=0).astimezone(timezone.utc)
 
-def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p", tz=timezone.get_current_timezone()):
+def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p", tz=None):
     ''' Converts string datetime to local timezone datetime object '''
     return datetime_to_local(datetime.datetime.strptime(str_datetime, to_format), tz=tz)
 
