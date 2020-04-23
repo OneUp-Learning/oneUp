@@ -5,108 +5,124 @@
    {% include 'scripts.html' %}
 </head>
 <style>
-   .card {
-      -webkit-transition: -webkit-transform 1s;
-      -moz-transition: -moz-transform 1s;
-      -o-transition: -o-transform 1s;
-      transition: transform 1s;
-      -webkit-transform-style: preserve-3d;
-      -moz-transform-style: preserve-3d;
-      -o-transform-style: preserve-3d;
-      transform-style: preserve-3d;
-      -webkit-transform-origin: 50% 50%;
+   .flip {
+    position: relative;
    }
-
-   .card div {
-      line-height: 260px;
-      color: white;
-      text-align: center;
-      font-weight: bold;
-      font-size: 140px;
-      -webkit-backface-visibility: hidden;
-      -moz-backface-visibility: hidden;
-      -o-backface-visibility: hidden;
-      backface-visibility: hidden;
+   .flip > .front, .flip > .back {
+      display: block;
+      transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition-duration: 0.5s;
+      transition-property: transform, opacity;
    }
-
-   .card .front {}
-
-   .card .back {
-      -webkit-transform: rotateY(180deg);
-      -moz-transform: rotateY(180deg);
-      -o-transform: rotateY(180deg);
+   .flip > .front {
+      transform: rotateY(0deg);
+   }
+   .flip > .back {
+      position: absolute;
+      opacity: 0;
+      top: 0px;
+      left: 0px;
+      width: inherit;
+      height: 100%;
+      transform: rotateY(-180deg);
+   }
+   .flip.active > .front {
       transform: rotateY(180deg);
+      opacity: 0;
    }
-
-   .card.flipped {
-      -webkit-transform: rotateY(180deg);
-      -moz-transform: rotateY(180deg);
-      -o-transform: rotateY(180deg);
-      transform: rotateY(180deg);
+   .flip.active > .back {
+      opacity: 1;
+      transform: rotateY(0deg);
    }
+   .flip.flip-vertical > .back {
+      transform: rotateX(-180deg);
+   }
+   .flip.flip-vertical.active > .front {
+      transform: rotateX(180deg);
+   }
+   .flip.flip-vertical.active > .back {
+      transform: rotateX(0deg);
+   }
+   .flip {
+      position: relative;
+      display: inline-block;
+      margin-right: 2px;
+      margin-bottom: 1em;
+      width: 100%;
+   }
+   .flip > .front, .flip > .back {
+      display: block;
+      width: inherit;
+      /* can have fixed height here if you want but you should enable scrolling */
+      /* height: 220px; */
+      padding: 1em 2em;
+      /* background: #313131; */
+      border-radius: 10px !important;
+   }
+ 
 </style>
 <script>
    let flash_cards = {{ flash_range| safe}};
+   let correct_flash_cards = [];
+   let wrong_flash_cards = [];
+   let flash_card_counter = 0;
    let groupID = {{ groupID| safe}};
-
-   function loadInitialCard() {
-      let question_tag = document.getElementById('question');
-      let answer_tag = document.getElementById('answer');
-      question_tag.innerHTML = flash_cards[0]['question'];
-      answer_tag.innerText = flash_cards[0]['answer'];
-      answer_tag.style.display = 'none';
-   }
-   window.onload = loadInitialCard;
-
-   function showQuestionOrAnswer(card_direction) {
-      let answer_tag = document.getElementById('answer');
-      let question_tag = document.getElementById('question');
-      let flashCard = document.getElementById('flashCard')
-
-      if (card_direction == "front") {
-         answer_tag.style.display = 'block';
-         question_tag.style.display = 'none';
-         flashCard.setAttribute("direction", "back");
-         return;
-      }
-      if (card_direction == "back") {
-         answer_tag.style.display = 'none';
-         question_tag.style.display = 'block';
-         flashCard.setAttribute("direction", "front");
-         return;
-      }
-   }
-
-   function flipCard() {
-      let flashCard = document.getElementById('flashCard');
-      flashCard.classList.toggle('flipped');
-
-      showQuestionOrAnswer(flashCard.getAttribute("direction"));
-   }
 
    const buttonType = Object.freeze({"gotIt":1, "tryAgain":2})
    Object.freeze(buttonType);
-   function buttonClickedByStudent(groupID, buttonType) {
+
+   function loadCard() {
+      let question_tag = document.getElementById('question');
+      let answer_tag = document.getElementById('answer');
+      question_tag.innerHTML = flash_cards[flash_card_counter]['question'];
+      answer_tag.innerText = flash_cards[flash_card_counter]['answer'];
+      answer_tag.style.display = 'none';
+   }
+   window.onload = loadCard;
+
+   $(document).ready(function(){
+      $('.flip').click((el) => {
+         console.log(el);
+         $(el.currentTarget).toggleClass('active')
+      })
+   });
+
+   
+
+   function buttonClickedByStudent(type) {
       let xhttp = new XMLHttpRequest();
       let flashID = document.getElementById("flashCard").getAttribute("flashID");
-      xhttp.open("POST", "/oneUp/students/hintsUsed", true);
+      xhttp.open("POST", "/oneUp/students/flashCardUsed", true);
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
       let didTheyGetItFlag = null;
-      if(buttonType == buttonType.gotIt)
+      let actualButtonType;
+      if(buttonType.gotIt == type)
          didTheyGetItFlag = true;
-      if(buttonType == buttonType.tryAgain)
+      if(buttonType.tryAgain == type)
          didTheyGetItFlag = false;
 
-      
       xhttp.send("flashID=" + flashID + "&gotIt="+ didTheyGetItFlag + "&groupID=" + groupID + "&csrfmiddlewaretoken={{csrf_token}}");
       xhttp.onreadystatechange = function () {
          if (xhttp.readyState == 4) {
             let responseText = JSON.parse(xhttp.responseText);
-            let hintID = responseText['hintID'];
-            let hint = responseText['hint'];
+            console.log("reponseText" + responseText);
+            //let hintID = responseText['hintID'];
+            if(didTheyGetItFlag==false)
+               placeWrongCardInList(flashID)
+            moveToNextCard();
             //it should respond by moving card up a bin
          }
       }
+   }
+
+   function placeWrongCardInList(flashID){
+      wrong_flash_cards.push(flashID);
+   }
+   
+   function moveToNextCard(){
+      flash_card_counter++;
+      loadCard();
    }
 </script>
 
@@ -120,29 +136,25 @@
       </div>
       <div class="row">
          <div class="col s12 m6 offset-m3">
-            <div class="card-panel">
-               <div class="card center-align" id="flashCard" flashID="" direction="front" onclick="flipCard();">
-                  <br>
-                  <br>
-                  <br>
-                     <p class="flow-text front"><b id="question">{{card.question}}</b></p>
-                     <p class="flow-text back"><b id="answer">{{card.answer}}</b></p>
-                  <br>
-                  <br>
-                  <br>
-               </div>
-               <div class="divider"></div>
-               <br>
+            <div class="row" style="display: flex; justify-content: center;">
+               <div class="flip" id="flash-card">
+                  <div class="front card">
+                     <p id="question" class="flow-text">{{card.question}}</p>
+                  </div>
+                  <div class="back card">
+                     <p id="answer" class="flow-text">{{card.answer}}</p>
+                  </div>
+            </div>
+            </div>
                <div class="row center-align">
-                  <button onclick="validateDaysSelected(buttonType.gotIt);" class="green btn waves-effect waves-light"><i
+                  <button onclick="buttonClickedByStudent(1);" class="green btn waves-effect waves-light"><i
                         class="material-icons right">check</i>I Got It</button>
-                  <button onclick="validateDaysSelected(buttonType.tryAgain);" class="red btn waves-effect waves-light"><i
+                  <button onclick="buttonClickedByStudent(2);" class="red btn waves-effect waves-light"><i
                         class="material-icons right">close</i>Try Again</button>
                   <button onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
                            class="material-icons right">arrow_back</i>Return</button>
                </div>
             </div>
-         </div>
       </div>
 
    </main>
