@@ -39,16 +39,15 @@
    }
 
    .card.flipped {
-      -webkit-transform: rotateY(-180deg);
-      -moz-transform: rotateY(-180deg);
-      -o-transform: rotateY(-180deg);
-      transform: rotateY(-180deg);
+      -webkit-transform: rotateY(180deg);
+      -moz-transform: rotateY(180deg);
+      -o-transform: rotateY(180deg);
+      transform: rotateY(180deg);
    }
 </style>
 <script>
    let flash_cards = {{ flash_range| safe}};
    let groupID = {{ groupID| safe}};
-   console.log("flashCards", flash_cards);
 
    function loadInitialCard() {
       let question_tag = document.getElementById('question');
@@ -85,28 +84,21 @@
       showQuestionOrAnswer(flashCard.getAttribute("direction"));
    }
 
-   function rightClickedByStudent(flashID, groupID) {
-      let type = checkTagValue(problemID);
+   const buttonType = Object.freeze({"gotIt":1, "tryAgain":2})
+   Object.freeze(buttonType);
+   function buttonClickedByStudent(groupID, buttonType) {
       let xhttp = new XMLHttpRequest();
+      let flashID = document.getElementById("flashCard").getAttribute("flashID");
       xhttp.open("POST", "/oneUp/students/hintsUsed", true);
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("challengeQuestionID=" + problemID + "&type=" + type + "&csrfmiddlewaretoken={{csrf_token}}");
-      xhttp.onreadystatechange = function () {
-         if (xhttp.readyState == 4) {
-            let responseText = JSON.parse(xhttp.responseText);
-            let hintID = responseText['hintID'];
-            let hint = responseText['hint'];
-            //it should respond by moving card up a bin
-         }
-      }
-   }
+      let didTheyGetItFlag = null;
+      if(buttonType == buttonType.gotIt)
+         didTheyGetItFlag = true;
+      if(buttonType == buttonType.tryAgain)
+         didTheyGetItFlag = false;
 
-   function wrongClickedByStudent(flashID, groupID) {
-      let type = checkTagValue(problemID);
-      let xhttp = new XMLHttpRequest();
-      xhttp.open("POST", "/oneUp/students/hintsUsed", true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("challengeQuestionID=" + problemID + "&type=" + type + "&csrfmiddlewaretoken={{csrf_token}}");
+      
+      xhttp.send("flashID=" + flashID + "&gotIt="+ didTheyGetItFlag + "&groupID=" + groupID + "&csrfmiddlewaretoken={{csrf_token}}");
       xhttp.onreadystatechange = function () {
          if (xhttp.readyState == 4) {
             let responseText = JSON.parse(xhttp.responseText);
@@ -129,18 +121,25 @@
       <div class="row">
          <div class="col s12 m6 offset-m3">
             <div class="card-panel">
-               <div class="card" id="flashCard" direction="front" onclick="flipCard();">
+               <div class="card center-align" id="flashCard" flashID="" direction="front" onclick="flipCard();">
                   <br>
-                     <p class="flow-text front"><b id=question>{{card.question}}</b></p>
-                     <p id=answer class="flow-text back">{{card.answer}}</p>
+                  <br>
+                  <br>
+                     <p class="flow-text front"><b id="question">{{card.question}}</b></p>
+                     <p class="flow-text back"><b id="answer">{{card.answer}}</b></p>
+                  <br>
+                  <br>
+                  <br>
                </div>
                <div class="divider"></div>
                <br>
                <div class="row center-align">
-                  <button class="green btn waves-effect waves-light"><i
-                        class="material-icons right">check</i>Right</button>
-                  <button class="red btn waves-effect waves-light"><i
-                        class="material-icons right">close</i>Wrong</button>
+                  <button onclick="validateDaysSelected(buttonType.gotIt);" class="green btn waves-effect waves-light"><i
+                        class="material-icons right">check</i>I Got It</button>
+                  <button onclick="validateDaysSelected(buttonType.tryAgain);" class="red btn waves-effect waves-light"><i
+                        class="material-icons right">close</i>Try Again</button>
+                  <button onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
+                           class="material-icons right">arrow_back</i>Return</button>
                </div>
             </div>
          </div>
