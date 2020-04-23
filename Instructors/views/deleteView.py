@@ -10,7 +10,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
-from Instructors.models import Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, Announcements, Activities, FlashCardGroup
+from Instructors.models import (Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, 
+                                Announcements, Activities, FlashCardGroup, FlashCardToGroup, FlashCards, FlashCardGroupCourse)
 from Badges.models import VirtualCurrencyCustomRuleInfo
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (Activities, Announcements, Challenges,
@@ -358,12 +359,37 @@ def deleteGroup(request):
 
         try:
             if request.POST['groupID']:
-                group= FlashCardGroup.objects.get(pk=int(request.POST['groupID']))           
+                cardGroups = FlashCardToGroup.objects.filter(groupID__groupID=int(request.POST['groupID']))
+                unassigned_group = FlashCardGroupCourse.objects.get(groupID__groupName="Unassigned", courseID=currentCourse)
+                for group in cardGroups:
+                    group.groupID=unassigned_group.groupID
+                    group.save()
+                group = FlashCardGroup.objects.get(pk=int(request.POST['groupID']))           
                 message = "Group #"+str(group.groupID)+ " "+group.groupName+" successfully deleted"
                 group.delete()
         except FlashCardGroup.DoesNotExist:
-            
-            message = "There was a problem deleting Group #"+str(group.groupID)+ " "+group.groupName
+            message = f"There was a problem deleting Group #{group.groupID} {group.groupName}"
             
         context_dict['message'] = message  
     return redirect('/oneUp/instructors/groupList', context_dict)
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
+def deleteFlashCard(request):
+    
+    context_dict, currentCourse = initialContextDict(request)
+    if request.POST:
+
+        try:
+            if request.POST['flashcardID']:
+                print("Here")
+                card = FlashCards.objects.get(pk=int(request.POST['flashcardID']))           
+                message = f"Flash Card #{card.flashID} {card.flashName} successfully deleted"
+                card.delete()
+        except FlashCards.DoesNotExist:
+            
+            message = f"There was a problem deleting flash card #{group.groupID} {group.groupName}"
+            
+        context_dict['message'] = message  
+    return redirect('/oneUp/instructors/groupList', context_dict)
+    

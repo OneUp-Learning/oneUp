@@ -54,55 +54,57 @@
 
             <a class="waves-effect waves-light btn" href="/oneUp/instructors/groupCreate">
                <i class="material-icons left">add_circle</i>Add New Group</a>
-            <a class="modal-trigger waves-effect waves-light btn" href="#modal-create-flashcard">
-               <i class="modal-trigger material-icons left">add_circle</i>Add A Flashcard</a>
-            <div id="modal-create-flashcard" class="modal">
+            <a class="waves-effect waves-light btn" href="#!" onclick="clear_card()">
+               <i class="material-icons left">add_circle</i>Add A Flashcard</a>
+
+            <div id="flashcard-modal" class="modal">
                <div class="modal-content">
                   <div class="row center-align">
-                     <form id="flashcard" name="flashcard" action="/oneUp/instructors/createFlashCard" method="POST">
+                     <form id="flashcard-form" name="flashcard"
+                        action="/oneUp/instructors/createFlashCard" method="POST">
                         {% csrf_token %}
-                        <div>
-                           <h4>Create a Flashcard</h4>
-                        </div>
-
+                        <h4 id="flashcard-modal-title">Create a Flashcard</h4>
+                        <!-- <input id='flashcard-id' type='hidden' name='flashcard-id' value='' /> -->
+                        
                         <div class="row center-align" style="margin-top: 50px;">
 
-                           <label class="left" for="cardName"><span class="red-text">*</span> Flashcard Name</label>
-                           <input value="{{cardName}}" name="cardName" id="cardName" type="text" class="validate">
-
-                        </div>
-                        <div class="row center-align" style="margin-top: 50px;">
-                           <label class="left" for="front"><span class="red-text">*</span>Front</label>
-                           <textarea id="front" name="front" class="materialize-textarea" data-length="5000"
-                              required>{{front}}</textarea>
+                           <label class="left" for="flashcard-name"><span class="red-text">*</span>
+                              Flashcard Name</label>
+                           <input value="{{card.flashName}}" name="cardName" id="flashcard-name"
+                              type="text" class="validate">
 
                         </div>
                         <div class="row center-align" style="margin-top: 50px;">
-                           <label class="left" for="back"><span class="red-text">*</span>Back</label>
-                           <textarea id="back" name="back" class="materialize-textarea" data-length="5000"
-                              required>{{back}}</textarea>
+                           <label class="left" for="flashcard-front"><span
+                                 class="red-text">*</span>Front</label>
+                           <textarea id="flashcard-front" name="front" class="materialize-textarea"
+                              data-length="5000" required>{{card.front}}</textarea>
 
-
+                        </div>
+                        <div class="row center-align" style="margin-top: 50px;">
+                           <label class="left" for="flashcard-back"><span
+                                 class="red-text">*</span>Back</label>
+                           <textarea id="flashcard-back" name="back" class="materialize-textarea"
+                              data-length="5000" required>{{card.back}}</textarea>
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select id="create-groups" name="course-groups" multiple>
+                              <select id="flashcard-groups" name="cardGroups" multiple>
                               <option value="" disabled selected>Choose group(s)</option>
-                              {% for group in create_groups %}
+                              {% for group in groups %}
                                 <option id="{{group.id}}" value="{{group.id}}">{{group.name}}</option>
                               {% endfor %}
                               </select>
                               <label>Group(s)</label>
-                              
-                             
-                           
                            </div>
                         </div>
 
                         <div class="modal-footer">
-                           <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
+                           <a href="#!"
+                              class="modal-action modal-close waves-effect waves-light btn-flat"
                               style="color: #00bcd4">Cancel</a>
-                           <button class="btn waves-effect waves-light" type="submit" name="submit"> Save
+                           <button class="btn waves-effect waves-light" type="submit"
+                              name="submit"> Save
                            </button>
                         </div>
                      </form>
@@ -110,10 +112,6 @@
                </div>
             </div>
          </div>
-
-
-
-
       </div>
       <div class="row">
          <div class="col s12 m10 offset-m1">
@@ -123,7 +121,7 @@
                   {% for i,groupID,groupName,groupPosition,all_cards_in_group in group_range %}
                   <li id={{groupID}}>
                      <div class="collapsible-header"> <i class="material-icons">swap_vert</i> {{groupName}} &nbsp;&nbsp;
-
+                        {% if not groupName == "Unassigned" %}
                         <span class="badge">
                            <form action="/oneUp/instructors/deleteGroup" method="POST">
                               {% csrf_token %}
@@ -140,6 +138,7 @@
                               <div id="modal_delete-{{i}}" class="modal">
                                  <div class="modal-content">
                                     <h5>Are you sure you want to delete?</h5>
+                                    <p>The flash cards in group will not be deleted. They will be sent to unassigned group</p>
                                  </div>
                                  <div class="modal-footer">
                                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat"
@@ -151,13 +150,13 @@
                               </div>
                            </form>
                         </span>
+                        {% endif %}
                      </div>
                      <div class="collapsible-body">
 
                         <ul id="{{groupID}}">
-                           {% for j,card, all_groups_of_card in all_cards_in_group %}
-                           <input type="hidden" name="flashID" value="{{card.flashID}}">
-                           <li class="row" id={{card.flashID}}>
+                           {% for card in all_cards_in_group %}
+                           <li class="row">
                               <div class="no-padding collapsible-header"> &nbsp&nbsp&nbsp&nbsp&nbsp
                                  <i class="material-icons">swap_vert</i>
                                  <span style="max-width: 40%;min-width: 40%">{{card.flashName}}</span>
@@ -171,7 +170,7 @@
                                     </a>
                                     <ul id='dropdown-{{i}}-{{groupID}}-{{card.flashID}}' class='dropdown-content'>
                                        <li>
-                                          <a class="modal-trigger" href="#modal-edit{{i}}-{{groupID}}-{{card.flashID}}">Edit</a>
+                                          <a href="#!" onclick="edit_card('{{card.flashID}}')">Edit</a>
                                        </li>
 
                                        <li class="divider"></li>
@@ -180,80 +179,11 @@
                                              href="#modal_delete-{{i}}-{{card.flashID}}">Delete</a>
                                        </li>
                                     </ul>
-                                    <div id="modal-edit{{i}}-{{groupID}}-{{card.flashID}}" class="modal">
-                                       <div class="modal-content">
-                                          <div class="row center-align">
-                                             <form id="flashcard" name="flashcard"
-                                                action="/oneUp/instructors/createFlashCard" method="POST">
-                                                {% csrf_token %}
-                                                <div>
-                                                   <h4>Create a Flashcard</h4>
-                                                </div>
 
-                                                <div class="row center-align" style="margin-top: 50px;">
-
-                                                   <label class="left" for="cardName"><span class="red-text">*</span>
-                                                      Flashcard Name</label>
-                                                   <input value="{{card.flashName}}" name="cardName" id="cardName"
-                                                      type="text" class="validate">
-
-                                                </div>
-                                                <div class="row center-align" style="margin-top: 50px;">
-                                                   <label class="left" for="front"><span
-                                                         class="red-text">*</span>Front</label>
-                                                   <textarea id="front" name="front" class="materialize-textarea"
-                                                      data-length="5000" required>{{card.front}}</textarea>
-
-                                                </div>
-                                                <div class="row center-align" style="margin-top: 50px;">
-                                                   <label class="left" for="back"><span
-                                                         class="red-text">*</span>Back</label>
-                                                   <textarea id="back" name="back" class="materialize-textarea"
-                                                      data-length="5000" required>{{card.back}}</textarea>
-
-
-                                                </div>
-                                                <div class="row">
-                                                   <div class="input-field col s12">
-                                                      <select id="create-groups-edit-{{i}}-{{j}}" name="course-groups" multiple>
-                                                      <option value="" disabled selected>Choose group(s)</option>
-                                                      {% for group in create_groups%}
-                                                        <option id="{{group.id}}{{i}}-{{j}}" value="{{group.id}}">{{group.name}}</option>
-                                                      {% endfor %}
-                                                      </select>
-                                                      <label>Group(s)</label>
-                                                   
-                                                      <script  type="text/javascript"> 
-                                                            let edit_IDs{{i}}_{{j}} = JSON.parse(JSON.stringify({{all_groups_of_card|safe}}));
-                                                            console.log(edit_IDs{{i}}_{{j}});
-                                                            edit_IDs{{i}}_{{j}}.forEach(group => {
-                                                               document.getElementById(group.id+"{{i}}-{{j}}").selected = true;
-                                                                
-                                                            });
-                                                            $("#create-groups-edit-{{i}}-{{j}}").material_select();
-                                                         
-                                                      </script> 
-                                                   
-                                                   </div>
-                                                </div>
-
-                                                <div class="modal-footer">
-                                                   <a href="#!"
-                                                      class="modal-action modal-close waves-effect waves-light btn-flat"
-                                                      style="color: #00bcd4">Cancel</a>
-                                                   <button class="btn waves-effect waves-light" type="submit"
-                                                      name="submit"> Save
-                                                   </button>
-                                                </div>
-                                             </form>
-                                          </div>
-                                       </div>
-                                    </div>
                                     <div id="modal_delete-{{i}}-{{card.flashID}}" class="modal">
                                        <div class="modal-content">
                                           <h5>Are you sure you want to delete?</h5>
-                                          <p>Flash cards will not be deleted. They will be sent to unassigned cards
-                                             group</p>
+                                          <p>The selected flash card will be deleted.</p>
                                        </div>
                                        <div class="modal-footer">
                                           <a href="#!"
@@ -261,7 +191,7 @@
                                              style="color: #00bcd4">Cancel</a>
                                           <button type="button"
                                              class="modal-action modal-close waves-effect waves-light btn-flat"
-                                             value="Delete">Delete
+                                             value="Delete" onclick="deleteFlashcard('{{card.flashID}}')">Delete
                                           </button>
                                        </div>
                                     </div>
@@ -293,4 +223,94 @@
       </div>
    </main>
    {% include 'footer.html' %}
+   <script>
+         var cards = JSON.parse(JSON.stringify({{cards|safe}}));
+         console.log(cards);
+         function find(id){
+            return cards.find(element => element['id'] == id);
+         }
+         function clear_card(){
+            $('#flashcard-modal-title').text("Create Flashcard");
+            $('#flashcard-name').val("");
+            $('#flashcard-front').val("");
+            $('#flashcard-back').val("");
+            
+            $('#flashcard-groups > option').each(function() {
+               $(this).prop('selected', false);
+            });
+
+            $('#flashcard-id').remove();
+            $("#flashcard-groups").material_select();
+            $("#flashcard-modal").modal('open');
+         }
+         function edit_card(id){
+            var item = find(id);
+            var hidden_input = `<input id='flashcard-id' type='hidden' name='flashID' value="${item['id']}" />`;
+            
+            $('#flashcard-modal-title').text("Edit Flashcard");
+            $('#flashcard-name').val(item['name']);
+            $('#flashcard-front').val(item['front']);
+            $('#flashcard-back').val(item['back']);
+            
+            $('#flashcard-groups > option').each(function() {
+               let id = $(this).val();
+               let enabled = false;
+               for (const element of item['groups']) {
+                  if(element['id'] == id){
+                     enabled = true;
+                     break;
+                  }
+               }
+               $(this).prop('selected', enabled);
+            });
+            $('#flashcard-id').remove();
+            $("#flashcard-form").append(hidden_input);
+            $("#flashcard-groups").material_select();
+            $("#flashcard-modal").modal('open');
+         }
+
+         function deleteFlashcard(flashcard_id) {
+            function getCookie(name) {
+               var cookieValue = null;
+               if (document.cookie && document.cookie !== '') {
+                  var cookies = document.cookie.split(';');
+                  for (var i = 0; i < cookies.length; i++) {
+                     var cookie = jQuery.trim(cookies[i]);
+                     // Does this cookie string begin with the name we want?
+                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                     }
+                  }
+               }
+               return cookieValue;
+            }
+
+            function csrfSafeMethod(method) {
+               // these HTTP methods do not require CSRF protection
+               return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+               beforeSend: function (xhr, settings) {
+                  if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                  }
+               }
+            });
+            $.ajax({
+               type: "POST",
+               url: "/oneUp/instructors/deleteFlashCard",
+               data: {
+                  'flashcardID': flashcard_id // from form
+               },
+               success: function () {
+                  console.log("Deleted");
+                  location.reload();
+               }
+            });
+	      }
+   
+   </script>
 </body>

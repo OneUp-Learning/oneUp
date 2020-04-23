@@ -42,7 +42,7 @@ from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteActivity, deleteAnnouncement, deleteManualSpendRule,deleteGroup
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteActivity, deleteAnnouncement, deleteManualSpendRule
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
 
@@ -56,7 +56,7 @@ from Instructors.views.deleteView import (deleteActivity, deleteAnnouncement,
                                           deleteQuestion,
                                           deleteQuestionFromChallenge,
                                           deleteSkill, deleteStudent,
-                                          deleteTopic, deleteUser)
+                                          deleteTopic, deleteUser, deleteFlashCard, deleteGroup)
 from Instructors.views.DuelReportView import duel_challenge_report, duel_report
 from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 # Dynamic Questions Stuff
@@ -196,6 +196,7 @@ urlpatterns = [
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
+    url(r'^deleteFlashCard', deleteFlashCard, name='deleteFlashCard'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
     url(r'^exportChallenges', exportChallenges, name='exportChallenges'),
@@ -285,6 +286,7 @@ urlpatterns = [
     url(r'^ReorderQuestions', reorderQuestions, name="reorderQuestions"),
     url(r'^ReorderBadges', reorderBadges, name="reorderBadges"),
     url(r'^ReorderVCRules', reorderVCRules, name="reorderVCRules"),
+    # Flash cards
     url(r'^groupList', groupListView, name='groupListView'),
     url(r'^groupCreate', groupCreateView, name='groupCreateView'),
     url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),

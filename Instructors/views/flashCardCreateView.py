@@ -17,10 +17,12 @@ def CreateFlashCards(request):
 	context_dict, currentCourse = utils.initialContextDict(request)
 
 	if request.POST:
-		if('flashID' in request.POST):
-			flashCardExists = FlashCards.objects.filter(flashID=request.POST['flashID']).exists()
-			if(flashCardExists):
-				flashCard = FlashCards.objects.filter(flashID=request.POST['flashID'])
+		print("In post")
+		edit = False
+		if 'flashID' in request.POST:
+			print("Editing")
+			flashCard = FlashCards.objects.filter(flashID=request.POST['flashID']).first()
+			edit = True
 		else: 
 			flashCard = FlashCards()
 		flashCard.flashName= request.POST['cardName']
@@ -28,23 +30,39 @@ def CreateFlashCards(request):
 		flashCard.back = request.POST['back']
 		flashCard.save()
 		
-		if 'groupID' in request.GET:
-			cardGroup=FlashCardToGroup.objects.get(groupID=request.GET(int(request.GET['universityID'])), flashID=flashCard)
-		else:
-			cardGroup = FlashCardToGroup()
-		if 'course-groups' in request.POST:
+		
+		if 'cardGroups' in request.POST:
+			print("In groups")
 			#get all groups assigned to card
-			groups = request.POST.getlist('course-groups')
-			#iterate through groups and save card to each selected group
-			for id in groups:
-				group = FlashCardGroup.objects.get(groupID=id)
-				
-				cardGroup.groupID=group
-				cardGroup.flashID=flashCard
-				print(cardGroup)
-				cardGroup.save()
+			groups = request.POST.getlist('cardGroups')
+
+			flashcardsGroups = FlashCardToGroup.objects.filter(flashID=flashCard)
+			newGroupsIDs = [int(group_id) for group_id in groups]
+			existingIDs = [fc.groupID.pk for fc in flashcardsGroups]
+			deletionIDs = [id for id in existingIDs if id not in newGroupsIDs]
+			newIDs = [id for id in newGroupsIDs if id not in existingIDs]
+
+			print(newGroupsIDs)
+			print(existingIDs)
+			print(deletionIDs)
+			print(newIDs)
+
+			for group_id in newIDs:
+				flashcard=FlashCardToGroup()
+				flashcard.flashID=flashCard
+				flashcard.groupID=FlashCardGroup.objects.get(groupID=group_id)
+				flashcard.save()
+					
+			for group_id in deletionIDs:
+				flashcard=FlashCardToGroup.objects.get(groupID__groupID=group_id, flashID=flashCard)
+				flashcard.delete()
+
 		#handles case of instructor not explicitly assigning a group
 		else:
+			print("remove all groups")
+			if edit:
+				FlashCardToGroup.objects.filter(flashID=flashCard).delete()
+			
 			unassigned_group = FlashCardToGroup()
 			unassigned_group.flashID=flashCard
 			unassigned_group.groupID=FlashCardGroupCourse.objects.get(groupID__groupName="Unassigned", courseID=currentCourse).groupID
@@ -52,20 +70,4 @@ def CreateFlashCards(request):
 			unassigned_group.save()
 		
 		
-		return redirect("/oneUp/instructors/groupList")
-
-	if request.GET:
-		context_dict['groups']=FlashCardGroupCourse.objects.exclude(groupID__groupName="Unassigned")
-
-		if 'groupID' in request.GET and 'flashID' in request.GET:
-			flashCard = FlashCards.objects.get(pk=int(request.GET['flashID']))
-			group = FlashCardGroup.objects.get(pk=int(request.GET['groupID']))
-			doesFlashCardToGroupExist = FlashCardToGroup.objects.filter(groupID=group, flashID=flashCard).exists()
-			
-			if doesFlashCardToGroupExist:
-				flashToGroup = FlashCardToGroup.objects.get(groupID=group, flashID=flashCard)
-				context_dict['groupName']=flashToGroup.groupID.groupName
-				context_dict['cardName']=flashCard.flashName
-				context_dict['front']=flashCard.front
-				context_dict['back']=flashCard.back
-	return render(request, '/oneUp/instructors/createFlashCard', context_dict)
+	return redirect("/oneUp/instructors/groupList")
