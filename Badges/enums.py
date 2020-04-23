@@ -99,6 +99,9 @@ class Action():
     
     increaseVirtualCurrency = 710 # Increases virtual currency (CourseBucks)
     decreaseVirtualCurrency = 711 # Decreases virtual currency (CourseBucks)
+
+    completeGoal = 712 # Sends goal notification on completion
+
     actions = {
            giveBadge:{
                 'index': giveBadge,
@@ -154,6 +157,12 @@ class Action():
                 'displayName': 'Decrease Virtual Currency',
                 'description': 'Decreases Virtual Currency'
                 },
+            completeGoal:{
+                'index':completeGoal,
+                'name': 'completeGoal',
+                'displayName': 'Complete a Goal',
+                'description': 'Sends notification that goal is completed and sets the goal status to completed'
+            },
           
         }
 
@@ -745,4 +754,3 @@ class AwardFrequency:
             'objectTypeName': 'category',
         },
     }
-            
