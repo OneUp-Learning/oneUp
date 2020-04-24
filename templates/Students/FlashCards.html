@@ -63,22 +63,59 @@
 </style>
 <script>
    let flash_cards = {{ flash_range| safe}};
-   let correct_flash_cards = [];
-   let wrong_flash_cards = [];
    let flash_card_counter = 0;
    let groupID = {{ groupID| safe}};
 
    const buttonType = Object.freeze({"gotIt":1, "tryAgain":2})
    Object.freeze(buttonType);
 
-   function loadCard() {
+   function actionButtons(showOrHide){
+      let gotItButton = document.getElementById("gotItButton");
+      let tryAgain = document.getElementById("tryAgainButton");
+
+      if(showOrHide == "show"){
+         tryAgain.style.display = 'inline';
+         gotItButton.style.display = 'inline';
+      }
+      if(showOrHide == "hide"){
+         tryAgain.style.display = 'none';
+         gotItButton.style.display = 'none';
+      }
+   }
+
+   function loadFirstCard(){
+      if(flash_cards.length == 0)
+         loadCard("complete");
+      else
+         loadCard("first_run");
+   }
+
+   function loadCard(run_type) {
       let question_tag = document.getElementById('question');
       let answer_tag = document.getElementById('answer');
-      question_tag.innerHTML = flash_cards[flash_card_counter]['question'];
-      answer_tag.innerText = flash_cards[flash_card_counter]['answer'];
-      answer_tag.style.display = 'none';
+      let flash_card = document.getElementById("flash-card");
+
+      console.log(flash_card_counter);
+      if(run_type == "not_first")
+         flash_card.classList.remove('active');
+      
+      
+
+      if(run_type == "complete"){
+         question_tag.innerHTML = "All Done. Good Job. Thanks For Practicing.";
+         answer_tag.innerHTML = "All Done. Good Job. Thanks For Practicing.";
+         let card_panel = document.getElementById("flash-card");
+         card_panel.setAttribute("onclick", "location.href='FlashCardsList'");
+      }else{
+         let flashID = flash_cards[flash_card_counter]['flashID'];
+         question_tag.setAttribute("flashid", flashID);
+         question_tag.innerHTML = flash_cards[flash_card_counter]['question'];
+         answer_tag.innerHTML = flash_cards[flash_card_counter]['answer'];
+      }
+      actionButtons("hide");
+      
    }
-   window.onload = loadCard;
+   window.onload = loadFirstCard;
 
    $(document).ready(function(){
       $('.flip').click((el) => {
@@ -89,40 +126,39 @@
 
    
 
-   function buttonClickedByStudent(type) {
+   function buttonClickedByStudent(buttonType) {
       let xhttp = new XMLHttpRequest();
-      let flashID = document.getElementById("flashCard").getAttribute("flashID");
+      let flashID = document.getElementById("question").getAttribute("flashid");
       xhttp.open("POST", "/oneUp/students/flashCardUsed", true);
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
-      let didTheyGetItFlag = null;
-      let actualButtonType;
-      if(buttonType.gotIt == type)
-         didTheyGetItFlag = true;
-      if(buttonType.tryAgain == type)
-         didTheyGetItFlag = false;
+      didTheyGetItFlag = didTheyGetIt(buttonType)
 
       xhttp.send("flashID=" + flashID + "&gotIt="+ didTheyGetItFlag + "&groupID=" + groupID + "&csrfmiddlewaretoken={{csrf_token}}");
       xhttp.onreadystatechange = function () {
          if (xhttp.readyState == 4) {
-            let responseText = JSON.parse(xhttp.responseText);
-            console.log("reponseText" + responseText);
-            //let hintID = responseText['hintID'];
-            if(didTheyGetItFlag==false)
-               placeWrongCardInList(flashID)
             moveToNextCard();
-            //it should respond by moving card up a bin
          }
       }
    }
 
-   function placeWrongCardInList(flashID){
-      wrong_flash_cards.push(flashID);
+   function didTheyGetIt(typeOfButtonPressed){
+      let didTheyGetItFlag = null;
+      if(buttonType.gotIt == typeOfButtonPressed)
+         didTheyGetItFlag = true;
+      if(buttonType.tryAgain == typeOfButtonPressed)
+         didTheyGetItFlag = false;
+      return didTheyGetItFlag;
    }
    
    function moveToNextCard(){
-      flash_card_counter++;
-      loadCard();
+      if(flash_card_counter == flash_cards.length-1){
+         loadCard("complete");
+      }else{
+         flash_card_counter++;
+         loadCard("not_first");
+      }
+      
    }
 </script>
 
@@ -131,25 +167,25 @@
    <main>
       <div class="row center-align">
          <div class="col s12 m10 offset-m1">
-            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{group_name}}</h3>
+            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Can you answer this question?</h3>
          </div>
       </div>
       <div class="row">
          <div class="col s12 m6 offset-m3">
             <div class="row" style="display: flex; justify-content: center;">
-               <div class="flip" id="flash-card">
+               <div class="flip" id="flash-card" onclick="actionButtons('show');">
                   <div class="front card">
-                     <p id="question" class="flow-text">{{card.question}}</p>
+                     <p id="question" flashID="none" class="flow-text">{{card.question}}</p>
                   </div>
                   <div class="back card">
                      <p id="answer" class="flow-text">{{card.answer}}</p>
                   </div>
-            </div>
+               </div>
             </div>
                <div class="row center-align">
-                  <button onclick="buttonClickedByStudent(1);" class="green btn waves-effect waves-light"><i
+                  <button style="display:none;" id="gotItButton" onclick="buttonClickedByStudent(1);" class="green btn waves-effect waves-light"><i
                         class="material-icons right">check</i>I Got It</button>
-                  <button onclick="buttonClickedByStudent(2);" class="red btn waves-effect waves-light"><i
+                  <button style="display:none;" id="tryAgainButton" onclick="buttonClickedByStudent(2);" class="red btn waves-effect waves-light"><i
                         class="material-icons right">close</i>Try Again</button>
                   <button onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
                            class="material-icons right">arrow_back</i>Return</button>
