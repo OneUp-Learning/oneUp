@@ -277,7 +277,7 @@ def getTopicsForChallenge(challenge):
 def autoCompleteTopicsToJson(currentCourse):
     topics = {}
     createdTopics = []
-    course_topics = CoursesTopics.objects.filter(courseID=currentCourse)   
+    course_topics = CoursesTopics.objects.filter(courseID=currentCourse).order_by('topicPos')
     for ct in course_topics:
         if ct.topicID.topicName != unspecified_topic_name:
             topics[ct.topicID.topicName] = None
