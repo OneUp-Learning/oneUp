@@ -150,26 +150,40 @@
             });
          }
       });
+      function checkTagValue(problemID){
+         let button = document.getElementById(problemID+'-button');
+         if(button.textContent == 'Get Weak Hint (-{{weakHintDeduction}}%)')
+            return 0;
+         if(button.textContent == 'Get Strong Hint (-{{strongHintDeduction}}%)'){
+            button.style.display = "none";
+            return 1;            
+         }
+      }
+
+      function updateTagValue(problemID){
+         let button = document.getElementById(problemID+'-button');
+         button.textContent = 'Get Strong Hint (-{{strongHintDeduction}}%)'
+      }
 
       function showHint(problemID, type, hint){
          let previous;
          switch(type){
             case 0:
-               previous = document.getElementById(problemID + "-basicButton");
-               hint = "Weak Hint: " + hint;
+               previous = document.getElementById(problemID + "-hint");
+               hint = "<i><b>(-{{weakHintDeduction}}%) Weak Hint: </b></i>" + hint;
                break;
             case 1:
-               previous = document.getElementById(problemID + "-strongButton");
-               hint = "Strong Hint: " + hint;
+               previous = document.getElementById(problemID + "-hint");
+               hint = "<i><b>(-{{strongHintDeduction}}%) Strong Hint: </b></i>" + hint;
                break;
          }
-         previous.style.display = "none";
-         let hintTag =  "<p class=\"right-align\" id="+ problemID +"-" + type +">"+hint+"</p>";
+         let hintTag =  "<p id="+ problemID +"-" + type +">"+hint+"</p>";
          previous.insertAdjacentHTML('afterEnd', hintTag);
 
       }
 
-      function hintClickedByStudent(problemID, type){
+      function hintClickedByStudent(problemID){
+         let type = checkTagValue(problemID);
          let xhttp = new XMLHttpRequest();
          xhttp.open("POST", "/oneUp/students/hintsUsed", true);
          xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -181,6 +195,7 @@
                let hint = responseText['hint'];
                document.getElementById(problemID).value = hintID;
                showHint(problemID, type, hint);
+               updateTagValue(problemID);
             }
          }
       }

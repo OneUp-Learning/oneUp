@@ -25,7 +25,6 @@ from Students.models import (Student, StudentBadges, StudentConfigParams,
 from Students.views.avatarView import checkIfAvatarExist
 from Students.views.goalsListView import createContextForGoalsList
 from Students.views.utils import studentInitialContextDict
-from Badges.models import CourseConfigParams
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -52,8 +51,8 @@ def StudentCourseHome(request):
         currentCourse, context_dict, True)
     context_dict = createContextForUpcommingChallengesList(
         currentCourse, context_dict)
-    context_dict = createContextForGoalsList(currentCourse, context_dict, True)
-    print(context_dict)
+    context_dict = createContextForGoalsList(request, currentCourse, context_dict, True)
+    # print(context_dict)
     progress_data = progress_bar_data(
         currentCourse, context_dict['ccparams'], for_student=student)
 

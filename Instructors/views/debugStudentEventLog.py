@@ -4,19 +4,21 @@ Created on Sept 4, 2018
 @author: joelevans
 '''
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-
-from Instructors.models import Challenges, Activities, ActivitiesCategory
-from Instructors.views.utils import initialContextDict, utcDate
-from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog, Student
-from Badges.enums import Event, ObjectTypes
-from Students.views.avatarView import checkIfAvatarExist
+import collections
 #from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
+
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-import collections
+from django.shortcuts import render
+
+from Badges.enums import Event, ObjectTypes
+from Instructors.models import Activities, ActivitiesCategory, Challenges
+from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
+from Students.models import (Student, StudentActivities, StudentChallenges,
+                             StudentEventLog, StudentRegisteredCourses)
+from Students.views.avatarView import checkIfAvatarExist
 
 
 @login_required

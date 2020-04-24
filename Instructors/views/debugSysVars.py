@@ -4,22 +4,27 @@ Created on Sept 4, 2018
 @author: joelevans
 '''
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.decorators import instructorsCheck
-
-from Instructors.models import Challenges, Activities, ActivitiesCategory, Questions, CoursesTopics
-from Instructors.views.utils import initialContextDict, utcDate
-from Students.models import StudentRegisteredCourses, StudentChallenges, StudentActivities, StudentEventLog, Student
-from Badges.enums import Event, ObjectTypes
-from Badges.systemVariables import SystemVariable, calculate_system_variable
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, get_periodic_variable_results_for_student
-from Students.views.avatarView import checkIfAvatarExist
-from termios import CRPRNT
 from lib2to3.fixes.fix_input import context
-from django.contrib.auth.models import User
+from termios import CRPRNT
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.shortcuts import render
+
+from Badges.enums import Event, ObjectTypes
+from Badges.periodicVariables import (
+    PeriodicVariables, TimePeriods, get_periodic_variable_results_for_student)
+from Badges.systemVariables import SystemVariable, calculate_system_variable
+from Instructors.constants import (uncategorized_activity,
+                                   unspecified_topic_name)
+from Instructors.models import (Activities, ActivitiesCategory, Challenges,
+                                CoursesTopics, Questions)
+from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import (Student, StudentActivities, StudentChallenges,
+                             StudentEventLog, StudentRegisteredCourses)
+from Students.views.avatarView import checkIfAvatarExist
 
 
 @login_required
@@ -36,14 +41,6 @@ def debugSysVars(request):
     # Object Types for the course
     objectType = ObjectTypes.objectTypes  # enum of system objects
     objectTypeNames = []
-
-    # System variables
-    sysVars = SystemVariable.systemVariables  # enum of system vars
-    sysVarsName = []
-
-    # Help display all system vars
-    for var in sysVars:
-        sysVarsName.append(sysVars[var]["displayName"])
 
     for o in objectType:
         objectTypeNames.append(objectType[o])
@@ -81,8 +78,8 @@ def debugSysVars(request):
         if 'sysVar' in request.POST:
             var_index = int(request.POST['sysVar'])
             context_dict['currenSysVar'] = int(var_index)
-            if var_index in sysVars:
-                currentVar = sysVars[var_index]
+            if var_index in SystemVariable.systemVariables:
+                currentVar = SystemVariable.systemVariables[var_index]
                 sysVarDeBugTable.append(currentVar)
                 
                 objectType, objectTypeNames = getObjsForSysVarLocal(currentVar)
@@ -99,7 +96,7 @@ def debugSysVars(request):
             if 'objectType' in request.POST:
                 object_id = request.POST['objectType']
                 if object_id == "all":
-                    if var_index in sysVars:
+                    if var_index in SystemVariable.systemVariables:
                         objectTypeDeBugTable = getObjsForSysVarLocal(currentVar)[0]
                     else:
                         objectTypeDeBugTable = get_object_type_for_periodic_var(currentVar)[0]
@@ -129,8 +126,9 @@ def debugSysVars(request):
 
     # Used to fill values for the three drop down menus
     context_dict['user_range'] = sorted(list(zip(range(1, courseStudents.count()+1), userID, first_Name, last_Name, user_Avatar, )), key=lambda x: (x[2].casefold(), x[3].casefold()))
-    context_dict['sysVars'] = sorted(
-        list(zip(range(1, len(sysVars)+1), sysVars, sysVarsName, )), key=lambda x: x[2])
+
+    context_dict['system_variables'] = sorted([ x for i, x in SystemVariable.systemVariables.items()], key=lambda x: x['displayName'])
+    
     exclude_periodic_variables = [PeriodicVariables.challenge_streak, PeriodicVariables.attendance_streak, 
             PeriodicVariables.warmup_challenge_greater_or_equal_to_40, PeriodicVariables.warmup_challenge_greater_or_equal_to_70]
     context_dict['periodic_variables'] = sorted([ x for i, x in PeriodicVariables.periodicVariables.items() if i not in exclude_periodic_variables ], key=lambda x: x['displayName'])
@@ -230,7 +228,7 @@ def getSysValues(student, sysVar, objectType, currentCourse, time_period=None):
 
     elif objString == 'activityCategory':
         actCats = ActivitiesCategory.objects.filter(
-            courseID=currentCourse).order_by('name').values('pk', 'name')
+            courseID=currentCourse).exclude(name=uncategorized_activity).order_by('name').values('pk', 'name')
         for x in actCats:
             val = calculate_system_variable(
                 sysVar, currentCourse, student, int(objectType), x['pk'])
@@ -239,7 +237,7 @@ def getSysValues(student, sysVar, objectType, currentCourse, time_period=None):
 
     elif objString == 'topic':
         # ASK ABOUT HOW TO GET A TOPIC
-        coruseTopcis = CoursesTopics.objects.filter(courseID=currentCourse)
+        coruseTopcis = CoursesTopics.objects.filter(courseID=currentCourse).exclude(topicID__topicName=unspecified_topic_name)
         for x in coruseTopcis:
             val = calculate_system_variable(
                 sysVar, currentCourse, student, int(objectType), x.pk)

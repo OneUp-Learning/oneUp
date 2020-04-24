@@ -3,22 +3,25 @@
 #  Last updated 07/14/2017
 #
 
-from django.shortcuts import render
-from django.shortcuts import redirect
-
-from Instructors.models import StaticQuestions, Answers, MatchingAnswers, CorrectAnswers
-from Instructors.models import Challenges, ChallengesQuestions
-from Instructors.constants import unassigned_problems_challenge_name, unlimited_constant
-
-from Instructors.views.utils import initialContextDict, getCourseSkills, addSkillsToQuestion, saveTags, getSkillsForQuestion, extractTags, utcDate
-from Badges.enums import ObjectTypes
-from Instructors.questionTypes import QuestionTypes
+from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.logger import logger
-from decimal import Decimal
-from oneUp.decorators import instructorsCheck  
+from django.shortcuts import redirect, render
+
+from Badges.enums import ObjectTypes
+from Instructors.constants import (unassigned_problems_challenge_name,
+                                   unlimited_constant)
+from Instructors.models import (Answers, Challenges, ChallengesQuestions,
+                                CorrectAnswers, MatchingAnswers,
+                                StaticQuestions)
+from Instructors.questionTypes import QuestionTypes
+from Instructors.views.utils import (addSkillsToQuestion, extractTags,
+                                     getCourseSkills, getSkillsForQuestion,
+                                     initialContextDict, saveTags)
 from oneUp.ckeditorUtil import config_ck_editor
+from oneUp.decorators import instructorsCheck
+from oneUp.logger import logger
+
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')   
@@ -74,7 +77,8 @@ def matchingForm(request):
         if 'strongHint' in request.POST:
             question.strongHint = request.POST['strongHint']
         if 'basicHint' in request.POST:
-            question.basicHint = request.POST['basicHint']   
+            question.basicHint = request.POST['basicHint'] 
+        question.isHintUsed = "hintUsed" in request.POST  
         question.save()  #Writes to database.
           
 
@@ -244,7 +248,8 @@ def matchingForm(request):
                 logger.debug('[GET] challengeID  '+request.GET['challengeID'])
 
             context_dict['basicHint'] = question.basicHint
-            context_dict['strongHint'] = question.strongHint        
+            context_dict['strongHint'] = question.strongHint
+            context_dict['hintUsed'] = question.isHintUsed
     # If we didn't run that code to load the values for the answers, then we make
     # blank lists.  We do this because we need to use a zipped list and a for
     # in order for the template stuff to be happy with us.  Doing that requires that

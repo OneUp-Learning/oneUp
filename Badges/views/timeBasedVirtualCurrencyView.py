@@ -3,18 +3,18 @@ Created on Nov 3, 2014
 Last modified 09/02/2016
 
 '''
-from django.shortcuts import render
-
-
-from django.contrib.auth.decorators import login_required
-from Instructors.views.utils import initialContextDict, utcDate
-from Badges.models import VirtualCurrencyPeriodicRule
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_vc, delete_periodic_task
-from django.shortcuts import redirect
-from Students.models import StudentRegisteredCourses
+import logging
 import random
 
-import logging
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from Badges.models import VirtualCurrencyPeriodicRule
+from Badges.periodicVariables import (PeriodicVariables, TimePeriods,
+                                      delete_periodic_task, setup_periodic_vc)
+from Instructors.views.utils import current_localtime, initialContextDict
+from Students.models import StudentRegisteredCourses
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ def timeBasedVirtualCurrencyView(request):
             periodicVC.timePeriodID = request.POST['timePeriodSelected']
             periodicVC.threshold = request.POST['threshold']
             periodicVC.operatorType = request.POST['operator']
-            periodicVC.lastModified = utcDate()
+            periodicVC.lastModified = current_localtime()
             
             if 'selectors' in request.POST:
                 periodicVC.periodicType = selectorMap[selectors]
@@ -100,11 +100,11 @@ def timeBasedVirtualCurrencyView(request):
             
             # Recreate the Periodic Task based on the type
             if selectors == "TopN":
-                periodicVC.periodicTask = setup_periodic_vc(unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), number_of_top_students=int(periodicVC.numberOfAwards), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
+                periodicVC.periodicTask = setup_periodic_vc(request, unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), number_of_top_students=int(periodicVC.numberOfAwards), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
             elif selectors == "Random":
-                periodicVC.periodicTask = setup_periodic_vc(unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType, is_random=periodicVC.isRandom)
+                periodicVC.periodicTask = setup_periodic_vc(request, unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType, is_random=periodicVC.isRandom)
             else:
-                periodicVC.periodicTask = setup_periodic_vc(unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
+                periodicVC.periodicTask = setup_periodic_vc(request, unique_id=int(periodicVC.vcRuleID), virtual_currency_amount=int(periodicVC.vcRuleAmount), variable_index=int(periodicVC.periodicVariableID), course=current_course, period_index=int(periodicVC.timePeriodID), threshold=periodicVC.threshold, operator_type=periodicVC.operatorType)
             periodicVC.save()
 
         return redirect('PeriodicVirtualCurrencyEarnRuleList.html')

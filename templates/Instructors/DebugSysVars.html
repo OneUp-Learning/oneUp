@@ -70,13 +70,13 @@
                 <option disabled selected value> Select a System Variable </option>
                 
                 <optgroup label="System Variables">
-                {% for i, sysVarNumber, sysVarName in sysVars %}
-                  <option value={{sysVarNumber}}  {% if sysVarNumber == currenSysVar %}selected {% endif %}>{{sysVarName}}</option>
+                {% for var in system_variables %}
+                  <option value={{var.index}}  title="{{var.description}}" {% if var.index == currenSysVar %}selected {% endif %}>{{var.displayName}}</option>
                 {% endfor %}
                 </optgroup>
                 <optgroup label="Periodic Variables">
                   {% for var in periodic_variables %}
-                    <option value={{var.index}} {% if var.index == currenSysVar %} selected {% endif %}>{{var.displayName}}</option>
+                    <option value={{var.index}} title="{{var.description}}" {% if var.index == currenSysVar %} selected {% endif %}>{{var.displayName}}</option>
                   {% endfor %}
                 </optgroup>
             </select>

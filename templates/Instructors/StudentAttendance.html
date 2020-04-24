@@ -115,7 +115,7 @@
                               {% endif %}	
                               
                               <label for="{{student_ID}}"></label>
-                                  <input class="hidden" type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
+                                  <input type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
                               </td>
                         </tr>
                         {% empty %}
@@ -125,7 +125,7 @@
                         {% endfor %}
                      </tbody>
                   </table>
-                  	<input class="hidden" type="hidden" class="datepicker-from" name="rollDate" value={{rollDate}} id="rollDate">
+                  	<input type="hidden" name="rollDate" value={{rollDate}} id="rollDate">
                   </form>
 				 </div>
                </div>

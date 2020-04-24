@@ -4,20 +4,22 @@ Created on Oct 1, 2015
 @author: Alex
 '''
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import render
-from Instructors.models import Topics, CoursesTopics, ChallengesTopics, Challenges, ChallengesQuestions
+from django.utils import timezone
+
+from Badges.enums import ObjectTypes
+from Badges.models import CourseConfigParams, ProgressiveUnlocking
 from Instructors.constants import unspecified_topic_name
+from Instructors.models import (Challenges, ChallengesQuestions,
+                                ChallengesTopics, CoursesTopics, Topics)
+from Instructors.views.utils import current_localtime
 from Students.models import StudentChallenges, StudentProgressiveUnlocking
 from Students.views.utils import studentInitialContextDict
-from Badges.enums import ObjectTypes
-from Badges.models import ProgressiveUnlocking, CourseConfigParams
-from django.db.models import Q
-from Instructors.views.utils import utcDate
-
-from django.contrib.auth.decorators import login_required
 
 
-def challengesForTopic(topic, student, currentCourse):
+def challengesForTopic(request, topic, student, currentCourse):
     challenge_ID = []
     isWarmup = []
     challenge_Name = []
@@ -26,7 +28,7 @@ def challengesForTopic(topic, student, currentCourse):
     isUnlocked = []
     ulockingDescript = []
 
-    currentTime = utcDate()
+    currentTime = current_localtime()
     challenge_topics = ChallengesTopics.objects.filter(topicID=topic).order_by("challengeID__challengePosition").filter(Q(challengeID__startTimestamp__lt=currentTime) | Q(
         challengeID__hasStartTimestamp=False), Q(challengeID__endTimestamp__gt=currentTime) | Q(challengeID__hasEndTimestamp=False))
     if challenge_topics:
@@ -132,8 +134,7 @@ def ChallengesWarmUpList(request):
                 topic_ID.append(tID)
                 topic_Name.append(tName)
                 topic_Pos.append(str(ct.topicPos))
-                topic_challenges = challengesForTopic(
-                    ct.topicID, student, currentCourse)
+                topic_challenges = challengesForTopic(request, ct.topicID, student, currentCourse)
                 challenges_count.append(len(list(topic_challenges)))
                 all_challenges_for_topic.append(topic_challenges)
 
@@ -155,8 +156,7 @@ def ChallengesWarmUpList(request):
             topic_ID.append(unspecified_topic.topicID)
             topic_Name.append("Miscellaneous")
             topic_Pos.append(str(len(topic_Pos)+1))
-            topic_challenges = challengesForTopic(
-                unspecified_topic, student, currentCourse)
+            topic_challenges = challengesForTopic(request, unspecified_topic, student, currentCourse)
             challenges_count.append(len(list(topic_challenges)))
             all_challenges_for_topic.append(topic_challenges)
             isTopicUnlocked.append({'isFullfilled': True, 'descript': ''})

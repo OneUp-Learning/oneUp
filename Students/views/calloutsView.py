@@ -2,23 +2,30 @@
 Created on Apr 2, 2019
 @author: omar
 '''
-from django.shortcuts import render, redirect
-from Students.views.utils import studentInitialContextDict
-from Instructors.views.utils import utcDate
-from Badges.models import CourseConfigParams, BadgesVCLog
-from Students.models import StudentRegisteredCourses, Callouts, StudentChallenges, CalloutParticipants, StudentConfigParams, StudentVirtualCurrency, CalloutStats, DuelChallenges, Student
-from Instructors.models import CoursesTopics, Topics, Challenges, ChallengesTopics, Courses, ChallengesQuestions
-from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
-from notify.signals import notify
-from datetime import datetime, timedelta
-from django.contrib.auth.decorators import login_required
-from celery import Celery
 import json
-from Instructors.views.courseInfoView import courseInformation
+from datetime import datetime, timedelta
+
+from celery import Celery
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from notify.signals import notify
 
 from Badges.enums import Event
 from Badges.events import register_event_simple
+from Badges.models import BadgesVCLog, CourseConfigParams
+from Instructors.models import (Challenges, ChallengesQuestions,
+                                ChallengesTopics, Courses, CoursesTopics,
+                                Topics)
+from Instructors.views.courseInfoView import courseInformation
+from Instructors.views.utils import current_localtime, datetime_to_local
+from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
+from Students.models import (CalloutParticipants, Callouts, CalloutStats,
+                             DuelChallenges, Student, StudentChallenges,
+                             StudentConfigParams, StudentRegisteredCourses,
+                             StudentVirtualCurrency)
+from Students.views.utils import studentInitialContextDict
 
 app = Celery('Students', broker='amqp://localhost')
 app.config_from_object('django.conf:settings', namespace='CELERY')
@@ -69,6 +76,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             # Record this trasaction in the log to show that the system awarded this vc
             studentAddBadgeLog = BadgesVCLog()
+            studentAddBadgeLog.timestamp = current_localtime()
             studentAddBadgeLog.courseID = current_course
             log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
             studentAddBadgeLog.log_data = json.dumps(log_data)
@@ -134,6 +142,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
                 # Record this trasaction in the log to show that the system awarded this vc
                 studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.timestamp = current_localtime()
                 studentAddBadgeLog.courseID = current_course
                 log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
                 studentAddBadgeLog.log_data = json.dumps(log_data)
@@ -215,6 +224,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
                 # Record this trasaction in the log to show that the system awarded this vc
                 studentAddBadgeLog = BadgesVCLog()
+                studentAddBadgeLog.timestamp = current_localtime()
                 studentAddBadgeLog.courseID = current_course
                 log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Callout")
                 studentAddBadgeLog.log_data = json.dumps(log_data)
@@ -321,7 +331,7 @@ def callout_create(request):
         callout.courseID = current_course
         callout.sender = student_id
         # Get utc time
-        time = utcDate()
+        time = current_localtime()
         # send time is when the callout is being created
         callout.sendTime = time
         # end time is send time plus a week. Basically the callout expires afte a week
@@ -929,7 +939,7 @@ def callout_description(request):
             calloutID=call_out_id, courseID=current_course)
         context_dict['call_out'] = call_out
 
-        if (call_out.endTime + timedelta(seconds=5)) <= utcDate():
+        if (datetime_to_local(call_out.endTime + timedelta(seconds=5))) <= current_localtime():
             try:
                 call_out.hasEnded = True
                 call_out.save()
@@ -937,8 +947,7 @@ def callout_description(request):
                 print("error")
 
         # get the remaing time before the call out is expired in seconds
-        context_dict['time_left'] = (
-            call_out.endTime - utcDate()).total_seconds()
+        context_dict['time_left'] = (datetime_to_local(call_out.endTime) - current_localtime()).total_seconds()
 
         # get sender pure challenge higest score without curve and adjustment, and also call out virtual currency
         sender_call_out_stat = CalloutStats.objects.get(
@@ -965,7 +974,7 @@ def callout_description(request):
             studentID__user__id=participant_id, courseID=current_course).avatarImage
         call_out = call_out_participant.calloutID
 
-        if (call_out.endTime + timedelta(seconds=5)) <= utcDate():
+        if (datetime_to_local(call_out.endTime + timedelta(seconds=5))) <= current_localtime():
             try:
                 call_out.hasEnded = True
                 call_out.save()
@@ -983,8 +992,7 @@ def callout_description(request):
             studentID=call_out.sender, courseID=current_course).avatarImage
 
         # get the remaing time before the call out is expired in seconds
-        context_dict['time_left'] = (
-            call_out.endTime - utcDate()).total_seconds()
+        context_dict['time_left'] = (datetime_to_local(call_out.endTime) - current_localtime()).total_seconds()
 
         context_dict = get_details(
             call_out, sender_score, is_sent_call_out, participant_id, context_dict)
@@ -1016,7 +1024,7 @@ def call_out_list(student_id, current_course):
         # else append a string statig this is for the whole class
         else:
             sent_avatars_or_whole_class.append("Whole Class")
-        time_left = (sent_call_out.endTime - utcDate()).total_seconds() / 60.0
+        time_left = (datetime_to_local(sent_call_out.endTime) - current_localtime()).total_seconds() / 60.0 
 
         sent_times_left.append(time_left)
 
@@ -1037,8 +1045,7 @@ def call_out_list(student_id, current_course):
     requested_call_out_topics = []
     for call_out_participant in call_out_participants:
         requested_call_outs.append(call_out_participant)
-        time_left = (call_out_participant.calloutID.endTime -
-                     utcDate()).total_seconds() / 60.0
+        time_left = (datetime_to_local(call_out_participant.calloutID.endTime) - current_localtime()).total_seconds() / 60.0
 
         requested_times_left.append(time_left)
         sender_avatars.append(StudentRegisteredCourses.objects.get(

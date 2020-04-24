@@ -3,22 +3,28 @@ Created on Sep 10, 2018
 
 @author: GGM
 '''
-from django.shortcuts import render
-from Instructors.models import Courses
-from Badges.models import LeaderboardsConfig
-from Instructors.views.utils import initialContextDict, CoursesSkills, Skills
-from django.shortcuts import redirect
-from Badges.models import CourseConfigParams
-from django.contrib.auth.decorators import login_required
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_leaderboard,\
-    delete_periodic_task, get_periodic_variable_results
-import Students
-from Students.models import Student, PeriodicallyUpdatedleaderboards,StudentRegisteredCourses,StudentCourseSkills
-from Students.views.avatarView import checkIfAvatarExist
 import inspect
 import logging
-from notify.views import delete
 import time
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from notify.views import delete
+
+import Students
+from Badges.models import CourseConfigParams, LeaderboardsConfig
+from Badges.periodicVariables import (PeriodicVariables, TimePeriods,
+                                      delete_periodic_task,
+                                      get_periodic_variable_results,
+                                      setup_periodic_leaderboard)
+from Instructors.models import Courses
+from Instructors.views.utils import (CoursesSkills, Skills, current_localtime,
+                                     initialContextDict)
+from Students.models import (PeriodicallyUpdatedleaderboards, Student,
+                             StudentCourseSkills, StudentRegisteredCourses)
+from Students.views.avatarView import checkIfAvatarExist
+
 logger = logging.getLogger(__name__)
 
 
@@ -156,7 +162,7 @@ def dynamicLeaderboardView(request):
                     oldPeriodicVariableForLeaderboard.append(leaderboard.periodicVariable)
                 leaderboard.periodicVariable = int(periodicVariableSelected[index])
                 
-                
+            leaderboard.lastModified = current_localtime()
             leaderboard.save()
             
             #if we must append because there was a change NOT in name or description
@@ -189,6 +195,7 @@ def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboar
             else:
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboardToOldPeriodicVariableDict[leaderboard], award_type="leaderboard", course=leaderboard.courseID)
             leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
+            leaderboard.lastModified = current_localtime()
             leaderboard.save()
 
 def deleteLeaderboardConfigObjects(leaderboards):
@@ -215,6 +222,7 @@ def createXPLeaderboard(currentCourse, request):
     xpLeaderboard.leaderboardName = "XP Leaderboard"
     xpLeaderboard.numStudentsDisplayed = 0
     xpLeaderboard.displayOnCourseHomePage = True
+    xpLeaderboard.lastModified = current_localtime()
     xpLeaderboard.save()
     return xpLeaderboard
 def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDisplayedNum, courseID):
@@ -224,7 +232,7 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDispla
         
         Returns list of tuples: [(student, value), (student, value),...]'''
     print(periodicVariable)
-    results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID)
+    results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID, timezone.get_current_timezone())
     results.sort(key=lambda tup: tup[1], reverse=True)
     results = results[:studentsDisplayedNum]
     results = [(name, score) for name, score in results if score != 0.0 or score != 0]

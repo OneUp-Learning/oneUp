@@ -11,7 +11,6 @@ from oneUp.decorators import instructorsCheck
 from Badges.models import CourseConfigParams 
 from Badges.models import AttendanceStreakConfiguration
 from Badges.models import Conditions, Rules, RuleEvents, ActionArguments, VirtualCurrencyRuleInfo, VirtualCurrencyPeriodicRule
-from Badges.periodicVariables import PeriodicVariables, TimePeriods, setup_periodic_vc, delete_periodic_task
 import json, datetime, ast, re
 from argparse import Action
 from Students.models import StudentRegisteredCourses

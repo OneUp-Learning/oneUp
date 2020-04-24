@@ -1,20 +1,25 @@
 import os
-
-from django.db import models
-from django.contrib.auth.models import User
-from Instructors.models import Courses, Challenges, Questions, Skills, Activities, UploadedFiles, ChallengesQuestions
-from Badges.models import Badges,BadgesInfo, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ProgressiveUnlocking,  LeaderboardsConfig
-from Badges.enums import Event, OperandTypes, Action
-from Badges.systemVariables import SystemVariable
-from datetime import datetime
-from django.utils.timezone import now
-from distutils.command.upload import upload
-from django.template.defaultfilters import default
-from django.conf.global_settings import MEDIA_URL
-from oneUp.settings import MEDIA_ROOT, MEDIA_URL, BASE_DIR
 from cgi import maxlen
-from Instructors.views.instructorHomeView import instructorHome
+from datetime import datetime
+from distutils.command.upload import upload
+
+from django.conf.global_settings import MEDIA_URL
+from django.contrib.auth.models import User
+from django.db import models
+from django.template.defaultfilters import default
 from django.utils.timezone import now
+
+from Badges.enums import Action, Event, OperandTypes
+from Badges.models import (Badges, BadgesInfo, LeaderboardsConfig,
+                           ProgressiveUnlocking, Rules,
+                           VirtualCurrencyCustomRuleInfo,
+                           VirtualCurrencyRuleInfo)
+from Badges.systemVariables import SystemVariable
+from Instructors.models import (Activities, Challenges, ChallengesQuestions,
+                                Courses, FlashCards, Questions, Skills,
+                                UploadedFiles)
+from Instructors.views.instructorHomeView import instructorHome
+from oneUp.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL
 
 # Create your models here.
  
@@ -166,11 +171,14 @@ class StudentGoalSetting(models.Model):
     studentGoalID = models.AutoField(primary_key=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the course", db_index=True, default=1)
-    goalType = models.IntegerField(default=0,verbose_name="The goal set by the student. Should be a reference to the Goal enum", db_index=True)
+    ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the goal rule", null=True, db_index=True)
+    goalVariable = models.IntegerField(default=0,verbose_name="The goal variable selected by the student. Should be a system variable index", db_index=True)
     timestamp = models.DateTimeField(default=now) # AV # Timestamp for date the goal was created
-    targetedNumber = models.IntegerField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
-    progressToGoal = models.IntegerField(verbose_name='A percentage of the students progress towards the goal.', default=0)
+    targetExact = models.BooleanField(verbose_name='Indicates whether the targetedNumber should be used as a exact match or should be used as amount to gain each week', default=True)
+    targetedNumber = models.FloatField(verbose_name='A number related to the goal.', default=0)  #This can be the number of warm-up challenges to be taken or the number of days in a streak
+    progressToGoal = models.FloatField(verbose_name='A percentage of the students progress towards the goal.', default=0)
     recurringGoal = models.BooleanField(verbose_name='A boolean value to indicate whether goal has recurrence.', default=True)
+    completed = models.BooleanField(verbose_name='Indicates whether the goal is completed and no longer has a rule associated with it', default=False)
 
     def __str__(self):              
         return str(self.studentGoalID) +"," + str(self.studentID) +"," + str(self.timestamp)
@@ -446,3 +454,14 @@ class StudentActionsLoop(models.Model):
     timestamp = models.DateTimeField(auto_now=True, verbose_name='Created Timestamp')
     def __str__(self):
         return "{} : {} : {}".format(self.studentActionsLoopID, self.studentActionsID, self.timestamp)
+
+class studentFlashCards(models.Model):
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    flashID = models.ForeignKey(FlashCards,on_delete=models.CASCADE, verbose_name="the flash card",db_index=True)
+    studyDate = models.DateTimeField(default=now, verbose_name="the ideal date the flash card should reappear", db_index=True)
+    cardBin = models.IntegerField(default=0, verbose_name="priority containers for flash cards", db_index=True)
+    timesSeen = models.IntegerField(default=0, verbose_name="times the student has seen the card")
+    timesCorrect = models.IntegerField(default=0, verbose_name="times the student has correctly answered the card")
+
+    def __str__(self):
+        return "{} : {} : {} : {} : {} : {}".format(self.studentID, self.flashID, self.studyDate, self.cardBin, self.timesSeen, self.timesCorrect)

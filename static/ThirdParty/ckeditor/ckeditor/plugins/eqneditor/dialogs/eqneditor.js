@@ -58,7 +58,7 @@ CKEDITOR.dialog.add( 'eqneditorDialog', function(editor)
 			EqEditor.add(new EqTextArea('CCequation'+window.CCounter, 'CClatex'+window.CCounter),false);
 			
 			setTimeout(() => {
-				console.log($("#CCtoolbar1").find('select'))
+				// console.log($("#CCtoolbar1").find('select'))
 				var selects = $("#CCtoolbar1").find('select');
 				var checkboxes = $("#CCtoolbar1").find("input[type='checkbox']");
 				console.log(checkboxes);
@@ -71,7 +71,7 @@ CKEDITOR.dialog.add( 'eqneditorDialog', function(editor)
 					$(e).addClass("reset-checkbox");
 				})
 				$('select').not('.browser-default').material_select();
-			}, 1000)
+			}, 1500)
 			
 		},
 				

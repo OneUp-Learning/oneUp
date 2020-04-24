@@ -4,17 +4,22 @@ Created on Jan 27, 2017
 @author: kirwin
 '''
 
-from Badges.enums import OperandTypes, ObjectTypes, system_variable_type_to_HTML_type
-from Badges.models import Conditions, FloatConstants, StringConstants, Dates, ConditionSet, ChallengeSet, ActivitySet, ActivityCategorySet,\
-    TopicSet
-from Instructors.models import Activities,ActivitiesCategory, Challenges, CoursesTopics
-from Instructors.constants import unassigned_problems_challenge_name
-from Badges.systemVariables import SystemVariable
-from Badges.enums import AwardFrequency
-from Badges.events import operandSetTypeToObjectType, chosenObjectSpecifierFields
-from Badges import systemVariables
 from datetime import datetime
-from Instructors.views.utils import utcDate
+
+from Badges import systemVariables
+from Badges.enums import (AwardFrequency, ObjectTypes, OperandTypes,
+                          system_variable_type_to_HTML_type)
+from Badges.events import (chosenObjectSpecifierFields,
+                           operandSetTypeToObjectType)
+from Badges.models import (ActivityCategorySet, ActivitySet, ChallengeSet,
+                           Conditions, ConditionSet, Dates, FloatConstants,
+                           StringConstants, TopicSet)
+from Badges.systemVariables import SystemVariable
+from Instructors.constants import unassigned_problems_challenge_name
+from Instructors.models import (Activities, ActivitiesCategory, Challenges,
+                                CoursesTopics)
+from Instructors.views.utils import date_to_selected
+
 
 #Determine the appropriate event type for each System Variable
 def get_events_for_system_variable(var,context, insideFor):
@@ -120,7 +125,8 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             elif parts[3] == "Y":
                 cond.operand2Type = OperandTypes.dateConstant
                 dconst = Dates()
-                dconst.dateValue = utcDate(rhsValueTable[value], '%Y-%M-%d').date()
+                # Timezone here doesn't matter since we are getting the date only
+                dconst.dateValue = date_to_selected(rhsValueTable[value], to_format='%Y-%M-%d').date()
                 dconst.save()
                 cond.operand2Value = dconst.dateID
             cond.save()

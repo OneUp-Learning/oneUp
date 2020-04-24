@@ -4,12 +4,14 @@ Created on Oct 14, 2019
 @author: omar
 '''
 
-from Students.models import CalloutParticipants, Callouts, CalloutStats, StudentRegisteredCourses, StudentChallenges, Student
-from Instructors.models import ChallengesTopics, Topics, CoursesTopics
-from django.shortcuts import render, redirect
-from Instructors.views.utils import initialContextDict
+from django.shortcuts import redirect, render
+
 from Badges.models import CourseConfigParams
-from Instructors.views.utils import utcDate
+from Instructors.models import ChallengesTopics, CoursesTopics, Topics
+from Instructors.views.utils import initialContextDict
+from Students.models import (CalloutParticipants, Callouts, CalloutStats,
+                             Student, StudentChallenges,
+                             StudentRegisteredCourses)
 
 
 def callout_report(request):
