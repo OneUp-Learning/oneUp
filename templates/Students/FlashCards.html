@@ -32,6 +32,7 @@
    }
    .flip.active > .back {
       opacity: 1;
+      background-color: #e6f4ff;
       transform: rotateY(0deg);
    }
    .flip.flip-vertical > .back {
@@ -72,6 +73,7 @@
    function actionButtons(showOrHide){
       let gotItButton = document.getElementById("gotItButton");
       let tryAgain = document.getElementById("tryAgainButton");
+      let returnButton = document.getElementById("return");
 
       if(showOrHide == "show"){
          tryAgain.style.display = 'inline';
@@ -81,6 +83,9 @@
          tryAgain.style.display = 'none';
          gotItButton.style.display = 'none';
       }
+
+      if(showOrHide == "complete")
+         returnButton.style.display = 'inline';
    }
 
    function loadFirstCard(){
@@ -106,6 +111,7 @@
          answer_tag.innerHTML = "All Done. Good Job. Thanks For Practicing.";
          let card_panel = document.getElementById("flash-card");
          card_panel.setAttribute("onclick", "location.href='FlashCardsList'");
+         actionButtons("complete");
       }else{
          let flashID = flash_cards[flash_card_counter]['flashID'];
          question_tag.setAttribute("flashid", flashID);
@@ -167,17 +173,20 @@
    <main>
       <div class="row center-align">
          <div class="col s12 m10 offset-m1">
-            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Can you answer this question?</h3>
+            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Flash Cards</h3>
          </div>
       </div>
       <div class="row">
          <div class="col s12 m6 offset-m3">
             <div class="row" style="display: flex; justify-content: center;">
                <div class="flip" id="flash-card" onclick="actionButtons('show');">
-                  <div class="front card">
+                  <div class="front card center-align" style="background-color: #e9eaea;height: 40vh;">
+                     <i class="material-icons right">arrow_forward</i>
                      <p id="question" flashID="none" class="flow-text">{{card.question}}</p>
+                     <br>
                   </div>
-                  <div class="back card">
+                  <div class="back card center-align" style="height: 40vh;">
+                     <i class="material-icons left">arrow_back</i>
                      <p id="answer" class="flow-text">{{card.answer}}</p>
                   </div>
                </div>
@@ -186,8 +195,8 @@
                   <button style="display:none;" id="gotItButton" onclick="buttonClickedByStudent(1);" class="green btn waves-effect waves-light"><i
                         class="material-icons right">check</i>I Got It</button>
                   <button style="display:none;" id="tryAgainButton" onclick="buttonClickedByStudent(2);" class="red btn waves-effect waves-light"><i
-                        class="material-icons right">close</i>Try Again</button>
-                  <button onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
+                        class="material-icons right">close</i>Not This Time</button>
+                  <button style="display:none;" id="return" onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
                            class="material-icons right">arrow_back</i>Return</button>
                </div>
             </div>
