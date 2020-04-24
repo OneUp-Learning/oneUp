@@ -110,7 +110,7 @@
          let flashID = flash_cards[flash_card_counter]['flashID'];
          question_tag.setAttribute("flashid", flashID);
          question_tag.innerHTML = flash_cards[flash_card_counter]['question'];
-         answer_tag.innerHTML = flash_cards[flash_card_counter]['answer'];
+         answer_tag.innerText = flash_cards[flash_card_counter]['answer'];
       }
       actionButtons("hide");
       
