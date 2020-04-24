@@ -55,7 +55,7 @@
       display: block;
       width: inherit;
       /* can have fixed height here if you want but you should enable scrolling */
-      /* height: 220px; */
+      height: 40vh;
       padding: 1em 2em;
       /* background: #313131; */
       border-radius: 10px !important;
@@ -180,14 +180,18 @@
          <div class="col s12 m6 offset-m3">
             <div class="row" style="display: flex; justify-content: center;">
                <div class="flip" id="flash-card" onclick="actionButtons('show');">
-                  <div class="front card center-align" style="background-color: #e9eaea;height: 40vh;">
-                     <i class="material-icons right">arrow_forward</i>
-                     <p id="question" flashID="none" class="flow-text">{{card.question}}</p>
+                  <div class="front card center-align" style="background-color: #e9eaea;">
+                     <i class="material-icons right" style="right: 16px; position: absolute;">arrow_forward</i>
+                     <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                        <p id="question" flashID="none" class="flow-text">{{card.question}}</p>
+                     </div>
                      <br>
                   </div>
-                  <div class="back card center-align" style="height: 40vh;">
-                     <i class="material-icons left">arrow_back</i>
-                     <p id="answer" class="flow-text">{{card.answer}}</p>
+                  <div class="back card center-align">
+                     <i class="material-icons left" style="left: 16px; position: absolute;">arrow_back</i>
+                     <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                        <p id="answer" class="flow-text">{{card.answer}}</p>
+                     </div>
                   </div>
                </div>
             </div>
