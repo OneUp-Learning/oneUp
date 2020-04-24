@@ -3,12 +3,15 @@ Created on Oct 23, 2019
 
 @author: cmickle
 '''
-from django.shortcuts import render
-from Instructors.models import FlashCardGroup,FlashCardGroupCourse,FlashCardToGroup,FlashCards
-from Instructors.views import utils
-from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.decorators import instructorsCheck
 import pprint
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
+from Instructors.models import (FlashCardGroup, FlashCardGroupCourse,
+                                FlashCards, FlashCardToGroup)
+from Instructors.views import utils
+from oneUp.decorators import instructorsCheck
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -28,7 +31,7 @@ def groupListView(request):
 
     flash_ID=[]
     flash_Name=[]
-    if not FlashCardGroup.objects.filter(groupName="Unassigned").exists():
+    if not FlashCardGroupCourse.objects.filter(courseID=currentCourse, groupID__groupName="Unassigned").exists():
         unassigned_flashgroup = FlashCardGroup()
         unassigned_flashgroup.groupName = "Unassigned"
         unassigned_flashgroup.save()
