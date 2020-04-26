@@ -4,12 +4,12 @@ Created on Oct 29, 2014
 @author: Swapna
 '''
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from Badges.models import Badges, BadgesInfo
-
-from django.contrib.auth.decorators import login_required
 from Instructors.views.utils import initialContextDict
+
 
 @login_required
 def BadgesMain(request):
@@ -49,8 +49,8 @@ def BadgesMain(request):
             manualBadgeDescription.append(manualBadge.badgeDescription)  
                     
         # The range part is the index numbers.
-    context_dict['badgesInfo'] = zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription, badgePosition)
-    context_dict['manualBadgesInfo'] = zip(range(1,manualBadges.count()+1),manualBadgeId, manualBadgeName,manualBadgeImage, manualBadgeDescription, manualBadgePosition)
+    context_dict['badgesInfo'] = list(zip(range(1,badges.count()+1),badgeId,badgeName,badgeImage, badgeDescription, badgePosition))
+    context_dict['manualBadgesInfo'] = list(zip(range(1,manualBadges.count()+1),manualBadgeId, manualBadgeName,manualBadgeImage, manualBadgeDescription, manualBadgePosition))
 
     return render(request,'Badges/Badges.html', context_dict)
 

@@ -4,20 +4,22 @@ Last updated 07/15/2017
 
 @author: dichevad
 '''
-from django.shortcuts import render
-
-from Instructors.models import Courses, Challenges, ChallengesQuestions, Topics, CoursesTopics, ChallengesTopics
-from Instructors.constants import  unspecified_topic_name
-from Instructors.views.utils import initialContextDict
-from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.decorators import instructorsCheck
-from Badges.events import register_event
-from Badges.enums import Event
-from Instructors.questionTypes import QuestionTypes
-from Students.models import StudentRegisteredCourses
 from time import strftime
 
-from Instructors.constants import unassigned_problems_challenge_name
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
+from Badges.enums import Event
+from Badges.events import register_event
+from Instructors.constants import (unassigned_problems_challenge_name,
+                                   unspecified_topic_name)
+from Instructors.models import (Challenges, ChallengesQuestions,
+                                ChallengesTopics, Courses, CoursesTopics,
+                                Topics)
+from Instructors.questionTypes import QuestionTypes
+from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import StudentRegisteredCourses
 
 
 def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/28/15
@@ -63,9 +65,9 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
         q_type_displayName.append(QuestionTypes.questionTypes[q_type]['displayName'])
         q_difficulty.append(question.difficulty)               
         
+
     # The range part is the index numbers.
-    context_dict['question_range'] = zip(range(1,len(questionObjects)+1),q_ID,q_challenge_question_ids, q_preview,q_type_name,q_type_displayName, q_difficulty, q_position, q_duplicate)
-    
+    context_dict['question_range'] = list(zip(range(1,len(questionObjects)+1),q_ID,q_challenge_question_ids, q_preview,q_type_name,q_type_displayName, q_difficulty, q_position, q_duplicate))
     return context_dict
 
 
@@ -311,4 +313,3 @@ def disableExpiredChallenges(request):
             for student in registeredStudents:
                 register_event(Event.challengeExpiration, request, student.studentID, challenge.challengeID)
                 print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
-            

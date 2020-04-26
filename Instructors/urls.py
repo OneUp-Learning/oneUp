@@ -78,10 +78,8 @@ from Instructors.views.preferencesView import preferencesView
 from Instructors.views.reorderChallengeSaveQuestions import \
     reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
-from Instructors.views.reorderViews import (reorderActivities, reorderBadges,
-                                            reorderCategories, reorderChalls,
-                                            reorderQuestions, reorderTopics,
-                                            reorderVCRules)
+from Instructors.views.reorderViews import (receive_item_in_section,
+                                            reorder_list)
 from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
@@ -242,11 +240,6 @@ urlpatterns = [
     url(r'^instructorLeaderboard', LeaderboardInstructorsView,
         name="instructorLeaderboard"),
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
-    url(r'^ReorderTopics', reorderTopics, name="reorderTopics"),
-    url(r'^ReorderChalls', reorderChalls, name="reorderChalls"),
-    url(r'^ReorderActivities', reorderActivities, name="reorderActivities"),
-    url(r'^ReorderCategories', reorderCategories, name="reorderCategories"),
-    url(r'^ReorderQuestions', reorderQuestions, name="reorderQuestions"),
-    url(r'^ReorderBadges', reorderBadges, name="reorderBadges"),
-    url(r'^ReorderVCRules', reorderVCRules, name="reorderVCRules"),
+    url(r'^reorderList', reorder_list, name="reorderList"),
+    url(r'^receiveItemInSection', receive_item_in_section, name="receive_item_in_section"),
 ]

@@ -4,14 +4,17 @@ Created on Nov 9, 2017
 @author: Austin Hodge
 '''
 
-from django.shortcuts import render, redirect 
-
-from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments, Conditions, FloatConstants, StringConstants
-from Badges.enums import OperandTypes
-from Instructors.constants import unspecified_vc_manual_rule_name
-from Badges.systemVariables import SystemVariable
-from Instructors.views.utils import initialContextDict
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+
+from Badges.enums import OperandTypes
+from Badges.models import (ActionArguments, Conditions, FloatConstants,
+                           StringConstants, VirtualCurrencyCustomRuleInfo,
+                           VirtualCurrencyRuleInfo)
+from Badges.systemVariables import SystemVariable
+from Instructors.constants import unspecified_vc_manual_rule_name
+from Instructors.views.utils import initialContextDict
+
 
 @login_required
 def virtualCurrencyEarnRuleList(request):
@@ -73,7 +76,7 @@ def virtualCurrencyEarnRuleList(request):
                     else:
                         vcAmount.append(0)
                             
-            context_dict['vcRuleInfo'] = zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcRuleDescription,vcAmount, position)
+            context_dict['vcRuleInfo'] = list(zip(range(1,len(vcRuleID)+1),vcRuleID,vcRuleName,vcRuleDescription,vcAmount, position))
             
         context_dict['isRuleCustom'] = isRuleCustom
         context_dict['numRules'] = len(vcRuleID)
@@ -103,6 +106,3 @@ def reorderVirtualCurrencyEarnRules(request):
                 rule.vcRulePosition = request.POST[str(rule.vcRuleID)]
                 rule.save()
         return redirect('/oneUp/badges/VirtualCurrencyEarnRuleList?isRuleCustom=false')
-
-
-    
