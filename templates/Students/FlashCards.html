@@ -65,7 +65,6 @@
 <script>
    let flash_cards = {{ flash_range| safe}};
    let flash_card_counter = 0;
-   let groupID = {{ groupID| safe}};
 
    const buttonType = Object.freeze({"gotIt":1, "tryAgain":2})
    Object.freeze(buttonType);
@@ -114,7 +113,9 @@
          actionButtons("complete");
       }else{
          let flashID = flash_cards[flash_card_counter]['flashID'];
+         let groupID = flash_cards[flash_card_counter]['groupID'];
          question_tag.setAttribute("flashid", flashID);
+         question_tag.setAttribute("groupID", groupID);
          question_tag.innerHTML = flash_cards[flash_card_counter]['question'];
          answer_tag.innerText = flash_cards[flash_card_counter]['answer'];
       }
@@ -135,6 +136,7 @@
    function buttonClickedByStudent(buttonType) {
       let xhttp = new XMLHttpRequest();
       let flashID = document.getElementById("question").getAttribute("flashid");
+      let groupID = document.getElementById("question").getAttribute("groupid");
       xhttp.open("POST", "/oneUp/students/flashCardUsed", true);
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
@@ -183,7 +185,7 @@
                   <div class="front card center-align" style="background-color: #e9eaea;">
                      <i class="material-icons right" style="right: 16px; position: absolute;">arrow_forward</i>
                      <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                        <p id="question" flashID="none" class="flow-text">{{card.question}}</p>
+                        <p id="question" flashID="none" groupID="" class="flow-text">{{card.question}}</p>
                      </div>
                      <br>
                   </div>
