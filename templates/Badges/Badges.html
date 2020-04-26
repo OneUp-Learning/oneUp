@@ -29,17 +29,23 @@
                     <ul id="sortable-auto-badges" class="collapsible" >
                         {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in badgesInfo %}
                         <li id={{badgeId}}>
-                            <div class="collapsible-header"><i style="justify-content: center; align-self: center" class="material-icons">swap_vert</i> 
-                                <span style="max-width: 7%;min-width: 7%; left: 0px; align-self: center">
+                            <div class="sortable-item">
+                                <div style="padding-right: 8px;">
+                                    <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+                                </div>
+                                <div style="width: 8%; padding-right: 8px;">
                                     <img src="/{{badgeImage}}" alt="Badge Image" width="50px" height="50px">
-                                </span>
-
-                                <span style="max-width: 30%;min-width: 30%; left: 0px; align-self: center">{{badgeName}}</span>
-                                <span style="max-width: 45%;min-width: 45%; left: 0px; align-self: center"> {{badgeDescription}}</span>
-                                
-                                <span class="right-align" style="max-width: 15%;min-width: 15%; align-self: center">
-                                    <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"> Modify</a>
-                                </span>
+                                </div>
+                                <div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeName}}</div>
+                                <div style="width: 55%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeDescription}}</div>
+                                <div class="badge">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+                                    data-beloworigin="true" data-activates='dropdown-{{badgeId}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+                                        class="material-icons">more_vert</i></a>
+                                    <ul id='dropdown-{{badgeId}}' class='dropdown-content'>
+                                        <li><a href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}">Modify</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </li>
                         {% endfor %}
@@ -68,15 +74,23 @@
                     <ul id="sortable-manual-badges" class="collapsible" >
                         {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in manualBadgesInfo %}
                         <li id={{badgeId}}>
-                            <div class="collapsible-header"><i style="justify-content: center; align-self: center" class="material-icons">swap_vert</i> 
-                                <span style="max-width: 7%;min-width: 7%; left: 0px; align-self: center">
+                            <div class="sortable-item">
+                                <div style="padding-right: 8px;">
+                                    <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+                                </div>
+                                <div style="width: 8%; padding-right: 8px;">
                                     <img src="/{{badgeImage}}" alt="Badge Image" width="50px" height="50px">
-                                </span>
-                                <span style="max-width: 30%;min-width: 30%; left: 0px; align-self: center">{{badgeName}}</span>
-                                <span style="max-width: 45%;min-width: 45%; left: 0px; align-self: center"> {{badgeDescription}}</span>
-                                <span class="right-align" style="max-width: 15%; min-width: 15%; align-self: center">
-                                    <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}&isManualBadge=true"> Modify</a>
-                                </span>
+                                </div>
+                                <div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeName}}</div>
+                                <div style="width: 55%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeDescription}}</div>
+                                <div class="badge">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+                                    data-beloworigin="true" data-activates='dropdown-{{badgeId}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+                                        class="material-icons">more_vert</i></a>
+                                    <ul id='dropdown-{{badgeId}}' class='dropdown-content'>
+                                        <li><a href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}&isManualBadge=true">Modify</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </li>
                         {% endfor %}
@@ -94,6 +108,8 @@
 	$(document).ready(() => {
         $("#sortable-auto-badges").sortable({
 			items: "li:not(.not-sortable)",
+            placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
 			update: (event, ui) => {
 				var item_list = $("#sortable-auto-badges").sortable("toArray");
 				var positions = []
@@ -121,6 +137,8 @@
 		});
 		$("#sortable-manual-badges").sortable({
 			items: "li:not(.not-sortable)",
+            placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
 			update: (event, ui) => {
 				var item_list = $("#sortable-manual-badges").sortable("toArray");
 				var positions = []

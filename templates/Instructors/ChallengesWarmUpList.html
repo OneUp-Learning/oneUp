@@ -64,45 +64,36 @@
 							<div class="collapsible-body">
 								<ul class="sortable-challenges" data-topic-id="{{topic_ID}}" style="padding-bottom: 1px;">
 									{% for j, chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
-									<li class="row" id={{chall_ID}} data-topic-id="{{topic_ID}}"> 
-										<div class="no-padding collapsible-header" > &nbsp&nbsp&nbsp&nbsp&nbsp
-										<i class="material-icons">swap_vert</i>
-										<span style="max-width: 40%;min-width: 40%">{{chall_Name}}</span>
-										<span class="badge right-align">{{chall_visible}}</span>
-										<span class="badge right-align">
-											<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-												data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50"
-												data-tooltip="Options">
-												<i class="material-icons">more_vert</i>
-											</a>
-											<ul id='dropdown-{{i}}-{{j}}' class='dropdown-content'>
-												<li>
-													<a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a>
-												</li>
-												<li>
-													<a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a>
-												</li>
-												<li>
-													<a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a>
-												</li>
-												<li class="divider"></li>
-												<li>
-													<a class="modal-trigger" href="#modal_delete-{{i}}-{{j}}">Delete</a>
-												</li>
-											</ul>
-											<div id="modal_delete-{{i}}-{{j}}" class="modal">
-												<div class="modal-content">
-													<h5>Are you sure you want to delete?</h5>
-													<p>Problems will not be deleted. They will be sent to unassigned problems section</p>
-												</div>
-												<div class="modal-footer">
-													<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
-													<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteChallenge('{{chall_ID}}')">Delete
-													</button>
+									<li id={{chall_ID}} data-topic-id="{{topic_ID}}"> 
+										<div class="sortable-item">
+											<div style="padding-right: 8px;">
+												<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+											</div>
+											<div style="width: 85%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_Name}}</div>
+											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_visible}}</div>
+											<div class="badge">
+												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+												data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+													class="material-icons">more_vert</i></a>
+												<ul id='dropdown-{{i}}-{{j}}' class='dropdown-content'>
+													<li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a></li>
+													<li><a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a></li>
+													<li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
+													<li class="divider"></li>
+													<li><a class="modal-trigger" href="#modal_delete-{{i}}-{{j}}">Delete</a></li>
+												</ul>
+												<div id="modal_delete-{{i}}-{{j}}" class="modal">
+													<div class="modal-content">
+														<h5>Are you sure you want to delete?</h5>
+														<p>Problems will not be deleted. They will be sent to unassigned problems section</p>
+													</div>
+													<div class="modal-footer">
+														<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+														<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteChallenge('{{chall_ID}}')">Delete
+														</button>
+													</div>
 												</div>
 											</div>
-										</span>
-										
 										</div>
 									</li>
 									{% endfor %}
@@ -124,6 +115,8 @@
 	$(document).ready(() => {
 		$("#sortable-topics").sortable({
 			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
 			update: (event, ui) => {
 				var item_list = $("#sortable-topics").sortable("toArray");
 				var positions = []
@@ -152,6 +145,8 @@
 		$(".sortable-challenges").sortable({
 			connectWith: ".sortable-challenges",
 			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
 			update: (event, ui) => {
 				var topic_id = $(event.target).data("topic-id");
 				var item_list = $(`.sortable-challenges[data-topic-id="${topic_id}"]`).sortable("toArray");

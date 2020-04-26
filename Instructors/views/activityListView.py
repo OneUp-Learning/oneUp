@@ -108,14 +108,14 @@ def createContextForActivityList(request, context_dict, currentCourse):
             context_dict['currentCat'] = cat
 
     context_dict["categories"] = cats
-    context_dict["categories_range"] = zip(
-        activitiesInCategory, categoryIds, categoryNames, categoryWeights)
+    context_dict["categories_range"] = list(zip(
+        activitiesInCategory, categoryIds, categoryNames, categoryWeights))
 
     # The range part is the index numbers.
-    context_dict['activity_range'] = zip(
-        range(1, activities.count()+1), activity_ID, activity_Name, description, points)
-    context_dict['activitesForCats'] = zip(
-        range(1, activities.count()+1), activity_ID, activity_Name, description, points)
+    context_dict['activity_range'] = list(zip(
+        range(1, activities.count()+1), activity_ID, activity_Name, description, points))
+    context_dict['activitesForCats'] = list(zip(
+        range(1, activities.count()+1), activity_ID, activity_Name, description, points))
 
     # Get StudentID and StudentName for every student in the current course
     # This context_dict is used to populate the scrollable check list for student names
@@ -168,7 +168,7 @@ def category_activities(count, category, current_course):
         points.append(round(activity.points))
         activityPositions.append(activity.activityPosition)
     last = count + len(activity_IDs)
-    return zip(range(count, last), activity_IDs, activity_Names, descriptions, points, activityPositions)
+    return list(zip(range(count, last), activity_IDs, activity_Names, descriptions, points, activityPositions))
 
 
 @login_required

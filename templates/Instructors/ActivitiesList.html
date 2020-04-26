@@ -104,45 +104,35 @@
 								<ul class="sortable-activities" data-category-id="{{categoryId}}"
 									style="padding-bottom: 1px;">
 									{% for i, activityID, activityName, description, points, activityPosition in activities %}
-									<li class="row" id="{{activityID}}" data-category-id="{{categoryId}}">
-										<div class="no-padding collapsible-header"> &nbsp&nbsp&nbsp&nbsp&nbsp
-											<i class="material-icons">swap_vert</i> <span
-												style="max-width: 30%;min-width: 30%">{{activityName}}</span>
-											<span class="badge no-padding" style="max-width: 20%;min-width: 20%">
-												<div class="col s12">{{description}}</div>
-											</span>
-											<span class=" badge no-padding" style="max-width: 20%;min-width: 20%">
-												<div class="col s12">{{points}} Points</div>
-											</span>
-
-
-											<span class="badge right-align">
-												<a class="dropdown-button tooltipped secondary-content" href="#!"
-													data-constrainwidth="false" data-beloworigin="true"
-													data-activates='activity{{activityID}}' data-position="right"
-													data-delay="50" data-tooltip="Options"><i
-														class="material-icons">more_vert</i></a>
-
-												<ul id='activity{{activityID}}' class='dropdown-content'>
+									<li id="{{activityID}}" data-category-id="{{categoryId}}">
+										<div class="sortable-item">
+											<div style="padding-right: 8px;">
+												<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+											</div>
+											<div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{activityName}}</div>
+											<div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{description}}</div>
+											<div style="width: 25%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{points}} Points</div>
+											<div class="badge">
+												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+												data-beloworigin="true" data-activates='dropdown-{{activityID}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+													class="material-icons">more_vert</i></a>
+												<ul id='dropdown-{{activityID}}' class='dropdown-content'>
 													<li><a href="/oneUp/instructors/createActivity?activityID={{activityID}}"><i class="material-icons">edit</i>Edit</a></li>
 													<li><a href="/oneUp/instructors/activityAssignPointsForm?activityID={{activityID}}"><i class="material-icons">playlist_add</i>Assign Points</a></li>
 													<li class="divider"></li>
-													<li><a class="modal-trigger" href="#modal_delete{{activityID}}">Delete</a></li>
+													<li><a class="modal-trigger" href="#modal_delete-{{activityID}}">Delete</a></li>
 												</ul>
-												<div id="modal_delete{{activityID}}" class="modal">
+												<div id="modal_delete-{{activityID}}" class="modal">
 													<div class="modal-content">
 														<h5>Are you sure you want to delete?</h5>
 													</div>
 													<div class="modal-footer">
-														<a href="#!"
-															class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
-														<button
-															class="modal-action modal-close waves-effect waves-light btn-flat"
-															type="button" onclick="deleteActivity('{{activityID}}')"
-															value="Delete">Delete</button>
+														<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text" >Cancel</a>
+														<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteActivity('{{activityID}}')">Delete
+														</button>
 													</div>
 												</div>
-											</span>
+											</div>
 										</div>
 									</li>
 									{% endfor %}
@@ -164,6 +154,8 @@
 	$(document).ready(() => {
 		$("#sortable-categories").sortable({
 			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
 			update: (event, ui) => {
 				var item_list = $("#sortable-categories").sortable("toArray");
 				var positions = []
@@ -198,6 +190,8 @@
 		$(".sortable-activities").sortable({
 			connectWith: ".sortable-activities",
 			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
 			update: (event, ui) => {
 				var category_id = $(event.target).data("category-id");
 				var item_list = $(`.sortable-activities[data-category-id="${category_id}"]`).sortable(

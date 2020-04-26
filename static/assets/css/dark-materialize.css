@@ -3213,6 +3213,20 @@ div.material-table table th.sorting_desc {
   color: #ffffff;
 }
 
+.sortable-placeholder {
+  background-color: #333333;
+}
+
+.sortable-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 12px;
+  border-bottom: 1px solid #2a2a2a;
+  background-color: #1d1d1d;
+  cursor: grab;
+}
+
 .primary-color-dark {
   background-color: #455acb !important;
 }
@@ -5397,6 +5411,10 @@ button.btn-floating {
 .side-nav .collapsible-body li a,
 .side-nav.fixed .collapsible-body li a {
   padding: 0 23.5px 0 31px;
+}
+
+.card-panel .collapsible-body {
+  background-color: #1d1d1d;
 }
 
 .collapsible.popout {

@@ -25,16 +25,17 @@
 					<ul id="sortable-vc-rules" class="collapsible">
 						{% for i,vcsRuleID,vcsRuleName,vcsAmount, limit, position in vcsRuleInfo %}
 						<li id={{vcsRuleID}}>
-							<div class="collapsible-header"><i class="material-icons">swap_vert</i>
-								<span style="max-width: 24%;min-width: 24%;">{{vcsRuleName}}</span>
-								<span style="max-width: 24%;min-width: 24%;">{{vcsAmount}}</span>
-								<span style="max-width: 24%;min-width: 24%;">{{limit}}</span>
-
-								<span class="right-align badge">
-									<a class="dropdown-button tooltipped secondary-content" href="#!"
-										data-constrainwidth="false" data-beloworigin="true"
-										data-activates='dropdown-{{i}}' data-position="right" data-delay="50"
-										data-tooltip="Options"><i class="material-icons">more_vert</i></a>
+							<div class="sortable-item">
+								<div style="padding-right: 8px;">
+									<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+								</div>
+								<div style="width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{vcsRuleName}}</div>
+								<div style="width: 5%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{vcsAmount}}</div>
+								<div style="width: 10%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{limit}}</div>
+								<div class="badge">
+									<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+									data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+										class="material-icons">more_vert</i></a>
 									<ul id='dropdown-{{i}}' class='dropdown-content'>
 										<li><a href="/oneUp/badges/CreateVirtualCurrencySpendRule?vcRuleID={{vcsRuleID}}">Edit</a></li>
 										<li class="divider"></li>
@@ -46,14 +47,12 @@
 											<p>Corresponding transactions will be deleted</p>
 										</div>
 										<div class="modal-footer">
-											<a href="#!"
-												class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
-											<button type="button"
-												class="modal-action modal-close waves-effect waves-light btn-flat"
-												value="Delete" onclick="deleteRule('{{vcsRuleID}}')">Delete</button>
+											<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+											<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteRule('{{vcsRuleID}}')">Delete
+											</button>
 										</div>
 									</div>
-								</span>
+								</div>
 							</div>
 						</li>
 						{% endfor %}
@@ -71,6 +70,8 @@
 	$(document).ready(() => {
 		$("#sortable-vc-rules").sortable({
 			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
 			update: (event, ui) => {
 				var item_list = $("#sortable-vc-rules").sortable("toArray");
 				var positions = []
