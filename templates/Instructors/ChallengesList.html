@@ -164,6 +164,12 @@
 				fetch("/oneUp/instructors/reorderList", params)
 				.then((response) => { return response.json()})
 				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
 			}
 		});
 		$("#sortable-topics").sortable({
@@ -192,6 +198,12 @@
 				fetch("/oneUp/instructors/reorderList", params)
 				.then((response) => { return response.json()})
 				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
 			}
 		});
 		$(".sortable-challenges").sortable({
@@ -240,6 +252,12 @@
 				fetch("/oneUp/instructors/receiveItemInSection", params)
 				.then((response) => { return response.json()})
 				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
 			}
 		});
 	});

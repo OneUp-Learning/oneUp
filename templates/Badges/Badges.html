@@ -133,6 +133,12 @@
 				fetch("/oneUp/instructors/reorderList", params)
 				.then((response) => { return response.json()})
 				.then((response) => {console.log(response)})
+			},
+            stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
 			}
 		});
 		$("#sortable-manual-badges").sortable({
@@ -162,6 +168,12 @@
 				fetch("/oneUp/instructors/reorderList", params)
 				.then((response) => { return response.json()})
 				.then((response) => {console.log(response)})
+			},
+            stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
 			}
 		});
 	});

@@ -780,6 +780,9 @@ div.material-table table th.sorting_desc {
   background-color: $surface-color;
   cursor: grab;
 }
+.sortable-item-active {
+  border: 1px solid $collapsible-border-color;
+}
 
 .primary-color-dark {
   background-color: if($dark-mode, $primary-color-dark, #3f51b5) !important;

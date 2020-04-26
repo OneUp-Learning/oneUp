@@ -3227,6 +3227,10 @@ div.material-table table th.sorting_desc {
   cursor: grab;
 }
 
+.sortable-item-active {
+  border: 1px solid #2a2a2a;
+}
+
 .primary-color-dark {
   background-color: #455acb !important;
 }
