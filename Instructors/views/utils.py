@@ -476,3 +476,18 @@ def date_to_selected(db_date, to_format="%m/%d/%Y"):
 # def addHintsToQuestion(course,question):
 # def removeHintsFromQuestion(course, question):
 # def getHintsForQuestion(course, question):
+
+def moveTestStudentObjToBottom(student_list):
+    filtered_student_list = []
+    test_student_list = []
+    for i in range(0, len(student_list)):
+        if student_list[i][2] == "Test Student":  
+            test_student_list.append(student_list[i])
+        else: 
+            filtered_student_list.append(student_list[i])
+
+    #append at end
+    for test_student in test_student_list:
+        filtered_student_list.append(test_student)
+    print("resulting student list", student_list, filtered_student_list)
+    return student_list

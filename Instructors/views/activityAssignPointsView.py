@@ -18,7 +18,7 @@ from Badges.models import CourseConfigParams
 from Badges.tasks import refresh_xp
 from Instructors.models import Activities, Courses
 from Instructors.views.activityListView import createContextForActivityList
-from Instructors.views.utils import current_localtime, initialContextDict
+from Instructors.views.utils import current_localtime, initialContextDict, moveTestStudentObjToBottom
 from oneUp.decorators import instructorsCheck
 from Students.models import (Student, StudentActivities, StudentFile,
                              StudentRegisteredCourses)
@@ -132,8 +132,6 @@ def activityAssignPointsView(request):
 def createContextForPointsAssignment(request, context_dict, currentCourse):
     student_ID = []
     student_Name = []
-    student_first_name = []
-    student_last_name = []
     student_Points = []
     student_Bonus = []
     student_Feedback = []
@@ -146,11 +144,9 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
         student = stud_course.studentID
         student_ID.append(student.id)
         if student.isTestStudent:
-            student_first_name.append("Test")
-            student_last_name.append("Student")
+            student_Name.append("Test Student")
         else:
-            student_first_name.append((student).user.first_name)
-            student_last_name.append((student).user.last_name)
+            student_Name.append((student).user.get_full_name())
         #zipFile_Name.append(student.user.first_name + student.user.last_name + Activities.objects.get(activityID = request.GET['activityID']).activityName + '.zip')
 
         if (StudentActivities.objects.filter(activityID=request.GET['activityID'], studentID=student)).exists():
@@ -194,15 +190,10 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     context_dict['activityName'] = Activities.objects.get(
         activityID=request.GET['activityID']).activityName
 
-    student_list = sorted(list(zip(range(1, len(student_ID)+1), student_ID, student_first_name, student_last_name,
-                                   student_Points, student_Bonus, student_Feedback, File_Name)), key=lambda tup: tup[3])
-    # we have to find the index for the test student and remove them from the sorted list
-    test_index = [y[2] for y in student_list].index('Test')
-    test_student_ob = student_list[test_index]
-    del student_list[test_index]
-
-    # then we insert them back into the list at the very end where they belong
-    student_list.append(test_student_ob)
+    student_list = list(zip(range(1, len(student_ID)+1), student_ID, student_Name,
+                                   student_Points, student_Bonus, student_Feedback, File_Name))
+    
+    student_list = moveTestStudentObjToBottom(student_list)
 
     context_dict['assignedActivityPoints_range'] = student_list
     return context_dict
