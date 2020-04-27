@@ -19,7 +19,7 @@
    function displayResetStreakCheckbox(){
 		var previous = document.getElementById('previous');
 		var checkboxEntity = "<div class='col s5' id='resetStreak'>\n"+
-		"<input type='checkbox' id='resetCheckbox'/>\n"+
+		"<input class='filled-in' type='checkbox' id='resetCheckbox'/>\n"+
 	        "<label for='resetCheckbox'>Reset Streak At Limit</label>\n"+
 	    "<input id='resetStreakHidden' type='hidden' name='resetStreak'>\n"+
 	    "</div>";
@@ -169,11 +169,11 @@
                 {%if checkbox == False or checkbox == True %}	
                        <div class="col s5">
 					<br>{% if checkbox == True  %}
-                  	<input type="checkbox" checked="checked" id="resetCheckbox" />
+                  	<input class="filled-in" type="checkbox" checked="checked" id="resetCheckbox" />
                         <label for="resetCheckbox">Reset Streak At Threshold</label>
                         <input id="resetStreakHidden"type="hidden" name="resetStreak">
                     {% else %}
-                    <input type="checkbox" id="resetCheckbox" />
+                    <input class="filled-in" type="checkbox" id="resetCheckbox" />
                         <label for="resetCheckbox">Reset Streak At Treshhold</label>
                         <input id="resetStreakHidden"type="hidden" name="resetStreak">
                     {% endif %}

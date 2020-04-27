@@ -150,10 +150,10 @@
                     {% if attendance != "clear" %}
                     <td>
                       {% if attendance == "true" %}
-                      <input class="checkbox" name="checkbox" type="checkbox" id="{{ forloop.counter }}" checked
+                      <input class="checkbox filled-in" name="checkbox" type="checkbox" id="{{ forloop.counter }}" checked
                         disabled />
                       {% elif attendance == "false" %}
-                      <input class="checkbox" name="checkbox" type="checkbox" id="{{ forloop.counter }}" disabled />
+                      <input class="checkbox filled-in" name="checkbox" type="checkbox" id="{{ forloop.counter }}" disabled />
                       {% endif %}
                       <label for="{{ forloop.counter }}"></label>
                     </td>

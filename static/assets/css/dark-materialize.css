@@ -4710,11 +4710,11 @@ small {
   min-height: 48px;
   line-height: 1.5em;
   word-break: break-all;
-  background-color: #ffffff;
+  background-color: #373737;
   padding: 10px 25px;
   font-size: 1.1rem;
   font-weight: 300;
-  color: #000000;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;

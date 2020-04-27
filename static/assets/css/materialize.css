@@ -4714,7 +4714,7 @@ small {
   padding: 10px 25px;
   font-size: 1.1rem;
   font-weight: 300;
-  color: #ffffff;
+  color: #000000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6089,12 +6089,12 @@ textarea.materialize-textarea.validate + label:not(.label-icon).active {
 [type=radio]:checked + label:after,
 [type=radio].with-gap:checked + label:before,
 [type=radio].with-gap:checked + label:after {
-  border: 2px solid #3f51b5;
+  border: 2px solid #00bcd4;
 }
 
 [type=radio]:checked + label:after,
 [type=radio].with-gap:checked + label:after {
-  background-color: #3f51b5;
+  background-color: #00bcd4;
 }
 
 [type=radio]:checked + label:after {
@@ -6210,8 +6210,8 @@ form p:last-child {
   height: 22px;
   border-top: 2px solid transparent;
   border-left: 2px solid transparent;
-  border-right: 2px solid #3f51b5;
-  border-bottom: 2px solid #3f51b5;
+  border-right: 2px solid #00bcd4;
+  border-bottom: 2px solid #00bcd4;
   transform: rotate(40deg);
   backface-visibility: hidden;
   transform-origin: 100% 100%;
@@ -6229,7 +6229,7 @@ form p:last-child {
   height: 22px;
   border-top: none;
   border-left: none;
-  border-right: 2px solid #3f51b5;
+  border-right: 2px solid #00bcd4;
   border-bottom: none;
   transform: rotate(90deg);
   backface-visibility: hidden;
@@ -6285,8 +6285,8 @@ form p:last-child {
   top: 0;
   width: 20px;
   height: 20px;
-  border: 2px solid #3f51b5;
-  background-color: #3f51b5;
+  border: 2px solid #00bcd4;
+  background-color: #00bcd4;
   z-index: 0;
 }
 [type=checkbox].filled-in.tabbed:focus + label:after {
@@ -6296,8 +6296,8 @@ form p:last-child {
 }
 [type=checkbox].filled-in.tabbed:checked:focus + label:after {
   border-radius: 2px;
-  background-color: #3f51b5;
-  border-color: #3f51b5;
+  background-color: #00bcd4;
+  border-color: #00bcd4;
 }
 [type=checkbox].filled-in:disabled:not(:checked) + label:before {
   background-color: transparent;
@@ -6333,13 +6333,13 @@ form p:last-child {
   height: 0;
 }
 .switch label input[type=checkbox]:checked + .lever {
-  background-color: #8a91b6;
+  background-color: #3dd1e3;
 }
 .switch label input[type=checkbox]:checked + .lever:before, .switch label input[type=checkbox]:checked + .lever:after {
   left: 18px;
 }
 .switch label input[type=checkbox]:checked + .lever:after {
-  background-color: #3f51b5;
+  background-color: #00bcd4;
 }
 
 .switch label .lever {
@@ -6367,7 +6367,7 @@ form p:last-child {
   transition: left 0.3s ease, background 0.3s ease, box-shadow 0.1s ease, transform 0.1s ease;
 }
 .switch label .lever:before {
-  background-color: rgba(63, 81, 181, 0.15);
+  background-color: rgba(0, 188, 212, 0.15);
 }
 .switch label .lever:after {
   background-color: #F1F1F1;
@@ -6377,7 +6377,7 @@ form p:last-child {
 input[type=checkbox]:checked:not(:disabled) ~ .lever:active::before,
 input[type=checkbox]:checked:not(:disabled).tabbed:focus ~ .lever::before {
   transform: scale(2.4);
-  background-color: rgba(63, 81, 181, 0.15);
+  background-color: rgba(0, 188, 212, 0.15);
 }
 
 input[type=checkbox]:not(:disabled) ~ .lever:active:before,
@@ -6605,7 +6605,7 @@ input[type=range] + .thumb {
   height: 0;
   width: 0;
   border-radius: 50%;
-  background-color: #3f51b5;
+  background-color: #00bcd4;
   margin-left: 7px;
   transform-origin: 50% 50%;
   transform: rotate(-45deg);
@@ -6614,7 +6614,7 @@ input[type=range] + .thumb .value {
   display: block;
   width: 30px;
   text-align: center;
-  color: #3f51b5;
+  color: #00bcd4;
   font-size: 0;
   transform: rotate(45deg);
 }
@@ -6644,7 +6644,7 @@ input[type=range]::-webkit-slider-thumb {
   height: 14px;
   width: 14px;
   border-radius: 50%;
-  background-color: #3f51b5;
+  background-color: #00bcd4;
   transform-origin: 50% 50%;
   margin: -5px 0 0 0;
   transition: 0.3s;
@@ -6671,7 +6671,7 @@ input[type=range]::-moz-range-thumb {
   height: 14px;
   width: 14px;
   border-radius: 50%;
-  background: #3f51b5;
+  background: #00bcd4;
   margin-top: -5px;
 }
 
@@ -6706,7 +6706,7 @@ input[type=range]::-ms-thumb {
   height: 14px;
   width: 14px;
   border-radius: 50%;
-  background: #3f51b5;
+  background: #00bcd4;
 }
 
 input[type=range]:focus::-ms-fill-lower {
