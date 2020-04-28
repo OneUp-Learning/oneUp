@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     {% include 'scripts.html' %}
 </head>
-
 <body>
     {% include 'heading.html' %}
     <main>
@@ -13,157 +11,171 @@
                 <h3>Badges</h3>
             </div>
         </div>
-            {% csrf_token %}
-            
-            <!--  added a title GGM -->
-            <div class="row">
-                <div class="col s12 m5 offset-m1">
-                    <h5>Automatic Rule Badges</h5>
-                </div>
-                <div class="col s12 m5  right-align">
-                    <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?isManualBadge=false">
-                        <i class="material-icons left">add_circle</i>Add AN AUTOMATIC BADGE</a>
-                </div>
-                <!-- Added a second button to the page so we can have buttons without conditions for manual usgage GGM -->
+        {% csrf_token %}
+        <!--  added a title GGM -->
+        <div class="row">
+            <div class="col s12 m5 offset-m1">
+                <h5>Automatic Rule Badges</h5>
             </div>
-            <div class="row">
-                <div class="col s12 m10 offset-m1">
-                        <div class="card-content">
-                          <ul id="sortableAutoBadges" class="collapsible" >
-                
-                                    {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in badgesInfo %}
-                                    
-                                    <li id={{badgeId}}>
-                                    <div class="collapsible-header" > <i style="justify-content: center; align-item: center" class="material-icons">swap_vert</i> 
-                                        <span style="max-width: 7%;min-width: 7%; left: 0px">
-                                            <img src="/{{badgeImage}}" alt="Badge Image" width="50px" height="50px">
-                                        </span>
-    
-                                        <span style="max-width: 30%;min-width: 30%; left: 0px">{{badgeName}}</span>
-                                        <span style="max-width: 45%;min-width: 45%; left: 0px"> {{badgeDescription}}</span>
-                                        
-                                        <span class="right-align" style="max-width: 15%;min-width: 15%;">
-                                            <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}"> Modify</a>
-                                        </span>
-                                    </li>
-                                    {% empty %}
-                                    <li>
-                                        <div class="center-align" colspan="4">
-                                            <i>No badges created</i>
-                                        </div>
-                                    </li>
-                                    {% endfor %}
-                                </li>
-                            </ul>
-                            <script>
-										$( function() {
-											$( "#sortableAutoBadges" ).sortable({
-
-												stop: function(event, ui) {
-
-												var itemOrder = $("#sortableAutoBadges").sortable("toArray");
-
-												var idsPositions = []
-
-												for (var i = 0; i < itemOrder.length; i++) {
-													if (itemOrder[i]){
-														idsPositions.push(String(itemOrder[i])+"---"+String(i));
-													}
-												}
-
-												var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-
-												console.log(idsPositions)
-
-												$.post( "/oneUp/instructors/ReorderBadges", {badgeIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
-													console.log(data)
-												});
-
-												}
-												});
-											});
-										</script>
-                        </div>
-                    </div>
-                </div>
-
-            <!-- created a second table to display the badge content GGM-->
-            <div class="row">
-                <div class="col s12 m5 offset-m1">
-                    <h5>Manual Badges</h5>
-                </div>
-                <div class="col s12 m5  right-align">
-                    <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?isManualBadge=true">
-                        <i class="material-icons left">add_circle</i>Add A Manual Badge</a>
-                </div>
-                <!-- Added a second button to the page so we can have buttons without conditions for manual usgage GGM -->
+            <div class="col s12 m5  right-align">
+                <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?isManualBadge=false">
+                    <i class="material-icons left">add_circle</i>Add An Automatic Badge</a>
             </div>
-
-            <div class="row">
-                <div class="col s12 m10 offset-m1">
-                        <div class="card-content">
-                          <ul id="sortableManualBadges" class="collapsible" >
-                
-                                    {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in manualBadgesInfo %}
-                                    
-                                    <li id={{badgeId}}>
-                                    <div class="collapsible-header" > <i style="justify-content: center; align-item: center" class="material-icons">swap_vert</i> 
-                                        <span style="max-width: 7%;min-width: 7%; left: 0px">
-                                            <img src="/{{badgeImage}}" alt="Badge Image" width="50px" height="50px">
-                                        </span>
-    
-                                        <span style="max-width: 30%;min-width: 30%; left: 0px">{{badgeName}}</span>
-                                        <span style="max-width: 45%;min-width: 45%; left: 0px"> {{badgeDescription}}</span>
-                                        
-                                        <span class="right-align" style="max-width: 15%; min-width: 15%;">
-                                            <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}&isManualBadge=true"> Modify</a>
-                                        </span>
-                                    </li>
-                                    {% empty %}
-                                    <li>
-                                        <div class="center-align">
-                                            <i>No badges created</i>
-                                        </div>
-                                    </li>
-                                    {% endfor %}
-                                </li>
-                            </ul>
-                            <script>
-										$( function() {
-											$( "#sortableManualBadges" ).sortable({
-
-												stop: function(event, ui) {
-
-												var itemOrder = $("#sortableManualBadges").sortable("toArray");
-
-												var idsPositions = []
-
-												for (var i = 0; i < itemOrder.length; i++) {
-													if (itemOrder[i]){
-														idsPositions.push(String(itemOrder[i])+"---"+String(i));
-													}
-												}
-
-												var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-
-												console.log(idsPositions)
-
-												$.post( "/oneUp/instructors/ReorderBadges", {badgeIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
-													console.log(data)
-												});
-
-												}
-												});
-											});
-										</script>
-                        </div>
-                    </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    {% if badgesInfo|length > 0 %}
+                    <ul id="sortable-auto-badges" class="collapsible" >
+                        {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in badgesInfo %}
+                        <li id={{badgeId}}>
+                            <div class="sortable-item">
+                                <div style="padding-right: 8px;">
+                                    <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+                                </div>
+                                <div style="width: 8%; padding-right: 8px;">
+                                    <img src="/{{badgeImage}}" alt="Badge Image" width="50px" height="50px">
+                                </div>
+                                <div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeName}}</div>
+                                <div style="width: 55%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeDescription}}</div>
+                                <div class="badge">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+                                    data-beloworigin="true" data-activates='dropdown-{{badgeId}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+                                        class="material-icons">more_vert</i></a>
+                                    <ul id='dropdown-{{badgeId}}' class='dropdown-content'>
+                                        <li><a href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}">Modify</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                        </li>
+                    </ul>
+                    {% else %}
+                    <p>No badges created</p>
+                    {% endif %}
                 </div>
-
             </div>
-        </form>
+        </div>
+        <!-- created a second table to display the badge content GGM-->
+        <div class="row">
+            <div class="col s12 m5 offset-m1">
+                <h5>Manual Badges</h5>
+            </div>
+            <div class="col s12 m5  right-align">
+                <a class="waves-effect waves-light btn" href="/oneUp/badges/EditDeleteBadge?isManualBadge=true">
+                    <i class="material-icons left">add_circle</i>Add A Manual Badge</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <div class="card-panel">
+                    {% if manualBadgesInfo|length > 0 %}
+                    <ul id="sortable-manual-badges" class="collapsible" >
+                        {% for i,badgeId,badgeName,badgeImage, badgeDescription, badgePosition in manualBadgesInfo %}
+                        <li id={{badgeId}}>
+                            <div class="sortable-item">
+                                <div style="padding-right: 8px;">
+                                    <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+                                </div>
+                                <div style="width: 8%; padding-right: 8px;">
+                                    <img src="/{{badgeImage}}" alt="Badge Image" width="50px" height="50px">
+                                </div>
+                                <div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeName}}</div>
+                                <div style="width: 55%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{badgeDescription}}</div>
+                                <div class="badge">
+                                    <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+                                    data-beloworigin="true" data-activates='dropdown-{{badgeId}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+                                        class="material-icons">more_vert</i></a>
+                                    <ul id='dropdown-{{badgeId}}' class='dropdown-content'>
+                                        <li><a href="/oneUp/badges/EditDeleteBadge?badgeID={{badgeId}}&isManualBadge=true">Modify</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No badges created</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </main>
     {% include 'footer.html' %}
 </body>
+<script>
+	$(document).ready(() => {
+        $("#sortable-auto-badges").sortable({
+			items: "li:not(.not-sortable)",
+            placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var item_list = $("#sortable-auto-badges").sortable("toArray");
+				var positions = []
 
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({type: 'badge', positions: positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+            stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+		$("#sortable-manual-badges").sortable({
+			items: "li:not(.not-sortable)",
+            placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var item_list = $("#sortable-manual-badges").sortable("toArray");
+				var positions = []
+
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({type: 'badge', positions: positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+            stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+	});
+</script>
 </html>

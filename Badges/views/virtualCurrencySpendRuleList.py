@@ -4,14 +4,17 @@ Created on Nov 9, 2017
 @author: Austin Hodge
 '''
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, ActionArguments, Conditions, FloatConstants, StringConstants
 from Badges.enums import OperandTypes
+from Badges.models import (ActionArguments, Conditions, FloatConstants,
+                           StringConstants, VirtualCurrencyCustomRuleInfo,
+                           VirtualCurrencyRuleInfo)
 from Badges.systemVariables import SystemVariable
-from Instructors.views.utils import initialContextDict
 from Instructors.constants import unlimited_constant
-from django.contrib.auth.decorators import login_required
+from Instructors.views.utils import initialContextDict
+
 
 @login_required
 def virtualCurrencySpendRuleList(request):
@@ -33,7 +36,7 @@ def virtualCurrencySpendRuleList(request):
         vcsAmount.append(rule.vcRuleAmount or 0)
         vcsLimit.append(rule.vcRuleLimit if (not rule.vcRuleLimit == unlimited_constant) and (not rule.vcRuleLimit == 0) else "Unlimited")
                     
-    context_dict['vcsRuleInfo'] = zip(range(1,len(vcsRuleID)+1),vcsRuleID,vcsRuleName,vcsAmount, vcsLimit, position)
+    context_dict['vcsRuleInfo'] = list(zip(range(1,len(vcsRuleID)+1),vcsRuleID,vcsRuleName,vcsAmount, vcsLimit, position))
 
     return render(request,'Badges/VirtualCurrencySpendRuleList.html', context_dict)
 

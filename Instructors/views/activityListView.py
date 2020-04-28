@@ -4,20 +4,20 @@ Created on March 11, 2015
 @author: dichevad
 '''
 
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.decorators import instructorsCheck
-from Instructors.models import Activities, ActivitiesCategory
-from Students.models import StudentRegisteredCourses, StudentActivities
-from Instructors.views.utils import initialContextDict
+from django.shortcuts import redirect, render
+
 from Instructors.constants import uncategorized_activity
-from django.shortcuts import redirect
+from Instructors.models import Activities, ActivitiesCategory
+from Instructors.views.utils import initialContextDict
+from oneUp.decorators import instructorsCheck
+from Students.models import StudentActivities, StudentRegisteredCourses
 
 
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
 def createContextForActivityList(request, context_dict, currentCourse):
-
+    # TODO: This whole file needs to be cleaned/refactored
     activity_ID = []
     activity_Name = []
     description = []
@@ -30,14 +30,13 @@ def createContextForActivityList(request, context_dict, currentCourse):
     categoryIds = []
     categoryWeights = []
 
-    if(ActivitiesCategory.objects.filter(name=uncategorized_activity).first() == None):
+    if ActivitiesCategory.objects.filter(name=uncategorized_activity, courseID=currentCourse).first() == None:
         defaultCat = ActivitiesCategory()
         defaultCat.name = uncategorized_activity
         defaultCat.courseID = currentCourse
         defaultCat.save()
 
-    categories = ActivitiesCategory.objects.filter(
-        courseID=currentCourse).order_by("catPosition")
+    categories = ActivitiesCategory.objects.filter(courseID=currentCourse).order_by("catPosition")
     for cat in categories:
         cats.append(cat)
 
@@ -52,16 +51,30 @@ def createContextForActivityList(request, context_dict, currentCourse):
                 list(categories_l)[0:1]'''
         count = 1
         for cat in categories:
-            cat_activities = category_activities(count, cat, currentCourse)
-            categoryNames.append(cat.name)
-            categoryIds.append(cat.categoryID)
-            if context_dict['ccparams'].xpWeightAPoints > 0:
-                categoryWeights.append(cat.xpWeight)
-            else:
-                categoryWeights.append(None)
-            activitiesInCategory.append(cat_activities)
-            count += Activities.objects.filter(category=cat,
-                                               courseID=currentCourse).count()
+            if cat.name != uncategorized_activity:
+                cat_activities = category_activities(count, cat, currentCourse)
+                categoryNames.append(cat.name)
+                categoryIds.append(cat.categoryID)
+                if context_dict['ccparams'].xpWeightAPoints > 0:
+                    categoryWeights.append(cat.xpWeight)
+                else:
+                    categoryWeights.append(None)
+                activitiesInCategory.append(cat_activities)
+                count += Activities.objects.filter(category=cat,
+                                                courseID=currentCourse).count()
+        
+        # Add uncategorized activity last
+        cat = ActivitiesCategory.objects.filter(name=uncategorized_activity, courseID=currentCourse).first()
+        cat_activities = category_activities(count, cat, currentCourse)
+        categoryNames.append(cat.name)
+        categoryIds.append(cat.categoryID)
+        if context_dict['ccparams'].xpWeightAPoints > 0:
+            categoryWeights.append(cat.xpWeight)
+        else:
+            categoryWeights.append(None)
+        activitiesInCategory.append(cat_activities)
+        count += Activities.objects.filter(category=cat,
+                                        courseID=currentCourse).count()
 
         activities = Activities.objects.filter(
             category=cat, courseID=currentCourse)
@@ -95,14 +108,14 @@ def createContextForActivityList(request, context_dict, currentCourse):
             context_dict['currentCat'] = cat
 
     context_dict["categories"] = cats
-    context_dict["categories_range"] = zip(
-        activitiesInCategory, categoryIds, categoryNames, categoryWeights)
+    context_dict["categories_range"] = list(zip(
+        activitiesInCategory, categoryIds, categoryNames, categoryWeights))
 
     # The range part is the index numbers.
-    context_dict['activity_range'] = zip(
-        range(1, activities.count()+1), activity_ID, activity_Name, description, points)
-    context_dict['activitesForCats'] = zip(
-        range(1, activities.count()+1), activity_ID, activity_Name, description, points)
+    context_dict['activity_range'] = list(zip(
+        range(1, activities.count()+1), activity_ID, activity_Name, description, points))
+    context_dict['activitesForCats'] = list(zip(
+        range(1, activities.count()+1), activity_ID, activity_Name, description, points))
 
     # Get StudentID and StudentName for every student in the current course
     # This context_dict is used to populate the scrollable check list for student names
@@ -155,7 +168,7 @@ def category_activities(count, category, current_course):
         points.append(round(activity.points))
         activityPositions.append(activity.activityPosition)
     last = count + len(activity_IDs)
-    return zip(range(count, last), activity_IDs, activity_Names, descriptions, points, activityPositions)
+    return list(zip(range(count, last), activity_IDs, activity_Names, descriptions, points, activityPositions))
 
 
 @login_required

@@ -1288,7 +1288,7 @@ def studentScore(for_student, course, unique_id, result_only=False, last_ran=Non
                 # Ignore challenges that have invalid total scores
                 if seriousChallengeAttempts.exists() and challenge['totalScore'] < 0:
                     continue
-
+                
                 # Get the scores for this challenge then either add the max score
                 # or the first score to the earned points variable
                 max_score = 0
@@ -1313,11 +1313,11 @@ def studentScore(for_student, course, unique_id, result_only=False, last_ran=Non
                     else:
                         earnedSeriousChallengePoints += first_attempt
                         score.append(first_attempt)
-
                     chall_name.append(challenge['challengeName'])
                         
                     # Total possible points for challenge
                     combined_score = challenge['totalScore'] + challenge['manuallyGradedScore']
+                    total.append(combined_score)
                     totalPointsSeriousChallenges += float(combined_score) if combined_score > 0 else 1
              
             if count > 0:
@@ -1457,14 +1457,14 @@ def studentScore(for_student, course, unique_id, result_only=False, last_ran=Non
         for sk in cskills:
             
             skill = Skills.objects.get(skillID=sk.skillID.skillID)
-            skill_Name.append(skill.skillName)
+            
             userCount = 0
             classAvgSkill = 0
             
             for student in students:
                 sp = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=student.studentID,skillID = skill)
                 # print ("Skill Points Records", sp)
-                
+                skill_Name.append(skill.skillName)
                 if not sp.exists():  
                     skill_Points.append(0)                     
                 else:    

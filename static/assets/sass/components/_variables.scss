@@ -132,6 +132,7 @@ $collapsible-height: 3rem !default;
 $collapsible-line-height: $collapsible-height !default;
 $collapsible-header-color: $surface-color !default;
 $collapsible-border-color: if($dark-mode, lighten($collapsible-header-color, 5%), #ddd) !default;
+$collapsible-body-color: $surface-color !default;
 
 
 // 7. Chips
@@ -200,7 +201,7 @@ $input-invalid-border: 1px solid $input-error-color !default;
 $placeholder-text-color: if($dark-mode, darken($input-border-color, 40%), lighten($input-border-color, 40%)) !default;
 
 // Radio Buttons
-$radio-fill-color: $primary-color !default;
+$radio-fill-color: if($dark-mode, $primary-color, $secondary-color) !default;
 $radio-empty-color: #5a5a5a !default;
 $radio-border: 2px solid $radio-fill-color !default;
 
@@ -222,14 +223,14 @@ $select-disabled-color: if($dark-mode, lighten($select-background, 12%), darken(
 $select-caret-color: $primary-text-surface-color;
 
 // Switches
-$switch-bg-color: if($dark-mode, $primary-color-dark, $primary-color) !default;
+$switch-bg-color: if($dark-mode, $primary-color-dark, $secondary-color) !default;
 $switch-checked-lever-bg: desaturate(lighten($switch-bg-color, 15%), 25%) !default;
 $switch-unchecked-bg: #F1F1F1 !default;
 $switch-unchecked-lever-bg: rgba(0,0,0,.38) !default;
 $switch-radius: 15px !default;
 
 // Checkboxes
-$checkbox-bg-color: $primary-color !default;
+$checkbox-bg-color: if($dark-mode, $primary-color, $secondary-color) !default;
 
 
 // 12. Global
@@ -317,8 +318,8 @@ $table-striped-color: if($dark-mode, lighten($surface-high-color, 5%), #f2f2f2) 
 // ==========================================================================
 
 $toast-height: 48px !default;
-$toast-color: if($dark-mode, #ffffff, #323232) !default;
-$toast-text-color: $primary-text-color !default;
+$toast-color: if($dark-mode, $surface-highest-color, #323232) !default;
+$toast-text-color: $primary-text-surface-color !default;
 $toast-action-color: $primary-color-dark;
 
 // 21. ToolTips

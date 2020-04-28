@@ -5,280 +5,206 @@
 	{% include 'scripts.html' %}
 	<meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"> 
-  <script>
-   $( function() {
-	$( "#sortableTopics" ).sortable({
-
-		stop: function(event, ui) {
-
-		var itemOrder = $('#sortableTopics').sortable("toArray");
-
-		var idsPositions = []
-
-		for (var i = 0; i < itemOrder.length; i++) {
-			if (itemOrder[i]){
-				console.log("Position: " + i + " ID: " + itemOrder[i]);
-				idsPositions.push(String(itemOrder[i])+"---"+String(i));
-			}
-		}
-
-		 var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-
-		console.log(idsPositions)
-
-		$.post( "/oneUp/instructors/ReorderTopics", {topicIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
-			console.log(data)
-         });
-
-		}
-		});
-	});
-  </script>
 </head>
 
 <body>
 
 	{% include 'heading.html' %}
 	<main>
-
 		<div class="row center-align">
 			<div class="col s12">
 				<h3> Warm Up Challenges</h3>
 			</div>
 		</div>
-		<!--<form name="challengeOrder" action="/oneUp/instructors/reorderChallenges" method="POST">-->
-			<input type="hidden" name="courseID" value="{{courseID}}" id="courseID">
-			<input type="hidden" name="challengeType" value="Warmup" id="challengeType{{courseID}}">
-			<div class="row right-align">
-				<div class="col s12 m10 offset-m1">
-					<a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?warmUp">
-						<i class="material-icons left">add_circle</i>Add A WarmUp</a>
-					<a class="modal-trigger waves-effect waves-light btn" href="#modal-create-topic">
-						<i class="modal-trigger material-icons left">add_circle</i>Add A Topic</a>
-					<div id="modal-create-topic" class="modal">
-						<div class="modal-content">
-							<div class="row center-align" style="margin: 0;">
-								<form name="question" action="/oneUp/instructors/topicsCreate" method="POST">
-									{% csrf_token %}
-									<div>
-										<h4>Create a topic</h4>
-									</div>
-									<div class="row center-align" style="margin-top: 50px;">
-										<label class="left" for="topicName"><span class= "red-text">*</span> Topic Name</label>
-										<input value="{{topicName}}" name="topicName" id="topicName" type="text" class="validate">
-										<input value="{{True}}" name="warmupChall" id="warmupChall" type="hidden" class="validate">
-									</div>
-								
-									<div class="modal-footer">
-										<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
-										<button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
-										</button>
-									</div>
-								</form>
-							</div>
+		<div class="row right-align">
+			<div class="col s12 m10 offset-m1">
+				<a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?warmUp">
+					<i class="material-icons left">add_circle</i>Add A WarmUp</a>
+				<a class="modal-trigger waves-effect waves-light btn" href="#modal-create-topic">
+					<i class="modal-trigger material-icons left">add_circle</i>Add A Topic</a>
+				<div id="modal-create-topic" class="modal">
+					<div class="modal-content">
+						<div class="row center-align" style="margin: 0;">
+							<form name="question" action="/oneUp/instructors/topicsCreate" method="POST">
+								{% csrf_token %}
+								<div>
+									<h4>Create a topic</h4>
+								</div>
+								<div class="row center-align" style="margin-top: 50px;">
+									<label class="left" for="topicName"><span class= "red-text">*</span> Topic Name</label>
+									<input value="{{topicName}}" name="topicName" id="topicName" type="text" class="validate">
+									<input value="{{True}}" name="warmupChall" id="warmupChall" type="hidden" class="validate">
+								</div>
+							
+								<div class="modal-footer">
+									<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+									<button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
+									</button>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col s12 m10 offset-m1">
-					<div class="card-panel">
-						<ul id="sortableTopics" class="collapsible" data-collapsible="expandable">
-							{% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
-							<input type="hidden" name="topicID" value="{{topic_ID}}">
-							<li id={{topic_ID}}>
-									<div class="collapsible-header" ><i class="material-icons">swap_vert</i><i class="material-icons">layers</i> {{topic_Name}}&nbsp;&nbsp;
-										{% if all_challenges != '0' and challenges_count > 0 %}
-										<span class="badge">{{challenges_count}}</span>
-										{% else %}
-										<span class="badge">0</span>
-										{% endif %}
-
-										<!--{% if not topic_Name == "Miscellaneous"%}
-											<div class="no-padding" >
+		</div>
+		<div class="row">
+			<div class="col s12 m10 offset-m1">
+				<div class="card-panel">
+					{% if topic_range|length > 0 %}
+					<ul id="sortable-topics" class="collapsible" data-collapsible="expandable">
+						{% for i,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
+						<li id={{topic_ID}} {% if forloop.last %}class="not-sortable"{% endif %}>
+							<div class="collapsible-header" ><i class="material-icons">swap_vert</i><i class="material-icons">layers</i> {{topic_Name}}&nbsp;&nbsp;
+								{% if all_challenges != '0' and challenges_count > 0 %}
+								<span class="badge">{{challenges_count}}</span>
+								{% else %}
+								<span class="badge">0</span>
+								{% endif %}
+							</div>
+							<div class="collapsible-body">
+								<ul class="sortable-challenges" data-topic-id="{{topic_ID}}" style="padding-bottom: 1px;">
+									{% for j, chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
+									<li id={{chall_ID}} data-topic-id="{{topic_ID}}"> 
+										<div class="sortable-item">
+											<div style="padding-right: 8px;">
+												<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+											</div>
+											<div style="width: 85%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_Name}}</div>
+											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_visible}}</div>
+											<div class="badge">
 												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-														data-beloworigin="true" data-activates='dropdown-{{topic_ID}}' data-position="right" data-delay="50"
-														data-tooltip="Options">
-															<i class="material-icons">more_vert</i>
-														</a>
-														<ul id='dropdown-{{topic_ID}}' class='dropdown-content'>
-															<li>
-																<a class="modal-trigger" href="#modal-edit-topic-{{topic_ID}}">Edit</a>
-															</li>
-															<li class="divider"></li>
-															<li>
-																<a class="modal-trigger" href="#modal_delete-topic-{{topic_ID}}">Delete</a>
-															</li>
-														</ul>
-														<div id="modal-edit-topic-{{topic_ID}}" class="modal">
-																<div class="modal-content">
-																	<div class="row center-align">
-																		<form name="question" action="/oneUp/instructors/topicsCreate" method="POST">
-																			{% csrf_token %}
-																			<div>
-																				<h4>Create a topic</h4>
-																			</div>
-																			<div class="row center-align" style="margin-top: 50px;">
-																				<input type="hidden" name="topicID" id="topicID" value="{{topic_ID}}">
-																				<label class="left" for="topicName"><span class= "red-text">*</span> Topic Name</label>
-																				<input value="{{topic_Name}}" name="topicName" id="topicName" type="text" class="validate" pattern=".*\S+.*" required>
-																			</div>
-																		
-																			<div class="modal-footer">
-																				<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-																				<button class="btn waves-effect waves-light" type="submit" name="submit"> Save 
-																				</button>
-																			</div>
-																		</form>
-																	</div>
-																</div>
-															</div>
-														<div id="modal_delete-topic-{{topic_ID}}" class="modal">
-															<div class="modal-content">
-																<h5>Are you sure you want to delete?</h5>
-															</div>
-															<div class="modal-footer">
-																<form action="/oneUp/instructors/deleteTopic" method="POST">
-																	{% csrf_token %}
-																 	<input type="hidden" name="topicID" value="{{topic_ID}}">
-																	<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat" style="color: #00bcd4">Cancel</a>
-																	<button class="btn waves-effect waves-light" type="submit" name="submit"> delete </button>
-																</form>
-															</div>
-														</div>
-									</div>
-									{% else %}
-										<div class="no-padding" >
-												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-														data-beloworigin="true" data-activates='dropdown-{{topic_ID}}' data-position="right" data-delay="50"
-														data-tooltip="Options">
-															<i class="material-icons">more_vert</i>
-														</a>
-										</div>
-									{% endif %}
-									-->
-								</div>
-								<div class="collapsible-body">
-									<!--<table>
-										<thead>
-											<th>Name</th>
-											<th>Visibility</th>
-											<th>Position</th>
-											<th></th>
-										</thead>
-										<tbody>-->
-										<ul id="sortableChalls{{topic_ID}}">
-											{% for j, chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
-											<input type="hidden" name="challengeID" value="{{chall_ID}}">
-											<li class="row" id={{chall_ID}} > 
-											   <div class="no-padding collapsible-header" > &nbsp&nbsp&nbsp&nbsp&nbsp
-												<i class="material-icons">swap_vert</i>
-												<span style="max-width: 40%;min-width: 40%">{{chall_Name}}</span>
-												
-												<!--<td class="no-padding">
-														<input placeholder="Points" value="{{chall_position}}" name="{{chall_ID}}" id="chall_position" maxlength="4"
-														 type="number" class="validate" min="0" required>
-												</td>-->
-												<span class="badge right-align">{{chall_visible}}</span>
-												<span class="badge right-align">
-													<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
-													 data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50"
-													 data-tooltip="Options">
-														<i class="material-icons">more_vert</i>
-													</a>
-													<ul id='dropdown-{{i}}-{{j}}' class='dropdown-content'>
-														<li>
-															<a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a>
-														</li>
-														<li>
-															<a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a>
-														</li>
-														<li>
-															<a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a>
-														</li>
-														<li class="divider"></li>
-														<li>
-															<a class="modal-trigger" href="#modal_delete-{{i}}-{{j}}">Delete</a>
-														</li>
-													</ul>
-													<div id="modal_delete-{{i}}-{{j}}" class="modal">
-														<div class="modal-content">
-															<h5>Are you sure you want to delete?</h5>
-															<p>Problems will not be deleted. They will be sent to unassigned problems section</p>
-														</div>
-														<div class="modal-footer">
-															<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
-															<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteChallenge('{{chall_ID}}')">Delete
-															</button>
-														</div>
+												data-beloworigin="true" data-activates='dropdown-{{i}}-{{j}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+													class="material-icons">more_vert</i></a>
+												<ul id='dropdown-{{i}}-{{j}}' class='dropdown-content'>
+													<li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&wView">View</a></li>
+													<li><a href="/oneUp/instructors/challengeCreate?warmUp=True&challengeID={{chall_ID}}">Edit</a></li>
+													<li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
+													<li class="divider"></li>
+													<li><a class="modal-trigger" href="#modal_delete-{{i}}-{{j}}">Delete</a></li>
+												</ul>
+												<div id="modal_delete-{{i}}-{{j}}" class="modal">
+													<div class="modal-content">
+														<h5>Are you sure you want to delete?</h5>
+														<p>Problems will not be deleted. They will be sent to unassigned problems section</p>
 													</div>
-												</span>
-												
+													<div class="modal-footer">
+														<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+														<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteChallenge('{{chall_ID}}')">Delete
+														</button>
+													</div>
 												</div>
-											</li>
-											{% empty %}
-											<li>
-												<td class="center-align" colspan="4">
-													<i>There are no warmup challenges created for this topic</i>
-												</td>
-											</li>
-											{% endfor %}
-										</ul>
-										<script>
-										$( function() {
-											$( "#sortableChalls"+"{{topic_ID}}" ).sortable({
-
-												stop: function(event, ui) {
-
-												var itemOrder = $('#sortableChalls'+'{{topic_ID}}').sortable("toArray");
-
-												var idsPositions = []
-
-												for (var i = 0; i < itemOrder.length; i++) {
-													if (itemOrder[i]){
-														console.log("Chall Position: " + i + " ID: " + itemOrder[i]);
-														idsPositions.push(String(itemOrder[i])+"---"+String(i));
-													}
-												}
-
-												var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-
-												console.log(idsPositions)
-
-												$.post( "/oneUp/instructors/ReorderChalls", {challIdsPositions: idsPositions , csrfmiddlewaretoken: csrftoken,}, function( data ) {
-													console.log(data)
-												});
-
-												}
-												});
-											});
-										</script>
-										<!--</tbody>
-									</table>-->
-								</div>
-							
-							</li>
-							{% empty %}
-							<li>There are no topics yet</li>
-							{% endfor %}
-						</ul>
-					</div>
+											</div>
+										</div>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</li>
+						{% endfor %}
+					</ul>
+					{% else %}
+					<p>Please add topics to your course</p>
+					{% endif %}
 				</div>
 			</div>
-		<!--</form>-->
-		<!--<ul id="sortable">
-  <li ><span ></span>Item 1</li>
-  <li ><span ></span>Item 2</li>
-  <li ><span ></span>Item 3</li>
-  <li ><span ></span>Item 4</li>
-  <li ><span ></span>Item 5</li>
-  <li ><span ></span>Item 6</li>
-  <li ><span ></span>Item 7</li>
-</ul>-->
+		</div>
 	</main>
-
 	{% include 'footer.html' %}
 </body>
+<script>
+	$(document).ready(() => {
+		$("#sortable-topics").sortable({
+			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var item_list = $("#sortable-topics").sortable("toArray");
+				var positions = []
+
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({type: 'topic', positions: positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+		$(".sortable-challenges").sortable({
+			connectWith: ".sortable-challenges",
+			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var topic_id = $(event.target).data("topic-id");
+				var item_list = $(`.sortable-challenges[data-topic-id="${topic_id}"]`).sortable("toArray");
+				var positions = []
+				// console.log(item_list);
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({"type": 'challenge', "positions": positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			receive: (event, ui) => {
+				var topic_id = $(event.target).data("topic-id");
+				var challenge_id = ui.item[0].id;
+
+				$(`#${challenge_id}`).data("topic-id", topic_id);
+				
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({"type": 'challenge', "item-id": parseInt(challenge_id), "section-id": parseInt(topic_id)})
+				};
+				fetch("/oneUp/instructors/receiveItemInSection", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+	});
+</script>
 <script>
 	function deleteChallenge(challenge_id) {
 		function getCookie(name) {
@@ -323,5 +249,4 @@
 		});
 	}
 </script>
-
 </html>

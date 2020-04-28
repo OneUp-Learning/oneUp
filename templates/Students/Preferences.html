@@ -19,7 +19,7 @@
                             <input type="hidden" name="scpID" id="scpID" value="{{scpID}}">
                             <div class="card-content">
                                     <span class="card-title">Choose View Options</span>
-                            {% if studCanChangeBadgeVis %}
+                            {% if ccparams.badgesUsed and studCanChangeBadgeVis %}
                             <div class="switch">
                                 <label>
                                     Display Class Badges
@@ -33,7 +33,7 @@
                             </div>
                             <br />
                             {% endif %}
-                            {% if studCanChangeclassAverageVis %}
+                            {% if ccparams.classAverageUsed and studCanChangeclassAverageVis %}
                             <div class="switch">
                                 <label>
                                     Display Class Averages
@@ -47,7 +47,7 @@
                             </div>
                             <br />
                             {% endif %}
-                            {% if studCanChangeLeaderboardVis %}
+                            {% if ccparams.leaderboardUsed and studCanChangeLeaderboardVis %}
                             <div class="switch">
                                 <label>
                                     Display Class Leaderboard
@@ -61,7 +61,7 @@
                             </div>
                             <br />
                             {% endif %}
-                            {% if studCanChangeClassSkillsVis %}
+                            {% if ccparams.classSkillsDisplayed and studCanChangeClassSkillsVis %}
                             <div class="switch">
                                 <label>
                                     Display Class Skills

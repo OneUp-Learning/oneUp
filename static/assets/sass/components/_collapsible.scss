@@ -65,6 +65,13 @@
 
 }
 
+// Sortable Collapsible AH
+.card-panel {
+  .collapsible-body {
+    background-color: $collapsible-body-color;
+  }
+}
+
 // Popout Collapsible
 
 .collapsible.popout {

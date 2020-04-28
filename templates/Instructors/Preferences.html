@@ -184,6 +184,19 @@
                                         </label>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Display class average
+                                            {% if classAverageUsed %}
+                                            <input name="classAverageUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="classAverageUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -404,19 +417,6 @@
                                             <input name="studCanChangeGoal" type="checkbox" checked>
                                             {% else %}
                                             <input name="studCanChangeGoal" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Display class average on student achievement page
-                                            {% if classAverageUsed %}
-                                            <input name="classAverageUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="classAverageUsed" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>
