@@ -227,18 +227,24 @@
                               </script> 
                            </div>
                         </div>
+                        <div class="row">
+                           <div class="col s12">
+                              <h5>Hints</h5>
+                           </div>
+                        </div>
                         <div class="left-align">
-                           <div class="switch col s12">
-                              <label>
-                                  Enable Hints
-                                  {% if hintUsed %}
-                                  <input name="hintUsed" type="checkbox" checked>
-                                  {% else %}
-                                  <input name="hintUsed" type="checkbox">
-                                  {% endif %}
-                                  <span class="lever secondary-content"></span>
+                           <div class="col switch">
+                              <label class="row left-align">
+                                 <div class="col s9 left-align">Enable Hints for This Question: </div>
+                                 <div class="col s3 left-align">
+                                    {% if hintUsed %}
+                                    <input name="hintUsed" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="hintUsed" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
                               </label>
-                          </div>
+                           </div>
                         </div>
                         <div class="input-field col s12">
                            <i class="material-icons prefix">mode_edit</i>
