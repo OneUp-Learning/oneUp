@@ -481,13 +481,19 @@ def moveTestStudentObjToBottom(student_list):
     filtered_student_list = []
     test_student_list = []
     for i in range(0, len(student_list)):
-        if student_list[i][2] == "Test Student":  
+        if student_list[i][2].startswith("(Test Student)"):  
             test_student_list.append(student_list[i])
         else: 
             filtered_student_list.append(student_list[i])
 
+    # sort the test students
+    test_student_list = sorted(
+                test_student_list, key=lambda x: x[2].casefold())
+
     #append at end
     for test_student in test_student_list:
         filtered_student_list.append(test_student)
+
+    
     print("resulting student list", student_list, filtered_student_list)
     return filtered_student_list
