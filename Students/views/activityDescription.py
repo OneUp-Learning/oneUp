@@ -19,7 +19,7 @@ from Badges.enums import Event
 from Badges.events import register_event
 from Badges.systemVariables import activityScore
 from Instructors.models import Activities, UploadedActivityFiles, UploadedFiles
-from Instructors.views.utils import current_localtime
+from Instructors.views.utils import current_localtime, datetime_to_local
 from oneUp.settings import MEDIA_ROOT
 from Students.models import Student, StudentActivities, StudentFile
 from Students.views.utils import studentInitialContextDict
@@ -32,11 +32,11 @@ def ActivityDetail(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
 
-    if 'currentCourseID' in request.session:
-        # Displaying the list of challenges that the student has taken from database
-        #studentId = Student.objects.filter(user=request.user)
-        studentId = context_dict['student']
+    # Displaying the list of challenges that the student has taken from database
+    #studentId = Student.objects.filter(user=request.user)
+    studentId = context_dict['student']
 
+    if request.method == 'GET':
         if 'activityID' in request.GET:  # get the activtiy for the student
             context_dict['activityID'] = request.GET['activityID']
             #context_dict['activity'] = StudentActivities.objects.get(pk=request.GET['activityID'])
@@ -47,6 +47,13 @@ def ActivityDetail(request):
             # If the act has files add them to the webpage
             act = request.GET['activityID']
             activity = Activities.objects.get(activityID=act)
+
+            # Return if the current time is not within window
+            if activity.hasStartTimestamp and datetime_to_local(activity.startTimestamp) > current_localtime():
+                return redirect('/oneUp/students/ActivityList')
+            if activity.hasEndTimestamp and datetime_to_local(activity.endTimestamp) <= current_localtime():
+                return redirect('/oneUp/students/ActivityList')
+
             context_dict['activity'] = activity            
             context_dict['hasDueDate'] = activity.hasDeadline
 
@@ -55,7 +62,7 @@ def ActivityDetail(request):
             # print(instructorActFiles)
             instructFiles = []
 
-            if(instructorActFiles):
+            if instructorActFiles:
                 for f in instructorActFiles:
                     instructFiles.append(f.activityFileName)
 
@@ -72,89 +79,98 @@ def ActivityDetail(request):
                 studentFile = StudentFile.objects.filter(
                     studentID=studentId, activity=student_activity, latest=True)
                 context_dict['comment'] = student_activity.comment
-                context_dict['isSubmitted'] = True
-                context_dict['submissionTime'] = student_activity.timestamp
-                context_dict['score'] = student_activity.activityScore
+                context_dict['isSubmitted'] = student_activity.submitted
+                context_dict['submissionTime'] = student_activity.submissionTimestamp
+                context_dict['isGraded'] = activity.isGraded
+                if student_activity.graded:
+                    context_dict['score'] = student_activity.activityScore
+                    context_dict['bonus'] = student_activity.bonusPointsAwarded
+                else:
+                    context_dict['score'] = "-"
+                    context_dict['bonus'] = "-"
                 context_dict['feedback'] = student_activity.instructorFeedback
-                # we are allowed to upload files
-                if(activity.isFileAllowed == True and isDisplayTimePassed(activity.endTimestamp)):
-                    if(student_activity.graded):
-                        context_dict['canUpload'] = False
-                        context_dict['isGraded'] = True
-
+                
+                if student_activity.submitted:
+                    if activity.hasDeadline and datetime_to_local(student_activity.submissionTimestamp) > datetime_to_local(activity.deadLine):
+                        context_dict['submit_status'] = "Late Submission"
                     else:
-                        # uploaded a file but can still add more files
-                        if studentFile and student_activity.numOfUploads >= activity.uploadAttempts:
-                            context_dict['canUpload'] = False
+                        context_dict['submit_status'] = "Submitted"
 
-                        # You haven't uploaded enough attempts file
-                        else:
-                            context_dict['canUpload'] = True
-
-                    fileName = getUploadedFileNames(studentFile)
-                    context_dict['fileName'] = fileName
+                # we are allowed to upload files
+                if activity.isFileAllowed == True and not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)):
+                    if student_activity.graded or (studentFile and student_activity.numOfUploads >= activity.uploadAttempts):
+                        context_dict['canUpload'] = False
+                    else:
+                        context_dict['canUpload'] = True
 
                 else:  # not allowed to upload files
                     context_dict['canUpload'] = False
-                    fileName = getUploadedFileNames(studentFile)
-                    context_dict['fileName'] = fileName
+                
+                fileName = getUploadedFileNames(studentFile)
+                context_dict['fileName'] = fileName
+
             else:
-                if(activity.isFileAllowed == True and isDisplayTimePassed(activity.endTimestamp)):
+                if activity.isFileAllowed == True and not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)):
                     context_dict['canUpload'] = True
                 else:
                     context_dict['canUpload'] = False
-                context_dict['score'] = 0
 
-        # and len(request.FILES) > 0 : #means that we are tryng to upload some files
-        if request.POST:
-            # print(len(request.FILES.getlist('actFile')))
+                context_dict['isSubmitted'] = False
+                context_dict['score'] = "-"
+                context_dict['bonus'] = "-"
+                context_dict['feedback'] = ""
+                context_dict['isGraded'] = False
+        else:
+            return redirect('/oneUp/students/ActivityList')
 
-            files = []
+    elif request.method == 'POST':
+        # print(len(request.FILES.getlist('actFile')))
 
-            for currentFile in request.FILES.getlist('actFile'):
-                    # print(currentFile.name)
-                files.append(currentFile)
+        files = []
 
-            activity = Activities.objects.get(
-                activityID=request.POST['activityID'], courseID=currentCourse)
-            if StudentActivities.objects.filter(activityID=activity, studentID=studentId, courseID=currentCourse):
-                student_activity = StudentActivities.objects.get(
-                    activityID=activity, studentID=studentId, courseID=currentCourse)
-                student_activity.comment = request.POST['comment']
-                context_dict['isGraded'] = student_activity.graded
+        for currentFile in request.FILES.getlist('actFile'):
+                # print(currentFile.name)
+            files.append(currentFile)
 
-                if files:
-                    student_activity.numOfUploads += 1
-
-                student_activity.save()
-
-            else:
-                student_activity = StudentActivities()
-                student_activity.studentID = studentId
-                student_activity.activityID = activity
-                student_activity.courseID = currentCourse
-                student_activity.activityScore = -1
-                student_activity.comment = request.POST['comment']
-                if files:
-                    student_activity.numOfUploads = 1
-                else:
-                    student_activity.numOfUploads = 0
-                student_activity.save()
+        activity = Activities.objects.get(
+            activityID=request.POST['activityID'], courseID=currentCourse)
+        if StudentActivities.objects.filter(activityID=activity, studentID=studentId, courseID=currentCourse):
+            student_activity = StudentActivities.objects.get(
+                activityID=activity, studentID=studentId, courseID=currentCourse)
+            student_activity.comment = request.POST['comment']
+            student_activity.submissionTimestamp = current_localtime()
+            student_activity.submitted = True
 
             if files:
-                fileName = makeFileObjects(
-                    studentId, currentCourse, files, student_activity)
+                student_activity.numOfUploads += 1
 
-            context_dict['isSubmitted'] = True
+            student_activity.save()
 
-            context_dict['files'] = files
+        else:
+            student_activity = StudentActivities()
+            student_activity.studentID = studentId
+            student_activity.activityID = activity
+            student_activity.courseID = currentCourse
+            student_activity.activityScore = 0
+            student_activity.submissionTimestamp = current_localtime()
+            student_activity.submitted = True
+            student_activity.comment = request.POST['comment']
+            if files:
+                student_activity.numOfUploads = 1
+            else:
+                student_activity.numOfUploads = 0
+            student_activity.save()
 
-            register_event(Event.activitySubmission, request,
-                           studentId, activity.activityID)
+        if files:
+            fileName = makeFileObjects(
+                studentId, currentCourse, files, student_activity)
 
-            return redirect('/oneUp/students/ActivityList', context_dict)
+        register_event(Event.activitySubmission, request,
+                        studentId, activity.activityID)
 
-        return render(request, 'Students/ActivityDescription.html', context_dict)
+        return redirect('/oneUp/students/ActivityList')
+
+    return render(request, 'Students/ActivityDescription.html', context_dict)
 
 
 def makeFileObjects(studentId, currentCourse, files, studentActivities):
@@ -230,12 +246,7 @@ def makeFileObjects(studentId, currentCourse, files, studentActivities):
 
 
 def isDisplayTimePassed(endTimeStamp):
-
-    if endTimeStamp < current_localtime():
-        return False
-    else:
-        return True
-
+    return endTimeStamp < current_localtime()
 
 def checkTimes(endTimestamp, deadLine):
 

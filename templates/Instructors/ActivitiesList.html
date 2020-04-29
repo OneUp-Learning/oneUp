@@ -103,15 +103,16 @@
 							<div class="collapsible-body">
 								<ul class="sortable-activities" data-category-id="{{categoryId}}"
 									style="padding-bottom: 1px;">
-									{% for i, activityID, activityName, description, points, activityPosition in activities %}
+									{% for i, activityID, activityName, description, start_Timestamp,end_Timestamp, deadline, points, activityPosition in activities %}
 									<li id="{{activityID}}" data-category-id="{{categoryId}}">
 										<div class="sortable-item">
 											<div style="padding-right: 8px;">
 												<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
 											</div>
 											<div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{activityName}}</div>
-											<div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{description}}</div>
-											<div style="width: 25%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{points}} Points</div>
+											<div style="width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{description}}</div>
+											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{points}} Points</div>
+											<div style="width: 20%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{% if deadline %} Due at {{deadline}} {% endif %}</div>
 											<div class="badge">
 												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
 												data-beloworigin="true" data-activates='dropdown-{{activityID}}' data-position="right" data-delay="50" data-tooltip="Options"><i
@@ -262,10 +263,6 @@
 	});
 </script>
 <script>
-	function activityGlobalOrder() {
-		alert("Are you sure that the activity numbers are globally ordered?");
-	}
-
 	function deleteActivity(activity_id) {
 		function getCookie(name) {
 			var cookieValue = null;
