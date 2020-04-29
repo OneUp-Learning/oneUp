@@ -3168,8 +3168,10 @@ input[type=range] + .thumb {
 }
 
 .clone .fixed-side {
-  background: #232323;
   visibility: visible;
+}
+.clone .fixed-side.header {
+  background: #232323;
 }
 
 .table-scroll thead, .table-scroll tfoot {

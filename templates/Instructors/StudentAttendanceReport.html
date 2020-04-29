@@ -64,7 +64,6 @@
     .table-scroll th,
     .table-scroll td {
       white-space: nowrap;
-      vertical-align: top;
     }
 
     /* .table-scroll thead,
@@ -93,7 +92,22 @@
       visibility: visible;
       color: red;
     }
-
+    table tr td {
+			padding: 0 0 0 12px;
+			height: 48px;
+			/* font-size: 13px; */
+			/* color: rgba(0, 0, 0, 0.87); */
+			/* border-bottom: solid 1px #DDDDDD; */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+      }
+		table td:first-child {
+			padding: 0 0 0 8px;
+      }
+		table td:last-child {
+			padding: 0 14px 0 0;
+		}
     /* .clone .fixed-side {
       background: #f9f9f9;
       visibility: visible;
@@ -133,8 +147,8 @@
             <div class="table-wrap">
               <table class="highlight main-table">
                 <thead>
-                  <th class="fixed-side"></th>
-                  <th class="fixed-side">Name</th>
+                  <th class="fixed-side header"></th>
+                  <th class="fixed-side header">Name</th>
                   {% for date in Dates %}
                   <th>{{date}}</th>
                   {% endfor %}
@@ -155,7 +169,7 @@
                       {% elif attendance == "false" %}
                       <input class="checkbox filled-in" name="checkbox" type="checkbox" id="{{ forloop.counter }}" disabled />
                       {% endif %}
-                      <label for="{{ forloop.counter }}"></label>
+                      <label for="{{ forloop.counter }}" style="display: flex; align-items: center;"></label>
                     </td>
                     {% else %}
                     {% endif %}

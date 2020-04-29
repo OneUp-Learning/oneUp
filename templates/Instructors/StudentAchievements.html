@@ -2,6 +2,24 @@
 <html lang="en">
 <head>
     {% include 'scripts.html' %}
+    <style>
+        table tr td {
+			padding: 0 0 0 12px;
+			height: 48px;
+			/* font-size: 13px; */
+			/* color: rgba(0, 0, 0, 0.87); */
+			/* border-bottom: solid 1px #DDDDDD; */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+      }
+		table td:first-child {
+			padding: 0 0 0 8px;
+      }
+		table td:last-child {
+			padding: 0 14px 0 0;
+		}
+    </style>
 </head>
 <body>
     {% include 'heading.html' %}
@@ -23,11 +41,11 @@
                         </thead>
                         <tbody>
                             {% for i,first_Name,last_Name,user_Email,userID in user_range %}
-                            <tr class="no-padding">
-                                <td class="no-padding" >{{first_Name}}</td>
-                                <td class="no-padding" >{{last_Name}}</td>
-                                <td class="no-padding">{{user_Email}}</td>
-                                <td class="no-padding"><a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons" >more_vert</i></a>
+                            <tr>
+                                <td>{{first_Name}}</td>
+                                <td>{{last_Name}}</td>
+                                <td>{{user_Email}}</td>
+                                <td class="right-align"><a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons" >more_vert</i></a>
                                     <ul id='dropdown-{{i}}' class='dropdown-content'>
                                     {% if skillsUsed %}
                                         <li><a href="/oneUp/instructors/studentSkillsEarned?userID={{userID}}">Skills</a></li>

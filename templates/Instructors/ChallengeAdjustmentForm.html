@@ -10,24 +10,6 @@
             p.addEventListener("change", AdjustmentScoreChanged);
         });
     </script>
-    <style>
-		body, div, thead, tr, th, td {
-            margin: 0;
-            padding: 0;
-            border: 0;
-            font-size: 100%;
-            font: inherit;
-            vertical-align: baseline;
-        }
-        body {
-            line-height: 1;
-        }
-        table {
-            border-collapse: collapse;
-            border-spacing: 0;
-        }
-        
-	</style>
 </head>
 
 <body>
@@ -48,36 +30,40 @@
                         <div class="card-content">
                             <table class="responsive-table">
                                 <thead>
-                                    <th style="padding-bottom: .1em;">Student</th>
-                                    <th style="padding-bottom: .1em;">Score</th>
-				    {% if isVcUsed %}
-                                    <th style="padding-bottom: .1em;">Purchased Points</th>
-				    {% endif %}
-                                    <th style="padding-bottom: .1em;">Adjustment</th>
-                                    <th style="padding-bottom: .1em;">Adjustment Reason</th>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Score</th>
+                                        <th>Adjustment</th>
+                                        {% if isVcUsed %}
+                                        <th>Purchased Points</th>
+                                        {% endif %}
+                                        <th>Adjustment Reason</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     {% for i, student_ID, student_Name, student_TestScore, student_BonusScore, student_AdjustmentScore, student_AdjustmentReason in challengeAdjustment_range %}
-                                    <tr style="max-height: 10px; margin-top: 0px, padding-top: 0px" >
-                                        <td style="padding-bottom: .1em;">{{student_Name}}</td>
-                                        <td style="padding-bottom: .1em;">{{student_TestScore}}</td>
-					{% if isVcUsed %}
-                                        <td style="padding-bottom: .1em">
-                                            <div class="col">
-                                                <input value="{{student_BonusScore}}" name="student_BonusScore{{student_ID}}" id="{{student_ID}}_BonusScore" type="number"  min="0" step="any" required>
+                                    <tr>
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <span style="display: flex; justify-content: space-between;">
+                                                <p>{{student_Name}}</p>
+                                            </span>
+                                        </td>
+                                        <td style="padding-bottom: 0; padding-top: 2px;"><p>{{student_TestScore}}</p></td>
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <div style="margin: 0;" class="input-field col s12">
+                                                <input value="{{student_AdjustmentScore}}" name="student_AdjustmentScore{{student_ID}}" id="{{student_ID}}_AdjustmentScore" type="number" class="validate" min="0" step="any" required>
                                             </div>
                                         </td>
-					{% endif %}
-                                        <td style="padding-bottom: .1em;"> 
-                                            <div class="col">
-                                                <input value="{{student_AdjustmentScore}}" name="student_AdjustmentScore{{student_ID}}" id="{{student_ID}}_AdjustmentScore"  type="number"  min="0" step="any" required>
+					                    {% if isVcUsed %}
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <div style="margin: 0;" class="input-field col s12">
+                                                <input value="{{student_BonusScore}}" name="student_BonusScore{{student_ID}}" id="{{student_ID}}_BonusScore" type="number" class="validate" min="0" step="any" required>
                                             </div>
                                         </td>
-                                        <td style="padding-bottom: .1em;">
-                                            <div class="row">
-                                            <div class="col">
-                                                <textarea  id="{{student_ID}}_AdjustmentReason" name="adjustmentReason{{student_ID}}" class="materialize-textarea">{{student_AdjustmentReason}}</textarea>
-                                            </div>
+                                        {% endif %}
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <div style="margin: 0;" class="input-field col s12">
+                                                <textarea style="padding: 0;" id="{{student_ID}}_AdjustmentReason" name="adjustmentReason{{student_ID}}" class="materialize-textarea">{{student_AdjustmentReason}}</textarea>
                                             </div>
                                         </td>
                                     </tr>

@@ -4,12 +4,16 @@ Created on Sep 5, 2014
 @author: Swapna
 '''
 
-from django.shortcuts import render
-from Instructors.models import Challenges
-from Students.models import StudentChallenges, Student
-from Students.views.utils import studentInitialContextDict
 from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+from Instructors.models import Challenges
+from Students.models import (Student, StudentChallengeQuestions,
+                             StudentChallenges)
+from Students.views.utils import studentInitialContextDict
+
 
 @login_required
 def ChallengesTaken(request):
@@ -23,6 +27,8 @@ def ChallengesTaken(request):
         chall_Difficulty = []
         dateTaken = []
         score = []
+        adjusted_score = []
+        has_questions = []
         total = []
         isExpired = []
         warmUp=0
@@ -57,7 +63,7 @@ def ChallengesTaken(request):
             context_dict['no_challenge'] = 'Sorry!! you did not take any challenges in the selected course..'
         else:
             for item in studentChallenges:
-                if (Challenges.objects.filter(challengeID=item.challengeID.challengeID,courseID=currentCourse, isGraded=True)) or (warmUp==1):
+                if Challenges.objects.filter(challengeID=item.challengeID.challengeID,courseID=currentCourse, isGraded=True) or warmUp==1:
                     studentChall_ID.append(item.studentChallengeID) #pk
                     chall_ID.append(item.challengeID.challengeID) 
                     chall_Name.append(item.challengeID.challengeName)
@@ -65,9 +71,11 @@ def ChallengesTaken(request):
                     endTime = item.endTimestamp
                     dateTaken.append(endTime)
                     score.append(item.testScore)
+                    adjusted_score.append(item.getScoreWithBonus())
+                    has_questions.append(StudentChallengeQuestions.objects.filter(studentChallengeID=item).exists())
                     total.append(item.challengeID.totalScore)
                             
                 # The range part is the index numbers.
-            context_dict['challenge_range'] = sorted(list(zip(range(1,studentChallenges.count()+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,total)), key=lambda item: item[5], reverse=True)
+            context_dict['challenge_range'] = sorted(list(zip(range(1,studentChallenges.count()+1),studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score, adjusted_score, total, has_questions)), key=lambda item: item[5], reverse=True)
 
     return render(request,'Students/ChallengesTaken.html', context_dict)
