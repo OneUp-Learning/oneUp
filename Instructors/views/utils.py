@@ -490,4 +490,4 @@ def moveTestStudentObjToBottom(student_list):
     for test_student in test_student_list:
         filtered_student_list.append(test_student)
     print("resulting student list", student_list, filtered_student_list)
-    return student_list
+    return filtered_student_list
