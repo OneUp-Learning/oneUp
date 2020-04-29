@@ -7,6 +7,22 @@
       .heading-pad {
          padding-left: 0;
       }
+      table tr td {
+			padding: 0 0 0 12px;
+			height: 48px;
+			/* font-size: 13px; */
+			/* color: rgba(0, 0, 0, 0.87); */
+			/* border-bottom: solid 1px #DDDDDD; */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+      }
+		table td:first-child {
+			padding: 0 0 0 8px;
+      }
+		table td:last-child {
+			padding: 0 14px 0 0;
+      }
    </style>
 </head>
 
@@ -47,25 +63,25 @@
                         <tr>
                            <td style="padding-top: 4px; padding-left: 0; padding-right: 0; padding-bottom: 0;"><img class="circle" style="vertical-align: baseline" alt="Avatar Image" width="28" height="28" 
                                  src="{{user_Avatar}}"></td>
-                           <td class="no-padding">{{first_Name}}</td>
-                           <td class="no-padding">{{last_Name}}</td>
+                           <td>{{first_Name}}</td>
+                           <td>{{last_Name}}</td>
                            {% if seriousUsed %}
-                           <td class="no-padding">{{sc_totalStudentScore}} / {{sc_totalStudentPossibleScore}}</td>
+                           <td>{{sc_totalStudentScore}} / {{sc_totalStudentPossibleScore}}</td>
                            {% endif %}
                            {% if activitiesUsed %}
-                           <td class="no-padding">{{act_totalStudentScore}} / {{act_totalStudentPossibleScore}}</td>
+                           <td>{{act_totalStudentScore}} / {{act_totalStudentPossibleScore}}</td>
                            {% endif %}
                            {% if warmupsUsed %}
-                           <td class="no-padding">{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
+                           <td>{{wc_totalStudentUniqueTaken}} / {{wc_totalStudentAttempts}}</td>
                            {% endif %}
-                           <td class="no-padding">{{user_XP}}</td>
+                           <td>{{user_XP}}</td>
                            {% if isVCUsed %}
-                           <td class="no-padding">{{user_VC}}</td>
+                           <td>{{user_VC}}</td>
                            {% endif %}
-                           <td class="no-padding">{{user_Action}}</td>
+                           <td>{{user_Action}}</td>
                         </tr>
                         {% empty %}
-                        <tr class="no-padding">
+                        <tr>
                            <td class="center-align" colspan="8"><i>No students enrolled</i></td>
                         </tr>
                         {% endfor %}
