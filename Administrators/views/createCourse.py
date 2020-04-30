@@ -15,7 +15,7 @@ from Instructors.constants import (anonymous_avatar,
                                    unspecified_vc_manual_rule_name)
 from Instructors.models import (ActivitiesCategory, Challenges, Courses,
                                 CoursesTopics, InstructorRegisteredCourses,
-                                Instructors, Topics)
+                                Instructors, Topics, FlashCardGroup, FlashCardGroupCourse)
 from Instructors.views.utils import str_datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import adminsCheck
@@ -260,6 +260,16 @@ def courseCreateView(request):
                 courseTopic.topicID = topic
                 courseTopic.courseID = course
                 courseTopic.save()
+
+                #Add default unassigned group for flash cards
+                unassigned_flashgroup = FlashCardGroup()
+                unassigned_flashgroup.groupName = "Unassigned"
+                unassigned_flashgroup.save()
+
+                course_group = FlashCardGroupCourse()
+                course_group.groupID = unassigned_flashgroup
+                course_group.courseID= course
+                course_group.save()
 
                 # Add a default category
                 defaultActivityCategory = ActivitiesCategory()
