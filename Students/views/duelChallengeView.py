@@ -13,6 +13,7 @@ from django.db import OperationalError, transaction
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from notify.signals import notify
+from django.utils.timezone import get_current_timezone_name
 
 from Badges.enums import Event
 from Badges.events import register_event, register_event_simple
@@ -128,6 +129,7 @@ def automatic_evaluator(duel_id, course_id):
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': winner.studentID.user.username,
+                    'timezone': get_current_timezone_name()
                 }
                 if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                     # save earning transaction
@@ -161,6 +163,7 @@ def automatic_evaluator(duel_id, course_id):
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': challengee_challenge.studentID.user.username,
+                    'timezone': get_current_timezone_name()
                 }
 
                 if duel_vc_participants_const > 0:
@@ -216,6 +219,7 @@ def automatic_evaluator(duel_id, course_id):
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': winner.studentID.user.username,
+                    'timezone': get_current_timezone_name()
                 }
 
                 if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
@@ -251,6 +255,7 @@ def automatic_evaluator(duel_id, course_id):
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': challenger_challenge.studentID.user.username,
+                    'timezone': get_current_timezone_name()
                 }
                 if duel_vc_participants_const > 0:
                         
@@ -305,10 +310,12 @@ def automatic_evaluator(duel_id, course_id):
                     mini_req1 = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challenger.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                     mini_req2 = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challengee.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                     
                     # Register event that the students have lost the duel
@@ -408,6 +415,7 @@ def automatic_evaluator(duel_id, course_id):
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': winner2.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                     if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                         register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
@@ -430,6 +438,7 @@ def automatic_evaluator(duel_id, course_id):
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': duel_challenge.challengee.user.username,
+                'timezone': get_current_timezone_name()
             }
 
             # Register event that the student earned VC
@@ -447,6 +456,7 @@ def automatic_evaluator(duel_id, course_id):
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': duel_challenge.challenger.user.username,
+                'timezone': get_current_timezone_name()
             }
             register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_id)
 
@@ -466,6 +476,7 @@ def automatic_evaluator(duel_id, course_id):
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': duel_challenge.challenger.user.username,
+                'timezone': get_current_timezone_name()
             }
 
             # Register event that the student earned VC
@@ -482,6 +493,7 @@ def automatic_evaluator(duel_id, course_id):
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': duel_challenge.challengee.user.username,
+                'timezone': get_current_timezone_name()
             }
             register_event_simple(Event.duelLost, mini_req, duel_challenge.challengee, objectId=duel_id)
 
@@ -954,6 +966,7 @@ def duel_challenge_create(request):
         mini_req = {
             'currentCourseID': current_course.pk,
             'user': student_id.user.username,
+            'timezone': get_current_timezone_name()
         }
         register_event_simple(Event.duelSent, mini_req, student_id, objectId=duel_challenge.duelChallengeID)
 
@@ -1429,6 +1442,7 @@ def duel_challenge_accept(request):
         mini_req = {
             'currentCourseID': duel_challenge.courseID.pk,
             'user': challengee.user.username,
+            'timezone': get_current_timezone_name()
         }
         register_event_simple(Event.duelAccepted, mini_req, challengee, objectId=duel_challenge.duelChallengeID)
 
@@ -1541,6 +1555,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challengee.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                     register_event_simple(Event.duelLost, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
 
@@ -1551,6 +1566,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challengee.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                     if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                         register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
@@ -1562,6 +1578,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     mini_req = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challenger.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                     register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
 
@@ -1619,6 +1636,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': winner.studentID.user.username,
+                'timezone': get_current_timezone_name()
             }
             if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                 register_event_simple(Event.virtualCurrencyEarned, mini_req, winner.studentID, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
@@ -1628,6 +1646,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': challengee_challenge.studentID.user.username,
+                'timezone': get_current_timezone_name()
             }
             if duel_vc_participants_const > 0:
                         
@@ -1703,6 +1722,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': winner_s.user.username,
+                'timezone': get_current_timezone_name()
             }
             if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                 register_event_simple(Event.virtualCurrencyEarned, mini_req, winner_s, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
@@ -1712,6 +1732,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             mini_req = {
                 'currentCourseID': duel_challenge.courseID.pk,
                 'user': challenger_challenge.studentID.user.username,
+                'timezone': get_current_timezone_name()
             }
             if duel_vc_participants_const > 0:
                         
@@ -1765,10 +1786,12 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 mini_req1 = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challenger.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                 mini_req2 = {
                         'currentCourseID': duel_challenge.courseID.pk,
                         'user': duel_challenge.challengee.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                 # Register event that the students have lost the duel
                 register_event_simple(Event.duelLost, mini_req1, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
@@ -1855,6 +1878,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': winner1.user.username,
+                    'timezone': get_current_timezone_name()
                 }
                 if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, winner1, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
@@ -1867,6 +1891,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 mini_req = {
                     'currentCourseID': duel_challenge.courseID.pk,
                     'user': winner2.user.username,
+                    'timezone': get_current_timezone_name()
                 }
                 if (duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, winner2, objectId=(duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))

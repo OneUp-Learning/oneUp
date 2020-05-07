@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from notify.signals import notify
+from django.utils.timezone import get_current_timezone_name
 
 from Badges.enums import Event
 from Badges.events import register_event_simple
@@ -90,6 +91,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             mini_req = {
                 'currentCourseID': current_course.pk,
                 'user': call_out.sender.user.username,
+                'timezone': get_current_timezone_name()
             }
             # register event
             register_event_simple(Event.virtualCurrencyEarned, mini_req, objectId=sender_stat.calloutVC)
@@ -163,6 +165,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             mini_req = {
                 'currentCourseID': current_course.pk,
                 'user': participant_id.user.username,
+                'timezone': get_current_timezone_name()
             }
             # register event
             if sender_stat.calloutVC > 0:
@@ -245,6 +248,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             mini_req = {
                 'currentCourseID': current_course.pk,
                 'user': participant_id.user.username,
+                'timezone': get_current_timezone_name()
             }
             # register event
             if sender_stat.calloutVC > 0:
@@ -265,6 +269,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             mini_req = {
                 'currentCourseID': current_course.pk,
                 'user': participant_id.user.username,
+                'timezone': get_current_timezone_name()
             }
             # register event
             register_event_simple(Event.calloutLost, mini_req,
@@ -368,15 +373,14 @@ def callout_create(request):
 
         # Save Calloutstats object
         call_out_stat.save()
-        print()
-        print("Saved Call Out")
-        print()
-
+        
         # mini req for calloutSent event
         mini_req = {
             'currentCourseID': current_course.pk,
             'user': student_id.user.username,
+            'timezone': get_current_timezone_name()
         }
+
         # register event
         register_event_simple(Event.calloutSent, mini_req,
                               objectId=call_out_stat.calloutID.calloutID)
@@ -409,7 +413,8 @@ def callout_create(request):
             # mini req for calloutSent event
             mini_req = {
                 'currentCourseID': current_course.pk,
-                'user': participant_stud.user.username
+                'user': participant_stud.user.username,
+                'timezone': get_current_timezone_name()
             }
             # register event
             register_event_simple(Event.calloutRequested, mini_req,
@@ -446,6 +451,7 @@ def callout_create(request):
                         mini_req = {
                             'currentCourseID': current_course.pk,
                             'user': participant_stud.studentID.user.username,
+                            'timezone': get_current_timezone_name()
                         }
                         # register event
                         register_event_simple(Event.calloutRequested, mini_req,
@@ -476,6 +482,7 @@ def callout_create(request):
                     mini_req = {
                         'currentCourseID': current_course.pk,
                         'user': participant_stud.studentID.user.username,
+                        'timezone': get_current_timezone_name()
                     }
                     # register event
                     register_event_simple(Event.calloutRequested, mini_req,
