@@ -4,64 +4,6 @@
 <head>
    {% include 'scripts.html' %}
 </head>
-<style>
-   .flip {
-    position: relative;
-   }
-   .flip > .front, .flip > .back {
-      display: block;
-      transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      transition-duration: 0.5s;
-      transition-property: transform, opacity;
-   }
-   .flip > .front {
-      transform: rotateY(0deg);
-   }
-   .flip > .back {
-      position: absolute;
-      opacity: 0;
-      top: 0px;
-      left: 0px;
-      width: inherit;
-      height: 100%;
-      transform: rotateY(-180deg);
-   }
-   .flip.active > .front {
-      transform: rotateY(180deg);
-      opacity: 0;
-   }
-   .flip.active > .back {
-      opacity: 1;
-      background-color: #e6f4ff;
-      transform: rotateY(0deg);
-   }
-   .flip.flip-vertical > .back {
-      transform: rotateX(-180deg);
-   }
-   .flip.flip-vertical.active > .front {
-      transform: rotateX(180deg);
-   }
-   .flip.flip-vertical.active > .back {
-      transform: rotateX(0deg);
-   }
-   .flip {
-      position: relative;
-      display: inline-block;
-      margin-right: 2px;
-      margin-bottom: 1em;
-      width: 100%;
-   }
-   .flip > .front, .flip > .back {
-      display: block;
-      width: inherit;
-      /* can have fixed height here if you want but you should enable scrolling */
-      height: 40vh;
-      padding: 1em 2em;
-      /* background: #313131; */
-      border-radius: 10px !important;
-   }
- 
-</style>
 <script>
    let flash_cards = {{ flash_range| safe}};
    let flash_card_counter = 0;
@@ -125,7 +67,7 @@
    window.onload = loadFirstCard;
 
    $(document).ready(function(){
-      $('.flip').click((el) => {
+      $('.flash-card').click((el) => {
          console.log(el);
          $(el.currentTarget).toggleClass('active')
       })
@@ -181,17 +123,16 @@
       <div class="row">
          <div class="col s12 m6 offset-m3">
             <div class="row" style="display: flex; justify-content: center;">
-               <div class="flip" id="flash-card" onclick="actionButtons('show');">
-                  <div class="front card center-align" style="background-color: #e9eaea;">
-                     <i class="material-icons right" style="right: 16px; position: absolute;">arrow_forward</i>
-                     <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+               <div class="flash-card" id="flash-card" onclick="actionButtons('show');">
+                  <div class="front card center-align">
+                     <i class="material-icons right flip-icon">arrow_forward</i>
+                     <div class="content">
                         <p id="question" flashID="none" groupID="" class="flow-text">{{card.question}}</p>
                      </div>
-                     <br>
                   </div>
                   <div class="back card center-align">
-                     <i class="material-icons left" style="left: 16px; position: absolute;">arrow_back</i>
-                     <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                     <i class="material-icons left flip-icon">arrow_back</i>
+                     <div class="content">
                         <p id="answer" class="flow-text">{{card.answer}}</p>
                      </div>
                   </div>

@@ -197,3 +197,80 @@
     }
   }
 }
+
+.flash-card {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+
+  &.active {
+    .front {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    .back {
+      opacity: 1;
+      
+      transform: rotateY(0deg);
+    }
+  }
+
+  &.flip-vertical {
+    &.active {
+      .front {
+        transform: rotateX(180deg);
+      }
+      .back {
+        transform: rotateX(0deg);
+      }
+    }
+    .back {
+      transform: rotateX(-180deg);
+    }
+  }
+
+  .front, .back {
+    display: block;
+    width: inherit;
+    /* can have fixed height here if you want but you should enable scrolling */
+    height: 40vh;
+    padding: $flashcard-vertical-padding $flashcard-horizontal-padding;
+    /* background: #313131; */
+    border-radius: 10px !important;
+    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition-duration: 0.5s;
+    transition-property: transform, opacity;
+
+    .content {
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100%;
+    }
+  }
+  .front {
+    transform: rotateY(0deg);
+    background-color: $flashcard-front-bg-color;
+
+    .flip-icon {
+      right: 16px; 
+      position: absolute;
+      cursor: pointer;
+    }
+  }
+  .back {
+    position: absolute;
+    opacity: 0;
+    background-color: $flashcard-back-bg-color;
+    top: 0px;
+    left: 0px;
+    width: inherit;
+    transform: rotateY(-180deg);
+    
+    .flip-icon {
+      left: 16px; 
+      position: absolute;
+      cursor: pointer;
+    }
+  }
+}
