@@ -145,7 +145,7 @@ def category_activities(category, studentId, current_course):
                 else:
                     submit_status.append("Submitted")
         else:
-            if act.hasDeadline and datetime_to_local(student_act.submissionTimestamp) > datetime_to_local(act.deadLine):
+            if act.hasDeadline:
                 submit_status.append("Missing")
             points.append("-")
             submit_status.append("")
