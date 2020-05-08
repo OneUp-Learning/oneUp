@@ -145,10 +145,11 @@ def category_activities(category, studentId, current_course):
                 else:
                     submit_status.append("Submitted")
         else:
+            points.append("-")
             if act.hasDeadline:
                 submit_status.append("Missing")
-            points.append("-")
-            submit_status.append("")
+            else:
+                submit_status.append("")
 
         # Progessive Unlocking
         try:
