@@ -332,8 +332,8 @@ class CourseConfigParams(models.Model):
     studCanChangeclassAverageVis = models.BooleanField(default=False) ## The student can suppress visibility in the dashboard
 
     ##Misc Leaderboard Fields
-    courseStartDate=models.DateField(default=datetime.min)            ##
-    courseEndDate=models.DateField(default=datetime.min)              ##
+    courseStartDate=models.DateField(default=now)            ##
+    courseEndDate=models.DateField(default=now)              ##
 
     hasCourseStartDate = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
     hasCourseEndDate = models.BooleanField(default=False)

@@ -14,9 +14,11 @@ from Instructors.constants import (anonymous_avatar,
                                    unspecified_vc_manual_rule_description,
                                    unspecified_vc_manual_rule_name)
 from Instructors.models import (ActivitiesCategory, Challenges, Courses,
-                                CoursesTopics, InstructorRegisteredCourses,
-                                Instructors, Topics, FlashCardGroup, FlashCardGroupCourse)
-from Instructors.views.utils import str_datetime_to_local
+                                CoursesTopics, FlashCardGroup,
+                                FlashCardGroupCourse,
+                                InstructorRegisteredCourses, Instructors,
+                                Topics)
+from Instructors.views.utils import date_to_selected, str_datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import adminsCheck
 from Students.models import (Student, StudentConfigParams,
@@ -317,12 +319,12 @@ def courseCreateView(request):
 
         
         if ccparams.hasCourseStartDate:
-            context_dict["courseStartDate"] = ccparams.courseStartDate.strftime("%B %d, %Y")
+            context_dict["courseStartDate"] = date_to_selected(ccparams.courseStartDate, to_format="%B %d, %Y")
         else:
             context_dict["courseStartDate"] = ""
 
         if ccparams.hasCourseEndDate:
-            context_dict["courseEndDate"] = ccparams.courseEndDate.strftime("%B %d, %Y")
+            context_dict["courseEndDate"] = date_to_selected(ccparams.courseEndDate, to_format="%B %d, %Y")
         else:
             context_dict["courseEndDate"] = ""
 

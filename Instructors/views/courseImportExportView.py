@@ -89,6 +89,27 @@ model_lookup_table = {
             'topicName': None,
         }
     },
+    Tags: {
+        'Import': {}, # For now the tags are globally so we don't need to create any
+        'Export': {
+            'tagID': None,
+            'tagName': None,
+        }
+    },
+    ResourceTags: {
+        'Import': {
+            'tagID': None,
+            'questionID': None,
+        },
+        'Export': {}
+    },
+    ChallengeTags: {
+        'Import': {
+            'tagID': None,
+            'challengeID': None,
+        },
+        'Export': {}
+    },
     ActivitiesCategory: {
         'Import': {
             'name': None,
@@ -125,6 +146,9 @@ model_lookup_table = {
             'uploadAttempts': None,
             'instructorNotes': None,
             'author': None,
+            'hasStartTimestamp': None,
+            'hasEndTimestamp': None,
+            'hasDeadline': None,
             'courseID': None,
         },
         'Export': {
@@ -152,9 +176,9 @@ model_lookup_table = {
             'challengeAuthor': None,
             'challengeDifficulty': None,
             'challengePassword': None,
-            'startTimestamp': None,
-            'endTimestamp': None,
-            'dueDate': None,
+            'hasStartTimestamp': None,
+            'hasEndTimestamp': None,
+            'hasDueDate': None,
             'courseID': None,
         },
         'Export': {
@@ -722,16 +746,14 @@ def create_item_node(query_object, fields_to_save):
 
 def create_item_node(query_object):
     ''' Creates the key value pairs for json based on query object and
-        which fields to save.
-
-        field_to_save is list of tuples with value and cast specifier:
-        ex. [("a", None), ("2", int), (4, str)]
+        the Export fields in the model lookup table
     '''
     if not query_object:
         return {}
 
     node = {}
     model_type = type(query_object)
+    print(model_type)
 
     for field_name, cast_specifier in model_lookup_table[model_type]['Export'].items():
         # Add key-val if the query object has this attribute (field)
@@ -928,7 +950,7 @@ def validateCourseExport(request):
 
             if 'serious-challenges' in request.POST or 'warmup-challenges' in request.POST:
                 # Notify user about field export decisions
-                messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options will be set to Course Start Date, Course End Date, and Course End Date respectively automatically'})
+                messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
 
             post_request = dict(request.POST)
             # Versioning
@@ -1431,7 +1453,10 @@ def challenges_to_json(challenges, current_course, include_topics=True, post_req
                     # Add to challenge details
                     challenge_details['topics'] = topics_to_json(challenge_topics, current_course, messages=[])
 
-            
+            # Add any tags for this challenge
+            challenge_tags = Tags.objects.filter(tagID__in=ChallengeTags.objects.filter(challengeID=challenge).values_list('tagID'))
+            challenge_details['tags'] = tags_to_json(challenge_tags, messages=[])
+            print(challenge_details['tags'])
             # Add questions for this challenges
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
 
@@ -1471,6 +1496,10 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
 
                 # Add questions skills to the question model details
                 question_details['skills'] = question_skills_jsons
+
+            # Add any tags for this question
+            question_tags = Tags.objects.filter(tagID__in=ResourceTags.objects.filter(questionID=question).values_list('tagID'))
+            question_details['tags'] = tags_to_json(question_tags, messages=[])
 
             # Add the Static Question if it is this type
             static_questions = StaticQuestions.objects.filter(questionID=int(question.questionID))
@@ -1735,6 +1764,19 @@ def course_skills_to_json(course_skills, current_course, post_request=None, root
             course_skills_jsons.append(skill_details)
 
     return course_skills_jsons
+
+def tags_to_json(tags, post_request=None, root_json=None, messages=[]):
+    tags_jsons = []
+
+    if tags.exists():
+
+        for tag_obj in tags:
+            # Get the tag information
+            tag_details = create_item_node(tag_obj)
+
+            tags_jsons.append(tag_details)
+
+    return tags_jsons
 
 def leaderboards_to_json(leaderboards, current_course, post_request=None, root_json=None, messages=[]):
     ''' Converts leaderboards queryset to json '''
@@ -2020,7 +2062,12 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
     if activities_jsons:
         for activity_json in activities_jsons:
             # Create the activity model instance
-            activity_fields_to_save = {'courseID': current_course}
+            activity_fields_to_save = {
+                'courseID': current_course,
+                'hasStartTimestamp': False,
+                'hasEndTimestamp': False,
+                'hasDeadline': False,
+            }
             activity = create_model_instance(Activities, activity_json, custom_fields_to_save=activity_fields_to_save)
             
             uncategorized_activity_category = ActivitiesCategory.objects.get(name=uncategorized_activity, courseID=current_course)
@@ -2078,13 +2125,22 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                 return
 
             # Create the challenge model instance
-            challenge_fields_to_save = {'startTimestamp': course_config_params.courseStartDate,
-                                        'endTimestamp': course_config_params.courseEndDate,
-                                        'dueDate': course_config_params.courseEndDate,
+            challenge_fields_to_save = {'hasStartTimestamp': False,
+                                        'hasEndTimestamp': False,
+                                        'hasDueDate': False,
                                         'courseID': current_course}
             challenge = create_model_instance(Challenges, challenge_json, custom_fields_to_save=challenge_fields_to_save)
 
             challenge.save()
+
+            # Create the challenge tags if any
+            for tag_json in challenge_json['tags']:
+                tag_fields_to_save = {
+                    'tagID': Tags.objects.get(pk=tag_json['tagID']),
+                    'challengeID': challenge,
+                }
+                challenge_tag = create_model_instance(ChallengeTags, None, custom_fields_to_save=tag_fields_to_save)
+                challenge_tag.save()
 
             # Map the imported challenge id to the new challenge id
             if id_map:
@@ -2241,10 +2297,19 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                 else:
                     messages.append({'type': 'error', 'message': 'Static Question does not have any answers'})
 
+            # Create the question tags if any
+            for tag_json in question_json['tags']:
+                tag_fields_to_save = {
+                    'tagID': Tags.objects.get(pk=tag_json['tagID']),
+                    'questionID': question,
+                }
+                question_tag = create_model_instance(ResourceTags, None, custom_fields_to_save=tag_fields_to_save)
+                question_tag.save()
+
             # Create question skills if any
-            if 'skills' in challenge_question_json['question']:
+            if 'skills' in question_json:
                 if id_map:
-                    for question_skill_json in challenge_question_json['question']['skills']:                        
+                    for question_skill_json in question_json['skills']:                        
                         # Get the new skill id we created by looking it up in the mapped ids dict
                         mapped_skill_id = search_for_mapped_id('skills', question_skill_json['skillID'], id_map=id_map)
                         if not mapped_skill_id:
