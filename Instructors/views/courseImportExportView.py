@@ -69,7 +69,7 @@ VERSION = "1.0"
 
 # Import: Fields that needs to be set when creating the model
 # Export: Fields that needed to be exported to the json
-# NOTE: If a model is a subclass you will need to also use the parent fields
+# NOTE: If a model is a subclass you will need to also set the parent fields when Importing
 model_lookup_table = {
     Topics: {
         'Import': {
@@ -226,6 +226,9 @@ model_lookup_table = {
             'type': None,
             'difficulty': None,
             'author': None,
+            'isHintUsed': None,
+            'basicHint': None,
+            'strongHint': None,
         }
     },
     DynamicQuestions: {
@@ -235,6 +238,9 @@ model_lookup_table = {
             'type': None,
             'difficulty': None,
             'author': None,
+            'isHintUsed': None,
+            'basicHint': None,
+            'strongHint': None,
             
             'numParts': None,
             'code': None,
@@ -255,6 +261,9 @@ model_lookup_table = {
             'type': None,
             'difficulty': None,
             'author': None,
+            'isHintUsed': None,
+            'basicHint': None,
+            'strongHint': None,
 
             'numParts': None,
             'code': None,
@@ -309,12 +318,17 @@ model_lookup_table = {
     },
     StaticQuestions: {
         'Import': {
+            # These fields are from parent class (questions)
             'preview': None,
             'instructorNotes': None,
             'type': None,
             'difficulty': None,
             'author': None,
+            'isHintUsed': None,
+            'basicHint': None,
+            'strongHint': None,
             
+            # these are from static questions
             'questionText': None,
             'correctAnswerFeedback': None,
             'incorrectAnswerFeedback': None,
