@@ -62,7 +62,8 @@ from Students.models import (StudentProgressiveUnlocking,
 #############################################################
 # HELPER METHODS
 #############################################################
-
+# TODO: Timezone support. Be able to export datetimes which can be converted to another timezone
+#       when importing.
 LUA_PROBLEMS_ROOT = os.path.join(settings.BASE_DIR, 'lua/problems/')
 VERSION = "1.0"
 
