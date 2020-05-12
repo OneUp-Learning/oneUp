@@ -1,19 +1,20 @@
 #import nltk
+import datetime
 import json
 import re
 import string
-import pytz
 
+import pytz
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-import datetime
 
 from Badges.enums import ObjectTypes
 from Instructors.constants import unspecified_topic_name
 from Instructors.models import (ChallengesTopics, ChallengeTags, Courses,
-                                CoursesSkills, CoursesTopics, QuestionsSkills,
-                                ResourceTags, Skills, Tags, Topics)
-from Instructors.models import FlashCardGroupCourse, FlashCardToGroup, FlashCardGroup
+                                CoursesSkills, CoursesTopics, FlashCardGroup,
+                                FlashCardGroupCourse, FlashCardToGroup,
+                                QuestionsSkills, ResourceTags, Skills, Tags,
+                                Topics)
 from oneUp.logger import logger
 
 
@@ -535,7 +536,6 @@ def str_datetime_to_utc(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
 
 def datetime_to_selected(db_datetime, to_format="%m/%d/%Y %I:%M %p"):
     ''' Converts datetime object to what was actually selected in the interface '''
-    print(type(db_datetime))
 
     if type(db_datetime) == datetime.date:
         db_datetime = datetime.datetime.combine(db_datetime, datetime.datetime.min.time())

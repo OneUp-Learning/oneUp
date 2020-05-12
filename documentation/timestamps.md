@@ -16,7 +16,7 @@ request.session['django_timezone']
 ```
 > See **Administrators/views/setCourseView.py**
 
-You will usually want to save the datetime object that is **localized** (being timezone aware). 
+You will usually want to save the datetime object that is **localized** (being timezone aware). You can use the local methods below to localize the datetimes. 
 
 When retrieving from the database, django automatically displays the datetime object in the HTML with the correct timezone. 
 
@@ -29,58 +29,35 @@ If you are loading the datetime object into a input field, for example the datet
 ## Helper Methods
 There are a few methods in **Instructors/views/utils.py** which should be used when saving, converting, rendering datetimes.
 
-### Method 1
-def current_utctime():
-    ''' Return current utc datetime object '''
-    return timezone.now()
+### Getting the Current Datetime
+There are two methods which will return the current time in UTC or in the current timezone: ```current_utctime``` and ```current_localtime``` 
 
-def current_localtime(tz=timezone.get_current_timezone()):
-    ''' Returns current local datetime object '''
-    if type(tz) == str:
-        tz = pytz.timezone(tz)
+If you need to get the current time for a specific timezone, pass the timezone as a argument to the ```current_localtime``` method like so:
 
-    return timezone.localtime(current_utctime(), timezone=tz)
+```python
+current_localtime(tz="America/Denver")
+```
 
-def datetime_to_local(db_datetime, tz=timezone.get_current_timezone()):
-    ''' Converts datetime object to local '''
-    if not db_datetime:
-        return None
+### Converting String to Datetime
+There are two methods which can convert a string representation of a date time object: ```str_datetime_to_utc``` and ```str_datetime_to_local```
 
-    if timezone.is_naive(db_datetime):
-        db_datetime = timezone.make_aware(db_datetime)
+These methods accept another argument which is the format of the string. That argument is used to convert the string to datetime. The default format is ```%m/%d/%Y %I:%M %p```. You can also change this format to match the date only if you are trying to convert a string that only has the date.
 
-    if type(tz) == str:
-        tz = pytz.timezone(tz)
-        
-    return timezone.localtime(db_datetime, timezone=tz).replace(microsecond=0)
+Again the local version accepts a timezone which can be used to convert to a specific timezone
 
-def datetime_to_utc(db_datetime):
-    ''' Converts datetime object to utc '''
-    if not db_datetime:
-        return None
-        
-    return db_datetime.replace(microsecond=0).astimezone(timezone.utc)
+Here is a example one way of using the methods:
+```python
+str_datetime_to_local(my_datetime_str, to_format="%m/%d/%Y %I:%M:%S %p", tz="America/Los_Angeles")
+```
 
-def str_datetime_to_local(str_datetime, to_format="%m/%d/%Y %I:%M %p", tz=timezone.get_current_timezone()):
-    ''' Converts string datetime to local timezone datetime object '''
-    return datetime_to_local(datetime.datetime.strptime(str_datetime, to_format), tz=tz)
+> If you only need to convert a datetime object to utc or another timezone you can use the ```datetime_to_utc``` and ```datetime_to_local``` methods to do that
 
-def str_datetime_to_utc(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
-    ''' Converts string datetime to utc datetime object '''
-    return datetime_to_utc(datetime.datetime.strptime(str_datetime, to_format))
+### Converting Datetime to String
+There are two methods which can convert a date or datetime object to a string: ```datetime_to_selected``` and ```date_to_selected```
 
-def datetime_to_selected(db_datetime, to_format="%m/%d/%Y %I:%M %p"):
-    ''' Converts datetime object to what was actually selected in the interface '''
-    print(type(db_datetime))
+These two methods accepts a format like the other. These methods should be used when you need to display the date or datetime in the datepicker or a field that can be edited by the user.
 
-    if type(db_datetime) == datetime.date:
-        db_datetime = datetime.datetime.combine(db_datetime, datetime.datetime.min.time())
-        
-    if timezone.is_naive(db_datetime):
-        db_datetime = timezone.make_aware(db_datetime)
-
-    return timezone.make_naive(db_datetime.replace(microsecond=0)).strftime(to_format)
-
-def date_to_selected(db_date, to_format="%m/%d/%Y"):
-    ''' Converts date object to what was actually selected in the interface '''
-    return db_date.strftime(to_format)
+Here is a example one way of using the methods:
+```python
+datetime_to_select(my_datetime_obj, to_format="%m/%d/%Y %I:%M:%S %p")
+```
