@@ -18,7 +18,8 @@ from Badges.models import CourseConfigParams
 from Badges.tasks import refresh_xp
 from Instructors.models import Activities, Courses
 from Instructors.views.activityListView import createContextForActivityList
-from Instructors.views.utils import current_localtime, initialContextDict, moveTestStudentObjToBottom
+from Instructors.views.utils import (current_localtime, initialContextDict,
+                                     moveTestStudentObjToBottom)
 from oneUp.decorators import instructorsCheck
 from Students.models import (Student, StudentActivities, StudentFile,
                              StudentRegisteredCourses)
@@ -49,61 +50,75 @@ def activityAssignPointsView(request):
             # Should only be one match (AH)
             stud_activity = StudentActivities.objects.filter(
                 activityID=request.POST['activityID'], studentID=studentRC.studentID.id).first()
-            studentPoints = Decimal(
-                request.POST['student_Points' + str(studentRC.studentID.id)])
-            if 'student_Bonus' + str(studentRC.studentID.id) in request.POST:
-                studentBonus = Decimal(
-                    request.POST['student_Bonus' + str(studentRC.studentID.id)])
-            else:
-                studentBonus = 0
 
-            # If student has been previously graded...
+            activity_should_be_graded = False
+            studentPoints = None
+            studentBonus = None
+            if f"student_Points{studentRC.studentID.id}" in request.POST and request.POST[f"student_Points{studentRC.studentID.id}"] != "":
+                activity_should_be_graded = True
+                print("Graded 1")
+                studentPoints = Decimal(request.POST[f"student_Points{studentRC.studentID.id}"])
+
+            if f"student_Bonus{studentRC.studentID.id}" in request.POST and request.POST[f"student_Bonus{studentRC.studentID.id}"] != "" and request.POST[f"student_Bonus{studentRC.studentID.id}"] != "0.00":
+                activity_should_be_graded = True
+                print("Graded")
+                studentBonus = Decimal(request.POST[f"student_Bonus{studentRC.studentID.id}"])
+
+            print(studentPoints, studentBonus)
+            
+            # If student activity has been submitted or graded
             if stud_activity:
+                changesNeedSaving = False
+                if request.POST[f"student_Feedback{studentRC.studentID.id}"] != stud_activity.instructorFeedback:
+                    stud_activity.instructorFeedback = request.POST[f"student_Feedback{studentRC.studentID.id}"]
+                    changesNeedSaving = True
 
-                if studentPoints == default_student_points:
-                    # In this case there is already a grade, but the instructor has now set the grade back to -1 (ungraded)
+                if not activity_should_be_graded:
+                    # In this case there is already a grade, but the instructor has now set the grade back to blank (ungraded)
                     # We are treating this as a special case meaning that the instructor wishes to delete the grade.
-                    stud_activity.delete()
+                    stud_activity.graded = False
+                    stud_activity.activityScore = 0
                 else:
-                    changesNeedSaving = False
-
-                    if studentPoints != stud_activity.activityScore:
+                    if activity_should_be_graded and studentPoints != None and studentPoints != stud_activity.activityScore:
                         # A score exists and a new score has been assigned.
                         stud_activity.activityScore = studentPoints
                         stud_activity.timestamp = current_localtime()
-                        stud_activity.instructorFeedback = request.POST['student_Feedback' + str(
-                            studentRC.studentID.id)]
+                        
                         stud_activity.graded = True
                         changesNeedSaving = True
                         activityGradedNow[studentRC.studentID] = True
 
-                    if studentBonus != stud_activity.bonusPointsAwarded:
+                    if activity_should_be_graded and studentBonus != None and studentBonus != stud_activity.bonusPointsAwarded:
                         # The bonus has changed.
                         stud_activity.bonusPointsAwarded = studentBonus
+                        stud_activity.graded = True
                         changesNeedSaving = True
 
-                    if changesNeedSaving:
-                        notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                    verb=activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/students/ActivityDescription?activityID='+str(activity.activityID)}))
-                        stud_activity.save()
+                if changesNeedSaving:
+                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb=activity.activityName+' has been graded', nf_type='Activity Graded', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/students/ActivityDescription?activityID='+str(activity.activityID)}))
+                    stud_activity.save()
                 # Create new assigned activity object for the student if there are points entered to be assigned (AH)
-            elif not studentPoints == default_student_points or not studentBonus == default_student_bonus:
+            elif activity_should_be_graded:
                 stud_activity = StudentActivities()
                 stud_activity.activityID = activity
                 stud_activity.studentID = studentRC.studentID
 
-                if not studentPoints == default_student_points:
+                if studentPoints != None:
                     stud_activity.activityScore = studentPoints
-                    stud_activity.instructorFeedback = request.POST['student_Feedback' + str(
-                        studentRC.studentID.id)]
                 else:
                     stud_activity.activityScore = 0
-                    stud_activity.instructorFeedback = ""
-
-                stud_activity.bonusPointsAwarded = studentBonus
+                    
+                if studentBonus != None:
+                    stud_activity.bonusPointsAwarded = studentBonus
+                else:
+                    stud_activity.bonusPointsAwarded = 0
+                
+                stud_activity.instructorFeedback = request.POST[f"student_Feedback{studentRC.studentID.id}"]
+                stud_activity.graded = True
                 stud_activity.timestamp = current_localtime()
                 stud_activity.courseID = currentCourse
-                stud_activity.graded = True
+                
                 stud_activity.save()
 
                 notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
@@ -132,6 +147,8 @@ def activityAssignPointsView(request):
 def createContextForPointsAssignment(request, context_dict, currentCourse):
     student_ID = []
     student_Name = []
+    student_Graded = []
+    student_Submission = []
     student_Points = []
     student_Bonus = []
     student_Feedback = []
@@ -144,17 +161,22 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
         student = stud_course.studentID
         student_ID.append(student.id)
         if student.isTestStudent:
-            student_Name.append("Test Student")
+            student_Name.append(f"(Test Student) {student.user.get_full_name()}")
         else:
-            student_Name.append((student).user.get_full_name())
+            student_Name.append(student.user.get_full_name())
         #zipFile_Name.append(student.user.first_name + student.user.last_name + Activities.objects.get(activityID = request.GET['activityID']).activityName + '.zip')
 
-        if (StudentActivities.objects.filter(activityID=request.GET['activityID'], studentID=student)).exists():
+        if StudentActivities.objects.filter(activityID=request.GET['activityID'], studentID=student).exists():
             stud_act = StudentActivities.objects.get(
                 activityID=request.GET['activityID'], studentID=student)
+            student_Graded.append(stud_act.graded)
+            if stud_act.submitted:
+                student_Submission.append(stud_act.submissionTimestamp)
+            else:
+                student_Submission.append("-")
 
             if not stud_act.graded:
-                student_Points.append(default_student_points)
+                student_Points.append("")
             else:
                 student_Points.append(stud_act.activityScore)
 
@@ -165,32 +187,28 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
             studentFile = StudentFile.objects.filter(
                 activity=stud_act, studentID=student, latest=True).first()
             print(studentFile)
-            if(studentFile):
+            if studentFile:
                 fName = studentFile.fileName
-                print(fName)
-#                 if(' ' in fName):
-#                     fName = "_".join(fName.split())
-#                     File_Name.append(fName)
-#                     print(fName)
-#                 else:
                 File_Name.append(fName)
             else:
                 File_Name.append(False)
 
             #zipFile_Name.append(StudentFile.objects.get(activity = stud_act, studentID = student).fileName)
         else:
-            student_Points.append(str(default_student_points))
-            student_Bonus.append(str(default_student_bonus))
+            student_Graded.append(False)
+            student_Submission.append("-")
+            student_Points.append("")
+            student_Bonus.append("")
             student_Feedback.append("")
             File_Name.append(False)
 
     context_dict['isVcUsed'] = CourseConfigParams.objects.get(
         courseID=currentCourse).virtualCurrencyUsed
     context_dict['activityID'] = request.GET['activityID']
-    context_dict['activityName'] = Activities.objects.get(
-        activityID=request.GET['activityID']).activityName
+    context_dict['activity'] = Activities.objects.get(
+        activityID=request.GET['activityID'])
 
-    student_list = list(zip(range(1, len(student_ID)+1), student_ID, student_Name,
+    student_list = list(zip(range(1, len(student_ID)+1), student_ID, student_Name, student_Graded,student_Submission,
                                    student_Points, student_Bonus, student_Feedback, File_Name))
     
     student_list = moveTestStudentObjToBottom(student_list)

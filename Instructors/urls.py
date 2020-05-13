@@ -40,6 +40,12 @@ from Instructors.views.courseImportExportView import (exportCourse,
                                                       validateCourseExport)
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
+from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
+
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteActivity, deleteAnnouncement, deleteManualSpendRule
+from Instructors.views.imageView import imageUpload, imageDelete, imageList
+from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
+
 from Instructors.views.createStudentView import (createStudentViewUnchecked,
                                                  validateCreateStudent)
 from Instructors.views.debugStudentEventLog import debugEventVars
@@ -50,7 +56,7 @@ from Instructors.views.deleteView import (deleteActivity, deleteAnnouncement,
                                           deleteQuestion,
                                           deleteQuestionFromChallenge,
                                           deleteSkill, deleteStudent,
-                                          deleteTopic, deleteUser)
+                                          deleteTopic, deleteUser, deleteFlashCard, deleteGroup)
 from Instructors.views.DuelReportView import duel_challenge_report, duel_report
 from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 # Dynamic Questions Stuff
@@ -100,6 +106,35 @@ from Instructors.views.trueFalseView import trueFalseNewForm
 from Instructors.views.views import index
 from Instructors.views.whoAddedVCAndBadgeView import whoAddedBadgeAndVC
 
+# Dynamic Questions Stuff
+from Instructors.views.dynamicQuestionView import dynamicQuestionForm
+from Instructors.views.templateDynamicQuestionsView import templateDynamicQuestionForm, removeFileFromQuestion
+from Instructors.views.dynamicQuestionView import dynamicQuestionPartAJAX
+from Instructors.views.luaTestView import luaTestView
+from Instructors.views.luaLibUploadView import luaLibUpload, libDelete, libEdit, libDeleteConfirmView
+from Instructors.views.studentAttendanceView import studentAttendance
+from Instructors.views.studentAttendanceReportView import studentAttendanceReportView
+
+from Instructors.views.switchToStudentView import switchToStudentView
+from Instructors.views.resetTestStudentData import resetTestStudent
+
+from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
+
+from Instructors.views.addExistingStudentView import addStudentListView, addExistingStudent
+from Instructors.views.activityListView import reorderActivities
+from Instructors.views.attendanceStreaks import attendanceStreaks
+
+from Instructors.views.DuelReportView import duel_report, duel_challenge_report
+from Instructors.views.CalloutReportView import callout_report, callout_challenge_report
+
+from Instructors.views.leaderboardView import LeaderboardInstructorsView
+
+#FlashCards
+from Instructors.views.flashCardGroupListView import groupListView
+from Instructors.views.flashCardGroupCreateView import groupCreateView
+from Instructors.views.flashCardCreateView import CreateFlashCards
+
+from Instructors.views.reorderViews import reorderGroups
 admin.autodiscover()
 urlpatterns = [
 
@@ -158,6 +193,8 @@ urlpatterns = [
         name='deleteManualSpendRule'),
     url(r'^deleteTopic', deleteTopic, name='deleteTopic'),
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
+    url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
+    url(r'^deleteFlashCard', deleteFlashCard, name='deleteFlashCard'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
     url(r'^exportChallenges', exportChallenges, name='exportChallenges'),
@@ -242,4 +279,10 @@ urlpatterns = [
     url(r'^whoAddedBadgeAndVC', whoAddedBadgeAndVC, name="whoAddedBadgeAndVC"),
     url(r'^reorderList', reorder_list, name="reorderList"),
     url(r'^receiveItemInSection', receive_item_in_section, name="receive_item_in_section"),
+    # Flash cards
+    url(r'^groupList', groupListView, name='groupListView'),
+    url(r'^groupCreate', groupCreateView, name='groupCreateView'),
+    url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
+    url(r'^ReorderGroups', reorderGroups, name='reorderGroups')
 ]
+

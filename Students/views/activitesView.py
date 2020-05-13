@@ -88,14 +88,6 @@ def ActivityList(request):
         context_dict["categories_range"] = zip(
             categories_list, categories_names, isUnlocked, ulockingDescript)
 
-        # make the student activities
-        # categories={}
-        #activity_categories = ActivitiesCategory.objects.filter( courseID=currentCourse)
-        # for act_cat in activity_categories:
-
-        # The range part is the index numbers.
-        #context_dict['activity_range'] = zip(range(1,len(activities)+1),instructorActivites,studentActivities, points)
-
     return render(request, 'Students/ActivityList.html', context_dict)
 
 
@@ -107,6 +99,7 @@ def category_activities(category, studentId, current_course):
     activity_points = []
     submit_status = []
     activity_date_status = []
+    activity_due_date = []
     isUnlocked = []
     unlockDescript = []
 
@@ -116,37 +109,47 @@ def category_activities(category, studentId, current_course):
     for act in activity_objects:
         # if today is after the data it was assigninged display it
         # logger.debug(timezone.localtime(act.startTimestamp))
-        if datetime_to_local(act.startTimestamp) <= current_localtime():
-            # add the activities to the list so we can display
-            activites.append(act)
-            if act.isGraded:
-                graded_acitvities.append(True)
-            else:
-                graded_acitvities.append(False)
-        else:  # Today is before the day it is assigend
+
+        # Filter out if current time is not in range
+        if act.hasStartTimestamp and datetime_to_local(act.startTimestamp) > current_localtime():
             continue
+        if act.hasEndTimestamp and datetime_to_local(act.endTimestamp) <= current_localtime():
+            continue
+        
+        activites.append(act)
+        graded_acitvities.append(act.isGraded)
 
         activity_points.append(round(act.points))
-        if act.deadLine == None:
-            activity_date_status.append("Undated Activity")
-        elif datetime_to_local(act.deadLine) < current_localtime():
-            activity_date_status.append("Past Activity")
+        if act.hasDeadline:
+            activity_due_date.append(act.deadLine)
+        else:
+            activity_due_date.append(None)
+
+        if not act.hasDeadline:
+            activity_date_status.append("")
+        elif datetime_to_local(act.deadLine) <= current_localtime():
+            activity_date_status.append("Overdue Activity")
         else:
             activity_date_status.append("Upcoming Activity")
         # get the activity record for this student
         if StudentActivities.objects.filter(studentID=studentId, activityID=act):
             student_act = StudentActivities.objects.get(
                 studentID=studentId, activityID=act)
-            if student_act.activityScore == -1:
-                points.append("-")
+            if student_act.graded:
+                points.append(str(round(student_act.getScoreWithBonus())))
             else:
-                points.append(str(round(student_act.activityScore)))
-            submit_status.append("Submitted")
-
+                points.append("-")
+            if student_act.submitted:
+                if act.hasDeadline and datetime_to_local(student_act.submissionTimestamp) > datetime_to_local(act.deadLine):
+                    submit_status.append("Late Submission")
+                else:
+                    submit_status.append("Submitted")
         else:
-
             points.append("-")
-            submit_status.append("Missing")
+            if act.hasDeadline:
+                submit_status.append("Missing")
+            else:
+                submit_status.append("")
 
         # Progessive Unlocking
         try:
@@ -179,4 +182,4 @@ def category_activities(category, studentId, current_course):
             isUnlocked.append(True)
             unlockDescript.append('hi')
 
-    return zip(activites, points, activity_points, submit_status, activity_date_status, isUnlocked, unlockDescript, graded_acitvities)
+    return list(zip(activites, points, activity_points, submit_status, activity_date_status, activity_due_date, isUnlocked, unlockDescript, graded_acitvities))

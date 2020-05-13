@@ -248,6 +248,7 @@
 				icon_element.addClass("notification-icon");
 				// Desktop bell icon - If enabled, comment out the two lines above 
 				// icon_element.text("notifications");
+
 				$(".notification-badge").addClass("hide");
                 
                 // Hide badge for mobile view
@@ -260,6 +261,7 @@
 				icon_element.addClass("notification-icon-notify");
 				// Desktop active bell icon - If enabled, comment out the two lines above 
 				// icon_element.text("notifications_active");
+				
                 $(".notification-badge").removeClass("hide").html(unread_count);
 
                 // Show badge for mobile view and set count 
@@ -297,7 +299,7 @@
 		</ul>
 		<nav>
 			<div class="nav-wrapper">
-			<a href="#" class="brand-logo" ><i class="large material-icons icon-yellow">lightbulb_outline</i>OneUp</a>
+			<a href="/oneUp/students/StudentCourseHome" class="brand-logo" ><i class="large material-icons icon-yellow">lightbulb_outline</i>OneUp</a>
 			<a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i></a>
 			<ul class="right hide-on-med-and-down" style="height: 100%;">
 				<li>
@@ -356,6 +358,7 @@
 						<!-- {% if ccparams.chatUsed %}
 						<li><a class="waves-effect " href="/oneUp/chat/api">Chat</a></li>
 						{% endif %} -->
+						<li><a class="waves-effect " href="/oneUp/students/FlashCardsList">Flash Cards</a></li>
 						{% if ccparams.virtualCurrencyUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
 						<li><a class="waves-effect " href="/oneUp/students/Transactions">VC Transactions</a></li>

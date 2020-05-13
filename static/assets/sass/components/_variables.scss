@@ -34,7 +34,7 @@
 
 // 1. Colors
 // ==========================================================================
-$dark-mode: false;
+$dark-mode: true;
 
 $primary-color: if($dark-mode, lighten(#3044ad, 25%), color("indigo", "base")) !default; //color("indigo", "lighten-1") !default;
 $primary-color-light: lighten($primary-color, 15%) !default;
@@ -115,6 +115,14 @@ $card-bg-color: $surface-color !default;
 $card-text-color: $primary-text-color;
 $card-link-color: $link-color !default;
 $card-link-color-light: lighten($card-link-color, 20%) !default;
+
+$flashcard-vertical-padding: 1em !default;
+$flashcard-horizontal-padding: 2em !default;
+$flashcard-front-bg-color: if($dark-mode, $surface-color, #e9eaea) !default;
+$flashcard-back-bg-color: if($dark-mode, $surface-highest-color, #e6f4ff) !default;
+$flashcard-text-color: $primary-text-color;
+$flashcard-link-color: $link-color !default;
+$flashcard-link-color-light: lighten($flashcard-link-color, 20%) !default;
 
 
 // 5. Carousel
@@ -319,7 +327,7 @@ $table-striped-color: if($dark-mode, lighten($surface-high-color, 5%), #f2f2f2) 
 
 $toast-height: 48px !default;
 $toast-color: if($dark-mode, $surface-highest-color, #323232) !default;
-$toast-text-color: $primary-text-surface-color !default;
+$toast-text-color: #ffffff !default;
 $toast-action-color: $primary-color-dark;
 
 // 21. ToolTips

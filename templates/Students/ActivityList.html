@@ -56,28 +56,16 @@
                            <table class="responsive-table">
                            
                            <tbody>
-                              {% for activity,point,activity_point, submit_status,activity_date_status,isUnlocked,unlockDescript, graded_acitvity in category %}
+                              {% for activity,point,activity_point, submit_status,activity_date_status,activity_due_date,isUnlocked,unlockDescript, graded_acitvity in category %}
                         	
                            <tr>
                               <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activity.activityName}}</td>
-                              
-                              {% if graded_acitvity %}
-
-                                 <td>{{point}}/{{activity_point}} points</td>
-                        
-                                 {% if submit_status == "Submitted" %}
-                                    <td style="color:green;">{{submit_status}}</td>
-                                 {% else %}
-                                    <td style="color:red;">{{submit_status}}</td>
-                                 {% endif %}
-                                 <td>{{activity_date_status}}</td>
-
+                              <td>{{point}} / {{activity_point}} points</td>
+                              <td>{% if activity_due_date %} Due at {{activity_due_date}} {% endif %}</td>
+                              {% if submit_status == "Submitted" %}
+                                 <td style="color:green;">{{submit_status}}</td>
                               {% else %}
-                                 
-                                 <td>&nbsp</td>
-                                 <td>&nbsp</td>
-                                 <td>&nbsp</td>
-
+                                 <td style="color:red;">{{submit_status}}</td>
                               {% endif %}
 
                               <td class="secondary-content">

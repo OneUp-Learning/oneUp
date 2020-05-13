@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   {% include 'scripts.html' %}
+</head>
+<script>
+   let flash_cards = {{ flash_range| safe}};
+   let flash_card_counter = 0;
+
+   const buttonType = Object.freeze({"gotIt":1, "tryAgain":2})
+   Object.freeze(buttonType);
+
+   function actionButtons(showOrHide){
+      let gotItButton = document.getElementById("gotItButton");
+      let tryAgain = document.getElementById("tryAgainButton");
+      let returnButton = document.getElementById("return");
+
+      if(showOrHide == "show"){
+         tryAgain.style.display = 'inline';
+         gotItButton.style.display = 'inline';
+      }
+      if(showOrHide == "hide"){
+         tryAgain.style.display = 'none';
+         gotItButton.style.display = 'none';
+      }
+
+      if(showOrHide == "complete")
+         returnButton.style.display = 'inline';
+   }
+
+   function loadFirstCard(){
+      if(flash_cards.length == 0)
+         loadCard("complete");
+      else
+         loadCard("first_run");
+   }
+
+   function loadCard(run_type) {
+      let question_tag = document.getElementById('question');
+      let answer_tag = document.getElementById('answer');
+      let flash_card = document.getElementById("flash-card");
+
+      console.log(flash_card_counter);
+      if(run_type == "not_first")
+         flash_card.classList.remove('active');
+      
+      
+
+      if(run_type == "complete"){
+         question_tag.innerHTML = "All Done. Good Job. Thanks For Practicing.";
+         answer_tag.innerHTML = "All Done. Good Job. Thanks For Practicing.";
+         let card_panel = document.getElementById("flash-card");
+         card_panel.setAttribute("onclick", "location.href='FlashCardsList'");
+         actionButtons("complete");
+      }else{
+         let flashID = flash_cards[flash_card_counter]['flashID'];
+         let groupID = flash_cards[flash_card_counter]['groupID'];
+         question_tag.setAttribute("flashid", flashID);
+         question_tag.setAttribute("groupID", groupID);
+         question_tag.innerHTML = flash_cards[flash_card_counter]['question'];
+         answer_tag.innerText = flash_cards[flash_card_counter]['answer'];
+      }
+      actionButtons("hide");
+      
+   }
+   window.onload = loadFirstCard;
+
+   $(document).ready(function(){
+      $('.flash-card').click((el) => {
+         console.log(el);
+         $(el.currentTarget).toggleClass('active')
+      })
+   });
+
+   
+
+   function buttonClickedByStudent(buttonType) {
+      let xhttp = new XMLHttpRequest();
+      let flashID = document.getElementById("question").getAttribute("flashid");
+      let groupID = document.getElementById("question").getAttribute("groupid");
+      xhttp.open("POST", "/oneUp/students/flashCardUsed", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      didTheyGetItFlag = didTheyGetIt(buttonType)
+
+      xhttp.send("flashID=" + flashID + "&gotIt="+ didTheyGetItFlag + "&groupID=" + groupID + "&csrfmiddlewaretoken={{csrf_token}}");
+      xhttp.onreadystatechange = function () {
+         if (xhttp.readyState == 4) {
+            moveToNextCard();
+         }
+      }
+   }
+
+   function didTheyGetIt(typeOfButtonPressed){
+      let didTheyGetItFlag = null;
+      if(buttonType.gotIt == typeOfButtonPressed)
+         didTheyGetItFlag = true;
+      if(buttonType.tryAgain == typeOfButtonPressed)
+         didTheyGetItFlag = false;
+      return didTheyGetItFlag;
+   }
+   
+   function moveToNextCard(){
+      if(flash_card_counter == flash_cards.length-1){
+         loadCard("complete");
+      }else{
+         flash_card_counter++;
+         loadCard("not_first");
+      }
+      
+   }
+</script>
+
+<body>
+   {% include 'stheading.html' %}
+   <main>
+      <div class="row center-align">
+         <div class="col s12 m10 offset-m1">
+            <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Flash Cards</h3>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col s12 m6 offset-m3">
+            <div class="row" style="display: flex; justify-content: center;">
+               <div class="flash-card" id="flash-card" onclick="actionButtons('show');">
+                  <div class="front card center-align">
+                     <i class="material-icons right flip-icon">arrow_forward</i>
+                     <div class="content">
+                        <p id="question" flashID="none" groupID="" class="flow-text">{{card.question}}</p>
+                     </div>
+                  </div>
+                  <div class="back card center-align">
+                     <i class="material-icons left flip-icon">arrow_back</i>
+                     <div class="content">
+                        <p id="answer" class="flow-text">{{card.answer}}</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+               <div class="row center-align">
+                  <button style="display:none;" id="gotItButton" onclick="buttonClickedByStudent(1);" class="green btn waves-effect waves-light"><i
+                        class="material-icons right">check</i>I Got It</button>
+                  <button style="display:none;" id="tryAgainButton" onclick="buttonClickedByStudent(2);" class="red btn waves-effect waves-light"><i
+                        class="material-icons right">close</i>Not This Time</button>
+                  <button style="display:none;" id="return" onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
+                           class="material-icons right">arrow_back</i>Return</button>
+               </div>
+            </div>
+      </div>
+
+   </main>
+   {% include 'footer.html' %}
+</body>
+
+</html>

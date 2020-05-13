@@ -19,8 +19,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <h4>Problem {{i}} (Multiple Choice)</h4>
     </div>
     {% if hintsUsed and q.questionHasHintsEnabled %}
-    <div class="col s6 pull-s1">
-      <br>
+    <br>
+    <div class="col s6 right-align">
       <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
       <button class="btn waves-effect waves-light" id="{{q.challenge_question_id}}-button"
         onclick="hintClickedByStudent({{q.challenge_question_id}})" type="button">Get Weak Hint (-{{weakHintDeduction}}%)</button>
@@ -35,9 +35,10 @@ instructorview - a boolean which reflects whether or not we're in the instructor
     <div class="col s6">
       <h4>Problem {{i}} (Multiple Answer)</h4>
     </div>
+    <br>
     {% if hintsUsed and q.questionHasHintsEnabled %}
-    <div class="col s6 pull-m1">
-      <br>
+    <br>
+    <div class="col s6 right-align">
       <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
       <button class="btn waves-effect waves-light" id="{{q.challenge_question_id}}-button"
         onclick="hintClickedByStudent({{q.challenge_question_id}})" type="button">Get Weak Hint (-{{weakHintDeduction}}%)</button>
@@ -53,8 +54,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <h4>Problem {{i}} (Matching)</h4>
     </div>
     {% if hintsUsed and q.questionHasHintsEnabled %}
-    <div class="col s6 pull-s2">
-      <br>
+    <br>
+    <div class="col s6 right-align">
       <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
       <button class="btn waves-effect waves-light" id="{{q.challenge_question_id}}-button"
         onclick="hintClickedByStudent({{q.challenge_question_id}})" type="button">Get Weak Hint (-{{weakHintDeduction}}%)</button>
@@ -70,8 +71,8 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <h4>Problem {{i}} (True/False)</h4>
     </div>
     {% if hintsUsed and q.questionHasHintsEnabled %}
-    <div class="col s6 pull-s2">
-      <br>
+    <br>
+    <div class="col s6 right-align">
       <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
       <button class="btn waves-effect waves-light" id="{{q.challenge_question_id}}-button"
         onclick="hintClickedByStudent({{q.challenge_question_id}})" type="button">Get Weak Hint (-{{weakHintDeduction}}%)</button>
@@ -87,7 +88,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <h4>Problem {{i}} (Parsons)</h4>
     </div>
     {% if hintsUsed and q.questionHasHintsEnabled %}
-    <div class="col s6 pull-m2">
+    <div class="col s6 right-align">
       <br>
       <input type="hidden" name="{{i}}hintID" id="{{q.challenge_question_id}}" value="">
       <button class="btn waves-effect waves-light" id="{{q.challenge_question_id}}-button"
@@ -390,6 +391,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
       <label for="{{i}}ans2">False</label>
     </p>
     {% if hintsUsed and q.questionHasHintsEnabled %}
+    <br>
     <div id={{q.challenge_question_id}}-hint>
     </div>
     {% endif %}
@@ -509,6 +511,7 @@ instructorview - a boolean which reflects whether or not we're in the instructor
 			{% endfor %}
     </div>
     {% if hintsUsed and q.questionHasHintsEnabled %}
+    <br>
   <div id={{q.challenge_question_id}}-hint>
   </div>
   {% endif %}

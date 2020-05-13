@@ -728,8 +728,11 @@ td, th{
 }
 
 .clone .fixed-side {
-  background:if($dark-mode, $surface-mid-color, #f9f9f9);
+  
   visibility:visible;
+  &.header {
+    background:if($dark-mode, $surface-mid-color, #f9f9f9);
+  }
 }
 .table-scroll thead, .table-scroll tfoot {
   background:if($dark-mode, $surface-mid-color, #f9f9f9);

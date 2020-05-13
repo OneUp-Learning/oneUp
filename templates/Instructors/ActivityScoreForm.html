@@ -20,14 +20,16 @@
                            <th>Activity Name</th>
                            <th>Total Points</th>
                            <th>Grade</th>
+                           <th>Bonus</th>
                            <th>Feedback</th>
                         </thead>
                         <tbody>
-                           {% for activityNames,maxPoints,points, feedbacks in activity_range%}
+                           {% for activityNames,maxPoints,points, bonus, feedbacks in activity_range%}
                            <tr>
                               <td>{{activityNames}}</td>
                               <td>{{maxPoints}}</td>
                               <td>{{points}}</td>
+                              <td>{{bonus}}</td>
                               <td>{{feedbacks}}</td>
                            </tr>
                            {% empty %}

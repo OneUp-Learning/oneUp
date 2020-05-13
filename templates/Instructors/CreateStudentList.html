@@ -9,6 +9,22 @@
      of the button to still show through. */
       background-color: #69e2f1ce;
     }
+    table tr td {
+			padding: 0 0 0 12px;
+			height: 48px;
+			/* font-size: 13px; */
+			/* color: rgba(0, 0, 0, 0.87); */
+			/* border-bottom: solid 1px #DDDDDD; */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+      }
+		table td:first-child {
+			padding: 0 0 0 8px;
+      }
+		table td:last-child {
+			padding: 0 14px 0 0;
+		}
    </style>
 </head>
 
@@ -79,13 +95,13 @@
                   </thead>
                   <tbody>
                      {% for i,userID,first_Name,last_Name,user_Email,user_Action, user_Avatar, pk in user_range %}
-                     <tr class="no-padding">
-                        <td class="no-padding"><img alt="Avatar Image" class="circle" width="28" height="28"  src="{{user_Avatar}}"></td>
-                        <td class="no-padding">{{first_Name}}</td>
-                        <td class="no-padding">{{last_Name}}</td>
-                        <td class="no-padding">{{user_Email}}</td>
-                        <td class="no-padding">{{user_Action}}</td>
-                        <td class="no-padding">
+                     <tr>
+                        <td><img alt="Avatar Image" class="circle" width="28" height="28"  src="{{user_Avatar}}"></td>
+                        <td>{{first_Name}}</td>
+                        <td>{{last_Name}}</td>
+                        <td>{{user_Email}}</td>
+                        <td>{{user_Action}}</td>
+                        <td>
                            <form action="/oneUp/instructors/deleteStudent" method="POST">
                               {% csrf_token %}
                               <input type="hidden" name="userID" value="{{userID}}">

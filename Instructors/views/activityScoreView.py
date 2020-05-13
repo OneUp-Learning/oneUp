@@ -3,12 +3,14 @@ Created on Mar 21, 2018
 
 @author: oumar
 '''
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
-from Students.models import StudentActivities, Student, User
+
 from Instructors.models import Activities
 from Instructors.views.utils import initialContextDict
-from django.contrib.auth.decorators import login_required, user_passes_test
-from oneUp.decorators import instructorsCheck     
+from oneUp.decorators import instructorsCheck
+from Students.models import Student, StudentActivities, User
+
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
@@ -22,6 +24,7 @@ def activityScore(request):
 
         context_dict['student'] = stud.last_name
         points = []
+        bonus = []
         maxPoints = []
         activityNames = []
         feedbacks = []
@@ -40,12 +43,14 @@ def activityScore(request):
                 
                 studentActivity =  StudentActivities.objects.get(studentID = studentID, activityID=activity)
                 points.append(studentActivity.activityScore)
+                bonus.append(studentActivity.bonusPointsAwarded)
                 feedbacks.append(studentActivity.instructorFeedback)
             
             else: 
                 points.append("-")
+                bonus.append("-")
                 feedbacks.append("")
             
-        context_dict['activity_range'] = zip(activityNames,maxPoints,points, feedbacks)           
+        context_dict['activity_range'] = zip(activityNames,maxPoints,points, bonus, feedbacks)           
     
     return render(request,'Instructors/ActivityScoreForm.html', context_dict)

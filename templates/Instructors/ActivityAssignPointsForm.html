@@ -22,9 +22,34 @@
     <main>
         <div class="row center-align">
             <div class="col s12 m10 offset-m1">
-                <h3 class="truncate">{{activityName}}</h3>
+                <h3 class="truncate">Assign Points</h3>
             </div>
         </div>
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card-panel">
+                  <table class="responsive-table">
+                     <thead>
+                        <th>Activity Name</th>
+                        <th>Activity Due Date</th>
+                        <th>Activity Points</th>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td class="truncate"><b>{{activity.activityName}}</b></td>
+                           {% if activity.hasDeadline %}
+                           <td>{{activity.deadLine}}</td>
+                           {% else %}
+                           <td>-</td>
+                           {% endif %}
+                           <td>{{activity.points}}</td>
+                        </tr>
+                     </tbody>
+                     <tbody class="hide-on-large-only mobile-table-padding"></tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
         <div class="row">
             <div class="col s12 m10 offset-m1">
                 <form name="question" action="/oneUp/instructors/activityAssignPoints" method="POST">
@@ -36,44 +61,50 @@
                                 <thead>
                                     <tr>
                                         <th>Student</th>
+                                        <th>Graded</th>
+                                        <th>Latest Submission</th>
                                         <th>Points</th>
-					{% if isVcUsed %}
+					                    {% if isVcUsed %}
                                         <th>Purchased Points</th>
-					{% endif %}
+					                    {% endif %}
                                         <th>Instructor Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for i, student_ID, student_Name, student_Points, student_Bonus, student_Feedback, File_Name in assignedActivityPoints_range %}
+                                    {% for i, student_ID, student_Name, student_Graded, student_Submission, student_Points, student_Bonus, student_Feedback, File_Name in assignedActivityPoints_range %}
                                     <input type="hidden" id="{{student_ID}}_points_graded" class="isGraded" value="False">
                                     <tr>
                                         <td style="padding-bottom: 0; padding-top: 2px;">
-                                            <p>{{student_Name}}</p>
-                                            {% if File_Name%}
-                                                <blockquote style="margin-top: 4px;"><a class="waves-effect waves-light btn" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">file_download</i>Download File</a></blockquote>
-                                            
-                                            {% else %} <blockquote style="margin-top: 4px;">No file available</blockquote>
-                                            {% endif %}
+                                            <span style="display: flex; justify-content: space-between;">
+                                                <p>{{student_Name}}</p>
+                                                {% if File_Name%}
+                                                <a class="tooltipped" data-tooltip="download submission" data-position="top" data-delay="50" href="../../media/studentActivities/{{File_Name}}" download><i class="material-icons left">file_download</i></a>
+                                                {% endif %}
+                                            </span>
+                                        
+                                        </td>
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <p>{{student_Graded|yesno:"Yes,No" }}</p>
+                                        </td>
+                                        <td style="padding-bottom: 0; padding-top: 2px;">
+                                            <p>{{student_Submission}}</p>
                                         </td>
                                         <td style="padding-bottom: 0; padding-top: 2px;">
                                             <div style="margin: 0;" class="input-field col s12">
-                                                <input value="{{student_Points}}" name="student_Points{{student_ID}}" id="{{student_ID}}_points" type="number" class="validate" min="-1" step="any" required>
+                                                <input value="{{student_Points}}" name="student_Points{{student_ID}}" id="{{student_ID}}_points" type="number" class="validate" min="0" step="any">
                                             </div>
                                         </td>
-					{% if isVcUsed %}
+					                    {% if isVcUsed %}
                                         <td style="padding-bottom: 0; padding-top: 2px;">
-                                          <div style="margin: 0;" class="input-field col s12">
-
-                                            <input value="{{student_Bonus}}" name="student_Bonus{{student_ID}}" id="{{student_ID}}_bonus" type="number" class="validate" min="0" step="any" required>
+                                            <div style="margin: 0;" class="input-field col s12">
+                                                <input value="{{student_Bonus}}" name="student_Bonus{{student_ID}}" id="{{student_ID}}_bonus" type="number" class="validate" min="0" step="any">
                                             </div>
                                         </td>
-					{% endif %}
+					                    {% endif %}
                                         <td style="padding-bottom: 0; padding-top: 2px;">
-                                                <div style="margin: 0;" class="input-field col s12">
-                                                    <textarea style="padding: 0;" id="student_feedback" name="student_Feedback{{student_ID}}" class="materialize-textarea">{{student_Feedback}}</textarea>
-                                                </div>
+                                            <div style="margin: 0;" class="input-field col s12">
+                                                <textarea style="padding: 0;" id="student_feedback" name="student_Feedback{{student_ID}}" class="materialize-textarea">{{student_Feedback}}</textarea>
                                             </div>
-
                                         </td>
                                     </tr>
                                     {% empty %}

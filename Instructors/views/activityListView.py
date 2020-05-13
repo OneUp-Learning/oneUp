@@ -155,6 +155,9 @@ def category_activities(count, category, current_course):
     activity_IDs = []
     activity_Names = []
     descriptions = []
+    start_Timestamp = []
+    end_Timestamp = []
+    deadline = []
     points = []
     activityPositions = []
 
@@ -167,8 +170,23 @@ def category_activities(count, category, current_course):
         descriptions.append(activity.description[:100])
         points.append(round(activity.points))
         activityPositions.append(activity.activityPosition)
+
+        if activity.hasStartTimestamp:
+            start_Timestamp.append(activity.startTimestamp)
+        else:
+            start_Timestamp.append("")
+        
+        if activity.hasEndTimestamp:
+            end_Timestamp.append(activity.endTimestamp)
+        else:
+            end_Timestamp.append("")
+
+        if activity.hasDeadline:
+            deadline.append(activity.deadLine)
+        else:
+            deadline.append("")
     last = count + len(activity_IDs)
-    return list(zip(range(count, last), activity_IDs, activity_Names, descriptions, points, activityPositions))
+    return list(zip(range(count, last), activity_IDs, activity_Names, descriptions, start_Timestamp, end_Timestamp, deadline, points, activityPositions))
 
 
 @login_required

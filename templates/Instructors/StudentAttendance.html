@@ -6,6 +6,25 @@
          .heading-pad {
             padding-left: 0;
          }
+         table tr td {
+			padding: 0 0 0 12px;
+			height: 48px;
+			/* font-size: 13px; */
+			/* color: rgba(0, 0, 0, 0.87); */
+			/* border-bottom: solid 1px #DDDDDD; */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+      }
+		table td:first-child {
+			padding: 0 0 0 8px;
+      }
+		table td:last-child {
+			padding: 0 14px 0 0;
+      }
+      .dtp > .dtp-content {
+         max-height: 540px;
+      }
       </style>
    </head>
       <script>
@@ -75,59 +94,59 @@
          </div>
          <div class="row">
             <div class="col s12 m10 offset-m1">
-            <form name="question" enctype="multipart/form-data" action="/oneUp/instructors/studentAttendance" method="POST">
-	            {% csrf_token %}
-	            <div class="input-field col s2">
-                              <label for="rollDate">Current Date</label> 
-                              <input onchange="this.form.submit()" type="text" class="datepicker-from" name="rollDate" value="{{rollDate}}" id="rollDate">
-				</div>
-			</form>
-			<br/>
+               <form name="question" enctype="multipart/form-data" action="/oneUp/instructors/studentAttendance" method="POST">
+                  {% csrf_token %}
+                  <div class="input-field col s2">
+                     <label for="rollDate">Current Date</label> 
+                     <input onchange="this.form.submit()" type="text" class="datepicker-from" name="rollDate" value="{{rollDate}}" id="rollDate">
+                  </div>
+               </form>
+			      <br/>
                <div class="row right-align">
                   <div class="col s10">
                      <button class="btn waves-effect waves-light" onclick="ToggleAllCheckboxes(this)" type="button">Select All<i class="material-icons right">select_all</i></button>
                      <button id="save" onclick="submitButton()" class="waves-effect waves-light btn">Save</button>                                                          
                   </div>
                </div>
-               
                <div class="card-panel">
-               <form action="/oneUp/instructors/studentAttendance"  id="rollForm" method="POST">
-               {% csrf_token %}
-                  <table id="tableAttendance">
-                     <thead>
-                        <tr>
-                        <th></th>
-                        <th class="heading-pad">Name</th>
-                        <th class="heading-pad">Present</th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        {% for student_ID, student_Avatars, first_name, last_name, isPresent in class %}
-                        <tr>
-                           <td style="padding-top: 4px; padding-left: 0; padding-right: 0; padding-bottom: 0; width: 32px;"><img class="circle" style="vertical-align: baseline" width="28px" height="28px" alt="Avatar Image" src="{{student_Avatars}}"></td>
-                           
-                           <td class="no-padding" style="vertical-align: middle;">{{first_name}} {{last_name}}</td>
-                           <td class="no-padding">
-                              {% if isPresent == "true" %}
-                              <input class="checkbox filled-in" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" checked/>
-                              {% else %}
-                              <input class="checkbox filled-in" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" />
-                              {% endif %}	
-                              
-                              <label for="{{student_ID}}"></label>
-                                  <input type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
+                  <form action="/oneUp/instructors/studentAttendance"  id="rollForm" method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" name="rollDate" value={{rollDate}} id="rollDate">
+                     <table id="tableAttendance">
+                        <thead>
+                           <tr>
+                              <th class="heading-pad" style="width: 80px">Present</th>
+                              <th class="heading-pad">Name</th>
+                              <th></th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for student_ID, student_Avatars, first_name, last_name, isPresent in class %}
+                           <tr>
+                              <td>
+                                 {% if isPresent == "true" %}
+                                 <input class="checkbox filled-in" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" checked/>
+                                 {% else %}
+                                 <input class="checkbox filled-in" name="checkbox" type="checkbox" id="{{student_ID}}" style="padding:0;" />
+                                 {% endif %}	
+                                 
+                                 <label for="{{student_ID}}" style="display: flex; align-items: center;"></label>
+                                 <input type="hidden" id="{{student_ID}}_hidden" name="present[]" value={{isPresent}}>
                               </td>
-                        </tr>
-                        {% empty %}
-                        <tr class="no-padding">
-                           <td class="center-align" colspan="4"><i>No Students Created</i></td>
-                        </tr>
-                        {% endfor %}
-                     </tbody>
-                  </table>
-                  	<input type="hidden" name="rollDate" value={{rollDate}} id="rollDate">
-                  </form>
-				 </div>
+                              <td style="padding-top: 4px; padding-left: 0; padding-right: 0; padding-bottom: 0; width: 32px;"><img class="circle" style="vertical-align: baseline" width="28px" height="28px" alt="Avatar Image" src="{{student_Avatars}}"></td>
+                              
+                              <td style="vertical-align: middle;">{{first_name}} {{last_name}}</td>
+                              
+                           </tr>
+                           {% empty %}
+                           <tr>
+                              <td class="center-align" colspan="4"><i>No Students Created</i></td>
+                           </tr>
+                           {% endfor %}
+                           </tbody>
+                        </table>
+                     </form>
+				      </div>
                </div>
             </div>
          </div>

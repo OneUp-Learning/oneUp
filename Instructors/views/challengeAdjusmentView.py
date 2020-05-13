@@ -17,7 +17,8 @@ from Badges.event_utils import updateLeaderboard
 from Badges.events import register_event
 from Badges.models import CourseConfigParams
 from Instructors.models import Challenges, Courses
-from Instructors.views.utils import current_localtime, initialContextDict, moveTestStudentObjToBottom
+from Instructors.views.utils import (current_localtime, initialContextDict,
+                                     moveTestStudentObjToBottom)
 from oneUp.decorators import instructorsCheck
 from Students.models import StudentChallenges, StudentRegisteredCourses
 
@@ -43,7 +44,7 @@ def challengeAdjustmentView(request):
             else:
                 bonusScore = 0
 
-            if (StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID)).exists():
+            if StudentChallenges.objects.filter(challengeID=request.POST['challengeID'], studentID=studentID).exists():
                 studentChallenge = StudentChallenges.objects.filter(
                     challengeID=request.POST['challengeID'], studentID=studentID).latest('testScore')
 
@@ -65,34 +66,31 @@ def challengeAdjustmentView(request):
                     notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
                                 verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName), "related_link": '/oneUp/students/ChallengesTaken?challengeID='+str(challenge.challengeID)}))
             else:
-
-                if not adjustmentScore == 0 or not bonusScore == 0:
-
-                    if not adjustmentScore == 0:
-                        studentChallenge = StudentChallenges()
-                        studentChallenge.challengeID = challenge
-                        studentChallenge.studentID = studentRC.studentID
-                        studentChallenge.scoreAdjustment = adjustmentScore
-                        studentChallenge.AdjustmentReason = request.POST['adjustmentReason'+str(
-                            studentID)]
-                        register_event(Event.adjustment, request,
-                                       studentRC.studentID, challengeId)
-                        register_event(Event.leaderboardUpdate,
-                                       request, studentRC.studentID, challengeId)
+                if not adjustmentScore == 0:
+                    studentChallenge = StudentChallenges()
+                    studentChallenge.challengeID = challenge
+                    studentChallenge.studentID = studentRC.studentID
+                    studentChallenge.scoreAdjustment = adjustmentScore
+                    studentChallenge.AdjustmentReason = request.POST['adjustmentReason'+str(
+                        studentID)]
+                    register_event(Event.adjustment, request,
+                                    studentRC.studentID, challengeId)
+                    register_event(Event.leaderboardUpdate,
+                                    request, studentRC.studentID, challengeId)
+                    notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
+                                verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName), "related_link": '/oneUp/students/ChallengesTaken?challengeID='+str(challenge.challengeID)}))
+                    if not bonusScore == 0:
+                        studentChallenge.bonusPointsAwarded = bonusScore
                         notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                    verb="Your score for '"+challenge.challengeName+"' was adjusted", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName), "related_link": '/oneUp/students/ChallengesTaken?challengeID='+str(challenge.challengeID)}))
-                        if not bonusScore == 0:
-                            studentChallenge.bonusPointsAwarded = bonusScore
-                            notify.send(None, recipient=studentRC.studentID.user, actor=request.user,
-                                        verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName), "related_link": '/oneUp/students/ChallengesTaken?challengeID='+str(challenge.challengeID)}))
-                        else:
-                            studentChallenge.bonusPointsAwarded = 0
+                                    verb="You've got a bonus for '"+challenge.challengeName+"'", nf_type='Challenge Adjustment', extra=json.dumps({"course": str(courseId), "name": str(course.courseName), "related_link": '/oneUp/students/ChallengesTaken?challengeID='+str(challenge.challengeID)}))
+                    else:
+                        studentChallenge.bonusPointsAwarded = 0
 
-                        studentChallenge.courseID = course
-                        studentChallenge.startTimestamp = current_localtime()
-                        studentChallenge.endTimestamp = current_localtime()
-                        studentChallenge.testScore = 0
-                        studentChallenge.save()
+                    studentChallenge.courseID = course
+                    studentChallenge.startTimestamp = current_localtime()
+                    studentChallenge.endTimestamp = current_localtime()
+                    studentChallenge.testScore = 0
+                    studentChallenge.save()
 
         updateLeaderboard(course)
 
@@ -122,11 +120,11 @@ def adjustmentList(request):
         student = studentRC.studentID
         student_ID.append(student.id)
         if student.isTestStudent:
-            student_Name.append("Test Student")
+            student_Name.append(f"(Test Student) {student.user.get_full_name()}")
         else:
-            student_Name.append((student).user.get_full_name())
+            student_Name.append(student.user.get_full_name())
 
-        if (StudentChallenges.objects.filter(challengeID=request.GET['challengeID'], studentID=student)).exists():
+        if StudentChallenges.objects.filter(challengeID=request.GET['challengeID'], studentID=student).exists():
             studentChallenge = StudentChallenges.objects.filter(
                 challengeID=request.GET['challengeID'], studentID=student).latest('testScore')
             if studentChallenge.testScore == 0 and studentChallenge.scoreAdjustment != 0:
@@ -157,4 +155,3 @@ def adjustmentList(request):
     isVcUsed = CourseConfigParams.objects.get(courseID=currentCourse).virtualCurrencyUsed
     context_dict['isVcUsed'] = isVcUsed
     return render(request, 'Instructors/ChallengeAdjustmentForm.html', context_dict)
-    
