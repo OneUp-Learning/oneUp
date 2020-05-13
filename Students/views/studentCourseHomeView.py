@@ -96,7 +96,7 @@ def StudentCourseHome(request):
     logger.debug(
         f"Student {student.user.get_full_name()} finished loading course home page")
 
-    if context_dict['ccparams'].displayStudentStartPageSummary == True:
+    if context_dict['ccparams'].displayStudentStartPageSummary == True and context_dict['ccparams'].gamificationUsed:
         return render(request, 'Students/StudentCourseHomeSummary.html', context_dict)
     else:
         return render(request, 'Students/StudentCourseHome.html', context_dict)

@@ -59,7 +59,9 @@
                                     {% if seriousUsed %}
                                         <li><a href="/oneUp/students/ChallengesList?userID={{userID}}">Challenges</a></li>
                                     {% endif %}
+                                    {% if ccparams.displayAchievementPage %}
                                         <li><a href="/oneUp/students/achievements?userID={{userID}}">Dashboard</a></li>
+                                    {% endif %}
                                     </ul>
                                 </td>
                             </tr>

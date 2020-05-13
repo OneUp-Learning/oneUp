@@ -1,21 +1,99 @@
-from Badges.models import CourseConfigParams
-from Students.models import StudentConfigParams, Student
-from Instructors.models import Courses
-
-from django.contrib.auth.models import User, AnonymousUser
-
+from django.contrib.auth.models import AnonymousUser, User
 from django.shortcuts import redirect
 
+from Badges.models import CourseConfigParams
+from Instructors.models import Courses
+from Students.models import Student, StudentConfigParams
+
+
 class CourseConfigMiddleware:
+    ''' This middleware will prevent students (and instructors) from being able to access pages by url 
+        that should only be available if certain config settings are enabled
+
+        The paths dictionary is a collection of url paths and course config/student config variables that 
+        should have a certain value. If the current config setting for a user doesn't match any of the
+        values for that url, the user will be sent back to the course home page.
+    '''
     def __init__(self, get_response):
         self.get_response = get_response
         # One-time configuration and initialization.
         self.paths = {
+            '/oneUp/students/Announcements':
+                {
+                    'announcementsUsed': True,
+                },
+            '/oneUp/students/Leaderboard': 
+                {
+                    'leaderboardUsed': True, 
+                    'skillLeaderboardDisplayed': True,
+                    'gamificationUsed': True,
+                },
+            '/oneUp/students/LeaderboardInfo': 
+                {
+                    'leaderboardUsed': True, 
+                    'gamificationUsed': True,
+                },
+            '/oneUp/badges/CourseBadges': 
+                {
+                    'badgesUsed': True, 
+                    'gamificationUsed': True,
+                },
+            '/oneUp/students/VirtualCurrencyRules': 
+                {
+                    'virtualCurrencyUsed': True, 
+                    'gamificationUsed': True,
+                },
+            '/oneUp/students/ChallengesWarmUpList': 
+                {
+                    'warmupsUsed': True, 
+                },
+            '/oneUp/students/ChallengesList': 
+                {
+                    'seriousChallengesUsed': True, 
+                },
+            '/oneUp/students/ActivityList': 
+                {
+                    'activitiesUsed': True, 
+                },
+            '/oneUp/students/CoursePerformance': 
+                {
+                    'gradebookUsed': True, 
+                },
             '/oneUp/students/achievements': 
                 {
                     'displayAchievementPage': True, 
                     'gamificationUsed': True,
                 },
+            '/oneUp/students/avatar': 
+                {
+                    'avatarUsed': True, 
+                    'gamificationUsed': True,
+                },
+            '/oneUp/students/goalslist': 
+                {
+                    'goalsUsed': True, 
+                    'gamificationUsed': True,
+                },
+            '/oneUp/chat/api': 
+                {
+                    'chatUsed': True, 
+                },
+            '/oneUp/students/VirtualCurrencyShop': 
+                {
+                    'virtualCurrencyUsed': True, 
+                    'gamificationUsed': True,
+                },
+            '/oneUp/students/Transactions': 
+                {
+                    'virtualCurrencyUsed': True, 
+                    'gamificationUsed': True,
+                },
+            '/oneUp/students/Callouts': 
+                {
+                    'classmatesChallenges': True, 
+                    'gamificationUsed': True,
+                },
+            # TODO: Add links for instructors?
             '/oneUp/instructors/preferences':
                 {
                     'gamificationUsed': True,
@@ -46,7 +124,7 @@ class CourseConfigMiddleware:
             self.current_user = None
             self.course_config_params = None
             self.current_course = None
-            
+
         # If request in paths to check and user is not fully logged out..
         if request.path in self.paths and not request.user == AnonymousUser:
             # Get current course
@@ -89,10 +167,10 @@ class CourseConfigMiddleware:
         return response
     
     def update_params(self, course, student):
-        if course and not self.current_course == course:
+        if course:
             self.course_config_params = CourseConfigParams.objects.get(courseID=course)
             self.current_course = course
-        if course and student and not self.current_user == student:
+        if course and student:
             self.student_config_params = StudentConfigParams.objects.get(courseID=course, studentID=student)
             self.current_user = student
 
@@ -125,4 +203,3 @@ class CourseConfigMiddleware:
                 scparams = StudentConfigParams.objects.get(courseID=course, studentID=student)
 
         return ccparams, scparams
-
