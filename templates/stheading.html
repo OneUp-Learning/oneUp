@@ -312,10 +312,10 @@
 						<li><a class="waves-effect " href="/oneUp/students/Announcements">Announcements</a></li>	
 						{% endif %}
 						<!-- GGM added leaderboard to navigation bar -->
-						{%if  ccparams.leaderboardUsed and scparams.displayLeaderBoard and ccparams.skillLeaderboardDisplayed %}
+						{%if ccparams.gamificationUsed and ccparams.leaderboardUsed and scparams.displayLeaderBoard and ccparams.skillLeaderboardDisplayed %}
 						<li><a class="waves-effect " href="/oneUp/students/Leaderboard">Course Leaderboard</a></li>
 						{% endif %}	
-						{%if  ccparams.leaderboardUsed %}
+						{%if ccparams.gamificationUsed and ccparams.leaderboardUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
 						{% endif %}						
 						{%if ccparams.gamificationUsed and ccparams.badgesUsed %}
@@ -355,21 +355,23 @@
 						<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
 						{% endif %}
 						{% endif %}
+						{% endif %}
 						<!-- {% if ccparams.chatUsed %}
 						<li><a class="waves-effect " href="/oneUp/chat/api">Chat</a></li>
 						{% endif %} -->
+						
 						<li><a class="waves-effect " href="/oneUp/students/FlashCardsList">Flash Cards</a></li>
-						{% if ccparams.virtualCurrencyUsed %}
+						{% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
 						<li><a class="waves-effect " href="/oneUp/students/Transactions">VC Transactions</a></li>
 						{% endif %}
-						{% if ccparams.classmatesChallenges %}
+						{% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
 			            <li><a class="waves-effect " href="/oneUp/students/Callouts">Challenge Classmates</a></li>
 						{% endif %}
-						{% if ccparams.classmatesChallenges or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or ccparams.studCanChangeGoal and ccparams.goalsUsed %}
+						{% if ccparams.classmatesChallenges or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or ccparams.studCanChangeGoal and ccparams.goalsUsed and ccparams.gamificationUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/Preferences">Preferences</a></li>
 						{% endif %}
-						{% endif %}
+						
 
 						{% if is_test_student is False %}
 						<li><a class="waves-effect " href="/oneUp/students/ResetPassword">Reset Password</a></li>
@@ -435,10 +437,10 @@
 									<li><a class="waves-effect" href="/oneUp/students/Announcements">Announcements</a></li>	
 									{% endif %}
 									
-									{% if ccparams.leaderboardUsed and scparams.displayLeaderBoard %}
+									{% if ccparams.gamificationUsed and ccparams.leaderboardUsed and scparams.displayLeaderBoard %}
 									<li><a class="waves-effect" href="/oneUp/students/Leaderboard">Leaderboard</a></li>
 									{% endif %}
-									{% if ccparams.skillLeaderboardDisplayed %}
+									{% if ccparams.gamificationUsed and ccparams.skillLeaderboardDisplayed %}
 									<li><a class="waves-effect" href="/oneUp/students/LeaderboardInfo">Leaderboards Info</a></li>
 									{% endif %}						
 									{% if ccparams.gamificationUsed and ccparams.badgesUsed %}
@@ -479,21 +481,23 @@
 									<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
 									{% endif %}
 									{% endif %}
+									{% endif %}
 									<!-- {% if ccparams.chatUsed %}
 										<li><a class="waves-effect" href="/oneUp/chat/api">Chat</a></li>
 									{% endif %} -->
-									{% if ccparams.virtualCurrencyUsed %}
+									<li><a class="waves-effect" href="/oneUp/students/FlashCardsList">Flash Cards</a></li>
+									{% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
 									<li>
 										<li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-alignment="right" data-beloworigin="true" data-activates="virtualcurrency">Virtual Currency<i class="material-icons right">more_vert</i></a></li>                                    
 									</li>
 									{% endif %}
-									{% if ccparams.classmatesChallenges %}
+									{% if ccparams.gamificationUsed and ccparams.classmatesChallenges %}
 									<li><a class="waves-effect" href="/oneUp/students/Callouts">Challenge Classmates</a></li>
 									{% endif %}
-									{% if ccparams.classmatesChallenges or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or ccparams.studCanChangeGoal and ccparams.goalsUsed %}
+									{% if ccparams.classmatesChallenges or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or ccparams.studCanChangeGoal and ccparams.goalsUsed and ccparams.gamificationUsed %}
 									<li><a class="waves-effect" href="/oneUp/students/Preferences">Preferences</a></li>
 									{% endif %}
-									{% endif %}
+									
 
 									{% if is_test_student is False %}
 									<li><a class="waves-effect" href="/oneUp/students/ResetPassword">Reset Password</a></li>
