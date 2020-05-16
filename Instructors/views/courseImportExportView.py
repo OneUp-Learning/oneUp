@@ -181,6 +181,9 @@ model_lookup_table = {
             'hasEndTimestamp': None,
             'hasDueDate': None,
             'courseID': None,
+            'startTimestamp': None,
+            'endTimestamp': None,
+            'dueDate': None,
         },
         'Export': {
             'challengeID': None,
@@ -2132,20 +2135,26 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
             # Use course config params to set the challenge
             # start, end, and due date to course start date,
             # course end date, and course end date respectively
-            course_config_params = None
-            if context_dict:
-                course_config_params = context_dict['ccparams']            
+            course_config_params_list_should_contain_just_one = CourseConfigParams.objects.filter(courseID=current_course)        
+            if len(course_config_params_list_should_contain_just_one) == 1:
+                course_config_params = course_config_params_list_should_contain_just_one[0]
+                
+                # Create the challenge model instance
+                challenge_fields_to_save = {'hasStartTimestamp': course_config_params.hasCourseStartDate,
+                        'hasEndTimestamp': course_config_params.hasCourseEndDate,
+                        'hasDueDate': course_config_params.hasCourseEndDate,
+                        'startTimestamp': course_config_params.courseStartDate,
+                        'endTimestamp': course_config_params.courseEndDate,
+                        'dueDate': course_config_params.courseEndDate,
+                        'courseID': current_course}
             else:
-                messages.append({'type': 'error', 'message': 'Couse Configuration not provided. Challenge will not be imported'})
-                return
-
-            # Create the challenge model instance
-            challenge_fields_to_save = {'hasStartTimestamp': False,
-                                        'hasEndTimestamp': False,
-                                        'hasDueDate': False,
-                                        'courseID': current_course}
+                # Something weird is going on with the current course, it has no params.  We're going to just give the challenges no dates.
+                challenge_fields_to_save = {'hasStartTimestamp': False,
+                        'hasEndTimestamp': False,
+                        'hasDueDate': False,
+                        'courseID': current_course}
+                
             challenge = create_model_instance(Challenges, challenge_json, custom_fields_to_save=challenge_fields_to_save)
-
             challenge.save()
 
             # Create the challenge tags if any
