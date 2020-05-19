@@ -9,7 +9,10 @@ from Badges.enums import Action, AwardFrequency, Event, OperandTypes
 from Badges.systemVariables import SystemVariable
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
                                 Courses, Skills, Topics)
-from Instructors.views.utils import current_localtime
+
+
+def custom_now():
+    return now().replace(microsecond=0)
 
 
 # Conditions Table
@@ -158,7 +161,7 @@ class PeriodicBadges(BadgesInfo):
     threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
-    lastModified = models.DateTimeField(default=current_localtime) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    lastModified = models.DateTimeField(default=custom_now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
@@ -198,7 +201,7 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     threshold = models.CharField(default="1", max_length=3) # The cutoff number of the result of the periodic variable function 
     operatorType = models.CharField(default='=', max_length=2) # The operator for the threshold (>=, >, =)
     isRandom = models.NullBooleanField(default=False) # Is this being awarded to random student(s)
-    lastModified = models.DateTimeField(default=current_localtime) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    lastModified = models.DateTimeField(default=custom_now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
@@ -263,7 +266,7 @@ class LeaderboardsConfig(models.Model):
     periodicVariable = models.IntegerField(default=0)              ## This is used to display the number of students in the leaderboard dashboard html table
     timePeriodUpdateInterval = models.IntegerField(default=0000)                  # The Time Period index set for updating this leaderboard
     displayOnCourseHomePage = models.BooleanField(default=False)       # true=display on course home page; false=display on leaderbordas page 
-    lastModified = models.DateTimeField(default=current_localtime) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
+    lastModified = models.DateTimeField(default=custom_now) # The last time this rule was modified. Used to properly calculate periodic variables when first starting
     periodicTask = models.ForeignKey(PeriodicTask,  null=True, blank=True, on_delete=models.SET_NULL, verbose_name="the periodic task", db_index=True) # The celery Periodic Task object
     howFarBack = models.IntegerField(default=0000)
     def delete(self, *args, **kwargs):
@@ -333,8 +336,8 @@ class CourseConfigParams(models.Model):
     studCanChangeclassAverageVis = models.BooleanField(default=False) ## The student can suppress visibility in the dashboard
 
     ##Misc Leaderboard Fields
-    courseStartDate=models.DateField(default=current_localtime)            ##
-    courseEndDate=models.DateField(default=current_localtime)              ##
+    courseStartDate=models.DateField(default=custom_now)            ##
+    courseEndDate=models.DateField(default=custom_now)              ##
 
     hasCourseStartDate = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
     hasCourseEndDate = models.BooleanField(default=False)
@@ -479,7 +482,7 @@ class BadgesVCLog(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
     log_data = models.TextField(blank=True, default='{}', verbose_name='Log Data',
             help_text='JSON encoded data (Example: {"badge": {"name": "badge name", "type": "automatic, manual, periodic"},})')
-    timestamp = models.DateTimeField(default=current_localtime, blank=True)#when it was issued
+    timestamp = models.DateTimeField(default=custom_now, blank=True)#when it was issued
     def __str__(self):              
         return f"ID: {self.badgesVCLogID} : Course: {self.courseID} : Data: {self.log_data}"
 
@@ -492,7 +495,7 @@ class CeleryTaskLog(models.Model):
             help_text='The Unique Task ID. (Example: "unique_warmups_123_badge")')
     parameters = models.TextField(blank=True, default='{}', verbose_name='Task Parameters',
             help_text='JSON encoded keyword arguments of celery parameters. (Example: {"argument": "value"})')
-    timestamp = models.DateTimeField(default=current_localtime, verbose_name='Task Timestamp',
+    timestamp = models.DateTimeField(default=custom_now, verbose_name='Task Timestamp',
             help_text='The last time the celery task has run completely and was recorded')
     def __str__(self):
         return "Task ID: {} - Updated: {}".format(self.taskID, self.timestamp)

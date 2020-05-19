@@ -10,9 +10,11 @@ from django.template.defaultfilters import default
 from django.utils.timezone import now
 from django_celery_beat.models import PeriodicTask
 
-from Instructors.views.utils import current_localtime
 from oneUp.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL
 
+
+def custom_now():
+    return now().replace(microsecond=0)
 
 # DO NOT USE (Instructors Table is replaced by general User table)
 class Instructors(models.Model):
@@ -84,7 +86,7 @@ class QuestionProgrammingFiles(models.Model):
     questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, null=True, verbose_name= 'the related question')
     programmingFileName = models.CharField(max_length=200)
     programmingFileFolderName = models.CharField(max_length=200)
-    uploaded_at = models.DateTimeField(default=current_localtime)
+    uploaded_at = models.DateTimeField(default=custom_now)
     programmingFileUploader = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name="Creator", db_index=True)
      
 class StaticQuestions(Questions):
@@ -153,9 +155,9 @@ class Challenges(models.Model):
     challengeDifficulty = models.CharField(max_length=45, default="")
     isVisible = models.BooleanField(default=True)
 
-    startTimestamp = models.DateTimeField(default=current_localtime, blank=True)
-    endTimestamp = models.DateTimeField(default=current_localtime, blank=True)
-    dueDate = models.DateTimeField(default=current_localtime, blank=True)
+    startTimestamp = models.DateTimeField(default=custom_now, blank=True)
+    endTimestamp = models.DateTimeField(default=custom_now, blank=True)
+    dueDate = models.DateTimeField(default=custom_now, blank=True)
 
     hasStartTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
     hasEndTimestamp = models.BooleanField(default=False)
@@ -263,9 +265,9 @@ class Activities(models.Model):
     instructorNotes = models.CharField(max_length=300, default="")
     author = models.CharField(max_length=100) 
 
-    startTimestamp = models.DateTimeField(default=current_localtime, blank=True)
-    endTimestamp = models.DateTimeField(default=current_localtime, blank=True )
-    deadLine = models.DateTimeField(default=current_localtime, blank=True)
+    startTimestamp = models.DateTimeField(default=custom_now, blank=True)
+    endTimestamp = models.DateTimeField(default=custom_now, blank=True )
+    deadLine = models.DateTimeField(default=custom_now, blank=True)
 
     hasStartTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
     hasEndTimestamp = models.BooleanField(default=False)
@@ -281,8 +283,8 @@ class Announcements(models.Model):
     authorID = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Author", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
 
-    startTimestamp = models.DateTimeField(default=current_localtime)
-    endTimestamp = models.DateTimeField(default=current_localtime)
+    startTimestamp = models.DateTimeField(default=custom_now)
+    endTimestamp = models.DateTimeField(default=custom_now)
 
     hasStartTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
     hasEndTimestamp = models.BooleanField(default=False)
@@ -335,7 +337,7 @@ def fileUploadPath(instance,filename):
 class UploadedFiles(models.Model):
         uploadedFile = models.FileField(max_length=500,upload_to= fileUploadPath)
         uploadedFileName = models.CharField(max_length=200, default='')
-        uploaded_at = models.DateTimeField(default=current_localtime)
+        uploaded_at = models.DateTimeField(default=custom_now)
         uploadedFileCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
         
         def delete(self):
@@ -351,7 +353,7 @@ class UploadedActivityFiles(models.Model):
         activity = models.ForeignKey(Activities, on_delete=models.SET_NULL, null=True, verbose_name= 'the related activity')
         activityFile = models.FileField(max_length=500,upload_to= activityUploadPath)
         activityFileName = models.CharField(max_length=200, default='')
-        uploaded_at = models.DateTimeField(default=current_localtime)
+        uploaded_at = models.DateTimeField(default=custom_now)
         activityFileCreator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Creator", db_index=True)
         latest = models.BooleanField(default = True)
         
