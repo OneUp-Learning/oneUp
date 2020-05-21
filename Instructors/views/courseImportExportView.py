@@ -91,7 +91,7 @@ model_lookup_table = {
         }
     },
     Tags: {
-        'Import': {}, # For now the tags are globally so we don't need to create any
+        'Import': {},
         'Export': {
             'tagID': None,
             'tagName': None,
@@ -2159,8 +2159,16 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
 
             # Create the challenge tags if any
             for tag_json in challenge_json['tags']:
+                tag = None
+                try:
+                    tag = Tags.objects.get(pk=tag_json['tagID'])
+                except Tags.DoesNotExist:
+                    tag = Tags()
+                    tag.tagName = tag_json['tagName']
+                    tag.save()
+
                 tag_fields_to_save = {
-                    'tagID': Tags.objects.get(pk=tag_json['tagID']),
+                    'tagID': tag,
                     'challengeID': challenge,
                 }
                 challenge_tag = create_model_instance(ChallengeTags, None, custom_fields_to_save=tag_fields_to_save)
@@ -2323,8 +2331,16 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
 
             # Create the question tags if any
             for tag_json in question_json['tags']:
+                tag = None
+                try:
+                    tag = Tags.objects.get(pk=tag_json['tagID'])
+                except Tags.DoesNotExist:
+                    tag = Tags()
+                    tag.tagName = tag_json['tagName']
+                    tag.save()
+                    
                 tag_fields_to_save = {
-                    'tagID': Tags.objects.get(pk=tag_json['tagID']),
+                    'tagID': tag,
                     'questionID': question,
                 }
                 question_tag = create_model_instance(ResourceTags, None, custom_fields_to_save=tag_fields_to_save)
