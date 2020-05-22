@@ -501,7 +501,7 @@ def current_localtime(tz=None):
     if type(tz) == str:
         tz = pytz.timezone(tz)
 
-    return timezone.localtime(current_utctime(), timezone=tz)
+    return timezone.localtime(current_utctime(), timezone=tz).replace(microsecond=0)
 
 def datetime_to_local(db_datetime, tz=None):
     ''' Converts datetime object to local '''
