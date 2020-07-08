@@ -10,6 +10,7 @@ from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, Uploade
 from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
 from Instructors.views.utils import initialContextDict
+from Instructors.views.courseImportExportView import challenges_to_json
 from decimal import Decimal
 
 from Instructors.questionTypes import QuestionTypes
@@ -59,7 +60,23 @@ def exportChallenges(request):
                 if challengeID in selectedChallenges_num:
                     ch = Challenges.objects.get(pk=int(challengeID))
                     selectedChallenges.append(ch) 
-        
+
+    
+         if 'serious-challenges' in request.POST or 'warmup-challenges' in request.POST:
+                # Notify user about field export decisions
+                messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
+
+        if 'serious-challenges' in request.POST:
+            # Exclude unassigned challenge since that is created by default for every course
+            serious_challenges = Challenges.objects.filter(courseID=current_course, isGraded=True).exclude(challengeName=unassigned_problems_challenge_name)
+            root_json['serious-challenges'] = challenges_to_json(serious_challenges, current_course, include_topics='topics' in request.POST, root_json=root_json, messages=messages)
+
+        if 'warmup-challenges' in request.POST:
+            # Exclude unassigned challenge since that is created by default for every course
+            warmup_challenges = Challenges.objects.filter(courseID=current_course, isGraded=False).exclude(challengeName=unassigned_problems_challenge_name)
+            root_json['warmup-challenges'] = challenges_to_json(warmup_challenges, current_course, include_topics='topics' in request.POST, root_json=root_json, messages=messages)
+
+        '''
         # Build the tree  
         # We do not save the IDs, since upon importing the objects will be saved in the DB as new objects
                   
@@ -543,5 +560,4 @@ def importChallenges(uploadedFileName, currentCourse):
     os.remove(fname)
 
     #return redirect('/oneUp/instructors/instructorCourseHome') 
-                 
-            
+'''       

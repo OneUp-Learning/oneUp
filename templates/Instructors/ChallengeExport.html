@@ -3,6 +3,224 @@
 
 <head>
 
+    {% include 'scripts.html' %}
+    <script>
+        var checked = false;
+        var checkBoxes = document.getElementsByClassName('check-boxes');
+
+        function ToggleAllCheckboxes(event) {
+            
+            checked = !checked;
+            if (checked)
+                event.childNodes[0].textContent = "Deselect All"
+            else
+                event.childNodes[0].textContent = "Select All"
+
+            for (var i = 0; i < checkBoxes.length; i++) {
+                checkBoxes[i].checked = checked;
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align">
+            <div class="col s12">
+                <h3>Export Course</h3>
+                <em><strong> Select Items to Export</strong></em>
+            </div>
+        </div>
+
+        <div class="row right-align">
+            <div class="col s12 m10 offset-m1">
+                <button class="btn waves-effect waves-light" onclick="ToggleAllCheckboxes(this)" type="button">Select All<i
+                        class="material-icons right">select_all</i></button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 m10 offset-m1">
+                <form id="export-course" name="export-course">
+                    {% csrf_token %}
+                    <input type="hidden" name="export" />
+                    <div class="card">
+                        <div class="card-content">
+                            <ul class="collapsible" data-collapsible="expanded">
+                                <li>
+                                    <div class="collapsible-header active"><i
+                                            class="material-icons">layers</i>Challenges & Problems
+                                        <span class="badge">3</span>
+                                    </div>
+                                    <div class="collapsible-body" style=padding:10px;>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="serious-challenges" id="serious-challenges" />
+                                            <label for="serious-challenges">Serious Challenges</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="warmup-challenges" id="warmup-challenges" />
+                                            <label for="warmup-challenges">Warmup Challenges</label>
+                                        </p>
+                                        <p>
+                                            <input type="checkbox" class="filled-in check-boxes"
+                                                name="unassigned-problems" id="unassigned-problems" />
+                                            <label for="unassigned-problems">Unassigned Problems</label>
+                                        </p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-action right-align">
+                            <button class="btn waves-effect waves-light" type="button" name="submit" onclick="validateJSON()">Export<i
+                                    class="material-icons right">send</i></button>
+                            <button class="btn waves-effect waves-light" type="reset" name="reset">Clear<i
+                                    class="material-icons right">clear_all</i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Modal Structure -->
+        <div id="messages-modal" class="modal">
+            <div class="modal-content">
+                <h4>Are you sure you want to export?</h4>
+                <ul class="collection" id="messages">
+                    
+                </ul>
+            </div>
+            <div class="modal-footer">
+                    <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Make Changes</a>
+                    <button id="export-json" type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="continue">Continue Anyway
+                    </button>
+            </div>
+        </div>
+        <script>
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                            }
+                        }
+                }
+                return cookieValue;
+            }
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                }
+            });
+
+            function validateJSON() {
+                //   console.log("validating");
+                  $.ajax({
+                        type: "POST",
+                        url: "/oneUp/instructors/validateCourseExport",
+                        data: $("#export-challenge").serialize(),
+                        success: function (response) {                     
+                            // Unbind all event listeners in case the user decides to fix errors/warnings
+                            // and export again
+                            $("#export-json").unbind();
+                            // Set onclick listener for the continue button in the popup
+                            $("#export-json").click(function(){exportChallenges(response['exported-json']);});
+
+                            let messages = response['messages'];
+                            
+                            // If there are no warning or error messages just go ahead and export the course json
+                            if (messages.length == 0){
+                                $("#export-json").click();
+                                return;
+                            }
+                        
+                            let messages_container = $("#messages");
+                            messages_container.empty();
+
+                            // Add the errors/warnings messages to messages container
+                            for(var index = 0; index < messages.length; index++){
+                                let message = messages[index];
+                                if(message['type'] == 'warn'){
+                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: orange;' class='material-icons'>warning</i></div> "+ message['message'] +"</div></li>")
+                                } else if(message['type'] == 'info'){
+									messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: #00bcd4;' class='material-icons'>info</i></div> "+ message['message'] +"</div></li>")
+								}else if (message['type'] == 'error'){
+                                    messages_container.append("<li class='collection-item dismissable'><div style='display:inline-flex; flex-direction: row;'><div style='padding-right: 16px; align-self: center;'><i style='vertical-align: bottom; color: firebrick;' class='material-icons'>error</i></div> "+ message['message'] +"</div></li>")
+                                }
+                            }
+                            // Show the messages
+                            $('#messages-modal').modal('open');
+                        }
+                  });
+                  return false;
+            }
+            function exportCourse(json) {
+                // console.log('Exporting');
+                var exported_json = JSON.stringify(json);
+
+                // Download course zip file
+                $.ajax({
+                    type: "POST",
+                    url: "/oneUp/instructors/exportChallenges",
+                    data:  {'exported-json': exported_json},
+                    xhrFields:{
+                        responseType: 'blob'
+                    },
+                    success: function (res, status, xhr) {
+                        // console.log("Success!");
+                        var disposition = xhr.getResponseHeader('Content-Disposition');
+                        if (disposition && disposition.indexOf('attachment') !== -1) {
+                            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                            var matches = filenameRegex.exec(disposition);
+                            if (matches != null && matches[1]) var filename = matches[1].replace(/['"]/g, '');
+                            download(res, filename, 'application/zip');
+                        }
+                        
+                    }
+                });
+            }
+            function download(file, fileName, contentType) {
+                var a = document.createElement("a");
+                a.href = URL.createObjectURL(file);
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(a.href);
+                Materialize.toast("Challenges Exported!", 4000);
+            }
+            function test(){
+                Materialize.toast("Challenges Exported!", 4000);
+            }
+        </script>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
+</html>
+
+
+
+
+<!--<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
 	{% include 'scripts.html' %}
 	<script>
 		var checked = false;
