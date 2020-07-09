@@ -342,7 +342,7 @@
 				<li><a class="waves-effect" href="/oneUp/students/achievements">Achievements</a></li>
 				{% endif %}
 				
-				{% if ccparams.chatUsed or ccparams.avatarUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or  ccparams.goalsUsed or is_test_student is False %}
+				{% if ccparams.chatUsed or ccparams.avatarUsed and ccparams.gamificationUsed or ccparams.flashcardsUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or  ccparams.goalsUsed or is_test_student is False %}
 				<li>
 					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
 					<ul id="coursetools" class="dropdown-content">
@@ -359,8 +359,9 @@
 						<!-- {% if ccparams.chatUsed %}
 						<li><a class="waves-effect " href="/oneUp/chat/api">Chat</a></li>
 						{% endif %} -->
-						
+						{% if ccparams.flashcardsUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/FlashCardsList">Flash Cards</a></li>
+						{% endif %}
 						{% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
 						<li><a class="waves-effect " href="/oneUp/students/Transactions">VC Transactions</a></li>

@@ -41,7 +41,7 @@ def courseConfigurationView(request):
         ccparams.streaksUsed = 'attendanceUsed' in request.POST
         ccparams.skillsUsed = "skillsUsed" in request.POST
         ccparams.announcementsUsed = "announcementsUsed" in request.POST
-
+        ccparams.flashcardsUsed = "flashcardsUsed" in request.POST
         logger.debug(request.POST['courseStartDate'])
 
         if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
@@ -78,7 +78,7 @@ def courseConfigurationView(request):
             context_dict['skillsUsed'] = ccparams.skillsUsed
             context_dict['announcementsUsed'] = ccparams.announcementsUsed
             context_dict['activitiesUsed'] = ccparams.activitiesUsed
-
+            context_dict['flashcardsUsed'] = ccparams.flashcardsUsed
             if ccparams.hasCourseStartDate:
                 context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")
             else:
