@@ -23,9 +23,7 @@ from Instructors.views.challengeAddQuestionsView import \
 from Instructors.views.challengeAdjusmentView import (adjustmentList,
                                                       challengeAdjustmentView)
 from Instructors.views.challengeCreateView import challengeCreateView
-from Instructors.views.challengeExportImportView import (
-    exportChallenges, importChallenges, saveExportedChallenges,
-    uploadChallenges)
+
 from Instructors.views.challengeListView import (challengesList,
                                                  warmUpChallengeList)
 from Instructors.views.challengeQuestionsListView import (
@@ -38,6 +36,9 @@ from Instructors.views.courseConfiguration import courseConfigurationView
 from Instructors.views.courseImportExportView import (exportCourse,
                                                       importCourse,
                                                       validateCourseExport)
+from Instructors.views.challengeExportImportView import (exportChallenge,
+                                                      importChallenge,
+                                                      validateChallengeExport)
 from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
@@ -172,6 +173,10 @@ urlpatterns = [
     url(r'^validateCourseExport', validateCourseExport,
         name='validateCourseExport'),
     url(r'^importCourse', importCourse, name='importCourse'),
+    url(r'^exportChallenge', exportChallenge, name='exportChallenge'),
+    url(r'^validateChallengeExport', validateChallengeExport,
+        name='validateChallengeExport'),
+    url(r'^importChallenge', importChallenge, name='importChallenge'),
     url(r'^courseInformation', courseInformation, name='courseInformation'),
     url(r'^createStudentList', createStudentListView,
         name='createStudentListView'),
@@ -197,7 +202,7 @@ urlpatterns = [
     url(r'^deleteFlashCard', deleteFlashCard, name='deleteFlashCard'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
-    url(r'^exportChallenges', exportChallenges, name='exportChallenges'),
+   
     url(r'^forms/MatchingForm', matchingForm, name='newEssayForm'),
     url(r'^forms/MultipleAnswersForm',
         multipleAnswersForm, name='multipleAnswersForm'),
@@ -212,7 +217,7 @@ urlpatterns = [
     url(r'^imageDelete', imageDelete, name='imageDelete'),
     url(r'^imageList', imageList, name='imageList'),
     url(r'^imageUpload', imageUpload, name='imageUpload'),
-    url(r'^importChallenges', importChallenges, name='importChallenges'),
+  
     url(r'^importStudents', importStudents, name='importStudents'),
     url(r'^saveImportStudentsPasswords', saveImportStudentsPasswords,
         name='saveImportStudentsPasswords'),
@@ -228,8 +233,7 @@ urlpatterns = [
     url(r'^reorderChallenges', reorderChallenges, name='reorderChallenges'),
     url(r'^reorderChallengeSaveQuestions', reorderChallengeSaveQuestions,
         name='reorderChallengeSaveQuestions'),
-    url(r'^saveExportedChallenges', saveExportedChallenges,
-        name='saveExportedChallenges'),
+   
     url(r'^search', searchQuestions, name='searchQuestions'),
     url(r'^skillsCreate', skillsCreateView, name='skillsCreateView'),
     url(r'^skillsList', skillsListView, name='skillsListView'),
@@ -239,7 +243,7 @@ urlpatterns = [
     url(r'^studentSummary', studentSummary, name='studentSummary'),
     url(r'^topicsCreate', topicsCreateView, name='topicsCreateView'),
     url(r'^topicsList', topicsListView, name='topicsListView'),
-    url(r'^uploadChallenges', uploadChallenges, name='uploadChallenges'),
+  
     url(r'^warmUpChallengeList', warmUpChallengeList, name='warmUpChallengeList'),
     url(r'^forms/doDynamicQuestion', dynamicQuestionPartAJAX,
         name="dynamic question engine AJAX"),

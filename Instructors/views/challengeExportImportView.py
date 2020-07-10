@@ -5,37 +5,39 @@ Created on May 1, 2017
 '''
 from django.shortcuts import redirect, render, HttpResponse
 
-from Instructors.models import Courses, Challenges, CoursesTopics, ChallengesTopics, ChallengesQuestions, StaticQuestions 
-from Instructors.models import Answers, MatchingAnswers, CorrectAnswers, UploadedFiles 
-from Instructors.models import DynamicQuestions, TemplateDynamicQuestions, TemplateTextParts, QuestionLibrary, LuaLibrary, QuestionsSkills, Skills
+from Instructors.models import Courses, Challenges, CoursesSkills, CoursesTopics, ChallengesTopics, ChallengesQuestions, StaticQuestions 
+from Instructors.models import UploadedFiles 
+from Instructors.models import QuestionsSkills, Skills
 from Instructors.constants import unspecified_topic_name, unassigned_problems_challenge_name
 from Instructors.views.utils import initialContextDict
-from Instructors.views.courseImportExportView import challenges_to_json
+from Instructors.views.courseImportExportView import ensure_directory, topics_to_json, challenges_to_json, course_skills_to_json, import_topics_from_json, import_challenges_from_json, import_course_skills_from_json
 from decimal import Decimal
-
-from Instructors.questionTypes import QuestionTypes
+from django.http import JsonResponse
 from Badges.models import CourseConfigParams
-
-from xml.etree.ElementTree import Element, SubElement, parse
-import xml.etree.ElementTree as eTree
+from Instructors.constants import unassigned_problems_challenge_name
+import json
 import os
+import zipfile
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.settings import MEDIA_ROOT
 from oneUp.decorators import instructorsCheck  
 
+LUA_PROBLEMS_ROOT = os.path.join(settings.BASE_DIR, 'lua/problems/')
+VERSION = "1.0"
 
 def str2bool(value):
     return value in ('True', 'true') 
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
-def exportChallenges(request):   
-    context_dict, currentCourse = initialContextDict(request)
-       
+def exportChallenge(request):
+    context_dict, current_course = initialContextDict(request)
+    context_dict['version'] = VERSION
     if request.method == 'GET':
         chall_name = [] 
         chall_ID = []      
-        challenges = Challenges.objects.filter(courseID=currentCourse)        
+        challenges = Challenges.objects.filter(courseID=current_course)        
         for challenge in challenges:
             chall_name.append(challenge.challengeName)
             chall_ID.append(challenge.challengeID)
@@ -45,519 +47,184 @@ def exportChallenges(request):
         context_dict['challenge_range'] = sorted(zipped, key=lambda x: x[2])
         return render(request,'Instructors/ChallengeExport.html', context_dict)
 
-    if request.method == 'POST':        
+    if request.method == 'POST':
        
-        selectedChallenges = []
-        # get the list of all checked challenges
-        selected = request.POST.getlist('selected')
         
-        selectedChallenges_num = [ int(x) for x in selected ]
-        
-        if not selectedChallenges_num:
-            selectedChallenges = Challenges.objects.filter(courseID=currentCourse)
-        else:
-            for challengeID in range(1,int(max(selectedChallenges_num))+1):
-                if challengeID in selectedChallenges_num:
-                    ch = Challenges.objects.get(pk=int(challengeID))
-                    selectedChallenges.append(ch) 
-
-    
-         if 'serious-challenges' in request.POST or 'warmup-challenges' in request.POST:
-                # Notify user about field export decisions
-                messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
-
-        if 'serious-challenges' in request.POST:
-            # Exclude unassigned challenge since that is created by default for every course
-            serious_challenges = Challenges.objects.filter(courseID=current_course, isGraded=True).exclude(challengeName=unassigned_problems_challenge_name)
-            root_json['serious-challenges'] = challenges_to_json(serious_challenges, current_course, include_topics='topics' in request.POST, root_json=root_json, messages=messages)
-
-        if 'warmup-challenges' in request.POST:
-            # Exclude unassigned challenge since that is created by default for every course
-            warmup_challenges = Challenges.objects.filter(courseID=current_course, isGraded=False).exclude(challengeName=unassigned_problems_challenge_name)
-            root_json['warmup-challenges'] = challenges_to_json(warmup_challenges, current_course, include_topics='topics' in request.POST, root_json=root_json, messages=messages)
-
-        '''
-        # Build the tree  
-        # We do not save the IDs, since upon importing the objects will be saved in the DB as new objects
-                  
-        root = Element('TreeRoot')
-        
-        el_challenges = SubElement(root, 'Challenges') 
-                    
-        for challenge in selectedChallenges:
-            el_challenge = SubElement(el_challenges, 'Challenge')
-            
-            el_Name = SubElement(el_challenge, 'challengeName')
-            el_Name.text = challenge.challengeName
- 
-#             el_courseID = SubElement(el_challenge, 'courseID')
-#             el_courseID.text = str(challenge.courseID.courseID)            
-#  
-            el_isGraded = SubElement(el_challenge, 'isGraded')
-            el_isGraded.text = str(challenge.isGraded)            
- 
-            el_numberAttempts = SubElement(el_challenge, 'numberAttempts')
-            el_numberAttempts.text = str(challenge.numberAttempts)            
- 
-            el_timeLimit = SubElement(el_challenge, 'timeLimit')
-            el_timeLimit.text = str(challenge.timeLimit)            
- 
-            el_feedbackOption1 = SubElement(el_challenge, 'displayCorrectAnswer')
-            el_feedbackOption1.text = str(challenge.displayCorrectAnswer)            
-         
-            el_feedbackOption2 = SubElement(el_challenge, 'displayCorrectAnswerFeedback')
-            el_feedbackOption2.text = str(challenge.displayCorrectAnswerFeedback)            
-         
-            el_feedbackOption3 = SubElement(el_challenge, 'displayIncorrectAnswerFeedback')
-            el_feedbackOption3.text = str(challenge.displayIncorrectAnswerFeedback)            
-         
-            el_challengeAuthor = SubElement(el_challenge, 'challengeAuthor')
-            el_challengeAuthor.text = challenge.challengeAuthor            
- 
-            el_difficulty = SubElement(el_challenge, 'challengeDifficulty')
-            el_difficulty.text = challenge.challengeDifficulty            
-            
-            pssd = challenge.challengePassword
-            if pssd: 
-                el_challengePassword = SubElement(el_challenge, 'challengePassword')           
-                el_challengePassword.text = pssd
-             
-            #   isVisible, startTimestamp, and endTimestamp are not saved   
-            
-            # Challenge Topics
-            challengeTopics = ChallengesTopics.objects.filter(challengeID=challenge)
-            if challengeTopics:   
-                el_challengeTopics = SubElement(el_challenge, 'ChallengeTopics')
-                for challengeTopic in challengeTopics:
-                    el_challengeTopic = SubElement(el_challengeTopics, 'ChallengeTopic')
-                    el_topicName = SubElement(el_challengeTopic, 'topicName')
-                    el_topicName.text = challengeTopic.topicID.topicName
-             
-            # Challenge Questions            
-            el_challengeQuestions = SubElement(el_challenge, 'ChallengeQuestions')           
-            chall_questioins = ChallengesQuestions.objects.filter(challengeID=challenge)        
- 
-            for chall_question in chall_questioins:            
-                el_challengeQuestion = SubElement(el_challengeQuestions, 'ChallengeQuestion')
-                el_points = SubElement(el_challengeQuestion, 'points')
-                el_points.text = str(chall_question.points)
-                 
-                # Questions
-                question = chall_question.questionID
-                el_question = SubElement(el_challengeQuestion, 'Question')
-                 
-                el_preview = SubElement(el_question, 'preview')
-                el_preview.text = question.preview                 
-                el_instructorNotes = SubElement(el_question, 'instructorNotes')
-                el_instructorNotes.text = question.instructorNotes                                 
-                el_type = SubElement(el_question, 'type')
-                el_type.text = str(question.type)                                                                                
-                el_difficulty = SubElement(el_question, 'difficulty')
-                el_difficulty.text = question.difficulty                
-                el_author = SubElement(el_question, 'author')
-                el_author.text = question.author
+        root_json = json.loads(request.POST.get('exported-json', ''))
+        # Only export json if the json contains items other than the version number
+        if 'version' in root_json and len(root_json) > 1:
+            file_name = 'media/textfiles/challenges/json/challenges-{}-{}.zip'.format(current_course.courseName, VERSION)
+            ensure_directory('media/textfiles/challenges/json/')
+            try:
+                os.remove(file_name)
+            except:
+                print("File doesn't exist ", file_name)
+            with zipfile.ZipFile(file_name, 'a') as zip_file:
+                # Add the json for challenges
+                zip_file.writestr('challenges.json', json.dumps(root_json).encode('utf-8'))
                 
-                # Skills for this question
-                questionSkills = QuestionsSkills.objects.filter(questionID=question, courseID = currentCourse)
+                # Add the folders to the zip file
+                if 'code-paths' in root_json:
+                    for path in root_json['code-paths']:
+                        zip_directory(os.path.join(LUA_PROBLEMS_ROOT, path), zip_file)
 
-                if questionSkills:
-                    el_skills = SubElement(el_question, 'Skills')
-                    for questionSkill in questionSkills: 
-                        el_skill = SubElement(el_skills, 'Skill')
-                        el_skillName = SubElement(el_skill, 'skillName')
-                        el_skillName.text = questionSkill.skillID.skillName
-                        el_skillPoints = SubElement(el_skill, 'questionSkillPoints')
-                        el_skillPoints.text= str(questionSkill.questionSkillPoints)
-            
-                # Static Questions
-                staticQuestions = StaticQuestions.objects.filter(questionID=int(question.questionID))
-                if staticQuestions:
-                    staticQuestion = staticQuestions[0]
-                    
-                    el_staticQuestion = SubElement(el_question, 'StaticQuestion')                    
-                    el_sqQuestionText = SubElement(el_staticQuestion, 'questionText')
-                    el_sqQuestionText.text = staticQuestion.questionText
-                    el_sqCorrectAnswerFeedback = SubElement(el_staticQuestion, 'correctAnswerFeedback')
-                    el_sqCorrectAnswerFeedback.text = staticQuestion.correctAnswerFeedback
-                    el_sqIncorrectAnswerFeedback = SubElement(el_staticQuestion, 'incorrectAnswerFeedback')
-                    el_sqIncorrectAnswerFeedback.text = staticQuestion.incorrectAnswerFeedback
-            
-                    # Answers
-                    el_answers = SubElement(el_staticQuestion, 'Answers')
-                    answers = Answers.objects.filter(questionID=staticQuestion)        
-                    for answer in answers:            
-                        el_answer = SubElement(el_answers, 'Answer')
-     
-                        el_answerText= SubElement(el_answer, 'answerText')
-                        el_answerText.text = answer.answerText
-                     
-                        # Check if it is a correct answer
-                        correctAnswers = CorrectAnswers.objects.filter(questionID=staticQuestion, answerID = answer)
-                        if correctAnswers:
-                            el_correctAnswer = SubElement(el_answer, 'correctAnswer')
-                            el_correctAnswer.text = "yes"
-                            
-                        # Check if this answer has a matching answer
-                        if chall_question.questionID.type == QuestionTypes.matching:                                               
-                            m_answer = MatchingAnswers.objects.get(answerID=answer, questionID=staticQuestion) 
-                            el_matchingAnswer = SubElement(el_answer, 'matchingAnswer') 
-                            el_matchingAnswer.text = m_answer.matchingAnswerText
-                       
-                # Dynamic Questions
-                dynamicQuestions = DynamicQuestions.objects.filter(questionID=int(question.questionID))
-                if dynamicQuestions:
-                    dynamicQuestion = dynamicQuestions[0]
-                    print('dynamic_question')
-                    print(dynamicQuestion)
-                    
-                    el_dynamicQuestion = SubElement(el_question, 'DynamicQuestion')
-                    el_dqnumParts = SubElement(el_dynamicQuestion, 'numParts')
-                    el_dqnumParts.text = str(dynamicQuestion.numParts)
-                    el_dqcode = SubElement(el_dynamicQuestion, 'code')
-                    el_dqcode.text = dynamicQuestion.code
-                    el_dqsubmissionsAllowed = SubElement(el_dynamicQuestion, 'submissionsAllowed')
-                    el_dqsubmissionsAllowed.text = str(dynamicQuestion.submissionsAllowed)
-                    el_dqresubmissionPenalty = SubElement(el_dynamicQuestion, 'resubmissionPenalty')
-                    el_dqresubmissionPenalty.text = str(dynamicQuestion.resubmissionPenalty)
+                # print(zip_file.printdir())
 
-           
-                    # TemplateDynamicQuestions
-                    templateDynamicQuestions = TemplateDynamicQuestions.objects.filter(questionID=int(question.questionID))
-                    if templateDynamicQuestions:
-                        templateDynamicQuestion = templateDynamicQuestions[0]
-                    
-                        el_templateDynamicQuestion = SubElement(el_dynamicQuestion, 'TemplateDynamicQuestion')
-                        el_templateText = SubElement(el_templateDynamicQuestion, 'templateText')
-                        el_templateText.text = templateDynamicQuestion.templateText
-                        el_setupCode = SubElement(el_templateDynamicQuestion, 'setupCode')
-                        el_setupCode.text = str(templateDynamicQuestion.setupCode)
-        
-                        # TemplateTextParts
-                        templateTextParts = TemplateTextParts.objects.filter(dynamicQuestion=question)
-                        if templateTextParts:                        
-                            el_templateTextParts = SubElement(el_templateDynamicQuestion, 'TemplateTextParts')
-                                                   
-                            for templateTextPart in templateTextParts:    
-                                el_templateTextPart = SubElement(el_templateTextParts, 'TemplateTextPart')        
-                                el_partNumber = SubElement(el_templateTextPart, 'partNumber')
-                                el_partNumber.text = str(templateTextPart.partNumber)
-                                el_templateText = SubElement(el_templateTextPart, 'templateText')
-                                el_templateText.text = templateTextPart.templateText
-                                el_pointsInPart = SubElement(el_templateTextPart, 'pointsInPart')
-                                el_pointsInPart.text = str(templateTextPart.pointsInPart)
-         
-                    # QuestionLibrary
-                    questionLibraries = QuestionLibrary.objects.filter(question=question)
-                    if questionLibraries:
-                        el_questionLibraries = SubElement(el_dynamicQuestion, 'QuestionLibraries')
-                        
-                        for questionLibrary in questionLibraries:                      
-                            el_questionLibrary = SubElement(el_questionLibraries, 'QuestionLibrary')
-                            el_questionLibrary.text = questionLibrary.library.libraryName
-                            print('el_questionLibrary.text: ', el_questionLibrary.text)
-                          
-        tree = eTree.ElementTree(root)
-        print(eTree.tostring(el_challenge))  
+            response = HttpResponse(open(file_name, 'rb'), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename=challenges-{}-{}.zip'.format(current_course.courseName, VERSION)
 
-        os.remove('media/textfiles/xmlfiles/challenges.xml')                
-        f = open('media/textfiles/xmlfiles/challenges.xml', 'w')         
-        tree.write(f, encoding="unicode")        
-        f.close()
-        return render(request,'Instructors/ChallengeExportSave.html', context_dict)
+            return response
+        return render(request,'Instructors/ChallengeExport.html', context_dict)
+    
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')         
-def saveExportedChallenges(request):
+def validateChallengeExport(request):
+    context_dict, current_course = initialContextDict(request)
+    if request.method == 'POST':
+        messages = []
+        response = {}
+        root_json = {}
+        
+        # Notify user about field export decisions
+        messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
 
-    f = open('media/textfiles/xmlfiles/challenges.xml', 'r') 
-    response = HttpResponse(f.read(), content_type='application/xml')
-    response['Content-Disposition'] = 'attachment; filename="yourchallenges.xml"'
 
-    return response
+        # get the list of all checked challenges
+        selected = request.POST.getlist('selected')
+        print("$$$$$$")
+        print(request.POST)
+        print("*****")
+        challenges = []
+        if selected:
+            selected_ids = [int(x) for x in selected]
+            challenges = Challenges.objects.filter(pk__in=selected_ids)
+        else:
+            challenges = Challenges.objects.filter(courseID=current_course) 
+
+        # Create the json based on which checkbox is selected
+        topic_ids = set()
+        skill_ids = set()
+        for challenge in challenges:
+            challenge_topic = ChallengesTopics.objects.filter(challengeID=challenge)
+            challenge_questions = ChallengesQuestions.objects.filter(challengeID=challenge)
+            if challenge_topic:
+                topic_ids.add(challenge_topic.first().topicID)
+               
+            for question in challenge_questions:
+                skill = QuestionsSkills.objects.filter(questionID=question.questionID, courseID=current_course).first()
+                if skill:
+                    skill_ids.add(skill.skillID)
+        topics = CoursesTopics.objects.filter(courseID=current_course, topicID__in=list(topic_ids))
+        root_json['topics'] = topics_to_json(topics, current_course, messages=messages)
+
+        
+        course_skills = CoursesSkills.objects.filter(courseID=current_course, skillID__in=list(skill_ids))
+        root_json['skills'] = course_skills_to_json(course_skills, current_course, messages=messages)
+
+
+        # Exclude unassigned challenge since that is created by default for every course
+        serious_challenges = challenges.filter(courseID=current_course, isGraded=True).exclude(challengeName=unassigned_problems_challenge_name)
+        root_json['serious-challenges'] = challenges_to_json(serious_challenges, current_course, include_topics=True, root_json=root_json, messages=messages)
+
+        # Exclude unassigned challenge since that is created by default for every course
+        warmup_challenges = challenges.filter(courseID=current_course, isGraded=False).exclude(challengeName=unassigned_problems_challenge_name)
+        root_json['warmup-challenges'] = challenges_to_json(warmup_challenges, current_course, include_topics=True, root_json=root_json, messages=messages)
+        
+        # Versioning
+        root_json['version'] = VERSION
+    # Get rid of duplicate messages by converting list of dicts 
+        # to set of tuples then back to list of dicts
+        messages = [dict(t) for t in {tuple(d.items()) for d in messages}]
+        response['messages'] = messages
+        
+        response['exported-json'] = root_json
+        # Debug messages
+        ensure_directory('media/textfiles/challenges/json/')
+        with open('media/textfiles/challenges/json/export-log.json', 'w') as export_stream:
+                json.dump(root_json, export_stream)
+
+        return JsonResponse(response)
+    
+    return JsonResponse({'messages': [{'type': 'error', 'message': 'Error in validation export challenges request'}]})
 
 @login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')  
-def uploadChallenges(request):
-    context_dict, currentCourse = initialContextDict(request)
-        
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
+def importChallenge(request):
+    context_dict, current_course = initialContextDict(request)
+       
     if request.method == 'GET':
         return render(request,'Instructors/ChallengeImport.html', context_dict)
-
-    if request.method == 'POST' and len(request.FILES) != 0:            
-        challengesFile = request.FILES['challenges']
-        uploadedFileName = challengesFile.name
-        print(uploadedFileName)
-        
-        upfile = UploadedFiles() 
-        upfile.uploadedFile = challengesFile     
-        upfile.uploadedFileName = uploadedFileName
-        upfile.uploadedFileCreator = request.user
-        upfile.save()
-
-        # It is important we use upfile.uploadedFile.name because
-        # if there are two files with the same name, the file will
-        # get renamed.  This includes the rename.
-        importChallenges(upfile.uploadedFile.name, currentCourse)
-        
-        # TO DO:  After importing the challenges in the database, perhaps we need to delete the user's file
-        upfile.delete()
-        print('File gone')
-
-        return redirect('/oneUp/instructors/instructorCourseHome') 
     
- 
-def findWithAlt(ele, name1, name2):
-    result = ele.find(name1)
-    if result == None: 
-        result = ele.find(name2)
-    
-    return result
-       
-#@login_required
-#@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
-def importChallenges(uploadedFileName, currentCourse):
-         
-    fname = uploadedFileName
-    f = open(fname, 'r') 
-    tree = parse(f)
+    if request.method == 'POST':
+        if 'challenges' in request.FILES:
+            response = {}
 
-    root = tree.getroot()
-    #print(minidom.parseString(eTree.tostring(root)).toprettyxml(indent = "   "))
-    
-    # get all Challenge Nodes; root[0] is the element Challenges
-    for el_challenge in root[0]:
-        
-        # We need to process differently the challenge "Unassigned Problems", since we don't want to create a new one for the course in which we are importing
-       
-        if el_challenge.find('challengeName').text == unassigned_problems_challenge_name:
-            # get this course's unassigned problems topic           
-            challenge = Challenges.objects.get(courseID=currentCourse, challengeName=unassigned_problems_challenge_name)
+            # Holds the messages to display for the user in the frontend
+            messages = []
+
+            challenge_json = request.FILES['challenges']
+            root_json = {}
             
-        else:    
-            # Handle the challenge element information
-            # Create new challenge
-            challenge = Challenges()  
-                           
-            # Set the attributes to database object
-            challenge.challengeName = el_challenge.find('challengeName').text
-            challenge.courseID = currentCourse
-            challenge.isGraded = str2bool(el_challenge.find('isGraded').text)
-            challenge.numberAttempts = int(el_challenge.find('numberAttempts').text)
-            challenge.timeLimit = int(el_challenge.find('timeLimit').text)
-            challenge.displayCorrectAnswer = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswer', 'feedbackOption1').text)
-            challenge.displayCorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayCorrectAnswerFeedback', 'feedbackOption2').text)
-            challenge.displayIncorrectAnswerFeedback = str2bool(findWithAlt(el_challenge, 'displayIncorrectAnswerFeedback', 'feedbackOption3').text)
-            challenge.challengeAuthor = el_challenge.find('challengeAuthor').text
-            challenge.challengeDifficulty = el_challenge.find('challengeDifficulty').text
-            challenge.isVisible = False
-            if not challenge.challengeDifficulty:
-                challenge.challengeDifficulty = 'Easy'
-                
-            # get the course start and end date and make them the challenge' start and end dates
-            ccp = CourseConfigParams.objects.get(courseID = currentCourse)            
-            challenge.startTimestamp = ccp.courseStartDate
-            challenge.endTimestamp = ccp.courseEndDate
-            challenge.dueDate = ccp.courseEndDate
-            
-            pssd = el_challenge.find('challengePassword') # Empty string represents no password required.
-            if pssd:
-                challenge.challengePassword = pssd.text
-            else:
-                challenge.challengePassword = ''
-    
-            challenge.save()
-        
-            # Get Challenge Topics
-            # We presume that the course topics are in the database, i.e. we do not create topic objects, but take their names from DB                            
-            el_challengeTopics = el_challenge.find('ChallengeTopics') 
-            if el_challengeTopics is None: 
-                # this challenge does not have a topic, add the challenge to the course Unspecified topic
-                challengeTopic = ChallengesTopics()
-                unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
-                challengeTopic.topicID = unspecified_topic
-                challengeTopic.challengeID = challenge
-                challengeTopic.save()                
+            uploaded_file = UploadedFiles() 
+            uploaded_file.uploadedFile = challenge_json     
+            uploaded_file.uploadedFileName = challenge_json.name
+            uploaded_file.uploadedFileCreator = request.user
+            uploaded_file.save()
 
-            else:
-                for el_challengeTopic in el_challengeTopics.findall('ChallengeTopic'): 
-                    challengeTopic = ChallengesTopics()                   
-                    # We have to search for the topic name in CourseTopics 
-                    topicName=el_challengeTopic.find('topicName').text
-                    courseTopics = CoursesTopics.objects.filter(courseID=currentCourse, topicID__topicName=topicName)
-                    if courseTopics:
-                        challengeTopic.topicID = courseTopics[0].topicID
-                    else:
-                        # there is no topic with this name for this course, add the challenge to the course Unspecified topic
-                        unspecified_topic = CoursesTopics.objects.get(courseID=currentCourse, topicID__topicName=unspecified_topic_name).topicID
-                        challengeTopic.topicID = unspecified_topic
-                        
-                    challengeTopic.challengeID = challenge
-                    challengeTopic.save()                
+            # It is important we use uploaded_file.uploadedFile.name because
+            # if there are two files with the same name, the file will
+            # get renamed. This includes the rename
+            with zipfile.ZipFile(uploaded_file.uploadedFile.name) as zip_file:
+                with zip_file.open('challenges.json') as import_stream:
+                    root_json = json.load(import_stream)
+
+                if root_json:
+
+                    id_map = {}
+                    if 'topics' in root_json:
+                        id_map['topics'] = {}
                 
-        # Get all ChallengeQuestions
-        el_challengeQuestions = el_challenge.find('ChallengeQuestions')        
-        for el_challengeQuestion in el_challengeQuestions.findall('ChallengeQuestion'):
-            
-            challengeQuestion = ChallengesQuestions()
-            # Process Question
-            challengeQuestion.challengeID = challenge
-            el_points = el_challengeQuestion.find('points')
-            if not el_points is None:
-                challengeQuestion.points = Decimal(el_points.text)
-            else:
-                challengeQuestion.points = 0
+                    if 'skills' in root_json:
+                        id_map['skills'] = {}
                 
-            el_question = el_challengeQuestion.find('Question')
-            q_type = int(el_question.find('type').text)
-                        
-            # Process Questions
-            print(q_type)
-            if q_type in [1,2,3,4,8]:
-                question = StaticQuestions()
-            else:
-                if q_type == 6:
-                    question = DynamicQuestions() 
+                    if 'serious-challenges' in root_json:
+                        id_map['serious-challenges'] = {}
+                    if 'warmup-challenges' in root_json:
+                        id_map['warmup-challenges'] = {}
+                    if 'code-paths' in root_json:
+                        id_map['code-paths'] = {}
+                    # Notify user about field export decisions
+                    messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
+                    if 'topics' in root_json:
+                        import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
+                    
+                    if 'skills' in root_json:
+                        import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map, messages=messages)
+                    if 'serious-challenges' in root_json:
+                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                    
+                    if 'warmup-challenges' in root_json:
+                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                    
                 else:
-                    question = TemplateDynamicQuestions() 
+                    messages.append({'type': 'error', 'message': 'File: {} is empty or cannot be read'.format(uploaded_file.uploadedFile.name)})
+
+
+
+            uploaded_file.delete()  
+
+            # Get rid of duplicate messages by converting list of dicts 
+            # to set of tuples then back to list of dicts
+            messages = [dict(t) for t in {tuple(d.items()) for d in messages}]
+            response['messages'] = messages
             
-            question.preview = el_question.find('preview').text
-            question.instructorNotes = el_question.find('instructorNotes').text
-            if not question.instructorNotes:
-                question.instructorNotes = ''
-            question.type = int(el_question.find('type').text)
-             
-            question.difficulty = el_question.find('difficulty').text
-            if not question.difficulty:
-                question.difficulty = 'Easy'
-            question.author = el_question.find('author').text  
-            
-            question.save()
-            
-            # Continue with Static questions    
-            if q_type in [1,2,3,4,8]:    
-            # Process Static question           
-                el_staticQuestion = el_question.find("StaticQuestion")
-                if not el_staticQuestion is None:   
-                    #staticQuestion = StaticQuestions(question.questionID)  
-                                                
-                    for i in range(0,2):
-                        if el_staticQuestion[i].text:                       
-                            setattr(question,el_staticQuestion[i].tag,el_staticQuestion[i].text)
-                        else:
-                            setattr(question,el_staticQuestion[i].tag,'')
-                    
-                    question.save()        
-                    
-                    # Process Answers elements
-                    el_answers = el_staticQuestion.find('Answers')
-                    if not el_answers is None:
-                        for el_answer in el_answers.findall('Answer'):
-                            
-                            answer = Answers()     
-                            answer.answerText = el_answer.find('answerText').text
-                            answer.questionID = question
-                            answer.save()                    
+            # Debug messages
+            ensure_directory('media/textfiles/challenges/json/')
+            with open('media/textfiles/challenges/json/import-log.json', 'w') as import_stream:
+                json.dump(messages, import_stream)
+
+            return JsonResponse(response)
     
-                            # Check if this answer is a correct answer               
-                            el_correctAnswer = el_answer.find('correctAnswer')   
-                            if not el_correctAnswer is None:   
-                                correctAnswer = CorrectAnswers()  
-                                correctAnswer.questionID = question
-                                correctAnswer.answerID = answer
-                                correctAnswer.save()
-                                print('correct answerID: ', str(correctAnswer.answerID))
-                                
-                            # Check if this answer has a matching answer
-                            el_matchingAnswer = el_answer.find('matchingAnswer')    
-                            if not el_matchingAnswer is None:
-                                matchingAnswer = MatchingAnswers()  
-                                matchingAnswer.matchingAnswerText = el_matchingAnswer.text
-                                matchingAnswer.answerID = answer
-                                matchingAnswer.questionID = question
-                                matchingAnswer.save()            
-            else:
-                # Process Dynamic Questions (#6 or 7)
-                print(q_type)     
-                el_dynamicQuestion = el_question.find("DynamicQuestion")
-                #if not el_dynamicQuestion is None:  
-                print("In Dynamic question")  
-                                
-                question.numParts = int(el_dynamicQuestion.find('numParts').text)
-                question.code = el_dynamicQuestion.find('code').text
-                question.submissionsAllowed = int(el_dynamicQuestion.find('submissionsAllowed').text)
-                question.resubmissionPenalty = int(el_dynamicQuestion.find('resubmissionPenalty').text)
-                
-                question.save()                        
-                #print('dynamicQuestion.code: ', question.code)  
-                   
-                if q_type == 7:      
-                # TemplateDynamicQuestions
-                    el_templateDynamicQuestion = el_dynamicQuestion.find("TemplateDynamicQuestion")
-                     
-                    el_templateText = el_templateDynamicQuestion.find('templateText')
-                    if not el_templateText is None:                            
-                        text = el_templateText.text
-                        if not text:
-                            question.templateText = ""
-                        else:
-                            question.templateText = text
-                    else:
-                        question.templateText = ""
-                    el_setupCode = el_templateDynamicQuestion.find('setupCode')
-                    if not el_setupCode is None:  
-                        scode =  el_setupCode.text  
-                        if not scode is None:                       
-                            question.setupCode = scode
-                        else:
-                            question.setupCode = ""
-                    else: 
-                        question.setupCode = ""
-                    
-                    question.save()    
-                                   
-                    # TemplateTextParts
-                    el_templateTextParts = el_templateDynamicQuestion.find("TemplateTextParts")  
-                    if not el_templateTextParts is None:
-                    
-                        for el_templateTextPart in el_templateTextParts.findall('TemplateTextPart'):                            
-                            templateTextPart = TemplateTextParts()          
-                            templateTextPart.partNumber = int(el_templateTextPart.find('partNumber').text)
-                            templateTextPart.dynamicQuestion = question
-                            templateTextPart.templateText = el_templateTextPart.find('templateText').text
-                            templateTextPart.pointsInPart = int(el_templateTextPart.find('pointsInPart').text)
-                            templateTextPart.save()                    
-                            print('templateTextPart.templateText: ', templateTextPart.templateText)
-                                      
-                    # QuestionLibrary
-                    el_questionLibraries = el_dynamicQuestion.find("QuestionLibraries") 
-                    if not el_questionLibraries is None:  
-                        for el_questionLibrary in el_questionLibraries.findall('QuestionLibrary'):
-                            questionLibrary = QuestionLibrary()                             
-                            questionLibrary.question = question
-                            qlibrary = LuaLibrary.objects.get(libarayName=el_questionLibrary.text)
-                            questionLibrary.library = qlibrary
-                            questionLibrary.save()                    
-                            print('questionLibrary: ', str(questionLibrary.ID))                                                      
+    return JsonResponse({'messages': [{'type': 'error', 'message': 'Error in the request for importing a challenge'}]})
 
-            # Process Skills elements
-            el_skills = el_question.find('Skills')
-            if not el_skills is None:
-                for el_skill in el_skills.findall('Skill'):
-                    questionSkill = QuestionsSkills()
-                    skill = Skills.objects.filter(skillName=el_skill.find('skillName').text)
-                    if skill:
-                        questionSkill.skillID = skill[0]
-                        questionSkill.questionID = question
-                        questionSkill.courseID = currentCourse
-                        questionSkill.questionSkillPoints = int(el_skill.find('questionSkillPoints').text)
-                        questionSkill.save()    
-                 
-            # Save the information in ChallengeQuestion object             
-            challengeQuestion.questionID = question
-            challengeQuestion.save()
-   
-    f.close()
-    os.remove(fname)
-
-    #return redirect('/oneUp/instructors/instructorCourseHome') 
-'''       

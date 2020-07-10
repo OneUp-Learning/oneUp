@@ -43,7 +43,7 @@
 
         <div class="row">
             <div class="col s12 m10 offset-m1">
-                <form id="export-course" name="export-course">
+                <form id="export-challenge" name="export-challenge">
                     {% csrf_token %}
                     <input type="hidden" name="export" />
                     <div class="card">
@@ -51,25 +51,20 @@
                             <ul class="collapsible" data-collapsible="expanded">
                                 <li>
                                     <div class="collapsible-header active"><i
-                                            class="material-icons">layers</i>Challenges & Problems
+                                            class="material-icons">layers</i>Challenges
                                         <span class="badge">3</span>
                                     </div>
                                     <div class="collapsible-body" style=padding:10px;>
-                                        <p>
-                                            <input type="checkbox" class="filled-in check-boxes"
-                                                name="serious-challenges" id="serious-challenges" />
-                                            <label for="serious-challenges">Serious Challenges</label>
-                                        </p>
-                                        <p>
-                                            <input type="checkbox" class="filled-in check-boxes"
-                                                name="warmup-challenges" id="warmup-challenges" />
-                                            <label for="warmup-challenges">Warmup Challenges</label>
-                                        </p>
-                                        <p>
-                                            <input type="checkbox" class="filled-in check-boxes"
-                                                name="unassigned-problems" id="unassigned-problems" />
-                                            <label for="unassigned-problems">Unassigned Problems</label>
-                                        </p>
+                                    
+										{% for i, chall_ID, chall_name in challenge_range %}
+										<p>
+											<input type="checkbox" class="filled-in check-boxes" name="selected" value="{{chall_ID}}"
+												id="{{chall_ID}}" />
+											<label for="{{chall_ID}}">{{chall_name}}</label>
+										</p>
+										{% empty %}
+										<blockquote>No Results Were Found</blockquote>
+										{% endfor %}
                                     </div>
                                 </li>
                             </ul>
@@ -133,14 +128,14 @@
                 //   console.log("validating");
                   $.ajax({
                         type: "POST",
-                        url: "/oneUp/instructors/validateCourseExport",
+                        url: "/oneUp/instructors/validateChallengeExport",
                         data: $("#export-challenge").serialize(),
                         success: function (response) {                     
                             // Unbind all event listeners in case the user decides to fix errors/warnings
                             // and export again
                             $("#export-json").unbind();
                             // Set onclick listener for the continue button in the popup
-                            $("#export-json").click(function(){exportChallenges(response['exported-json']);});
+                            $("#export-json").click(function(){exportChallenge(response['exported-json']);});
 
                             let messages = response['messages'];
                             
@@ -170,14 +165,14 @@
                   });
                   return false;
             }
-            function exportCourse(json) {
+            function exportChallenge(json) {
                 // console.log('Exporting');
                 var exported_json = JSON.stringify(json);
 
                 // Download course zip file
                 $.ajax({
                     type: "POST",
-                    url: "/oneUp/instructors/exportChallenges",
+                    url: "/oneUp/instructors/exportChallenge",
                     data:  {'exported-json': exported_json},
                     xhrFields:{
                         responseType: 'blob'
@@ -215,91 +210,3 @@
 
 
 
-
-<!--<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-	{% include 'scripts.html' %}
-	<script>
-		var checked = false;
-		var checkBoxes = document.getElementsByName('selected');
-
-		function ToggleAllCheckboxes(event) {
-
-			checked = !checked;
-			if (checked)
-				event.childNodes[0].textContent = "Deselect All"
-			else
-				event.childNodes[0].textContent = "Select All"
-
-			for (var i = 0; i < checkBoxes.length; i++) {
-				checkBoxes[i].checked = checked;
-			}
-		}
-		function validateCheckboxes(){
-			for(var i = 0; i < checkBoxes.length; i++){
-				if(checkBoxes[i].checked)
-					return true;
-			}
-			alert("You must select at least one or all categories to Download/Export!");
-			return false;
-		}
-	</script>
-</head>
-
-<body>
-
-	{% include 'heading.html' %}
-	<main>
-		<div class="row center-align">
-			<div class="col s12">
-				<h3>Export Challenges</h3>
-				<em><strong> Select Challenges to Export</strong></em>
-			</div>
-		</div>
-
-		<!-- GGM added export all button -->
-		<div class="row right-align">
-			<div class="col s12 m10 offset-m1">
-				<button class="btn waves-effect waves-light" onclick="ToggleAllCheckboxes(this)" type="button">Select All<i class="material-icons right">select_all</i></button>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col s12 m10 offset-m1">
-				<form name="question" onsubmit="return validateCheckboxes();"  action="/oneUp/instructors/exportChallenges" method="POST">
-					{% csrf_token %}
-					<div class="card">
-						<div class="card-content">
-							{% if empty %}
-							<blockquote>No Results Where Found</blockquote>
-							{% else %}
-							{% for i, chall_ID, chall_name in challenge_range %}
-							<p>
-								<input type="checkbox" class="filled-in" name="selected" value="{{chall_ID}}"
-									id="{{chall_ID}}" />
-								<label for="{{chall_ID}}">{{chall_name}}</label>
-							</p>
-							{% endfor %}
-							{% endif %}
-						</div>
-						<div class="card-action right-align">
-							<button class="btn waves-effect waves-light" type="submit" name="submit">Export<i
-									class="material-icons right">send</i></button>
-							<button class="btn waves-effect waves-light" type="reset" name="Reset">Clear<i
-									class="material-icons right">clear_all</i></button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</main>
-
-	{% include 'footer.html' %}
-
-
-</body>
-
-</html>
