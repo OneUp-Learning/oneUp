@@ -1589,7 +1589,7 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     for question_programming_file in question_programming_files:     
                         question_programming_file_details = create_item_node(question_programming_file) # LuaLibrary model
                         
-                        # Store which folder this question belongs too so we can find it when importing
+                        # Store which folder this question belongs to so we can find it when importing
                         if not 'code-paths' in root_json:
                             root_json['code-paths'] = []
 
@@ -1686,9 +1686,9 @@ def badges_to_json(badges, badge_type, current_course, post_request=None, root_j
 
             elif badge_type == 'periodic':
                 # Add periodic badge details to badge details
-                perioidc_badge_details = create_item_node(badge)
+                periodic_badge_details = create_item_node(badge)
 
-                badge_details.update(perioidc_badge_details)
+                badge_details.update(periodic_badge_details)
             
 
             badges_jsons.append(badge_details)
