@@ -65,6 +65,7 @@ def ChallengeSetup(request):
         questionObjects = []
         sessionDict = {}
         attemptId = ''
+           
         if request.POST:
             if request.POST['challengeId']:
                 ccp = CourseConfigParams.objects.get(courseID=currentCourse)
@@ -77,7 +78,7 @@ def ChallengeSetup(request):
                 context_dict['challengeID'] = challengeId
                 challenge = Challenges.objects.get(
                     pk=int(request.POST['challengeId']))
-
+             
                 if "duelID" in request.POST:
                     duel_id = request.POST['duelID']
                     duel_challenge = DuelChallenges.objects.get(

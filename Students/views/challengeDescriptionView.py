@@ -83,8 +83,22 @@ def ChallengeDescription(request):
                 if challenge in challenges:
                     context_dict['available'] = "This challenge can be taken"
                 else:
+                    message = ""
+                    if is_duel:
+                        message = "Sorry, this duel is unavailable"
+                    elif is_callout:
+                        message = "Sorry, this callout is unavailable"
+                    else:
+                        message = "Please try other challenges"
+                    context_dict['unAvailable'] = message                
+                if not challenge.isVisible: 
                     context_dict['unAvailable'] = "This challenge can not be taken at this time"
-
+                # Check if current time is within the start and end time of the challenge
+                if challenge.hasStartTimestamp and current_localtime() < datetime_to_local(challenge.startTimestamp):
+                    context_dict['unAvailable'] = "This challenge can not be taken at this time"
+                if challenge.hasDueDate and current_localtime() >= datetime_to_local(challenge.dueDate):
+                    context_dict['unAvailable'] = "This challenge can not be taken at this time"
+                
                 data = getattr(challenge, 'timeLimit')
                 if is_duel:
                     total_time = datetime_to_local(duel_challenge.acceptTime) + \
@@ -142,10 +156,15 @@ def ChallengeDescription(request):
 
                     elif num_student_attempts == (int(total_attempts) - 1):
                         # last attempt of the student
-                        context_dict['last_attempt'] = 'This is your last attempt!!!'
+                        context_dict['last_attempt'] = 'This is your last attempt!'
 
                     elif num_student_attempts > (int(total_attempts) - 1):
                         # no more attempts left
-                        context_dict['no_attempt'] = "Sorry!! You don't have any more attempts left"
+                        message = ""
+                        if is_duel:
+                            message = "Sorry, you cannot take this challenge anymore."
+                        else:
+                            message = "You cannot take this challenge anymore, please try other challenges."
+                        context_dict['no_attempt'] = message
 
     return render(request, 'Students/ChallengeDescription.html', context_dict)

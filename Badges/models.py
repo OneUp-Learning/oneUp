@@ -366,11 +366,11 @@ class CourseConfigParams(models.Model):
     goalsUsed = models.BooleanField(default=False)                    ## Enables the use of goal setting for students
     studCanChangeGoal = models.BooleanField(default=True)             ## Allows student to change the visibility of goals component
 
-    #Options to disable Warmups, Serious Challenges, and the Gradebook
+    #Options to disable Warmups, Serious Challenges, FlashCards, and the Gradebook
     warmupsUsed = models.BooleanField(default=True)
     seriousChallengesUsed = models.BooleanField(default=True)
     gradebookUsed = models.BooleanField(default=True)
-
+    flashcardsUsed = models.BooleanField(default=True)
     #Options to disable activities, skills, and announcements
     activitiesUsed = models.BooleanField(default=True)  
     skillsUsed = models.BooleanField(default=False)

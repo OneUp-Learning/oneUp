@@ -25,18 +25,10 @@
                         <input type="hidden" name="isCallout" value="{{isCallout}}">
                      {% endif %}			
                      <div class="card-content">
-                        {% if unAvailable and isDuel %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
-                        <!--<h5>{{unAvailable}}</h5>-->
-                            <p>Sorry, the Duel is unavailable</p>
-                        {% elif unAvailable and isCallout %}
-                            <p>Sorry, the Callout is unavailable</p>
-                        {% elif unAvailable %}
-                            <p>Please Try other challenges</p>
-                        {%  elif no_attempt and isDuel %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
-                        <h5>{{no_attempt}}</h5>
-                            <p>Sorry, You can not take this challenge anymore</p>
-                        {% elif no_attempt %}
-                            <p>You can not take this challenge anymore. Try other challenges</p>
+                        {% if unAvailable  %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
+                           <p> {{unAvailable}} </p>
+                        {% elif no_attempt %}<!--if there are no more attempts, then only ok button displays which redirects to the challanges-list page-->
+                           <p>{{no_attempt}}</p>
                         {% else %}
                            <p class="flow-text">Difficulty: <b>{{challengeDifficulty}}</b></p>
                            <p class="flow-text">Time Limit (Minutes): <b>{{timeLimit}}</b></p>

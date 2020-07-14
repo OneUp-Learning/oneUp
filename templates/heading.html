@@ -378,8 +378,8 @@
     </ul>
     <ul id="import-export" class="dropdown-content">
         {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
-        <li><a class="waves-effect" href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
-        <li><a class="waves-effect" href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
+        <li><a class="waves-effect" href="/oneUp/instructors/exportChallenge">Export Challenges</a></li>
+        <li><a class="waves-effect" href="/oneUp/instructors/importChallenge">Import Challenges</a></li>
         {% endif %}
         {% if ccparams.gradebookUsed %}
         <li><a class="waves-effect" href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>
@@ -433,8 +433,8 @@
                     <li><a class="waves-effect " href="/oneUp/chat/api">Chat</a></li>
                     {% endif %} -->
                     {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
-                    <li><a class="waves-effect " href="/oneUp/instructors/exportChallenges">Export Challenges</a></li>
-                    <li><a class="waves-effect " href="/oneUp/instructors/uploadChallenges">Import Challenges</a></li>
+                    <li><a class="waves-effect " href="/oneUp/instructors/exportChallenge">Export Challenges</a></li>
+                    <li><a class="waves-effect " href="/oneUp/instructors/importChallenge">Import Challenges</a></li>
                     {% endif %}
                     {% if ccparams.gradebookUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/exportGradebook">Export GradeBook</a></li>  
@@ -480,7 +480,9 @@
                     {% if ccparams.warmupsUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/warmUpChallengeList">Warm-Up Challenges</a></li>		
                     {% endif %}
+                    {% if ccparams.flashcardsUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/groupList">Flash Card Groups</a></li>
+                    {% endif %}
                     {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/challengeQuestionsList?problems">Problems</a></li>
                     <li><a class="waves-effect " href="/oneUp/instructors/luaLibUploadView">Libraries for Dynamic Problems</a></li>
