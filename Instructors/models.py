@@ -53,6 +53,12 @@ class Universities(models.Model):
    
     def __str__(self):              
         return f"{self.universityID} - {self.universityName} - {self.universityDescription} - {self.universityTimezone}"
+#Association table between instructors user table and Universities table
+class InstructorToUniversities(models.Model):
+    instructorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Instructor ID", db_index=True)
+    universityID = models.ForeignKey(Universities, on_delete=models.CASCADE, verbose_name="the related university", db_index=True)
+    def __str__(self):              
+        return f"{self.instructorID} - {self.universityID}"
 
 class UniversityCourses(models.Model):
     universityCourseID = models.AutoField(primary_key=True)
