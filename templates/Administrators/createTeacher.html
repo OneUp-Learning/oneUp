@@ -52,7 +52,7 @@
                      <div class="card-content">
                         <div class="row">
                            <div class="input-field col s12">
-                              <input value="{{instructorUsername}}" name="instructorUsername" id="instructor_username" type="text" {% if view == False %}class="validate"{%endif%} {%if view%}readonly{%else%}required{%endif%}>
+                              <input value="{{instructorUsername}}" name="instructorUsername" id="instructor_username" type="text" onblur="this.value=removeSpace(this.value);" {% if view == False %}class="validate"{%endif%} {%if view%}readonly{%else%}required{%endif%}>
                               <label for="instructor_username"><span class="red-text">*</span> Instructor Username</label>
                            </div>
                         </div>
@@ -103,4 +103,10 @@
       	{% endfor %}
       </script>
       {% endif %}
+   <script>
+      function removeSpace(string) {
+         string = string.trim();
+         return string.split(' ').join('_');
+      }
+   </script>
 </html>

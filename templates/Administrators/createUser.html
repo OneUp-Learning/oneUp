@@ -50,7 +50,7 @@
                         <div class="row">
                            <div class="input-field col s12">
                                 <i class="material-icons prefix">account_circle</i>
-                              <input value="{{uname}}" name="uname" id="uname" type="text" class="validate" pattern=".*\S+.*" required>
+                              <input value="{{uname}}" name="uname" id="uname" type="text" class="validate" pattern=".*\S+.*" onblur="this.value=removeSpace(this.value);" required>
                               <label for="uname"><span class= "red-text">*</span> User ID</label>
                            </div>
                         </div>
@@ -81,6 +81,7 @@
       </main>
       {% include 'footer.html' %}
       <script>
+
         $("#createStudentForm").on('submit', function(e){
           $.ajax({
               url: "/oneUp/instructors/validateCreateStudent",
@@ -98,6 +99,10 @@
               }
           });
         });
+        function removeSpace(string) {
+         string = string.trim();
+         return string.split(' ').join('_');
+      }
       </script>
    </body>
 </html>
