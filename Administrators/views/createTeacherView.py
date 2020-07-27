@@ -153,7 +153,7 @@ def createTeacherView(request):
     universities_names = []
     for uni in universities:
         universities_names.append(uni.universityName)
-    context_dict['universities'] = universities_names
+    context_dict['universities'] = sorted(universities_names)
     if 'instructorID' in request.GET:
 
         instructor = User.objects.get(groups__name="Teachers", username=request.GET['instructorID'])

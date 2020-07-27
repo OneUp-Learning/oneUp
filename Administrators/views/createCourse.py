@@ -332,7 +332,7 @@ def courseCreateView(request):
     for uni in universities:
         universities_names.append(uni.universityName)
 
-    context_dict['universities'] = universities_names
+    context_dict['universities'] = sorted(universities_names)
     
     if 'courseID' in request.GET:
         course = Courses.objects.get(courseID=request.GET['courseID'])
@@ -342,7 +342,10 @@ def courseCreateView(request):
             context_dict['universityNames'] = UniversityCourses.objects.filter(courseID=course).first().universityID.universityName
         except:
             context_dict['universityNames'] = ""
-        context_dict['retrievedInstructors'] = json.dumps(retrieveInstructors(context_dict['universityNames'], course))
+        uni_instructors, retrieved_instructors = retrieveInstructors(context_dict['universityNames'], course)
+        context_dict['uniInstructors'] = json.dumps(uni_instructors)
+        context_dict['retrievedInstructors'] = json.dumps(retrieved_instructors)
+
         irc = InstructorRegisteredCourses.objects.filter(
             courseID=request.GET['courseID'])
 
@@ -374,12 +377,14 @@ def courseCreateView(request):
 #triggered by ajax function when user selects a university in the form
 def retrieveInstructorsAjax(request):
     university_name = request.POST['name']
-    return JsonResponse({"instructors":retrieveInstructors(university_name)})
+    uni_instructors, instructors = retrieveInstructors(university_name)
+    return JsonResponse({"uniInstructors" : uni_instructors, "instructors":instructors})
 
-#get the appropriatly sorted list of instructors, prioritized dynamically by the university selected (or current instructors if editing)
+#get the appropriatly sorted list of instructors, prioritized dynamically by the university selected
 def retrieveInstructors(university_name, course = None):
     
     university = Universities.objects.filter(universityName=university_name).first()
+    university_instructors_list = []
     instructors_list = []
     instructors = InstructorToUniversities.objects.filter(universityID=university)
     course_instructors = None
@@ -392,12 +397,12 @@ def retrieveInstructors(university_name, course = None):
         selected = False
         if course_instructors:
             selected = instructor.instructorID.username in course_instructors
-        instructors_list.append({"name":instructor.instructorID.username, "selected":selected})
-    other_instructors = User.objects.filter(groups__name="Teachers").exclude(username__in = [x["name"] for x in instructors_list])
+        university_instructors_list.append({"name":instructor.instructorID.username, "selected":selected})
+    other_instructors = User.objects.filter(groups__name="Teachers").exclude(username__in = [x["name"] for x in university_instructors_list])
     
     for instructor in other_instructors:
         selected = False
         if course_instructors:
             selected = instructor.username in course_instructors
         instructors_list.append({"name":instructor.username, "selected":selected})
-    return instructors_list
+    return sorted(university_instructors_list, key = lambda i : i['name']), sorted(instructors_list, key = lambda i : i['name'])

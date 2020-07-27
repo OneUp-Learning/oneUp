@@ -185,14 +185,21 @@
                         url: "/oneUp/adminstrators/retrieveInstructorsAjax",
                         data: {'name': element.value},
                         success: function (response) { 
-                           let names = response['instructors'];
+                           //instructors from university
+                           let names = response['uniInstructors'];
+                           let othernames = response['instructors'];
                            let selectElement = $('#instructors');
                            selectElement.empty();
                            selectElement.append('<option value="" disabled selected>Choose Instructor(s)</option>');
+                           selectElement.append('<optgroup label="University Instructors:">');
+
                            for(var i = 0; i < names.length;i++){
                               selectElement.append(`<option id="${names[i]['name']}" value="${names[i]['name']}" ${names[i]['selected'] ? 'selected' : ''}>${names[i]['name']}</option>`)
+                           }
 
-
+                           selectElement.append('<optgroup label="Other Instructors:">');
+                              for(var i = 0; i < othernames.length;i++){
+                              selectElement.append(`<option id="${othernames[i]['name']}" value="${othernames[i]['name']}" ${othernames[i]['selected'] ? 'selected' : ''}>${othernames[i]['name']}</option>`)
                            }
 
                            $('select').material_select(); 
@@ -204,13 +211,24 @@
             universitySelected();
       {% endif %}
       function universitySelected(){
-         let names = JSON.parse('{{retrievedInstructors|safe}}');
+         let names = JSON.parse('{{uniInstructors|safe}}');
+         let othernames = JSON.parse('{{retrievedInstructors|safe}}');
+
          //let names = [{'name':'teach' , 'selected': false},{'name':'lem' , 'selected': true},{'name':'steach' , 'selected': true}] ;
          let selectElement = $('#instructors');
          selectElement.empty();
+
          selectElement.append('<option value="" disabled selected>Choose Instructor(s)</option>');
+         selectElement.append('<optgroup label="University Instructors:">');
+
          for(var i = 0; i < names.length;i++){
             selectElement.append(`<option id="${names[i]['name']}" value="${names[i]['name']}" ${names[i]['selected'] ? 'selected' : ''}>${names[i]['name']}</option>`)
+
+         }
+         selectElement.append('<optgroup label="Other Instructors:">');
+
+         for(var i = 0; i < othernames.length;i++){
+            selectElement.append(`<option id="${othernames[i]['name']}" value="${othernames[i]['name']}" ${othernames[i]['selected'] ? 'selected' : ''}>${othernames[i]['name']}</option>`)
 
          }
          $('select').material_select(); 
