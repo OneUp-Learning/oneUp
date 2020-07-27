@@ -62,6 +62,12 @@ def createTeacherView(request):
                     itu.save()
                 except:
                     itu = None
+                #Instructor was created before university was required   
+                if itu is None:
+                    itu = InstructorToUniversities()
+                    itu.instructorID = instructor
+                    itu.universityID = university
+                    itu.save()
                 
                 student = Student.objects.filter(user=instructor)
                 if student:
@@ -93,6 +99,13 @@ def createTeacherView(request):
                     itu.save()
                 except:
                     itu = None
+                
+                #Instructor was created before university was required   
+                if itu is None:
+                    itu = InstructorToUniversities()
+                    itu.instructorID = instructor
+                    itu.universityID = university
+                    itu.save()
                 
                 student = Student.objects.filter(user=instructor)
                 if student:

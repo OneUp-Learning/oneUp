@@ -75,9 +75,9 @@
 									<th>Your Courses</th>
 								</thead>
 								<tbody>
-									{% for i,course_ID,course_Name in course_range %}
+									{% for i,course_ID,course_Name, course_university in course_range %}
 									<tr>
-										<td>{{course_Name}}</td>
+										<td>{{course_Name}} &nbsp ({{course_university}})</td>
 										<td style="padding:0;">
 											<form action="/oneUp/setCourse" method="POST">
 												{% csrf_token %}
