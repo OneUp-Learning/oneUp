@@ -53,29 +53,7 @@
                               <label for="universityName"><span class= "red-text">*</span> University Name</label>
                            </div>
                         </div>
-                        <div class="row">
-                           <div class="input-field col s12">
-                              <select id="courses" name="universityCourses" {%if view%}readonly{%endif%} multiple>
-                              <option value="" disabled selected>Choose course(s)</option>
-                              {% for qualified_course in qualified_courses %}
-                                <option id="{{qualified_course}}" value="{{qualified_course}}">{{qualified_course}}</option>
-                              {% endfor %}
-                              </select>
-                              <label>Course(s)</label>
-                              {% if universityCourses %}
-                              <script  type="text/javascript"> 
-                                    let names = {{universityCourses|safe}};
-                                    
-                                    names.forEach(name => {
-                                 	   document.getElementById(name).selected = true;
-                                        
-                                    });
-                                    $("#courses").material_select();
-                                 
-                              </script> 
-                              {% endif %}
-                           </div>
-                        </div>
+                        
                         <div class="row">
                            <div class="input-field col s12">
                               <select id="timezones" name="universityTimezone" {%if view%}readonly{%endif%}>

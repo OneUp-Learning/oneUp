@@ -14,7 +14,7 @@ from django.utils.timezone import make_aware, make_naive
 
 from Badges.models import CourseConfigParams
 from Instructors.models import (Announcements, Challenges, Courses,
-                                InstructorRegisteredCourses)
+                                InstructorRegisteredCourses, UniversityCourses)
 from Instructors.views.utils import current_localtime, datetime_to_local
 from oneUp.decorators import instructorsCheck
 
@@ -34,7 +34,7 @@ def instructorHome(request):
         
     course_ID = []      
     course_Name = []        
-
+    course_university = []
     announcement_ID = []       
     announcement_course = []         
     start_timestamp = []
@@ -62,7 +62,21 @@ def instructorHome(request):
 
         ccp = CourseConfigParams.objects.get(courseID = item.courseID.courseID)
         courseEndDate = ccp.courseEndDate
+
+        #get university tied to course to display
+        course = item.courseID
+        try:
+            course_uni = UniversityCourses.objects.get(courseID=course)
+        except:
+            course_uni = None
+        #check in case course was created before requiring university was implemented
+        if course_uni is not None:
+            course_university.append(course_uni.universityID.universityName)
+        else:
+            course_university.append("No University Found")
         
+        
+
         if not course_announcements.count()==0:
             last_course_announc= course_announcements[0]
             #if our current time is smaller than the course expiry date, we want to add the announcements
@@ -87,10 +101,11 @@ def instructorHome(request):
                             due_date.append(c.dueDate)
                             num_challenges = num_challenges+1
                             break
-                        
+    
     # casefold will ignore cases when sorting alphabetically so ('c' becomes before 'T')
-    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name)), key=lambda x: x[2].casefold())
+    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name,course_university)), key=lambda x: x[2].casefold())
     print(context_dict['course_range'])
+    print(course_university)
     context_dict['num_announcements'] = num_announcements
     context_dict['num_challenges'] = num_challenges
     context_dict['announcement_range'] = zip(range(1,num_announcements+1),announcement_ID,announcement_course,start_timestamp,subject,message)

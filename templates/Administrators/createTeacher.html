@@ -52,7 +52,7 @@
                      <div class="card-content">
                         <div class="row">
                            <div class="input-field col s12">
-                              <input value="{{instructorUsername}}" name="instructorUsername" id="instructor_username" type="text" {% if view == False %}class="validate"{%endif%} {%if view%}readonly{%else%}required{%endif%}>
+                              <input value="{{instructorUsername}}" name="instructorUsername" id="instructor_username" type="text" onblur="this.value=removeSpace(this.value);" {% if view == False %}class="validate"{%endif%} {%if view%}readonly{%else%}required{%endif%}>
                               <label for="instructor_username"><span class="red-text">*</span> Instructor Username</label>
                            </div>
                         </div>
@@ -80,7 +80,29 @@
                               <label for="instructor_email"><span class="red-text">*</span> Instructor Email</label>
                            </div>
                         </div>
+                    
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <select id="university" name="universityName" {%if view%}readonly{%endif%} required>
+                           <option value="" disabled selected>Choose University</option>
+                           {% for university in universities %}
+                           <option id="{{university}}" value="{{university}}">{{university}}</option>
+                           {% endfor %}
+                           </select>
+                           <label><span class="red-text">* </span>University</label>
+                           {% if universityNames %}
+                           <script  type="text/javascript"> 
+                              window.onload = function() {
+                                 name = "{{universityNames|safe}}";
+                                 document.getElementById(name).selected = true;
+            
+                                 $("#university").material_select();
+                              }
+                           </script> 
+                           {% endif %}
+                        </div>
                      </div>
+                  </div>
                      <div class="card-action right-align">
                         {% if view == False %}
                         <button class="btn waves-effect waves-light" type="submit" name="submit">{% if editInstructor %}Save{% else %}Create{% endif %}<i class="material-icons right">send</i>
@@ -103,4 +125,10 @@
       	{% endfor %}
       </script>
       {% endif %}
+   <script>
+      function removeSpace(string) {
+         string = string.trim();
+         return string.split(' ').join('_');
+      }
+   </script>
 </html>
