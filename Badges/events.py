@@ -677,9 +677,9 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                         continue
                     else:
                         raise
-                else:
-                    print("[TEST8] Other Error!")
-                    break
+#                else:
+#                    print("[TEST8] Other Error!")
+#                    break
             return
         
         if actionID == Action.decreaseVirtualCurrency:
