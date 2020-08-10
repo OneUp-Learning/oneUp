@@ -679,6 +679,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                         raise
                 else:
                     print("[TEST8] No exception raised!")
+                    break
             return
         
         if actionID == Action.decreaseVirtualCurrency:
