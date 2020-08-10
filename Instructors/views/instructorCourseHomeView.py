@@ -70,11 +70,12 @@ def courseLeaderboard(currentCourse, context_dict):
                         studentID=badge.studentID, courseID=currentCourse)
                     avatarImage.append(checkIfAvatarExist(students_registered_in_course))
                     student = badge.studentID
-                    if not (student.user.first_name and student.user.last_name):
-                        studentUser.append(student.user)
-                    else:
-                        studentUser.append(
-                            student.user.first_name + " " + student.user.last_name)
+                    if student.user:
+                        if not (student.user.first_name and student.user.last_name):
+                            studentUser.append(student.user)
+                        else:
+                            studentUser.append(
+                                student.user.first_name + " " + student.user.last_name)
 
             context_dict['badgesInfo'] = zip(range(1, ccparams.numBadgesDisplayed+1), studentBadgeID,
                                              studentID, badgeID, badgeName, badgeImage, avatarImage, studentUser)
