@@ -654,7 +654,8 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
             for retries in range(0,transaction_retry_count):
                 try:
                     with transaction.atomic():
-                        student = StudentRegisteredCourses.objects.select_for_update().get(studentID = studentID, courseID = courseID)
+                        student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
+                        #student = StudentRegisteredCourses.objects.select_for_update().get(studentID = studentID, courseID = courseID)
                         print("[TEST6-preinc] oldVCAmount:"+str(student.virtualCurrencyAmount))
                         student.virtualCurrencyAmount += vcRuleAmount
                         student.save()
