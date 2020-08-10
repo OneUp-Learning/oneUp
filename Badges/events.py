@@ -655,8 +655,10 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                 try:
                     with transaction.atomic():
                         student = StudentRegisteredCourses.objects.select_for_update().get(studentID = studentID, courseID = courseID)
+                        print("[TEST6-preinc] oldVCAmount:"+str(student.virtualCurrencyAmount))
                         student.virtualCurrencyAmount += vcRuleAmount
                         student.save()
+                        print("[TEST6-postinc] newVCAmount:"+str(student.virtualCurrencyAmount))
 
                     print("[TEST6] Student VC amount increased.")
 
