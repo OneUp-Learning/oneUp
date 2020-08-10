@@ -672,11 +672,13 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                     notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/Transactions'}))
                     print("[TEST7] End. VC earned event registered")
                 except OperationalError as e:
+                    print("[TEST8] Operational Error! :"+str(e))
                     if e.__cause__.__class__ == TransactionRollbackError:
                         continue
                     else:
                         raise
                 else:
+                    print("[TEST8] Other Error!")
                     break
             return
         
