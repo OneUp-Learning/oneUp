@@ -659,7 +659,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                         student.virtualCurrencyAmount += vcRuleAmount
                         student.save()
                         print("[TEST6-postinc] newVCAmount:"+str(student.virtualCurrencyAmount))
-                        transaction.on_commit(lambda:print("[TEST6-postinc] transaction committed.  VCAmount: " +str(student.virtualCurrencyAmount)))
+                        transaction.on_commit(lambda:[student.refresh_from_db(),print("[TEST6-postinc] transaction committed.  VCAmount: " +str(student.virtualCurrencyAmount))])
 
                     print("[TEST6] Student VC amount increased.")
 
