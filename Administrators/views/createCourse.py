@@ -120,6 +120,7 @@ def courseCreateView(request):
 
         if 'courseID' in request.GET:  # Editing course
             courses = Courses.objects.filter(courseName=name)
+            
             # if the course name has not change when editing
             if name == request.POST['cNamePrev']:
                 course = courses[0]
@@ -315,7 +316,7 @@ def courseCreateView(request):
 
     # Add users who are instructors to the instructors list (AH)
     context_dict['instructors'] = User.objects.filter(groups__name="Teachers")
-
+    
     # Get all courses (AH)
     courses = Courses.objects.all()
     course_ID = []
@@ -336,6 +337,8 @@ def courseCreateView(request):
     
     if 'courseID' in request.GET:
         course = Courses.objects.get(courseID=request.GET['courseID'])
+        context_dict['cid']=request.GET['courseID']
+        
         context_dict['courseName'] = course.courseName
         context_dict['courseDescription'] = course.courseDescription
         try:
@@ -376,8 +379,14 @@ def courseCreateView(request):
     return render(request, 'Administrators/createCourse.html', context_dict)
 #triggered by ajax function when user selects a university in the form
 def retrieveInstructorsAjax(request):
+    
     university_name = request.POST['name']
-    uni_instructors, instructors = retrieveInstructors(university_name)
+    
+    if 'courseID' in request.GET:
+        course = Courses.objects.get(courseID=request.GET['courseID'])
+        uni_instructors, instructors = retrieveInstructors(university_name,course)
+    else:
+        uni_instructors, instructors = retrieveInstructors(university_name)
     return JsonResponse({"uniInstructors" : uni_instructors, "instructors":instructors})
 
 #get the appropriatly sorted list of instructors, prioritized dynamically by the university selected
@@ -388,9 +397,10 @@ def retrieveInstructors(university_name, course = None):
     instructors_list = []
     instructors = InstructorToUniversities.objects.filter(universityID=university)
     course_instructors = None
+    
     if course:
         course_instructors = InstructorRegisteredCourses.objects.filter(courseID=course).values_list('instructorID__username', flat=True)
-    print(course_instructors)
+    
 
 
     for instructor in instructors:
