@@ -182,7 +182,11 @@
       function selectChange(element){
                $.ajax({
                         type: "POST",
+                        {%if cid %}
+                        url: "/oneUp/adminstrators/retrieveInstructorsAjax?courseID={{cid}}",
+                        {% else %}
                         url: "/oneUp/adminstrators/retrieveInstructorsAjax",
+                        {% endif %}
                         data: {'name': element.value},
                         success: function (response) { 
                            //instructors from university
