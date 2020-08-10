@@ -81,25 +81,39 @@
                         </div>
                         <div class="row">
                            <div class="input-field col s12">
-                              <select id="instructors" name="instructorName" {%if view%}readonly{%endif%} multiple>
-                              <option value="" disabled selected>Choose Instructor(s)</option>
-                              {% for instructor in instructors %}
-                              <option id="{{instructor.username}}" value="{{instructor}}">{{instructor}}</option>
+                              <select id="university" name="universityName" onchange="selectChange(this)" {%if view%}readonly{%endif%} required>
+                              <option value="" disabled selected>Choose University</option>
+                              {% for university in universities %}
+                              <option id="{{university}}" value="{{university}}">{{university}}</option>
                               {% endfor %}
                               </select>
-                              <label>Instructor(s)</label>
-                              {% if instructorNames %}
+                              <label><span class="red-text">* </span>University</label>
+                              {% if universityNames %}
                               <script  type="text/javascript"> 
                                  window.onload = function() {
-                                    let names = {{instructorNames|safe}};
-                                    names.forEach(name => {
-                                 	   document.getElementById(name).selected = true;
-                                        
-                                    });
-                                    $("#instructors").material_select();
+                                    let name = "{{universityNames}}";
+                                    
+                                    console.log(name);
+                                    document.getElementById(name).selected = true;
+                                    console.log(name);
+               
+                                    $("#university").material_select();
                                  }
                               </script> 
                               {% endif %}
+                           </div>
+                        </div>
+                        <div class="row hide" id="instructors-row">
+                           <div class="input-field col s12">
+                              <select id="instructors" name="instructorName" {%if view%}readonly{%endif%} multiple>
+                             <!-- <option value="" disabled selected>Choose Instructor(s)</option>
+                              {% for instructor in instructors %}
+                              <option id="{{instructor.username}}" value="{{instructor}}">{{instructor}}</option>
+                              {% endfor %}-->
+
+                              </select>
+                              <label>Instructor(s)</label>
+                              
                            </div>
                         </div>
                         <div class="row">
@@ -131,6 +145,95 @@
    {% if errorMessage %}
       <script>
       	Materialize.toast("{{errorMessage}}", 4000);
+         
+       
       </script>
       {% endif %}
+   <script>
+      function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                            }
+                        }
+                }
+                return cookieValue;
+            }
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                }
+            });
+      function selectChange(element){
+               $.ajax({
+                        type: "POST",
+                        url: "/oneUp/adminstrators/retrieveInstructorsAjax",
+                        data: {'name': element.value},
+                        success: function (response) { 
+                           //instructors from university
+                           let names = response['uniInstructors'];
+                           let othernames = response['instructors'];
+                           let selectElement = $('#instructors');
+                           selectElement.empty();
+                           selectElement.append('<option value="" disabled selected>Choose Instructor(s)</option>');
+                           selectElement.append('<optgroup label="University Instructors:">');
+
+                           for(var i = 0; i < names.length;i++){
+                              selectElement.append(`<option id="${names[i]['name']}" value="${names[i]['name']}" ${names[i]['selected'] ? 'selected' : ''}>${names[i]['name']}</option>`)
+                           }
+
+                           selectElement.append('<optgroup label="Other Instructors:">');
+                              for(var i = 0; i < othernames.length;i++){
+                              selectElement.append(`<option id="${othernames[i]['name']}" value="${othernames[i]['name']}" ${othernames[i]['selected'] ? 'selected' : ''}>${othernames[i]['name']}</option>`)
+                           }
+
+                           $('select').material_select(); 
+                           $('#instructors-row').removeClass('hide');
+                        }
+                  });
+            }
+      {% if editCourse %}
+            universitySelected();
+      {% endif %}
+      function universitySelected(){
+         let names = JSON.parse('{{uniInstructors|safe}}');
+         let othernames = JSON.parse('{{retrievedInstructors|safe}}');
+
+         //let names = [{'name':'teach' , 'selected': false},{'name':'lem' , 'selected': true},{'name':'steach' , 'selected': true}] ;
+         let selectElement = $('#instructors');
+         selectElement.empty();
+
+         selectElement.append('<option value="" disabled selected>Choose Instructor(s)</option>');
+         selectElement.append('<optgroup label="University Instructors:">');
+
+         for(var i = 0; i < names.length;i++){
+            selectElement.append(`<option id="${names[i]['name']}" value="${names[i]['name']}" ${names[i]['selected'] ? 'selected' : ''}>${names[i]['name']}</option>`)
+
+         }
+         selectElement.append('<optgroup label="Other Instructors:">');
+
+         for(var i = 0; i < othernames.length;i++){
+            selectElement.append(`<option id="${othernames[i]['name']}" value="${othernames[i]['name']}" ${othernames[i]['selected'] ? 'selected' : ''}>${othernames[i]['name']}</option>`)
+
+         }
+         $('select').material_select(); 
+         $('#instructors-row').removeClass('hide');
+
+      }
+   </script>
 </html>

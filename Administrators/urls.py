@@ -7,7 +7,7 @@ from Administrators.views.loginView import loginView, login_interconnect
 from Administrators.views.courseListView import courseListView
 from Administrators.views.setCourseView import setCourseView
 from Administrators.views.setUserView import setUserView
-from Administrators.views.createCourse import courseCreateView
+from Administrators.views.createCourse import courseCreateView, retrieveInstructorsAjax
 from Administrators.views.createUniversity import courseUniversityView
 from Administrators.views.deleteItem import deleteItemView
 from Administrators.views.adminHomeView import adminHome
@@ -26,4 +26,7 @@ urlpatterns = [
     url(r'^setCourse', setCourseView, name='setCourseView'),
     url(r'^user', setUserView, name='setUserView'),
     url(r'createUniversity', courseUniversityView, name='courseUniversityView'),
+    url(r'retrieveInstructorsAjax', retrieveInstructorsAjax, name='retrieveInstructorsAjax'),
+
+
 ]

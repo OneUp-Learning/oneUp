@@ -20,7 +20,7 @@ from Instructors.models import (Activities, ActivitiesCategory, Announcements,
                                 StaticQuestions, Tags,
                                 TemplateDynamicQuestions, TemplateTextParts,
                                 Topics, UploadedActivityFiles, UploadedFiles,
-                                UploadedImages)
+                                UploadedImages, Universities, InstructorToUniversities, UniversityCourses)
 
 admin.site.register(Announcements)
 admin.site.register(UploadedActivityFiles)
@@ -59,7 +59,9 @@ admin.site.register(FlashCards)
 admin.site.register(FlashCardGroup)
 admin.site.register(FlashCardGroupCourse)
 admin.site.register(FlashCardToGroup)
-
+admin.site.register(Universities)
+admin.site.register(InstructorToUniversities)
+admin.site.register(UniversityCourses)
 
 
 

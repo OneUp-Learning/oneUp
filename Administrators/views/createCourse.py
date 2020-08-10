@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
@@ -17,12 +17,14 @@ from Instructors.models import (ActivitiesCategory, Challenges, Courses,
                                 CoursesTopics, FlashCardGroup,
                                 FlashCardGroupCourse,
                                 InstructorRegisteredCourses, Instructors,
-                                Topics)
+                                Topics, Universities, UniversityCourses,InstructorToUniversities)
 from Instructors.views.utils import date_to_selected, str_datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import adminsCheck
 from Students.models import (Student, StudentConfigParams,
                              StudentRegisteredCourses)
+import json
+
 
 
 def add_instructor_test_student(instructor, course):
@@ -105,8 +107,11 @@ def courseCreateView(request):
     context_dict["username"] = user.username
 
     if request.method == 'POST':
+        
         name = request.POST['courseName']
         description = request.POST['courseDescription']
+        university_name = request.POST['universityName']
+        university = Universities.objects.filter(universityName=university_name).first()
         instructors = []
         if 'instructorName' in request.POST:
             instructor_usernames = request.POST.getlist('instructorName')
@@ -120,7 +125,17 @@ def courseCreateView(request):
                 course = courses[0]
                 course.courseDescription = description
                 course.save()
-
+                uC = UniversityCourses.objects.filter(courseID = course).first()
+                #in case editing a course created before university requirement
+                if uC is not None:
+                    uC = UniversityCourses.objects.filter(courseID = course).first()
+                    uC.universityID = university
+                    uC.save()
+                else:
+                    uC = UniversityCourses()
+                    uC.universityID = university
+                    uC.courseID = course
+                    uC.save()
                 instructors_to_remove = InstructorRegisteredCourses.objects.filter(
                     courseID=course).exclude(instructorID__in=instructors)
 
@@ -171,6 +186,9 @@ def courseCreateView(request):
                 course.courseName = name
                 course.courseDescription = description
                 course.save()
+                uC = UniversityCourses.objects.filter(courseID = course).first()
+                uC.universityID = university
+                uC.save()
 
                 if 'instructorName' in request.POST:
                     irc = InstructorRegisteredCourses.objects.filter(
@@ -222,6 +240,12 @@ def courseCreateView(request):
                 course.courseDescription = description
                 course.save()
 
+                
+                if not UniversityCourses.objects.filter(courseID=course):
+                    uC = UniversityCourses()
+                    uC.universityID = university
+                    uC.courseID = course
+                    uC.save()
                 if 'instructorName' in request.POST:
                     for instructor in instructors:
 
@@ -302,10 +326,25 @@ def courseCreateView(request):
 
     context_dict['courses'] = zip(
         range(1, len(courses)+1), course_ID, course_Name)
+    #get universities to display in select form
+    universities = Universities.objects.all()
+    universities_names = []
+    for uni in universities:
+        universities_names.append(uni.universityName)
+
+    context_dict['universities'] = sorted(universities_names)
+    
     if 'courseID' in request.GET:
         course = Courses.objects.get(courseID=request.GET['courseID'])
         context_dict['courseName'] = course.courseName
         context_dict['courseDescription'] = course.courseDescription
+        try:
+            context_dict['universityNames'] = UniversityCourses.objects.filter(courseID=course).first().universityID.universityName
+        except:
+            context_dict['universityNames'] = ""
+        uni_instructors, retrieved_instructors = retrieveInstructors(context_dict['universityNames'], course)
+        context_dict['uniInstructors'] = json.dumps(uni_instructors)
+        context_dict['retrievedInstructors'] = json.dumps(retrieved_instructors)
 
         irc = InstructorRegisteredCourses.objects.filter(
             courseID=request.GET['courseID'])
@@ -330,7 +369,40 @@ def courseCreateView(request):
 
         context_dict['editCourse'] = True
 
+
     context_dict['view'] = False
     context_dict['ckeditor'] = config_ck_editor()
 
     return render(request, 'Administrators/createCourse.html', context_dict)
+#triggered by ajax function when user selects a university in the form
+def retrieveInstructorsAjax(request):
+    university_name = request.POST['name']
+    uni_instructors, instructors = retrieveInstructors(university_name)
+    return JsonResponse({"uniInstructors" : uni_instructors, "instructors":instructors})
+
+#get the appropriatly sorted list of instructors, prioritized dynamically by the university selected
+def retrieveInstructors(university_name, course = None):
+    
+    university = Universities.objects.filter(universityName=university_name).first()
+    university_instructors_list = []
+    instructors_list = []
+    instructors = InstructorToUniversities.objects.filter(universityID=university)
+    course_instructors = None
+    if course:
+        course_instructors = InstructorRegisteredCourses.objects.filter(courseID=course).values_list('instructorID__username', flat=True)
+    print(course_instructors)
+
+
+    for instructor in instructors:
+        selected = False
+        if course_instructors:
+            selected = instructor.instructorID.username in course_instructors
+        university_instructors_list.append({"name":instructor.instructorID.username, "selected":selected})
+    other_instructors = User.objects.filter(groups__name="Teachers").exclude(username__in = [x["name"] for x in university_instructors_list])
+    
+    for instructor in other_instructors:
+        selected = False
+        if course_instructors:
+            selected = instructor.username in course_instructors
+        instructors_list.append({"name":instructor.username, "selected":selected})
+    return sorted(university_instructors_list, key = lambda i : i['name']), sorted(instructors_list, key = lambda i : i['name'])
