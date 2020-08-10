@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
-from Instructors.models import (Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, 
+from Instructors.models import (Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, ChallengesTopics, CoursesTopics,
                                 Announcements, Activities, FlashCardGroup, FlashCardToGroup, FlashCards, FlashCardGroupCourse)
 from Badges.models import VirtualCurrencyCustomRuleInfo
 from Instructors.constants import unassigned_problems_challenge_name
@@ -265,10 +265,17 @@ def deleteTopic(request):
     context_dict, currentCourse = initialContextDict(request)
     if request.POST:
 
+
         try:
             if request.POST['topicID']:
                 topic = Topics.objects.get(pk=int(request.POST['topicID']))
-                print(topic)
+                #reassign challenges under the deleted topic to unspecified
+                challenge_topic = ChallengesTopics.objects.filter(topicID=topic)
+                course_topic = CoursesTopics.objects.get(topicID__topicName = "Unspecified", courseID=currentCourse)
+                unassigned = course_topic.topicID
+                for challenge in challenge_topic:
+                    challenge.topicID = unassigned
+                    challenge.save()
                 message = "topic #"+str(topic.topicID) + \
                     " "+topic.topicName+" successfully deleted"
                 if topic.topicName == "Miscellaneous":
@@ -280,7 +287,7 @@ def deleteTopic(request):
 
         context_dict['message'] = message
 
-    return redirect('/oneUp/instructors/warmUpChallengeList', context_dict)
+    return redirect('/oneUp/instructors/topicsList', context_dict)
 
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
