@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from Instructors.views.utils import initialContextDict
 from Instructors.models import UploadedFiles
 from Instructors.constants import anonymous_avatar
+from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck  
