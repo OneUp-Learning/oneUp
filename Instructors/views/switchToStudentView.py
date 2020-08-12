@@ -10,7 +10,8 @@ from oneUp.decorators import instructorsCheck
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Instructors.models import InstructorRegisteredCourses
 from Instructors.constants import anonymous_avatar
-
+from Badges.models import CourseConfigParams
+from Instructors.views.preferencesView import createSCVforInstructorGrant
 
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
@@ -39,6 +40,12 @@ def switchToStudentView(request):
                 studentRegisteredCourses.studentID = student
                 studentRegisteredCourses.courseID = course.courseID
                 studentRegisteredCourses.avatarImage = anonymous_avatar
+                ccparams = CourseConfigParams.objects.get(courseID = course)
+                if ccparams.virtualCurrencyAdded:
+                    # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
+                    # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
+                    createSCVforInstructorGrant(student,course,ccparams.virtualCurrencyAdded)
+                    studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
                 studentRegisteredCourses.save()
 
                 # Configure params for test student

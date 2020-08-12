@@ -18,7 +18,7 @@ from Badges.enums import AwardFrequency
 @login_required
 def CreateVcRule(request):
     
-    context_dict,currentCourse = initialContextDict(request);
+    context_dict,currentCourse = initialContextDict(request)
 
     context_dict = setUpContextDictForConditions(context_dict,currentCourse, None)
     

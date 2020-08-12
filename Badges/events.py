@@ -26,7 +26,7 @@ from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Students.models import (Courses, Student, StudentBadges, StudentEventLog,
                              StudentGoalSetting, StudentProgressiveUnlocking,
                              StudentRegisteredCourses, StudentVirtualCurrency,
-                             StudentVirtualCurrencyRuleBased)
+                             StudentVirtualCurrencyRuleBased, StudentVirtualCurrencyTransactions)
 from Students.views.goalView import mark_goal_complete
 
 postgres_enabled = False
@@ -649,7 +649,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                 break
         
         if actionID == Action.increaseVirtualCurrency:
-            print("[TEST5] About to increase student VC amount")
+            '''print("[TEST5] About to increase student VC amount")
             # Increase the student virtual currency amount
             for retries in range(0,transaction_retry_count):
                 try:
@@ -670,7 +670,6 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                         'timezone': timezone
                     }
                     register_event_simple(Event.virtualCurrencyEarned, mini_req, studentID, vcRuleAmount)
-                    notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/Transactions'}))
                     print("[TEST7] End. VC earned event registered")
                 except OperationalError as e:
                     print("[TEST8] Operational Error! :"+str(e))
@@ -680,7 +679,9 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                         raise
                 else:
                     print("[TEST8] No exception raised!")
-                    break
+                    break'''
+            recalculate_student_virtual_currency_total(studentID, courseID)
+            notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won '+str(vcRuleAmount)+' course bucks', nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/Transactions'}))
             return
         
         if actionID == Action.decreaseVirtualCurrency:
@@ -897,3 +898,32 @@ class ChosenObjectSpecifier:
             if rule['op'] == 'in':
                 objects = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['addfilter'](objects,rule['value'])
         return [obj.pk for obj in objects]
+    
+def recalculate_student_virtual_currency_total(student,course):
+    total = 0
+    earningTransations = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
+    for et_svc in earningTransations:
+        if hasattr(et_svc, 'studentvirtualcurrencyrulebased'):
+            vcrule = et_svc.studentvirtualcurrencyrulebased.vcRuleID
+            if not vcrule:
+                # This shouldn't occur, but just in case there are broken entries, we'll skip them
+                continue
+            if vcrule.vcRuleAmount != -1:
+                total += et_svc.value
+            else:
+                avcr = VirtualCurrencyRuleInfo.objects.filter(vcRuleID=vcrule.vcRuleID).first()
+                if avcr:
+                    if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
+                        total += int(ActionArguments.objects.get(ruleID=avcr.ruleID).argumentValue)
+        else:
+            total += et_svc.value
+      
+    spendingTransactions = StudentVirtualCurrencyTransactions.objects.filter(student=student, course=course).filter(studentEvent__event=Event.spendingVirtualCurrency)
+    for st_svct in spendingTransactions:
+        if st_svct.status in ['In Progress', 'Requested','Complete']:
+            total -= st_svct.amount
+    
+    studentRegCourse = StudentRegisteredCourses.objects.get(courseID=course,studentID = student)
+    studentRegCourse.virtualCurrencyAmount = total
+    print("[VCRecalculate] Total: "+str(total))
+    studentRegCourse.save()
