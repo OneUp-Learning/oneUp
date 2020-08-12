@@ -1163,6 +1163,14 @@ def getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic >= 85%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic(course, student, topic): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score >= 90% for a particular topic
+    '''
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 90.0, topic=topic)
+    logger.debug("Number of unqiue warmup challenges with specific topic >= 90%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
 def allWarmupChallengesTopicGreaterThan70Percent(course, student, topic): 
     ''' This will return the 1 (true) or 0 (false) if every challenge related to the given topic is greater than 70%'''
    
@@ -1328,6 +1336,8 @@ class SystemVariable():
     averageScoreOfStudentActivitiesCategory = 976
     studentXP = 977 # Returns the current amount of XP a student has
     studentVC = 978 # Returns the current amount of VC a student has
+    uniqueWarmupChallengesGreaterThan90PercentTopic = 979 # Number of warmup challenges related to a topic with a score percentage greater than 90%
+
 
     
 
@@ -2069,12 +2079,26 @@ class SystemVariable():
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic
             },
             'studentGoal': False,
+        },
+         uniqueWarmupChallengesGreaterThan90PercentTopic:{
+            'index': uniqueWarmupChallengesGreaterThan90PercentTopic,
+            'name':'uniqueWarmupChallengesGreaterThan90PercentTopic',
+            'displayName':'# of Warmup Challenges Score for Specific Topic (>= 90% correct)',
+            'description':'The number of warmup challenges a student has completed with a score greater than or equal to 90% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic
+            },
+            'studentGoal': False,
         },  
         warmupChallengesTopicGreaterThan70Percent:{
             'index': warmupChallengesTopicGreaterThan70Percent,
             'name':'warmupChallengesTopicGreaterThan70Percent',
             'displayName':'All Warmup Challenges for Specific Topic are >= 70%',
-            'description':'Returns true if all the warmup challenges related to given topic are of greather than or equal to 70%. The student score only includes the student score, adjustment, and curve.',
+            'description':'Returns true if all the warmup challenges related to given topic are of greater than or equal to 70%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
             },
@@ -2088,7 +2112,7 @@ class SystemVariable():
             'index': warmupChallengesTopicGreaterThan85Percent,
             'name':'warmupChallengesTopicGreaterThan85Percent',
             'displayName':'All Warmup Challenges for Specific Topic are >= 85%',
-            'description':'Return True if all the warmup challenges related to given topic are of greather than or equal to 85%. The student score only includes the student score, adjustment, and curve.',
+            'description':'Return True if all the warmup challenges related to given topic are of greater than or equal to 85%. The student score only includes the student score, adjustment, and curve.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
             },
@@ -2307,7 +2331,8 @@ class SystemVariable():
                 ObjectTypes.none: getStudentVC
             },
             'studentGoal': True,
-        }                                                                     
+        },
+                                                                            
     }
 
 if __debug__:
