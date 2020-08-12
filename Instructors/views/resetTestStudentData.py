@@ -42,7 +42,7 @@ def resetTestStudent(request):
             studentRegisteredCourses.studentID = student
             studentRegisteredCourses.courseID = course.courseID
             studentRegisteredCourses.avatarImage = anonymous_avatar
-            ccparams = CourseConfigParams.objects.get(courseID = course)
+            ccparams = CourseConfigParams.objects.get(courseID = course.courseID)
             if ccparams.virtualCurrencyAdded:
                 # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
                 # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
