@@ -240,7 +240,7 @@ def getSysValues(student, sysVar, objectType, currentCourse, time_period=None):
         coruseTopcis = CoursesTopics.objects.filter(courseID=currentCourse).exclude(topicID__topicName=unspecified_topic_name)
         for x in coruseTopcis:
             val = calculate_system_variable(
-                sysVar, currentCourse, student, int(objectType), x.pk)
+                sysVar, currentCourse, student, int(objectType), x.topicID.pk)
             disaplyData.append(prepForDisplay(
                 student, sysVar, objectType, val, x.topicID.topicName, currentCourse))
 
