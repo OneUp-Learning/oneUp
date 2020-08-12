@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 from Badges.enums import Event
-from Badges.events import register_event
+from Badges.events import register_event, recalculate_student_virtual_currency_total
 from Badges.models import CourseConfigParams
 from Badges.periodicVariables import TimePeriods, studentScore
 from Instructors.models import Courses
@@ -42,6 +42,7 @@ def StudentCourseHome(request):
     logger.debug(
         f"Student {student.user.get_full_name()} is loading course home page")
 
+    recalculate_student_virtual_currency_total(context_dict['student_registered_course'].studentID,currentCourse)
     context_dict['course_Bucks'] = str(
         context_dict['student_registered_course'].virtualCurrencyAmount)
     context_dict['level'] = str(

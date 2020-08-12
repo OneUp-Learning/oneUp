@@ -9,7 +9,7 @@ from django.utils import timezone
 from notify.signals import notify
 
 from Badges.enums import Action, Event, ObjectTypes, dict_dict_to_zipped_list
-from Badges.events import register_event
+from Badges.events import register_event, recalculate_student_virtual_currency_total
 from Badges.models import (ActionArguments, CourseConfigParams, RuleEvents,
                            VirtualCurrencyCustomRuleInfo,
                            VirtualCurrencyRuleInfo)
@@ -38,6 +38,7 @@ def virtualCurrencyShopView(request):
         student = context_dict['student']
         st_crs = StudentRegisteredCourses.objects.get(
             studentID=student, courseID=currentCourse)
+        recalculate_student_virtual_currency_total(st_crs.studentID,currentCourse)
         currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount
         # RULE BASED VC NOT USED
 
