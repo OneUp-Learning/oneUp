@@ -23,6 +23,7 @@ from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import adminsCheck
 from Students.models import (Student, StudentConfigParams,
                              StudentRegisteredCourses)
+from Instructors.views.preferencesView import createSCVforInstructorGrant
 import json
 
 
@@ -57,6 +58,12 @@ def add_instructor_test_student(instructor, course):
     studentRegisteredCourse.studentID = student
     studentRegisteredCourse.courseID = course
     studentRegisteredCourse.avatarImage = anonymous_avatar
+    ccparams = CourseConfigParams.objects.get(courseID = course)
+    if ccparams.virtualCurrencyAdded:
+        # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
+        # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
+        createSCVforInstructorGrant(student,course,ccparams.virtualCurrencyAdded)
+        studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
     studentRegisteredCourse.save()
 
     if newStudent:

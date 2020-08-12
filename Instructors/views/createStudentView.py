@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.utils import initialContextDict
+from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from oneUp.decorators import instructorsCheck  
@@ -70,8 +71,12 @@ def createStudentViewUnchecked(request):
                 studentRegisteredCourses.courseID = currentCourse
                 studentRegisteredCourses.avatarImage = anonymous_avatar
                 if ccparams.virtualCurrencyAdded:
+                    # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
+                    # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
+                    createSCVforInstructorGrant(student,currentCourse,ccparams.virtualCurrencyAdded)
                     studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
                 studentRegisteredCourses.save()
+
                 
                 logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
                 
@@ -98,6 +103,9 @@ def createStudentViewUnchecked(request):
                 studentRegisteredCourses.courseID = currentCourse
                 studentRegisteredCourses.avatarImage = anonymous_avatar
                 if ccparams.virtualCurrencyAdded:
+                    # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
+                    # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
+                    createSCVforInstructorGrant(student,currentCourse,ccparams.virtualCurrencyAdded)
                     studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
                 studentRegisteredCourses.save()
                 

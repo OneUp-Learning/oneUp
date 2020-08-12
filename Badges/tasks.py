@@ -426,3 +426,12 @@ def testTask(uniqid, sequence):
     ctr.sequence = sequence
     ctr.save()
     return uniqid, sequence
+
+@app.task(ignore_result=True)
+def recalculate_student_virtual_currency_total_offline(student_id,course_id):
+    from Students.models import Student
+    from Instructors.models import Courses
+    student = Student.objects.get(pk=student_id)
+    course = Courses.objects.get(pk=course_id)
+    from Badges.events import recalculate_student_virtual_currency_total
+    recalculate_student_virtual_currency_total(student,course)

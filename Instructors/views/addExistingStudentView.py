@@ -8,6 +8,7 @@ from Instructors.constants import anonymous_avatar
 from django.contrib.auth.models import User
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Instructors.models import UniversityCourses
+from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Badges.models import CourseConfigParams
 from oneUp.decorators import instructorsCheck
 
@@ -104,8 +105,8 @@ def addExistingStudent(request):
         studentRegisteredCourses.courseID = currentCourse
         studentRegisteredCourses.avatarImage = anonymous_avatar
         if ccparams.virtualCurrencyAdded:
-            studentRegisteredCourses.virtualCurrencyAmount += int(
-                ccparams.virtualCurrencyAdded)
+            createSCVforInstructorGrant(student,currentCourse,ccparams.virtualCurrencyAdded)
+            studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
         studentRegisteredCourses.save()
 
         logger.debug('[POST] Created New Student With VC Amount: ' +

@@ -7,11 +7,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 
 from Badges.models import CourseConfigParams, LeaderboardsConfig
-from Badges.tasks import refresh_xp
+from Badges.tasks import refresh_xp, recalculate_student_virtual_currency_total_offline
 from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
-from Students.models import StudentRegisteredCourses
+from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 
 
 @login_required
@@ -127,22 +127,26 @@ def preferencesView(request):
 
         # Virtual Currency
         ccparams.virtualCurrencyUsed = "virtualCurrencyUsed" in request.POST
-        # Should the new currency be added to the previous ot replace it??
-        # the first is uncommented below
-        ccparams.virtualCurrencyAdded = request.POST.get(
-            'virtualCurrencyAdded')
-        #ccparams.virtualCurrencyAdded +=  int(request.POST.get('virtualCurrencyAdded'))
+        vcaddedString = request.POST.get('virtualCurrencyAdded')
 
-        # If students were already added to the class: Add the specified quantity to the account of every student in this class
-        st_crs = StudentRegisteredCourses.objects.filter(
-            courseID=currentCourse)
-        for st_c in st_crs:
-            if ccparams.virtualCurrencyAdded:
-                st_c.virtualCurrencyAmount += int(
-                    ccparams.virtualCurrencyAdded)
+        if vcaddedString:
+            
+            vcaddedInt = int(vcaddedString)
+            ccparams.virtualCurrencyAdded += vcaddedInt
+            
+            # If students were already added to the class: Add the specified quantity to the account of every student in this class
+            st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+            for st_c in st_crs:
+                # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
+                # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
+                createSCVforInstructorGrant(st_c.studentID,currentCourse,vcaddedInt)
+            
+                st_c.virtualCurrencyAmount += vcaddedInt
                 st_c.save()
-            # Update student xp
-            refresh_xp(st_c)
+                recalculate_student_virtual_currency_total_offline(st_c.studentID.pk,currentCourse.pk)
+
+                # Update student xp
+                refresh_xp(st_c)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
@@ -269,3 +273,13 @@ def preferencesView(request):
             #context_dict["streaksUsed"] = ccparams.streaksUsed
 
         return render(request, 'Instructors/Preferences.html', context_dict)
+
+def createSCVforInstructorGrant(student, course, vc):
+    svc = StudentVirtualCurrency()
+    svc.studentID = student
+    svc.courseID = course
+    svc.objectID = 0
+    svc.value = vc
+    svc.vcName = "Instructor Grant"
+    svc.vcDescription = "All students were issued virtual currency"
+    svc.save()
