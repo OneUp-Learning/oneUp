@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from Badges.enums import Event
-from Badges.events import register_event
+from Badges.events import register_event, recalculate_student_virtual_currency_total
 from Badges.models import (CourseConfigParams, PeriodicBadges,
                            VirtualCurrencyPeriodicRule)
 from Badges.periodicVariables import TimePeriods, studentScore
@@ -36,6 +36,7 @@ def achievements(request):
             register_event(Event.visitedDashboard, request, student, None)
 
     st_crs = context_dict['student_registered_course']
+    recalculate_student_virtual_currency_total(st_crs.studentID,currentCourse)
     context_dict['course_Bucks'] = str(st_crs.virtualCurrencyAmount)
     context_dict['level'] = str(st_crs.level)
 
