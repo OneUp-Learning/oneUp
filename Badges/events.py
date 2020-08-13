@@ -277,7 +277,7 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
     
     timestampstr = str(eventEntry.timestamp)
     print("Processing Event with timestamp: "+timestampstr)
-
+    print("Event being processed: "+str(eventEntry))
     
     timezone = minireq['timezone']
 
