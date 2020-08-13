@@ -19,7 +19,8 @@ objectTypeToObjectClass = {
 # This is where we evaluate the system variables in their appropriate
 # context.
 def calculate_system_variable(varIndex,course,student,objectType,objectID):
-    print("VarIndex: " + str(varIndex))    
+    print("Calculating SystemVariable: VarIndex: " + str(varIndex) + " VarName: "+SystemVariable.systemVariables[varIndex]["name"]+ " ObjType:"+ 
+        str(objectType)+" ObjectID: "+str(objectID))
     
     systemVar = SystemVariable.systemVariables[varIndex]
     functions = systemVar["functions"]
@@ -29,8 +30,8 @@ def calculate_system_variable(varIndex,course,student,objectType,objectID):
     else:
         if objectType not in functions:
             return "Error: no function defined to calculate this system variable for the specified object type (or no function defined to calculate it at all)!"
-        object = objectTypeToObjectClass[objectType].objects.get(pk=objectID)
-        return functions[objectType](course,student,object)
+        dbobject = objectTypeToObjectClass[objectType].objects.get(pk=objectID)
+        return functions[objectType](course,student,dbobject)
 
 
 ''' Utility Functions '''
