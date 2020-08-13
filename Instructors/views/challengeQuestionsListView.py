@@ -126,7 +126,8 @@ def deleteProblemsButFilterTakenByStudent(request):
     
     if request.POST:
         if 'deletion_checkboxes' in request.POST:
-            errorList = performDeletion(request.POST.getlist('deletion_checkboxes'))
+            delete_list=str.split(request.POST['deletion_checkboxes'],sep=',')
+            errorList = performDeletion(delete_list)
             response['errorMessages'] = errorList
             
     return JsonResponse(response)
