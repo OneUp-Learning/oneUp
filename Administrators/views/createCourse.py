@@ -58,9 +58,8 @@ def add_instructor_test_student(instructor, course):
     studentRegisteredCourse.studentID = student
     studentRegisteredCourse.courseID = course
     studentRegisteredCourse.avatarImage = anonymous_avatar
-    ccparams = CourseConfigParams.objects.filter(courseID = course)
     if CourseConfigParams.objects.filter(courseID = course).exists():
-        ccparams = CourseConfigParams.objects.filter(courseID = course)
+        ccparams = CourseConfigParams.objects.get(courseID = course)
         if ccparams.virtualCurrencyAdded:
             # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
             # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
