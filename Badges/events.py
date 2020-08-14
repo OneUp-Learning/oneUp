@@ -857,7 +857,7 @@ class ChosenObjectSpecifier:
     # Because that can involve matching more than one thing, this returns a tuple of:
     # Success (boolean), object type, and a list of matching IDs
     def checkAgainst(self,objType,objID):
-        print("[CheckAgainst] self.objType: "+str(self.objectType)+" checking against objType: "+str(objType)+" objID: "+str(objID))
+        print("[CheckAgainst] self.objType: "+str(self.objectType)+" being checked against objType: "+str(objType)+" objID: "+str(objID))
         if self.objectType == ObjectTypes.none:
             return True, objType, [objID]
         if objType == ObjectTypes.none:
@@ -886,7 +886,7 @@ class ChosenObjectSpecifier:
                 relatedObjs = relatedObjects[self.objectType][objType](obj)
                 outputList = []
                 for relObjID in relatedObjs:
-                    if self.checkAgainst(objType,relObjID):
+                    if self.checkAgainst(self.objectType,relObjID):
                         outputList.append(relObjID)
                 if outputList:
                     return True, self.objectType, outputList
