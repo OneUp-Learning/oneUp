@@ -322,6 +322,8 @@ def process_event_actual(eventID, minireq, studentpk, objectId):
                             fire_action(potential,courseId,student,objID, timestampstr, timezone)
         except Exception as e:
             print('Problem evaluating Rule: '+str(potential)+'  '+str(e))
+            import traceback
+            traceback.print_exc()
             pass
             
     return eventEntry
