@@ -833,7 +833,7 @@ class ChosenObjectSpecifier:
                 valid = False
                 print("no op")
                 break
-            if rule['op'] != 'in': # More options will be allowed in the future
+            if rule['op'] != 'in': # More options may be allowed in the future
                 valid = False
                 print("bad op")
                 break
@@ -852,7 +852,12 @@ class ChosenObjectSpecifier:
     def __str__(self):
         return json.dumps(self.rules)
     
-    def checkAgainst(self,objType,objID):    
+    # This checks a particular object against an object specifier.
+    # This can check things like challenges against topic specifiers or activities against activity categories
+    # Because that can involve matching more than one thing, this returns a tuple of:
+    # Success (boolean), object type, and a list of matching IDs
+    def checkAgainst(self,objType,objID):
+        print("[CheckAgainst] self.objType: "+str(self.objType)+" checking against objType: "+str(objType)+" objID: "+str(objID))
         if self.objectType == ObjectTypes.none:
             return True, objType, [objID]
         if objType == ObjectTypes.none:
