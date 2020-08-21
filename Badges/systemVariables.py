@@ -157,7 +157,7 @@ def getDaysBetweenCurrentTimeAndDeadline(challenge):
     diff = deadline-now
     return diff.days
 
-def getTimeSpentOnChallenges(course, student, isGraded):
+def getTimeSpentOnChallenges(course, student, isGraded, topic=None):
     ''' Utility function used by other functions.
         Returns the total time in minutes a student has spent on challenges.
         isGraded when True is serious
@@ -167,6 +167,11 @@ def getTimeSpentOnChallenges(course, student, isGraded):
     # This calculates the time for both serious and warmup challenges
     #return the sum of delta times between StartChallenge and End Challenge events   
     challengeTimes = StudentChallenges.objects.filter(courseID = course,studentID = student, challengeID__isGraded=isGraded).exclude(endTimestamp__isnull=True) #ensure that the challenge has an endTimestamp
+    if topic:
+        from Instructors.models import ChallengesTopics
+        challengesTopics = ChallengesTopics.objects.filter(topicID = topic)
+        challenges_in_topic = [ct.challengeID for ct in challengesTopics]
+        challengeTimes = challengeTimes.filter(challengeID__in=challenges_in_topic)
     #Accumulate the elapsed time for all challenges in the database with matching student and course ID's
     #initialize totalTime as arbitrary datetime object in order to accumulate elapsed time
     totalTime = datetime(2000,1,1,0,0,0) #python throws Value Error if the date is too small, otherwise it would have been initialized to all 0's
@@ -660,6 +665,12 @@ def getTotalMinutesSpentOnSeriousChallenges(course, student):
     ''' This will return the number of minutes a student has spent on all serious challenges'''    
     minutes = getTimeSpentOnChallenges(course, student, True)
     logger.debug("Total minutes spent on serious challenges: " + str(minutes))
+    return minutes
+
+def getTotalMinutesSpentOnWarmupChallengesPerTopic(course, student, topic):
+    ''' This will return the number of minutes a student has spent on all warmup challenges in a given topic'''    
+    minutes = getTimeSpentOnChallenges(course, student, False, topic)
+    logger.debug("Total minutes spent on warmup challenges: " + str(minutes))
     return minutes
 
 def totalTimeSpentOnQuestions(course,student):
@@ -1338,7 +1349,7 @@ class SystemVariable():
     studentXP = 977 # Returns the current amount of XP a student has
     studentVC = 978 # Returns the current amount of VC a student has
     uniqueWarmupChallengesGreaterThan90PercentTopic = 979 # Number of warmup challenges related to a topic with a score percentage greater than 90%
-
+    totalMinutesSpentOnWarmupChallengesPerTopic = 980
 
     
 
@@ -2330,6 +2341,20 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none: getStudentVC
+            },
+            'studentGoal': True,
+        },
+        totalMinutesSpentOnWarmupChallengesPerTopic: {
+            'index': totalMinutesSpentOnWarmupChallengesPerTopic,
+            'name': 'totalMinutesSpentOnWarmupChallengesPerTopic',
+            'displayName':'Total minutes spend on warm-ups in a topic',
+            'description':'The sum total time that a student has spent on warm-up challenges in a given topic.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge]
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic: getTotalMinutesSpentOnWarmupChallengesPerTopic
             },
             'studentGoal': True,
         },
