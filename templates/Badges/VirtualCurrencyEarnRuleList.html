@@ -28,7 +28,7 @@
 		<div class="row">
 			<div class="col s12 m10 offset-m1">
 				<div class="card-panel">
-					{% if vcRuleInfo|length > 0 %}
+					{% if vcRuleInfo %}
 					<ul id="sortable-vc-rules" class="collapsible">
 						{% for i,vcRuleID,vcRuleName,vcRuleDescription, vcAmount, position in vcRuleInfo %}
 						<li id={{vcRuleID}}>
@@ -38,7 +38,7 @@
 								</div>
 								<div style="width: 30%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{vcRuleName}}</div>
 								<div style="width: 65%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{vcRuleDescription}}</div>
-								<div style="width: 5%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
+								<div style="width: 10%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
 									{% if isRuleCustom == True and vcAmount == 0 %}Varies{% else %}{{vcAmount}}{% endif %}
 								</div>
 								<div class="badge">
