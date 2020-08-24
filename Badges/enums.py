@@ -263,6 +263,10 @@ class Event():
     badgeEarned = 881
 
     levelUp = 882
+    #flashcard
+    viewFlashCard = 883
+    submitFlashCard = 884
+
 
 
 
@@ -599,6 +603,20 @@ class Event():
                         'description':'Event triggered when a student has earned a badge',
                         'isVirtualCurrencySpendRule':False
                         },
+            viewFlashCard: {
+                        'index': viewFlashCard,
+                        'name':'viewFlashCard',
+                        'displayName':'Student viewed a flash card',
+                        'description':'Event triggered when students starts a flash card',
+                        'isVirtualCurrencySpendRule':False
+                        },
+            submitFlashCard: {
+                        'index': submitFlashCard,
+                        'name':'submitFlashCard',
+                        'displayName':'Student finished a flash card',
+                        'description':'Event triggered when a student finishes flash card',
+                        'isVirtualCurrencySpendRule':False
+                        },
 #               seeClassAverage: {
 #                         'index': seeClassAverage,
 #                         'name':'seeClassAverage',
@@ -665,6 +683,7 @@ class ObjectTypes():
     topic=1306
     activityCategory=1307
     virtualCurrencySpendRule=1308 # Used for manual virtual currency rules/transactions
+    flashcard = 1309
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
@@ -674,6 +693,7 @@ class ObjectTypes():
         topic:"topic",
         activityCategory:"activityCategory",
         virtualCurrencySpendRule:"virtualCurrencySpendRule",
+        flashcard:"flashcard"
     }
 
 class OperandTypes():
