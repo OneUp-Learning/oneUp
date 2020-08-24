@@ -1278,6 +1278,48 @@ def getStudentVC(course, student):
     from Students.models import StudentRegisteredCourses
     return float(StudentRegisteredCourses.objects.get(courseID=course, studentID=student).virtualCurrencyAmount)
 
+def getTotalMinutesSpentOnFlashcards(course, student):
+    from Students.models import StudentEventLog
+    from bisect import bisect_left
+
+    endCard = list(StudentEventLog.objects.filter(course_id=course, student_id=student, event=Event.submitFlashCard))
+    startCard = list(StudentEventLog.objects.filter(course_id=course, student_id=student, event=Event.viewFlashCard))
+    #initialize dict with start IDs as key and corresponding timestamps as value
+    startDict = {x.objectID:[] for x in startCard}
+    print("!!!!!!!!!!!!!!", startDict)
+    for scard in startCard:
+        startDict[scard.objectID].append(scard.timestamp)
+    print("!!!!!!!!!!!!!!", startDict)   
+    #initialize time
+    timeTotal = datetime(2000,1,1,0,0,0)
+    overMinute = 0
+    for ecard in endCard:
+        #bisect method inserts and finds the corresponding start time, the time of the view event right before it
+        startTimes = startDict[ecard.objectID]
+        i = bisect_left(startTimes,ecard.timestamp) 
+        matchingStartTime=startTimes[i-1]
+        #keep track and cap time spent on individual cards to 1 minute
+        print("***", matchingStartTime,"&&&", ecard.timestamp)
+        
+        if  (ecard.timestamp - matchingStartTime).total_seconds() > 60:
+            overMinute += 1
+        else:
+            timeTotal += ecard.timestamp - matchingStartTime
+    #subtract out initialization
+    timeTotal -= datetime(2000,1,1,0,0,0)
+    #add in to the total the cards capped at 1 minute
+    totalMinutesSpent = (overMinute*60 + timeTotal.total_seconds())/60
+        
+    return totalMinutesSpent
+
+    
+        
+
+def getTotalOfCompletedFlashcards(course, student):
+    from Students.models import StudentEventLog
+    totalCards = len(StudentEventLog.objects.filter(course_id=course, student_id=student, event=Event.submitFlashCard))
+    return totalCards
+
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
@@ -1350,6 +1392,8 @@ class SystemVariable():
     studentVC = 978 # Returns the current amount of VC a student has
     uniqueWarmupChallengesGreaterThan90PercentTopic = 979 # Number of warmup challenges related to a topic with a score percentage greater than 90%
     totalMinutesSpentOnWarmupChallengesPerTopic = 980
+    timeSpentOnFlashcards = 981
+    totalFlashcardsCompleted = 982
 
     
 
@@ -2358,6 +2402,34 @@ class SystemVariable():
             },
             'studentGoal': True,
         },
+        timeSpentOnFlashcards: {
+            'index': timeSpentOnFlashcards,
+            'name': 'timeSpentOnFlashcards',
+            'displayName':'Total minutes spent on flashcards',
+            'description':'The sum total time that a student has spent on flashcards.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.submitFlashCard]
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none: getTotalMinutesSpentOnFlashcards
+            },
+            'studentGoal': True,
+        },
+        totalFlashcardsCompleted: {
+            'index': totalFlashcardsCompleted,
+            'name': 'totalFlashcardsCompleted',
+            'displayName':'Total number of flashcards completed',
+            'description':'The sum total of completed flashcards',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.none:[Event.submitFlashCard]
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.none: getTotalOfCompletedFlashcards
+            },
+            'studentGoal': True,
+        }
                                                                             
     }
 

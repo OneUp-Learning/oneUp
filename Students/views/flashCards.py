@@ -11,6 +11,8 @@ from Students.models import studentFlashCards, Student
 from Instructors.models import FlashCardGroupCourse, FlashCardGroup, FlashCardToGroup, FlashCards
 from Instructors.views.utils import datetime_to_local
 from oneUp.decorators import instructorsCheck
+from Badges.events import register_event
+from Badges.enums import Event
 import datetime
 
 @login_required
@@ -29,6 +31,10 @@ def flashCardUsed(request):
             groupID = request.POST['groupID']
             gotIt = str2bool(request.POST['gotIt'])
 
+            register_event(Event.submitFlashCard,request,student,int(flashID))
+
+            if 'nextflashID' in request.POST:
+                register_event(Event.viewFlashCard,request,student,int(request.POST['nextflashID']))
             if(studentFlashCards.objects.filter(studentID=student, flashID=flashID).exists()):
                 studentFlashCard = studentFlashCards.objects.get(studentID=student, flashID=flashID)
             else:
@@ -48,6 +54,7 @@ def flashCardUsed(request):
             studentFlashCard.timesSeen = studentFlashCard.timesSeen + 1
     
             studentFlashCard.save()
+           
             status = "good"
             
     return JsonResponse({"status" : status})
@@ -56,6 +63,7 @@ def flashCards(request):
     #promtes cards up to the practice bin of zero if thier time has arrived
     #or is close to being here
     context_dict, current_course = studentInitialContextDict(request)
+    student = Student.objects.get(user=request.user)
     if 'groupID' in request.GET:
         groupID = request.GET['groupID']
         if groupID == "ALL":
@@ -70,6 +78,7 @@ def flashCards(request):
         if(len(requested_groups) == 1):
             requested_groups = requested_groups.pop()
         context_dict['flash_range'] = getFlashCards(requested_groups, request)
+    register_event(Event.viewFlashCard, request, student, context_dict['flash_range'][0]['flashID'])
     return render(request,'Students/FlashCards.html',context_dict)
 
 def flashCardsList(request):

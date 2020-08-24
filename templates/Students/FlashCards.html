@@ -83,8 +83,11 @@
       xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
       didTheyGetItFlag = didTheyGetIt(buttonType)
-
-      xhttp.send("flashID=" + flashID + "&gotIt="+ didTheyGetItFlag + "&groupID=" + groupID + "&csrfmiddlewaretoken={{csrf_token}}");
+      let nextFlashString = ""
+      if(flash_card_counter != flash_cards.length-1){
+         nextFlashString = "&nextflashID=" + flash_cards[flash_card_counter+1]['flashID']
+      }
+      xhttp.send("flashID=" + flashID + "&gotIt="+ didTheyGetItFlag + "&groupID=" + groupID + nextFlashString + "&csrfmiddlewaretoken={{csrf_token}}");
       xhttp.onreadystatechange = function () {
          if (xhttp.readyState == 4) {
             moveToNextCard();

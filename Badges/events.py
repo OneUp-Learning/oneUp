@@ -220,6 +220,15 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
     if(eventID == Event.badgeEarned):
         eventEntry.objectType = ObjectTypes.none
         eventEntry.objectID = objectId
+    
+    #Flashcards Events
+    if(eventID == Event.viewFlashCard):
+        eventEntry.objectType = ObjectTypes.flashcard
+        eventEntry.objectID = objectId
+
+    if(eventID == Event.submitFlashCard):
+        eventEntry.objectType = ObjectTypes.flashcard
+        eventEntry.objectID = objectId
         
 #     if(eventID == Event.seeClassAverage):
 #         eventEntry.objectType = ObjectTypes.form
