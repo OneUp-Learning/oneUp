@@ -40,8 +40,9 @@ def flashCardUsed(request):
             else:
                 studentFlashCard = studentFlashCards()
             studentFlashCard.studentID = student
+            print("XXX")
             studentFlashCard.flashID = getFlashCardObjFromID(flashID)
-
+            
             if(gotIt):
                 if(studentFlashCard.cardBin < 3):
                     studentFlashCard.cardBin = studentFlashCard.cardBin + 1
@@ -65,18 +66,21 @@ def flashCards(request):
     context_dict, current_course = studentInitialContextDict(request)
     student = Student.objects.get(user=request.user)
     if 'groupID' in request.GET:
-        groupID = request.GET['groupID']
-        if groupID == "ALL":
+        groupID=[]
+        groupID.append(request.GET['groupID'])
+        print(len(groupID))
+        if groupID[0] == "ALL":
             context_dict['flash_range'] = getFlashCards(groupID, request, True)
         else:
             context_dict['flash_range'] = getFlashCards(groupID, request)
+            print("###",groupID)
     if 'study-checkboxes' in request.POST:
         listOfRequestedCardsGroups = []
         requested_groups = request.POST.getlist('study-checkboxes')
-
-        #maybe the student selected one, just pop(cm) it 
-        if(len(requested_groups) == 1):
-            requested_groups = requested_groups.pop()
+        print(requested_groups,"LLL")
+        print(len(requested_groups))
+       
+        print("$$$$",requested_groups)
         context_dict['flash_range'] = getFlashCards(requested_groups, request)
     register_event(Event.viewFlashCard, request, student, context_dict['flash_range'][0]['flashID'])
     return render(request,'Students/FlashCards.html',context_dict)
@@ -127,11 +131,13 @@ def getFlashCards(groupIDs, request, all_cards=False):
         card_groups = []
         for groupID in groupIDs:
             card_groups.extend(list(FlashCardToGroup.objects.filter(groupID=groupID)))
+        print("^^^^^^^^^^^",groupIDs[0])
         return getCardsFromGroup(card_groups, request)
     
     #singular card group
     if(len(groupIDs) == 1):
-        card_group = list(FlashCardToGroup.objects.filter(groupID=groupIDs))
+        card_group = list(FlashCardToGroup.objects.filter(groupID=groupIDs[0]))
+        print("************",card_group)
         return getCardsFromGroup(card_group, request)
 
 def getCardsFromGroup(flashCards, request, all_cards=False):
