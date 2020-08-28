@@ -63,9 +63,18 @@ class UploadedAvatarImage(models.Model):
 class StudentRegisteredCourses(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
-    avatarImage= models.CharField(max_length=200, default='')    
+    avatarImage= models.CharField(max_length=200, default='')
+    # VirtualCurrenyAmount is essentially a cache for this value
+    # The actual official total is dervied from transactions stored
+    # in the database in the models StudentVirtualCurrencyTransactions
+    # and StudentVirtualCurrency
+    # It is calculated using recalculate_student_virtual_currency_total
+    # from Badges/event.py/
     virtualCurrencyAmount = models.IntegerField(default=0)
     attendanceStreakStartDate = models.DateTimeField(default=custom_now)
+    # This is a cache of the XP amount, used because calculating it live
+    # all the time is too slow.
+    # Recalculate this using the refresh_xp function.
     xp = models.DecimalField(decimal_places=2, max_digits=100, default=0)
     level = models.IntegerField(default=0)
     def __str__(self):
