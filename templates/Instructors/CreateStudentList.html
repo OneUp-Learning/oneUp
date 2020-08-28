@@ -61,7 +61,7 @@
                      </div>
                      <div class="input-field col s3">
                         <select id="file_type" name="file_number">
-                           {% for i, csv_type in file_types %}
+                           {% for i, csv_type in file_types reversed %}
                            <option value="{{i}}">File Type: {{csv_type.display_name}}</option>
                            {% endfor %}
                         </select>
