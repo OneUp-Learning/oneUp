@@ -55,7 +55,7 @@ def process_file(file_name, file_type_number):
                 line = line.strip()
                 values = line.split(',')
                 #first name, last name, email username
-                lines.append((values[0].lstrip(),values[1].lstrip(), values[2].lstrip()))
+                lines.append((values[0].strip(),values[1].strip(), values[2].strip()))
 
     print("line",lines)
     return lines
