@@ -30,13 +30,13 @@ def studentSkillsEarned(request):
     skill_Name = []         
     skill_Points = []
     
-    count = 0;
+    count = 0
     
     course_skills = CoursesSkills.objects.filter(courseID=currentCourse)
     for s in course_skills:
-        skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId, skillID = s.skillID)
-        skillPoints =0;
-
+        skillPoints = 0
+        skillRecords = StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__studentID=studentId[0], skillID = s.skillID)
+        
         for sRecord in skillRecords:
             skillPoints += sRecord.skillPoints
         
