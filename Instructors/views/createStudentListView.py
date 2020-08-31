@@ -58,12 +58,13 @@ class CSV:
     canvas = 0
     oneUp = 1
     information = {
+            oneUp:{
+                'index': oneUp,
+                'display_name': 'OneUp'
+                },
            canvas:{
                 'index': canvas,
                 'display_name': 'Canvas'
                 },
-            oneUp:{
-                'index': oneUp,
-                'display_name': 'OneUp'
-                }
+            
     }
