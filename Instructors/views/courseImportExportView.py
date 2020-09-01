@@ -2295,7 +2295,7 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
 
                     for question_library_json in dynamic_question_json['question-libraries']:
                         # Get the lua library and link it to the question
-                        lua_library = LuaLibrary.objects.get(libarayName=question_library_json['libraryName'])
+                        lua_library = LuaLibrary.objects.get(libraryName=question_library_json['libraryName'])
 
                         question_library_fields_to_save = {'question': question, 'library': lua_library}
                         question_library = create_model_instance(QuestionLibrary, None, custom_fields_to_save=question_library_fields_to_save)
