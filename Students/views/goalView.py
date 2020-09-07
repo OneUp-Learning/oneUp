@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from Badges.enums import Action, ObjectTypes, OperandTypes
-from Badges.models import ActionArguments, Conditions, RuleEvents, Rules
+from Badges.models import ActionArguments, Conditions, RuleEvents, Rules, CourseConfigParams
 from Badges.periodicVariables import PeriodicVariables
 from Badges.systemVariables import SystemVariable
 from Badges.tasks import create_goal_expire_event
@@ -27,12 +27,26 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def goal_view(request):
- 
+    
     context_dict, current_course = studentInitialContextDict(request)
+    ccparams=CourseConfigParams.objects.get(courseID=current_course)
+    
+    #If structure checks course config to see what combination of VC and duels/callouts 
+    # are available, if any, to display goals appropriately
+    if not ccparams.virtualCurrencyUsed and not ccparams.classmatesChallenges:
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True and sysvar['index'] != 978 and sysvar['index'] != 968 and sysvar['index'] != 960 and sysvar['index'] != 957 and sysvar['index'] != 956 and sysvar['index'] != 953]
 
-    context_dict['goal_variables'] = [sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True]
+    elif not ccparams.virtualCurrencyUsed and ccparams.classmatesChallenges:
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True and sysvar['index'] != 978 and sysvar['index'] != 968]
+
+    elif ccparams.virtualCurrencyUsed and not ccparams.classmatesChallenges:
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True and sysvar['index'] != 960 and sysvar['index'] != 957 and sysvar['index'] != 956 and sysvar['index'] != 953]
+
+    else:        
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True]
+
+    context_dict['goal_variables'] = goal_list
                                     
-    print(context_dict['goal_variables'])
     if request.method == 'POST':
 
         if 'goal_id' in request.POST:
@@ -90,7 +104,7 @@ def process_goal(course, student, var):
 
 def goal_type_to_name(goal_type):
     goal_variables = [sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True]
-
+    
     goal_var = [var['displayName'] for var in goal_variables if var['index'] == goal_type]
 
     return goal_var[0] if len(goal_var) == 1 else "invalid"

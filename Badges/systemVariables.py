@@ -2391,7 +2391,7 @@ class SystemVariable():
         totalMinutesSpentOnWarmupChallengesPerTopic: {
             'index': totalMinutesSpentOnWarmupChallengesPerTopic,
             'name': 'totalMinutesSpentOnWarmupChallengesPerTopic',
-            'displayName':'Total minutes spend on warm-ups in a topic',
+            'displayName':'Total Minutes Spent on Warmup Challenges in a Topic',
             'description':'The sum total time that a student has spent on warm-up challenges in a given topic.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge]
@@ -2405,7 +2405,7 @@ class SystemVariable():
         timeSpentOnFlashcards: {
             'index': timeSpentOnFlashcards,
             'name': 'timeSpentOnFlashcards',
-            'displayName':'Total minutes spent on flashcards',
+            'displayName':'Total Minutes Spent on Flashcards',
             'description':'The sum total time that a student has spent on flashcards.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.submitFlashCard]
@@ -2419,7 +2419,7 @@ class SystemVariable():
         totalFlashcardsCompleted: {
             'index': totalFlashcardsCompleted,
             'name': 'totalFlashcardsCompleted',
-            'displayName':'Total number of flashcards completed',
+            'displayName':'Total Number of Flashcards Completed',
             'description':'The sum total of completed flashcards',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.submitFlashCard]
