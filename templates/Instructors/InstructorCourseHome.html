@@ -84,7 +84,7 @@
                   <div class="card-panel">
                   <table>
                     <thead>
-                      <th>Latest Badges test</th>
+                      <th>Latest Badges</th>
                     </thead>
                     <tbody>
                         <tr>
@@ -151,7 +151,7 @@
                 <div class="col s12">
                     <div class="card-panel">
                     <table>
-                    <caption><h5>Skills Board 2</h5></caption>
+                    <caption><h5>Skills Board</h5></caption>
                       <thead>
                         <th>Skill</th>
                         <th>Skill Points</th>
@@ -162,7 +162,7 @@
                              <td>{{skill.skillName}} </td>
                              <td>
                                 {% for usi in skill.usersInfo %} 
-                                <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                <div class="chip tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{usi.user}}">
                                     <img src="{{usi.avatarImage}}">
                                     {{usi.skillPoints}}
                                     </div>
