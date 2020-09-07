@@ -13,7 +13,7 @@
       <main>
          <div class="row">
             <div class="col s12 m12 l10 offset-l1">
-               <div class="row">
+               <div class="row" style="margin-bottom: 0px;">
                {% if ccparams.announcementsUsed %}
                   <div class="col s12 m6">
                      <div class="card-panel center-align">
@@ -89,7 +89,7 @@
                      </table>
                 </div>
             </div>
-            </div>
+            </daiv>
             {% endif %}   
             {% if ccparams.gamificationUsed and ccparams.goalsUsed %}
             {% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
@@ -235,9 +235,9 @@
                 {% endif %}
                 {% endif %}
                {% if scparams.displayLeaderBoard and ccparams.leaderboardUsed and ccparams.gamificationUsed %}
-               <div class="row">
+               <div class="row" style="margin-bottom: 0px;">
                   <div class="col s12 m12">
-                  <div class="row" style="display: flex;">
+                  <div class="row" style="display: flex; margin-bottom: 0px;">
                   <div class="col s12 m6"></div>
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboardRange %}  
                   <div class="col s12">
@@ -266,8 +266,53 @@
                   <div class="col s12 m6"></div>
                   </div>
                   </div>
-               </div>   
+               </div>
                 {% endif %}
+                  <div class="row">
+                {% if ccparams.gamificationUsed and ccparams.classSkillsDisplayed and ccparams.studCanChangeClassSkillsVis and scparams.displayClassSkills %}
+                <div class="col s12 m12">
+                <div class="row" style="display: flex;">
+                <div class="col s12 m6"style="
+                     width: 200px;
+                     height: 200px;"></div>
+               
+                <div class="col s12">
+                    <div class="card-panel">
+                    <table>
+                    <caption><h5>Skills Board</h5></caption>
+                      <thead>
+                        <th>Skill</th>
+                        <th>Skill Points</th>
+                      </thead>
+                      <tbody>
+                          {% for skill in skills %}
+                          <tr>
+                             <td>{{skill.skillName}} </td>
+                             <td>
+                                {% for usi in skill.usersInfo %} 
+                                <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                    <img src="{{usi.avatarImage}}">
+                                    {{usi.skillPoints}}
+                                    </div>
+                                {% endfor %}
+                             </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                            <td class="center-align" colspan="2"><i>No students with skill points</i></td>
+                          </tr>
+                          {% endfor %}  
+                      </tbody>
+                    </table>
+                    </div>
+                  </div>
+                  <div class="col s12 m6" style="
+                     width: 200px;
+                     height: 200px;"></div>
+                </div>
+              </div>
+                  {% endif %}                  
+            </div>  
             </div>
          </div>
       </main>
