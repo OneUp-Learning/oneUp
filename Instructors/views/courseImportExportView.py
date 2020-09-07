@@ -47,7 +47,8 @@ from Instructors.models import (Activities, ActivitiesCategory, Answers,
                                 QuestionsSkills, ResourceTags, Skills,
                                 StaticQuestions, Tags,
                                 TemplateDynamicQuestions, TemplateTextParts,
-                                Topics, UploadedFiles)
+                                Topics, UploadedFiles,FlashCards, FlashCardGroup,
+                                FlashCardToGroup,FlashCardGroupCourse)
 from Instructors.questionTypes import QuestionTypes
 from Instructors.views.utils import (current_localtime, date_to_selected,
                                      initialContextDict)
@@ -715,6 +716,45 @@ model_lookup_table = {
             'daysofClass': None,
             'daysDeselected': None,
         }
+    },
+    FlashCards: {
+        'Import':{
+            'flashName': None,
+            'front': None,
+            'back': None
+
+        },
+        'Export':{
+            'flashName': None,
+            'front': None,
+            'back': None
+        }
+
+    },
+    FlashCardGroup: {
+        'Import': {
+            'groupName': None
+        },
+        'Export': {
+            'groupName': None
+        }
+    },
+    FlashCardToGroup: {
+        'Import': {
+            'flashID': None,
+            'groupID': None
+        },
+        'Export': {
+            
+        }
+    },
+    FlashCardGroupCourse: {
+        'Import': {
+            'groupID': None,
+            'courseID': None
+        },
+        'Export': {
+        }
     }
 
 }
@@ -743,24 +783,6 @@ def zip_directory(path, zip_handler, relative_path="lua/problems"):
         for f in files:
             zip_handler.write(os.path.join(root, f), arcname=os.path.join(arc_path, f))
 
-def create_item_node(query_object, fields_to_save):
-    ''' Creates the key value pairs for json based on query object and
-        which fields to save.
-
-        field_to_save is list of tuples with value and cast specifier:
-        ex. [("a", None), ("2", int), (4, str)]
-    '''
-    node = {}
-    for field in fields_to_save:
-        # Add key-val if the query object has this attribute (field)
-        if hasattr(query_object, field[0]):
-            value = getattr(query_object, field[0])
-            # Cast the value if the field requires some casting
-            if field[1] is not None:
-                value = field[1](value)
-                
-            node[field[0]] = value
-    return node
 
 def create_item_node(query_object):
     ''' Creates the key value pairs for json based on query object and
@@ -784,29 +806,6 @@ def create_item_node(query_object):
             node[field_name] = value
 
     return node
-
-def create_model_instance(model, fields_to_save, modify=False):
-    ''' Creates a new instance of a model or modifies one  
-        with the fields set from the fields_to_save argument.
-
-        field_to_save is list of tuples with field name, value, and cast specifier:
-        ex. [("a", "hello", None), ("score", 4, int), ("date", dt, str)]
-    '''
-    if modify:
-        model_instance = model
-    else:
-        model_instance = model()
-
-    for field in fields_to_save:
-        value = field[1]
-        # Cast the value if the field requires some casting
-        if field[2] is not None:
-            value = field[2](value)
-        
-        # Set the model field value
-        setattr(model_instance, field[0], value)
-
-    return model_instance
 
 def create_model_instance(model, fields_data, custom_fields_to_save=None, modify=False):
     ''' Creates a new instance of a model or modifies one  
@@ -978,6 +977,10 @@ def validateCourseExport(request):
             if 'topics' in request.POST:
                 topics = CoursesTopics.objects.filter(courseID=current_course)
                 root_json['topics'] = topics_to_json(topics, current_course, messages=messages)
+            
+            if 'flashcards' in request.POST:
+                flashcards = FlashCardGroupCourse.objects.filter(courseID=current_course)
+                root_json['flashcards'] = flashcards_to_json(flashcards, current_course, messages=messages)
 
             if 'activities-categories' in request.POST:
                 activities_categories = ActivitiesCategory.objects.filter(courseID=current_course)
@@ -1766,6 +1769,27 @@ def topics_to_json(topics, current_course, post_request=None, root_json=None, me
             topics_jsons.append(topic_details)
 
     return topics_jsons
+def flashcards_to_json(flashcards, current_course, post_request=None, root_json=None, messages=[]):
+    
+    flashcards_jsons = []
+    
+    if flashcards.exists():
+        for course_groups in flashcards:
+            cards_jsons = []
+            #get group details
+            group_details = create_item_node(course_groups.groupID)
+            #All flashcard-groups tied to course-group
+            groups = FlashCardToGroup.objects.filter(groupID=course_groups.groupID)
+            for group in groups:
+                card = group.flashID
+                print(card.flashName)
+                card_details = create_item_node(card)
+                cards_jsons.append(card_details)
+            
+            group_details['cards']=cards_jsons
+
+            flashcards_jsons.append(group_details)
+    return flashcards_jsons
 
 def course_skills_to_json(course_skills, current_course, post_request=None, root_json=None, messages=[]):
     ''' Converts skills (CoursesSkills) queryset to json '''
@@ -1905,6 +1929,9 @@ def importCourse(request):
                     
                     if 'topics' in root_json:
                         import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
+                    
+                    if 'flashcards' in root_json:
+                        import_flashcards_from_json(root_json['flashcards'], current_course, id_map=id_map, messages=messages)
 
                     if 'activities-categories' in root_json:
                         import_activities_categories_from_json(root_json['activities-categories'], current_course, id_map=id_map, messages=messages)
@@ -2885,6 +2912,29 @@ def import_leaderboards_from_json(leaderboards_jsons, current_course, id_map=Non
             # Create periodic task for leaderboard
             leaderboard = create_model_instance(leaderboard, None, custom_fields_to_save={'periodicTask': setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)}, modify=True)
             leaderboard.save()
+def import_flashcards_from_json(flashcards_jsons, current_course, id_map=None, messages=[]):
+    ''' Converts flashcards to model '''
+    print(flashcards_jsons)
+    if flashcards_jsons:
+        for flashcard_json in flashcards_jsons:
+
+            # Create the flashcards model instance
+            if flashcard_json['groupName'] == 'Unassigned':
+                flashcard_group = FlashCardGroupCourse.objects.filter(courseID=current_course,groupID__groupName="Unassigned").first().groupID
+            else:
+                flashcard_group = create_model_instance(FlashCardGroup, flashcard_json)
+                flashcard_group.save()
+
+                flashcard_group_course_fields_to_save = {'groupID': flashcard_group, 'courseID': current_course}
+                flashcard_group_course = create_model_instance(FlashCardGroupCourse, flashcard_json, custom_fields_to_save=flashcard_group_course_fields_to_save)
+                flashcard_group_course.save()
+            for card_json in flashcard_json['cards']:
+                flashcard = create_model_instance(FlashCards, card_json)
+                flashcard.save()
+
+                flashcard_to_group_fields_to_save = {'groupID': flashcard_group, 'flashID': flashcard}
+                flashcard_to_group = create_model_instance(FlashCardToGroup, None, custom_fields_to_save=flashcard_to_group_fields_to_save)
+                flashcard_to_group.save()
 
 def import_content_unlocking_rules_from_json(content_unlocking_rules_jsons, current_course, id_map=None, messages=[]):
     ''' Converts a content unlocking rule to model '''
