@@ -16,7 +16,8 @@ from Instructors.models import (ChallengesTopics, ChallengeTags, Courses,
                                 QuestionsSkills, ResourceTags, Skills, Tags,
                                 Topics)
 from oneUp.logger import logger
-
+from Instructors.models import ChallengesQuestions, Challenges
+from decimal import Decimal
 
 def saveSkills(skillstring, resource, resourceIndicator):
     #if skillstring is not null or empty
@@ -578,3 +579,14 @@ def moveTestStudentObjToBottom(student_list):
         filtered_student_list.append(test_student)
     #print("resulting student list", student_list, filtered_student_list)
     return filtered_student_list
+
+def update_or_create_challenge_questions(request,question):    
+    if 'challengeQuestionID' in request.POST:
+        challengeQuestion = ChallengesQuestions.objects.get(pk=request.POST['challengeQuestionID'])
+        challengeQuestion.points = Decimal(request.POST['points'])
+        challengeQuestion.save()
+    else:
+        challengeID = request.POST['challengeID']
+        challenge = Challenges.objects.get(pk=int(challengeID))
+        position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)     

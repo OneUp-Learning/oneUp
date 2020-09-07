@@ -16,7 +16,8 @@ from Instructors.models import (Answers, Challenges, ChallengesQuestions,
 from Instructors.questionTypes import QuestionTypes
 from Instructors.views.utils import (addSkillsToQuestion, extractTags,
                                      getCourseSkills, getSkillsForQuestion,
-                                     initialContextDict, saveTags)
+                                     initialContextDict, saveTags,
+                                     update_or_create_challenge_questions)
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import instructorsCheck
 from oneUp.logger import logger
@@ -141,29 +142,7 @@ def multipleChoiceForm(request):
         
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved            
-  
-            position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
-            
-            positions = []
-            if  'questionId' in request.POST:   
-                # Delete challenge question (even duplicates)                        
-                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
-                for chall_question in challenge_questions:
-                    positions.append((chall_question.pk, chall_question.questionPosition, chall_question.points))
-                
-                challenge_questions.delete()
-
-            challengeID = request.POST['challengeID']
-            challenge = Challenges.objects.get(pk=int(challengeID))
-            if positions:
-                # Recreate challenge question (and duplicates)
-                for pk, pos, points in positions:
-                    if pk == int(request.POST['challengeQuestionID']):
-                        points = Decimal(request.POST['points'])
-                    ChallengesQuestions.addQuestionToChallenge(question, challenge, points, pos)
-            else:
-                ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
-
+            update_or_create_challenge_questions(request,question)
            
             addSkillsToQuestion(currentCourse,question,request.POST.getlist('skills[]'),request.POST.getlist('skillPoints[]'))
             redirectVar = redirect('/oneUp/instructors/challengeQuestionsList', context_dict)
