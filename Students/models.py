@@ -1,7 +1,6 @@
 import os
 from cgi import maxlen
 from datetime import datetime
-from distutils.command.upload import upload
 
 from django.conf.global_settings import MEDIA_URL
 from django.contrib.auth.models import User

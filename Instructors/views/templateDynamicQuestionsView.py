@@ -9,7 +9,10 @@ from django.shortcuts import render, redirect
 from Instructors.models import TemplateDynamicQuestions, Challenges, ChallengesQuestions, TemplateTextParts, LuaLibrary, QuestionLibrary, QuestionProgrammingFiles
 from Instructors.lupaQuestion import CodeSegment
 from django.http import HttpResponse
-from Instructors.views import utils
+from Instructors.views.utils import (addSkillsToQuestion, extractTags,
+                                     getCourseSkills, getSkillsForQuestion,
+                                     initialContextDict, saveTags,
+                                     update_or_create_challenge_questions)
 from Instructors.constants import unassigned_problems_challenge_name, unlimited_constant
 
 from Badges.enums import ObjectTypes
@@ -28,7 +31,7 @@ from oneUp.settings import BASE_DIR
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
 def templateDynamicQuestionForm(request):
-    context_dict, currentCourse = utils.initialContextDict(request)
+    context_dict, currentCourse = initialContextDict(request)
 
     # In this view, these are the names of the attributes which are just passed through with no processing.
     # We put them in an array so that we can copy them from one item to
@@ -36,7 +39,7 @@ def templateDynamicQuestionForm(request):
     passthrough_attributes = ['preview', 'difficulty',
                               'instructorNotes', 'setupCode', 'numParts', 'author', 'submissionsAllowed', 'resubmissionPenalty']
 
-    context_dict['skills'] = utils.getCourseSkills(currentCourse)
+    context_dict['skills'] = getCourseSkills(currentCourse)
     context_dict['tags'] = []
     if request.POST:
         # If there's an existing question, we wish to edit it.  If new question,
@@ -84,11 +87,9 @@ def templateDynamicQuestionForm(request):
                 output += "\n"
             return output
 
-        # Add the path of the question files directroy to the programinterface.program_checker
+        # Add the path of the question files directory to the programinterface.program_checker
         '''LUA_PROBLEMS_ROOT = os.path.join(
             BASE_DIR, 'lua/problems/')  # This is for lua problems
-        LUA_PROBLEMS_ROOT = "/Users/mahamatoumar/Downloads/oneUp_env/env/oneUp/lua/problems/" + \
-            str(question.questionID)
 
         setupCode = re.sub("programinterface.program_checker\s*\(",
                            "programinterface.program_checker("+LUA_PROBLEMS_ROOT+",", question.setupCode)
@@ -120,36 +121,14 @@ def templateDynamicQuestionForm(request):
             count += 1
 
         # Processing and saving tags in DB
-        utils.saveTags(request.POST['tags'], question, ObjectTypes.question)
+        saveTags(request.POST['tags'], question, ObjectTypes.question)
 
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved
-
-            position = ChallengesQuestions.objects.filter(
-                challengeID=request.POST['challengeID']).count() + 1
-
-            positions = []
-            if  'questionId' in request.POST:      
-                # Delete challenge question (even duplicates)                     
-                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
-                for chall_question in challenge_questions:
-                    positions.append((chall_question.pk, chall_question.questionPosition, chall_question.points))
-                
-                challenge_questions.delete()
-
-            challengeID = request.POST['challengeID']
-            challenge = Challenges.objects.get(pk=int(challengeID))
-            if positions:
-                # Recreate challenge question (and duplicates)
-                for pk, pos, points in positions:
-                    if pk == int(request.POST['challengeQuestionID']):
-                        points = Decimal(request.POST['points'])
-                    ChallengesQuestions.addQuestionToChallenge(question, challenge, points, pos)
-            else:
-                ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
+            update_or_create_challenge_questions(request,question)
 
             # Processing and saving skills for the question in DB
-            utils.addSkillsToQuestion(currentCourse, question, request.POST.getlist(
+            addSkillsToQuestion(currentCourse, question, request.POST.getlist(
                 'skills[]'), request.POST.getlist('skillPoints[]'))
 
             makeDependentLibraries(
@@ -227,7 +206,7 @@ def templateDynamicQuestionForm(request):
 
             context_dict['programmingFiles'] = zip(testFileIDs, testFileNames)
             # Extract the tags from DB
-            context_dict['tags'] = utils.extractTags(question, "question")
+            context_dict['tags'] = extractTags(question, "question")
 
             if 'challengeID' in request.GET:
                 # get the challenge points for this problem to display
@@ -241,7 +220,7 @@ def templateDynamicQuestionForm(request):
                 context_dict['q_skill_points'] = int('1')
 
                 # Extract the skill
-                context_dict['selectedSkills'] = utils.getSkillsForQuestion(
+                context_dict['selectedSkills'] = getSkillsForQuestion(
                     currentCourse, question)
 
         else:

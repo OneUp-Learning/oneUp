@@ -22,7 +22,8 @@ from Instructors.views import utils
 from Instructors.views.templateDynamicQuestionsView import (
     getAllLuaLibraryNames, getLibrariesForQuestion, makeDependentLibraries,
     templateToCodeSegments)
-from Instructors.views.utils import extractTags, initialContextDict, saveTags
+from Instructors.views.utils import extractTags, initialContextDict, saveTags, update_or_create_challenge_questions
+
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import instructorsCheck
 from oneUp.settings import BASE_DIR
@@ -67,28 +68,7 @@ def dynamicQuestionForm(request):
         
         if 'challengeID' in request.POST:
             # save in ChallengesQuestions if not already saved        # 02/28/2015    
-            
-            position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
-            
-            positions = []
-            if  'questionId' in request.POST:      
-                # Delete challenge question (even duplicates)                     
-                challenge_questions = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).filter(questionID=request.POST['questionId'])
-                for chall_question in challenge_questions:
-                    positions.append((chall_question.pk, chall_question.questionPosition, chall_question.points))
-                
-                challenge_questions.delete()
-
-            challengeID = request.POST['challengeID']
-            challenge = Challenges.objects.get(pk=int(challengeID))
-            if positions:
-                # Recreate challenge question (and duplicates)
-                for pk, pos, points in positions:
-                    if pk == int(request.POST['challengeQuestionID']):
-                        points = Decimal(request.POST['points'])
-                    ChallengesQuestions.addQuestionToChallenge(question, challenge, points, pos)
-            else:
-                ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)
+            update_or_create_challenge_questions(request,question)
 
             # save question-skill pair to db                    # 03/01/2015
             # first need to check whether a new skill is selected 
@@ -219,10 +199,10 @@ def makeLibs(dynamicQuestion):
     return [lib.library.libraryName for lib in libs]
 
 def rescale_evaluations(evals,scale):
-    for eval in evals:
-        eval['value'] *= scale
-        if 'details' in eval:
-            for detail in eval['details']:
+    for evaluation in evals:
+        evaluation['value'] *= scale
+        if 'details' in evaluation:
+            for detail in evaluation['details']:
                 detail['value'] *= scale
                 detail['max_points'] *= scale
     return evals
@@ -254,7 +234,7 @@ def dynamicQuestionPartAJAX(request):
             numParts = int(request.POST['_numParts'])
             if '_code' in request.POST:
                 code = [CodeSegment.new(CodeSegment.raw_lua,request.POST['_code'],"")]
-                type = "raw_lua"
+                dynamic_type = "raw_lua"
             else:
                 templateParts = []
                 templateMaxPoints = dict()
@@ -262,7 +242,7 @@ def dynamicQuestionPartAJAX(request):
                     templateParts.append(request.POST['_templateText'+str(i)])
                     templateMaxPoints[i]=int(request.POST['_partpoints'+str(i)])
                 code = templateToCodeSegments(request.POST['_setupCode'],templateParts)
-                type = "template"
+                dynamic_type = "template"
             seed = request.POST['_seed']
             libs = request.POST.getlist('_dependentLuaLibraries[]')
             partNum = 1
@@ -285,7 +265,7 @@ def dynamicQuestionPartAJAX(request):
                 errorInLupaQuestionConstructor = True
                 tempError = lupaQuestion.error
             now = datetime.utcnow()
-            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion.serialize(), "dynamic_type":type, "parts":dict(), 'creation':now.strftime("%m/%d/%Y %I:%M:%S %p") }
+            qdict = { "uniqid": uniqid, "numParts":numParts, "lupaQuestion":lupaQuestion.serialize(), "dynamic_type":dynamic_type, "parts":dict(), 'creation':now.strftime("%m/%d/%Y %I:%M:%S %p") }
             if errorInLupaQuestionConstructor:
                 qdict['error'] = tempError
             for i in range(1,numParts+1):
@@ -348,10 +328,10 @@ def dynamicQuestionPartAJAX(request):
                             
             earnedScore = 0
             numberIncorrect = 0
-            for eval in qdict['evaluations']:
-                if not eval['success']:
+            for evaluation in qdict['evaluations']:
+                if not evaluation['success']:
                     numberIncorrect += 1
-                earnedScore += eval['value']
+                earnedScore += evaluation['value']
 
             def getMaxPointsForPart(p):
                 if "maxpoints" in qdict['parts'][str(p)]:
@@ -424,8 +404,8 @@ def dynamicQuestionPartAJAX(request):
             # We have just evaluated the last answer in a challenge
             user_points = 0
             for i in range(1,qdict["numParts"]+1):
-                for eval in qdict["parts"][str(i)]["evaluations"]:
-                    user_points += eval["value"]
+                for evaluation in qdict["parts"][str(i)]["evaluations"]:
+                    user_points += evaluation["value"]
             #print("\n\n Dynamic Problem stuff\nuser_points:"+str(user_points)+"\n\n")
             qdict["user_points"] = user_points
         
