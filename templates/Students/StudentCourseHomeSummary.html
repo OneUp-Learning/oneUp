@@ -847,6 +847,51 @@
                 </div>
             </div>
             {% endif %}
+             <div class="row">
+                {% if ccparams.gamificationUsed and ccparams.classSkillsDisplayed and ccparams.studCanChangeClassSkillsVis and scparams.displayClassSkills or ccparams.gamificationUsed and ccparams.classSkillsDisplayed and not ccparams.studCanChangeClassSkillsVis %}
+                <div class="col s12 m12">
+                <div class="row" style="display: flex;">
+                <div class="col s12 m6"style="
+                     width: 200px;
+                     height: 200px;"></div>
+               
+                <div class="col s12">
+                    <div class="card-panel">
+                    <table>
+                    <caption><h5>Skills Board</h5></caption>
+                      <thead>
+                        <th>Skill</th>
+                        <th>Skill Points</th>
+                      </thead>
+                      <tbody>
+                          {% for skill in skills %}
+                          <tr>
+                             <td>{{skill.skillName}} </td>
+                             <td>
+                                {% for usi in skill.usersInfo %} 
+                                <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                    <img src="{{usi.avatarImage}}">
+                                    {{usi.skillPoints}}
+                                    </div>
+                                {% endfor %}
+                             </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                            <td class="center-align" colspan="2"><i>No students with skill points</i></td>
+                          </tr>
+                          {% endfor %}  
+                      </tbody>
+                    </table>
+                    </div>
+                  </div>
+                  <div class="col s12 m6" style="
+                     width: 200px;
+                     height: 200px;"></div>
+                </div>
+              </div>
+                  {% endif %}                  
+            </div> 
         </div>
     </main>
     {% include 'footer.html' %}

@@ -109,7 +109,8 @@
             <div class="row">
             {% if leaderboardUsed and gamificationUsed %}    
                 <div class="col s12 m12">
-                    <div class="row" style="display: flex;">
+                    <div class="row" style=" display: flex;
+                                             margin-bottom: 0px;">
                     <div class="col s12 m6"></div>
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
                   <div class="col s12">
@@ -143,7 +144,9 @@
                 {% if classSkillsDisplayed and gamificationUsed %}
                 <div class="col s12 m12">
                 <div class="row" style="display: flex;">
-                <div class="col s12 m6"></div>
+                <div class="col s12 m6"style="
+                     width: 200px;
+                     height: 200px;"></div>
                
                 <div class="col s12">
                     <div class="card-panel">
@@ -159,7 +162,7 @@
                              <td>{{skill.skillName}} </td>
                              <td>
                                 {% for usi in skill.usersInfo %} 
-                                <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                <div class="chip tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{usi.user}}">
                                     <img src="{{usi.avatarImage}}">
                                     {{usi.skillPoints}}
                                     </div>
@@ -175,7 +178,9 @@
                     </table>
                     </div>
                   </div>
-                  <div class="col s12 m6"></div>
+                  <div class="col s12 m6" style="
+                     width: 200px;
+                     height: 200px;"></div>
                 </div>
               </div>
                   {% endif %}                  

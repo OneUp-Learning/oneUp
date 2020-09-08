@@ -17,7 +17,7 @@ from Badges.periodicVariables import TimePeriods, studentScore
 from Instructors.models import Courses
 from Instructors.views.announcementListView import \
     createContextForAnnouncementList
-from Instructors.views.dynamicLeaderboardView import generateLeaderboards
+from Instructors.views.dynamicLeaderboardView import generateLeaderboards, generateSkillTable
 from Instructors.views.upcommingChallengesListView import \
     createContextForUpcommingChallengesList
 from Students.models import (Student, StudentBadges, StudentConfigParams,
@@ -89,6 +89,7 @@ def StudentCourseHome(request):
         currentCourse, student=student)
     context_dict['leaderboardRange'] = generateLeaderboards(
         currentCourse, True)
+    generateSkillTable(currentCourse, context_dict)
 
     # Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.userLogin, request, None, None)
