@@ -1275,7 +1275,7 @@ def studentScore(for_student, course, unique_id, result_only=False, last_ran=Non
         total = []
         challavg = []
 
-        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True).order_by('challengePosition').values('challengeID', 'challengeName', 'totalScore', 'manuallyGradedScore')
+        courseChallenges = Challenges.objects.filter(courseID=course, isGraded=True, isVisible=True).order_by('challengePosition').values('challengeID', 'challengeName', 'totalScore', 'manuallyGradedScore')
         for challenge in courseChallenges:
             count = 0
             classAvgChallengeScore = 0
