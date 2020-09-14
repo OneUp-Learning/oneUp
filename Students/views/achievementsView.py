@@ -59,6 +59,7 @@ def achievements(request):
     data = progress_data['data']
 
     context_dict['challenge_range'] = data['challenge_range']
+    print(data['challenge_range'],"&&&&&&&&&&&&&&&&&&&&&&&")
     context_dict['challengeWithAverage_range'] = data['challengeWithAverage_range']
 
     context_dict['warmUpContainerHeight'] = data['warmUpContainerHeight']
@@ -109,7 +110,7 @@ def achievements(request):
         badgeImage.append(stud_badge.badgeID.badgeImage)
 
     # Query serious challenges table to see if there is any serious challenges
-    if Challenges.objects.filter(courseID=currentCourse, isGraded=True):
+    if Challenges.objects.filter(courseID=currentCourse, isGraded=True, isVisible=True):
         context_dict["hasSeriousChallenges"] = True
     else:
         context_dict["hasSeriousChallenges"] = False

@@ -2914,7 +2914,7 @@ def import_leaderboards_from_json(leaderboards_jsons, current_course, id_map=Non
             leaderboard.save()
 def import_flashcards_from_json(flashcards_jsons, current_course, id_map=None, messages=[]):
     ''' Converts flashcards to model '''
-    print(flashcards_jsons)
+    
     if flashcards_jsons:
         for flashcard_json in flashcards_jsons:
 

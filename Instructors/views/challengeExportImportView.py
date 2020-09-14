@@ -92,9 +92,7 @@ def validateChallengeExport(request):
 
         # get the list of all checked challenges
         selected = request.POST.getlist('selected')
-        print("$$$$$$")
-        print(request.POST)
-        print("*****")
+        
         challenges = []
         if selected:
             selected_ids = [int(x) for x in selected]
