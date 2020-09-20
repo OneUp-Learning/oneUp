@@ -19,7 +19,7 @@ from Badges.systemVariables import SystemVariable, calculate_system_variable
 from Instructors.constants import (uncategorized_activity,
                                    unspecified_topic_name)
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
-                                CoursesTopics, Questions)
+                                CoursesTopics, Questions,UniversityCourses)
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import (Student, StudentActivities, StudentChallenges,
@@ -254,7 +254,10 @@ def getSysValues(student, sysVar, objectType, currentCourse, time_period=None):
             if not time_period:
                 time_period = TimePeriods.beginning_of_time
             print(time_period)
-            val = get_periodic_variable_results_for_student(sysVar, time_period, currentCourse.courseID, student)
+            university = UniversityCourses.objects.filter(courseID=currentCourse).first()
+            timezone = university.universityID.universityTimezone
+
+            val = get_periodic_variable_results_for_student(sysVar, time_period, currentCourse.courseID, student,timezone)
             disaplyData.append(prepForDisplay(
                 student, sysVar, objectType, val[1], 0, currentCourse))
 
