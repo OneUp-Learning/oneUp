@@ -346,12 +346,14 @@ def challengeCreateView(request):
             context_dict['manuallyGradedScore'] = '0'
             context_dict['curve'] = '0'
 
+        
+            
             ccp = CourseConfigParams.objects.get(courseID=currentCourse)
             if ccp.hasCourseStartDate and ccp.courseStartDate <= current_localtime().date():
                 context_dict['startTimestamp'] = datetime_to_selected(ccp.courseStartDate) 
             if ccp.hasCourseEndDate and ccp.courseEndDate > current_localtime().date(): 
                 context_dict['endTimestamp'] = datetime_to_selected(ccp.courseEndDate) 
-                context_dict['dueDate'] = datetime_to_selected(ccp.courseEndDate) 
+                context_dict['dueDate'] = datetime_to_selected(ccp.courseEndDate)
                 
         context_dict['question_range'] = zip(
             range(1, len(questionObjects)+1), qlist)
@@ -366,5 +368,6 @@ def challengeCreateView(request):
         view = 0
     context_dict['view'] = view == 1
     context_dict['ckeditor'] = config_ck_editor()
+    
     # edit
     return render(request, 'Instructors/ChallengeCreateForm.html', context_dict)
