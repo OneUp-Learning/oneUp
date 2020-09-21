@@ -97,7 +97,7 @@
 							<div class="collapsible-header"><i class="material-icons">swap_vert</i><i
 									class="material-icons">layers</i>{{categoryName}}&nbsp;&nbsp;
 								{% if xpWeight %}
-								<span class="new badge" data-badge-caption="{{xpWeight}}"> XP Weight</span>
+								<span class="new badge" data-badge-caption="{{xpWeight|floatformat:2}}"> XP Weight</span>
 								{% endif %}
 							</div>
 							<div class="collapsible-body">
