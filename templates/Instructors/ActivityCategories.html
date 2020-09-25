@@ -56,7 +56,7 @@
                                     <div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{cat.name}}</div>
                                     
                                 {% if use_xp_weights %}
-                                <span class="badge" style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{cat.xpWeight}} XP Weight</span>
+                                <span class="badge" style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{cat.xpWeight|floatformat:2}} XP Weight</span>
                                 {% endif %}
                                 <span class="badge right-align" style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
                                     <a class="dropdown-button tooltipped secondary-content" href="#!"
