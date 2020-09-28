@@ -17,7 +17,7 @@ from Instructors.models import (Challenges, ChallengesQuestions,
                                 ChallengesTopics, Courses, CoursesTopics,
                                 Topics)
 from Instructors.questionTypes import QuestionTypes
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, current_localtime
 from oneUp.decorators import instructorsCheck
 from Students.models import StudentRegisteredCourses
 
@@ -78,10 +78,12 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
     #chall_Category = []
     #chall_Difficulty = []
     chall_visible = []
+    chall_available = []
     start_Timestamp = []
     end_Timestamp = []
     chall_due_date = []
     chall_Position = []
+    
     UnassignID = 0
     
     chall=Challenges.objects.filter(challengeName=unassigned_problems_challenge_name,courseID=courseId)
@@ -98,20 +100,27 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
             chall_ID.append(item.challengeID) #pk
             chall_Name.append(item.challengeName)
             chall_Position.append(item.challengePosition)
+            startTime = True
+            endTime = True
             #chall_Category.append(item.challengeCategory)
             #chall_Difficulty.append(item.challengeDifficulty)
             if item.isVisible:
-                chall_visible.append("Visible")
+                chall_available.append("Available")
             else:
-                chall_visible.append("Not Visible")
+                chall_available.append("Unavailable")
                     
             if item.hasStartTimestamp:
                 start_Timestamp.append(item.startTimestamp)
+                
+                if item.startTimestamp > current_localtime():
+                    startTime = False
             else:
                 start_Timestamp.append("")
             
             if item.hasEndTimestamp:
                 end_Timestamp.append(item.endTimestamp)
+                if item.endTimestamp < current_localtime():
+                    endTime = False
             else:
                 end_Timestamp.append("")
 
@@ -119,10 +128,15 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                 chall_due_date.append(item.dueDate)
             else:
                 chall_due_date.append("")
-
+            print(startTime, endTime)
+            if startTime and endTime:
+                
+                chall_visible.append("Visible")
+            else:
+                chall_visible.append("Not Visible")
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[7])  ##,chall_Category
+    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_available,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[7])  ##,chall_Category
     return context_dict
 
 
@@ -141,7 +155,7 @@ def challengesList(request):
     
     if warmUp == 1:
         context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
-        print(context_dict)
+        #print(context_dict)
     else:
         if not context_dict['ccparams'].seriousChallengesGrouped:
             context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
@@ -193,7 +207,9 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
     chall_Name = [] 
     #chall_Difficulty = []
     chall_visible = []
+    chall_available = []
     chall_position = []
+    
     if isGraded:
         start_Timestamp = []
         end_Timestamp = []
@@ -206,8 +222,10 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
         if challenge_topics:           
             for challt in challenge_topics:
                 if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=True, courseID=currentCourse):
-                    print("Topics: {}".format(challenge_topics))
-                    print(topic)
+                    #print("Topics: {}".format(challenge_topics))
+                   #print(topic)
+                    startTime = True
+                    endTime = True
                     item =  challt.challengeID
                     if item.challengeID != UnassignID:
                         chall_ID.append(item.challengeID)
@@ -215,17 +233,21 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                         chall_position.append(item.challengePosition)
 
                         if item.isVisible:
-                            chall_visible.append("Visible")
+                            chall_available.append("Available")
                         else:
-                            chall_visible.append("Not Visible")
+                            chall_available.append("Unavailable")
                                 
                         if item.hasStartTimestamp:
                             start_Timestamp.append(item.startTimestamp)
+                            if item.startTimestamp > current_localtime():
+                                startTime = False
                         else:
                             start_Timestamp.append("")
                         
                         if item.hasEndTimestamp:
                             end_Timestamp.append(item.endTimestamp)
+                            if item.endTimestamp < current_localtime():
+                                endTime = False
                         else:
                             end_Timestamp.append("")
 
@@ -233,8 +255,12 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                             chall_due_date.append(item.dueDate)
                         else:
                             chall_due_date.append("")
+                        if startTime and endTime:
+                            chall_visible.append("Visible")
+                        else:
+                            chall_visible.append("Not Visible")
                     
-        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: tup[7])
+        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_available, chall_visible, start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: tup[7])
     else:
         challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
         if challenge_topics:           
@@ -244,12 +270,27 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                     chall_Name.append(challt.challengeID.challengeName)
                     #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
                     chall_position.append(challt.challengeID.challengePosition)
+                    startTime = True
+                    endTime = True
                     if challt.challengeID.isVisible:
-                        chall_visible.append('Visible')
+                        chall_available.append('Available')
                     else:
-                        chall_visible.append('Not Visible')
+                        chall_available.append('Unavailable')
+                    if challt.challengeID.hasStartTimestamp:
+                        if challt.challengeID.startTimestamp > current_localtime():
+                            startTime = False
+                   
                     
-        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_visible,chall_position)), key=lambda tup: tup[4])
+                    if challt.challengeID.hasEndTimestamp:
+                        if challt.challengeID.endTimestamp < current_localtime():
+                            endTime = False
+
+                    if startTime and endTime:
+                        chall_visible.append("Visible")
+                    else:
+                        chall_visible.append("Not Visible")
+                    
+        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_available,chall_visible,chall_position)), key=lambda tup: tup[4])
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
@@ -312,4 +353,4 @@ def disableExpiredChallenges(request):
 
             for student in registeredStudents:
                 register_event(Event.challengeExpiration, request, student.studentID, challenge.challengeID)
-                print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
+                #print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))

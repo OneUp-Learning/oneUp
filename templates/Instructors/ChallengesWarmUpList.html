@@ -63,13 +63,14 @@
 							</div>
 							<div class="collapsible-body">
 								<ul class="sortable-challenges" data-topic-id="{{topic_ID}}" style="padding-bottom: 1px;">
-									{% for j, chall_ID,chall_Name, chall_visible,chall_position in all_challenges %}
+									{% for j, chall_ID,chall_Name, chall_available,chall_visible,chall_position in all_challenges %}
 									<li id={{chall_ID}} data-topic-id="{{topic_ID}}"> 
 										<div class="sortable-item">
 											<div style="padding-right: 8px;">
 												<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
 											</div>
 											<div style="width: 85%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_Name}}</div>
+											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_available}}</div>
 											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_visible}}</div>
 											<div class="badge">
 												<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
