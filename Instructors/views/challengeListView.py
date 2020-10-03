@@ -129,7 +129,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
             else:
                 chall_due_date.append("")
             
-            if startTime and endTime:
+            if startTime and endTime and item.isVisible:
                 
                 chall_visible.append("Visible")
             else:
@@ -255,7 +255,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                             chall_due_date.append(item.dueDate)
                         else:
                             chall_due_date.append("")
-                        if startTime and endTime:
+                        if startTime and endTime and item.isVisible:
                             chall_visible.append("Visible")
                         else:
                             chall_visible.append("Not Visible")
@@ -285,7 +285,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                         if challt.challengeID.endTimestamp < current_localtime():
                             endTime = False
 
-                    if startTime and endTime:
+                    if startTime and endTime and challt.challengeID.isVisible:
                         chall_visible.append("Visible")
                     else:
                         chall_visible.append("Not Visible")
