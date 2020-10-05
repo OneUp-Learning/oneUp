@@ -82,7 +82,8 @@ def flashCards(request):
        
         print("$$$$",requested_groups)
         context_dict['flash_range'] = getFlashCards(requested_groups, request)
-    register_event(Event.viewFlashCard, request, student, context_dict['flash_range'][0]['flashID'])
+    if len(context_dict['flash_range']) != 0:
+        register_event(Event.viewFlashCard, request, student, context_dict['flash_range'][0]['flashID'])
     return render(request,'Students/FlashCards.html',context_dict)
 
 def flashCardsList(request):
