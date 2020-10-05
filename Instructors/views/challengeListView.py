@@ -111,7 +111,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                     
             if item.hasStartTimestamp:
                 start_Timestamp.append(item.startTimestamp)
-                
+
                 if item.startTimestamp > current_localtime():
                     startTime = False
             else:
@@ -128,15 +128,15 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                 chall_due_date.append(item.dueDate)
             else:
                 chall_due_date.append("")
-            print(startTime, endTime)
-            if startTime and endTime:
+            
+            if startTime and endTime and item.isVisible:
                 
                 chall_visible.append("Visible")
             else:
                 chall_visible.append("Not Visible")
                
     # The range part is the index numbers.
-    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_available,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[7])  ##,chall_Category
+    context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_available,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[8])  ##,chall_Category
     return context_dict
 
 
@@ -255,12 +255,12 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                             chall_due_date.append(item.dueDate)
                         else:
                             chall_due_date.append("")
-                        if startTime and endTime:
+                        if startTime and endTime and item.isVisible:
                             chall_visible.append("Visible")
                         else:
                             chall_visible.append("Not Visible")
                     
-        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_available, chall_visible, start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: tup[7])
+        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_available, chall_visible, start_Timestamp,end_Timestamp,chall_due_date, chall_position)), key=lambda tup: tup[8])
     else:
         challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
         if challenge_topics:           
@@ -285,7 +285,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                         if challt.challengeID.endTimestamp < current_localtime():
                             endTime = False
 
-                    if startTime and endTime:
+                    if startTime and endTime and challt.challengeID.isVisible:
                         chall_visible.append("Visible")
                     else:
                         chall_visible.append("Not Visible")
