@@ -22,7 +22,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.settings import MEDIA_ROOT
 from oneUp.decorators import instructorsCheck  
-
+from datetime import date
 LUA_PROBLEMS_ROOT = os.path.join(settings.BASE_DIR, 'lua/problems/')
 VERSION = "1.0"
 
@@ -53,7 +53,8 @@ def exportChallenge(request):
         root_json = json.loads(request.POST.get('exported-json', ''))
         # Only export json if the json contains items other than the version number
         if 'version' in root_json and len(root_json) > 1:
-            file_name = 'media/textfiles/challenges/json/challenges-{}-{}.zip'.format(current_course.courseName, VERSION)
+            today = date.today()
+            file_name = 'media/textfiles/challenges/json/challenges-{}-{}-{}.zip'.format(current_course.courseName, VERSION,today.strftime("%b-%d-%Y"))
             ensure_directory('media/textfiles/challenges/json/')
             try:
                 os.remove(file_name)
@@ -71,7 +72,7 @@ def exportChallenge(request):
                 # print(zip_file.printdir())
 
             response = HttpResponse(open(file_name, 'rb'), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename=challenges-{}-{}.zip'.format(current_course.courseName, VERSION)
+            response['Content-Disposition'] = 'attachment; filename=challenges-{}-{}-{}.zip'.format(current_course.courseName, VERSION,today.strftime("%b-%d-%Y"))
 
             return response
         return render(request,'Instructors/ChallengeExport.html', context_dict)
