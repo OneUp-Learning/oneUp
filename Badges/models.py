@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -381,6 +381,10 @@ class CourseConfigParams(models.Model):
     weightBasicHint = models.IntegerField(default=0)     ##  Costs as a percentage of points lost for accepting the hint.
     weightStrongHint = models.IntegerField(default=0) ##     
 
+    #Teams system
+    teamsLockInDeadline = models.DateTimeField(default=custom_now()+timedelta(days=7), verbose_name='Deadline for team members to be locked in to the team')
+    maxNumberOfTeamStudents = models.IntegerField(default=3)   
+    teamsEnabled = models.BooleanField(default = False)
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -426,7 +430,10 @@ class CourseConfigParams(models.Model):
         +str(self.announcementsUsed)+","\
         +str(self.hintsUsed)+","\
         +str(self.weightBasicHint)+","\
-        +str(self.weightStrongHint)+","
+        +str(self.weightStrongHint)+","\
+        +str(self.teamLockInDeadline)+","\
+        +str(self.maxNumbersOfTeamStudents)+","\
+        +str(self.teamsEnabled)
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)

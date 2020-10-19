@@ -479,3 +479,74 @@ class studentFlashCards(models.Model):
 
     def __str__(self):
         return "{} : {} : {} : {} : {} : {}".format(self.studentID, self.flashID, self.studyDate, self.cardBin, self.timesSeen, self.timesCorrect)
+
+
+
+class Teams(models.Model):
+    teamID = models.AutoField(primary_key=True)
+    courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name="the course",db_index=True)
+    teamLeader = models.ForeignKey(Student,on_delete=models.CASCADE, verbose_name="the team's leader",db_index=True)
+    teamName = models.CharField(max_length=100, default='')
+    avatarImage= models.CharField(max_length=200, default='')
+
+    def __str__(self):
+        return "{} : {} : {} : {} : {}".format(self.teamID, self.courseID, self.teamLeader, self.teamName, self.avatarImage)
+
+class TeamStudents(models.Model):
+    teamID = models.ForeignKey(Teams, on_delete=models.CASCADE, verbose_name="the team", db_index=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    
+    def __str__(self):
+        return "{} : {}".format(self.teamID, self.studentID)
+class TeamChallenges(models.Model):
+    teamChallengeID = models.AutoField(primary_key=True)
+    teamID = models.ForeignKey(Teams, on_delete=models.CASCADE, verbose_name="the related team", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True, default=1)
+    challengeID = models.ForeignKey(Challenges, on_delete=models.CASCADE, verbose_name="the related challenge", db_index=True)
+    startTimestamp = models.DateTimeField(default=custom_now)
+    endTimestamp = models.DateTimeField(default=custom_now)
+    testScore = models.DecimalField(decimal_places=2, max_digits=6)  #Actual score earned by the team
+    scoreAdjustment = models.DecimalField(decimal_places=2, max_digits=6, default=0) # Individual adjustment to the score 
+    adjustmentReason = models.CharField(max_length=1000,default="")
+    instructorFeedback = models.CharField(max_length=200)
+    
+    def __str__(self):
+        return "{} : {} : {} : {}".format(self.teamChallengeID, self.teamID, self.courseID, self.challengeID)
+    
+    def getScore(self):
+        if self.testScore == 0:
+            return 0
+        return self.testScore + self.scoreAdjustment + self.challengeID.curve   
+
+# This table has each question's score and other information for a team's challenge for all the above table's challenges   
+class TeamChallengeQuestions(models.Model):
+    teamChallengeQuestionID = models.AutoField(primary_key=True)
+    teamChallengeID = models.ForeignKey(TeamChallenges, on_delete=models.CASCADE, verbose_name="the related team challenge", db_index=True)
+    questionID = models.ForeignKey(Questions, on_delete=models.CASCADE, verbose_name="the related question", db_index=True) 
+    challengeQuestionID = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name="the related challenge question", db_index=True) 
+    questionScore = models.DecimalField(decimal_places=2, max_digits=6)
+    questionTotal = models.DecimalField(decimal_places=2, max_digits=6)
+    instructorFeedback = models.CharField(max_length=200)
+    seed = models.IntegerField(default=0)
+   
+    def __str__(self):
+        return "{} : {} : {} : {}".format(self.teamChallengeQuestionID, self.teamChallengeID, self.questionID, self.challengeQuestionID)
+
+class TeamActivities(models.Model):
+    teamActivityID = models.AutoField(primary_key=True)
+    teamID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related team", db_index=True)
+    activityID = models.ForeignKey(Activities, on_delete=models.CASCADE, verbose_name="the related activity", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True, default=1)     
+
+    timestamp = models.DateTimeField(default= custom_now, verbose_name="Grading Timestamp") # represents when the team activity was graded (if it has been)
+    hasTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
+
+    submissionTimestamp = models.DateTimeField(default= custom_now, verbose_name="Latest submission timestamp") # represents when the team activity was submitted
+    submitted = models.BooleanField(default=False) # Flags used to determine if the student has submitted or not
+    activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
+    instructorFeedback = models.CharField(max_length=200, default="")
+    graded = models.BooleanField(default=False)
+    numOfUploads = models.IntegerField(default = 0)
+    comment = models.CharField(max_length=500, default="") #Comment submitted by the team
+    def __str__(self):              
+        return "{} : {} : {} : {}".format(self.teamActivityID, self.teamID, self.activityID, self.courseID)

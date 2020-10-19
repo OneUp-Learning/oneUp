@@ -172,6 +172,7 @@ class Challenges(models.Model):
     challengePassword = models.CharField(default='',max_length=30) # Empty string represents no password required.
     challengePosition = models.IntegerField(default = 0)
     
+    isTeamChallenge = models.BooleanField(default=False)
     
     def __str__(self):              
         return f"{self.challengeID} - {self.challengeName}"
