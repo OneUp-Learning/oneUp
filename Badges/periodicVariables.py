@@ -702,7 +702,118 @@ def calculate_number_of_days_of_2_unique_warmups_greater_than_80(info, result_on
         score >= 80%'''
 
     return calculate_number_of_days_of_unique_warmups(info, 80.0, 2, result_only)
+def calculate_callouts_sent(info, result_only=False):
+    from Students.models import Callouts
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
+    
+    course, student, periodic_variable, time_period, last_ran, unique_id, award_type, current_timezone = info['course'], info['student'], \
+    info['periodic_variable'], info['time_period'], info['last_ran'], info['unique_id'], info['award_type'], info['timezone']
+    
+    callouts = Callouts.objects.filter(courseID=course, sender=student)
+    # If this is not the first time running, only get the callouts since last ran
+    if last_ran:
+        callouts = callouts.filter(sendTime__gte=last_ran)
+    else:
+        # Set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous callouts from beginning of time
+        if award_type == 'badge':
+            periodic_badge = PeriodicBadges.objects.get(badgeID=unique_id, courseID=course)
+            callouts = callouts.filter(sendTime__gte=periodic_badge.lastModified)
+        elif award_type == 'vc':
+            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
+            callouts = callouts.filter(sendTime__gte=periodicVC.lastModified)
+        elif award_type == 'leaderboard':
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            callouts = callouts.filter(sendTime__gte=periodic_leaderboard.lastModified)
 
+
+
+        
+    # Get the total callouts only if they have earned more than 0
+    total = len(callouts)
+   
+    print("Course: {}".format(course))
+    print("Student: {}".format(student))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(last_ran))
+    print("Total callouts: {}".format(total))
+
+    return (student, total)
+
+def calculate_duels_sent(info, result_only=False, total_only=False):
+    from Students.models import DuelChallenges
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
+    
+    course, student, periodic_variable, time_period, last_ran, unique_id, award_type, current_timezone = info['course'], info['student'], \
+    info['periodic_variable'], info['time_period'], info['last_ran'], info['unique_id'], info['award_type'], info['timezone']
+    
+    duelChallenges = DuelChallenges.objects.filter(courseID=course, challenger=student)
+    # If this is not the first time running, only get the duelChallenges since last ran
+    if last_ran:
+        duelChallenges = duelChallenges.filter(sendTime__gte=last_ran)
+    else:
+        # Set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous duelChallenges from beginning of time
+        if award_type == 'badge':
+            periodic_badge = PeriodicBadges.objects.get(badgeID=unique_id, courseID=course)
+            duelChallenges = duelChallenges.filter(sendTime__gte=periodic_badge.lastModified)
+        elif award_type == 'vc':
+            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
+            duelChallenges = duelChallenges.filter(sendTime__gte=periodicVC.lastModified)
+        elif award_type == 'leaderboard':
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            duelChallenges = duelChallenges.filter(sendTime__gte=periodic_leaderboard.lastModified)
+
+
+
+        
+    # Get the total duelChallenges only if they have earned more than 0
+    total = len(duelChallenges)
+   
+    print("Course: {}".format(course))
+    print("Student: {}".format(student))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(last_ran))
+    print("Total duelChallenges: {}".format(total))
+    if total_only:
+        return total
+    else:
+        return (student, total)
+def calculate_duels_sent_and_accepted(info, result_only=False):
+    from Students.models import StudentActions, StudentEventLog
+    from Badges.models import PeriodicBadges, VirtualCurrencyPeriodicRule, LeaderboardsConfig
+    
+    course, student, periodic_variable, time_period, last_ran, unique_id, award_type, current_timezone = info['course'], info['student'], \
+    info['periodic_variable'], info['time_period'], info['last_ran'], info['unique_id'], info['award_type'], info['timezone']
+    
+    StudentEventLog = StudentEventLog.objects.filter(course=course, student=student,event=873)
+    print("@@@@@@@@@@@@@@@@@@@@@@", StudentEventLog)
+    # If this is not the first time running, only get the StudentEventLog since last ran
+    if last_ran:
+        studentEventLog = StudentEventLog.filter(timestamp__gte=last_ran)
+    else:
+        # Set the last ran to equal to the time the rule/badge was created/modified since we don't want to get all the previous StudentEventLog from beginning of time
+        if award_type == 'badge':
+            periodic_badge = PeriodicBadges.objects.get(badgeID=unique_id, courseID=course)
+            studentEventLog = StudentEventLog.filter(timestamp__gte=periodic_badge.lastModified)
+        elif award_type == 'vc':
+            periodicVC = VirtualCurrencyPeriodicRule.objects.get(vcRuleID=unique_id, courseID=course)
+            studentEventLog = StudentEventLog.filter(timestamp__gte=periodicVC.lastModified)
+        elif award_type == 'leaderboard':
+            periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
+            studentEventLog = StudentEventLog.filter(timestamp__gte=periodic_leaderboard.lastModified)
+
+
+
+        
+    # Get the total StudentEventLog only if they have earned more than 0
+    print("$$$$$$$$$$$$$", StudentEventLog)
+    total = len(studentEventLog) + calculate_duels_sent(info, total_only=True)
+   
+    print("Course: {}".format(course))
+    print("Student: {}".format(student))
+    print("Periodic Variable: {}".format(periodic_variable))
+    print("Last Ran: {}".format(last_ran))
+    print("Total StudentEventLog: {}".format(total))
+    return (student, total)
 def calculate_unique_warmups(info, result_only=False):
     ''' This calculates the number of unique Warm-up challenges the student has completed
         with a score greater than or equal to 70%.
@@ -1619,6 +1730,9 @@ class PeriodicVariables:
     number_of_days_of_unique_warmups_90 = 1411
     number_of_days_of_unique_warmups_70 = 1412
     number_of_days_of_2_unique_warmups_80 = 1413
+    callouts_sent = 1414
+    duels_sent = 1415
+    duels_sent_and_accepted = 1416
 
     
     periodicVariables = {
@@ -1719,6 +1833,27 @@ class PeriodicVariables:
             'displayName': 'Number Of Days Of 2 Unique Warmup Challenges Score >= 80%',
             'description': 'The number of days of 2 unique warmup challenges students completed with a score equal or greater than 80%. The student scores only includes the student score, adjustment, and curve.',
             'function': calculate_number_of_days_of_2_unique_warmups_greater_than_80,
+        },
+        callouts_sent:{
+            'index': callouts_sent,
+            'name': 'callouts_sent',
+            'displayName': 'Callouts Sent',
+            'description': 'The total number of callouts sent by the student',
+            'function': calculate_callouts_sent,
+        },
+        duels_sent: {
+            'index': duels_sent,
+            'name': 'duels_sent',
+            'displayName': 'Duels Sent',
+            'description': 'The total number of duels sent by the student',
+            'function': calculate_duels_sent,
+        },
+        duels_sent_and_accepted: {
+            'index': duels_sent_and_accepted,
+            'name': 'duels_sent_and_accepted',
+            'displayName': 'Duels Sent and Accepted',
+            'description': 'The combined total of duels sent and duels accepted by the student',
+            'function': calculate_duels_sent_and_accepted,
         },
     }
 

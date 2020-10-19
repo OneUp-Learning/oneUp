@@ -56,7 +56,7 @@ def StudentHome(request):
     today = currentTime.date()
     for item in reg_crs:
         course = CourseConfigParams.objects.get(courseID=item.courseID.courseID)
-        print(course.courseStartDate,"^^^^^^^^^^^^^^")
+        
         if (course.courseStartDate <= today) and (not course.hasCourseEndDate or course.courseEndDate >= today):
             course_ID.append(item.courseID.courseID) 
             course_Name.append(item.courseID.courseName)
