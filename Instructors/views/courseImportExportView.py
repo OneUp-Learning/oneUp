@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, redirect, render
 from django.utils import timezone
-
+from datetime import date
 from Badges.conditions_util import (chosenObjectSpecifierFields,
                                     databaseConditionToJSONString,
                                     get_events_for_condition,
@@ -910,7 +910,8 @@ def exportCourse(request):
         root_json = json.loads(request.POST.get('exported-json', ''))
         # Only export json if the json contains items other than the version number
         if 'version' in root_json and len(root_json) > 1:
-            file_name = 'media/textfiles/course/json/course-{}-{}.zip'.format(current_course.courseName, VERSION)
+            today = date.today()
+            file_name = 'media/textfiles/course/json/course-{}-{}-{}.zip'.format(current_course.courseName, VERSION, today.strftime("%b-%d-%Y"))
             ensure_directory('media/textfiles/course/json/')
             try:
                 os.remove(file_name)
@@ -928,7 +929,7 @@ def exportCourse(request):
                 # print(zip_file.printdir())
 
             response = HttpResponse(open(file_name, 'rb'), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename=course-{}-{}.zip'.format(current_course.courseName, VERSION)
+            response['Content-Disposition'] = 'attachment; filename=course-{}-{}-{}.zip'.format(current_course.courseName, VERSION,today.strftime("%b-%d-%Y"))
 
             return response
         
@@ -1953,13 +1954,13 @@ def importCourse(request):
                         import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, context_dict=context_dict, id_map=id_map, messages=messages)
                     
                     if 'automatic-badges' in root_json:
-                        import_badges_from_json(root_json['automatic-badges'], 'automatic', current_course, id_map=id_map, messages=messages)
+                        import_badges_from_json(request,root_json['automatic-badges'], 'automatic', current_course, id_map=id_map, messages=messages)
                 
                     if 'manual-badges' in root_json:
-                        import_badges_from_json(root_json['manual-badges'], 'manual', current_course, id_map=id_map, messages=messages)
+                        import_badges_from_json(request,root_json['manual-badges'], 'manual', current_course, id_map=id_map, messages=messages)
                     
                     if 'periodic-badges' in root_json:
-                        import_badges_from_json(root_json['periodic-badges'], 'periodic', current_course, id_map=id_map, messages=messages)
+                        import_badges_from_json(request,root_json['periodic-badges'], 'periodic', current_course, id_map=id_map, messages=messages)
                     
                     if 'automatic-vc-rules' in root_json:
                         import_vc_rules_from_json(root_json['automatic-vc-rules'], 'automatic', current_course, id_map=id_map, messages=messages)
@@ -2754,7 +2755,7 @@ def import_rule_json(rule_json, current_course, id_map=None, messages=[]):
     
     return None
 
-def import_badges_from_json(badges_jsons, badge_type, current_course, context_dict=None, id_map=None, messages=[]):
+def import_badges_from_json(request, badges_jsons, badge_type, current_course, context_dict=None, id_map=None, messages=[]):
     ''' Converts a badge (Automatic, Manual, Periodic) to model '''
 
     if badges_jsons:
@@ -2799,7 +2800,7 @@ def import_badges_from_json(badges_jsons, badge_type, current_course, context_di
                 # Create the periodic task 
                 if badge_json['periodicType'] == 0:
                     # TopN
-                    badge = create_model_instance(badge, None, custom_fields_to_save={'periodicTask': setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), number_of_top_students=int(badge.numberOfAwards), threshold=int(badge.threshold), operator_type=badge.operatorType)}, modify=True)
+                    badge = create_model_instance(badge, None, custom_fields_to_save={'periodicTask': setup_periodic_badge(request,unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), number_of_top_students=int(badge.numberOfAwards), threshold=badge.threshold, operator_type=badge.operatorType)}, modify=True)
                 elif badge_json['periodicType'] == 2:
                     # Random
                     badge = create_model_instance(badge, None, custom_fields_to_save={'periodicTask': setup_periodic_badge(unique_id=int(badge.badgeID), badge_id=int(badge.badgeID), variable_index=int(badge.periodicVariableID), course=current_course, period_index=int(badge.timePeriodID), threshold=int(badge.threshold), operator_type=badge.operatorType, is_random=badge.isRandom)}, modify=True)

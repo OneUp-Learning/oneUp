@@ -113,11 +113,12 @@ def celery_calculate_xp(student_reg_course_id):
         if levelxp >= ccP.levelTo1XP:
             levelxp -= ccP.levelTo1XP
             level = 1
-            toNextLevel = level * ccP.levelTo1XP * \
+            toNextLevel = ccP.levelTo1XP + level * ccP.levelTo1XP * \
                 (ccP.nextLevelPercent/100)
             while levelxp >= toNextLevel:
                 level += 1
-                toNextLevel = level * ccP.levelTo1XP * \
+                levelxp -= toNextLevel
+                toNextLevel = ccP.levelTo1XP + level * ccP.levelTo1XP * \
                     (ccP.nextLevelPercent/100)
             if level > student_reg_course.level:
                 student_reg_course.level = level
@@ -125,7 +126,7 @@ def celery_calculate_xp(student_reg_course_id):
                     {"course": str(student_reg_course.courseID.courseID), "name": str(student_reg_course.courseID.courseName), "related_link": '/oneUp/students/StudentCourseHome'}))
                 # for event
                 mini_req = {
-                    'currentCourseID': student_reg_course.courseID.courseID,
+                    'currentCourseID': student_reg_course.cgitourseID.courseID,
                     'user': student_reg_course.studentID.user.username,
                     'timezone': None,
                 }
