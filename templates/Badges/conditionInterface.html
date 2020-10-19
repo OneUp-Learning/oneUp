@@ -220,7 +220,7 @@
  <div id="condOrLabelPrototype" class="cond-prototype">
 		<div class="cond-or-label">OR</div>
  </div>
- <div id="condAtomPrototype" class="cond-prototype">
+ <div id="condAtomPrototype" class="cond-prototype browser-default">
 		<div class="cond-item cond-atom" data-cond-type="atom" draggable="true">
              <div class="row" style="margin-left: 0; margin-right: 0; margin-top: 20px; margin-bottom: 0;">
 				 <div class="col s12 m4">
@@ -694,6 +694,11 @@ function condChangeAtomToMatchType(select) {
         newValue.type = type;
         newValue.name = value.name;
         newValue.classList.add("cond-rhs-value");
+        if (newValue.type == 'checkbox') {
+        	newValue.id = "rhs-checkbox-"+(Date.now() + Math.random()).toString(36);
+        	newValueLabel = document.createElement('label');
+        	newValueLabel.setAttribute("for",newValue.id);
+        }
 
         var oldValue = value.type == "checkbox" ? (value.checked ? true : false) : value.value
 
@@ -709,6 +714,9 @@ function condChangeAtomToMatchType(select) {
             }
         }
         value.parentNode.insertBefore(newValue, value);
+        if (newValue.type == 'checkbox') {
+        	newValue.parentNode.insertBefore(newValueLabel,newValue.nextsibling);
+        }
         value.parentNode.removeChild(value);
         value = newValue;
     }
