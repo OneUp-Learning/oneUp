@@ -51,9 +51,9 @@ by James Cherry -->
                            <td>{{start_date}}</td>
                            <td>{{end_date}}</td>
                            <td>{{goal_target}}</td>
-                           <td>{{goal_progress}}%</td>   
+                           <td>{{goal_progress|floatformat:1}}%</td>   
                            <td>
-                           		{% if goal_status == "Not Achieved" %}
+                           		{% if goal_status == "In Progress" %}
                            		<font color="red">{{goal_status}}</font>
                            		{% elif goal_status == "Completed" %}
                            		<font color="green">{{goal_status}}</font>
@@ -117,3 +117,5 @@ by James Cherry -->
       {% include 'footer.html' %}    
    </body>
 </html>
+
+                     
