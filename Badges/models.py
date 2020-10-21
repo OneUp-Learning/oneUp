@@ -431,8 +431,8 @@ class CourseConfigParams(models.Model):
         +str(self.hintsUsed)+","\
         +str(self.weightBasicHint)+","\
         +str(self.weightStrongHint)+","\
-        +str(self.teamLockInDeadline)+","\
-        +str(self.maxNumbersOfTeamStudents)+","\
+        +str(self.teamsLockInDeadline)+","\
+        +str(self.maxNumberOfTeamStudents)+","\
         +str(self.teamsEnabled)
  
 class ChallengeSet(models.Model):
