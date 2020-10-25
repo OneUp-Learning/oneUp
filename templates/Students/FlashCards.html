@@ -14,7 +14,6 @@
    function actionButtons(showOrHide){
       let gotItButton = document.getElementById("gotItButton");
       let tryAgain = document.getElementById("tryAgainButton");
-      let returnButton = document.getElementById("return");
 
       if(showOrHide == "show"){
          tryAgain.style.display = 'inline';
@@ -25,8 +24,6 @@
          gotItButton.style.display = 'none';
       }
 
-      if(showOrHide == "complete")
-         returnButton.style.display = 'inline';
    }
 
    function loadFirstCard(){
@@ -121,7 +118,6 @@
       <div class="row center-align">
          <div class="col s12 m10 offset-m1">
             <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Flash Cards</h3>
-             <a href="/oneUp/students/FlashCardsList"><i class="material-icons right flip-icaon" style="margin: auto; width: 100%; text-align: left; color: black;">arrow_back</i></a>
           </div>
       </div>
        
@@ -148,9 +144,11 @@
                         class="material-icons right">check</i>I Got It</button>
                   <button style="display:none; margin-bottom: 10px;" id="tryAgainButton" onclick="buttonClickedByStudent(2);" class="red btn waves-effect waves-light"><i
                         class="material-icons right">close</i>Not This Time</button>
-                  <button style="display:none;" id="return" onclick="location.href='FlashCardsList'" class="btn waves-effect waves-light"><i
-                           class="material-icons right">arrow_back</i>Return</button>
+                  
                </div>
+             <center><button class="btn waves-effect waves-light" onclick="location.href='FlashCardsList'" type="button"><i
+                           class="material-icons right">arrow_back</i>Return</button></center>
+
             </div>
       </div>
 
