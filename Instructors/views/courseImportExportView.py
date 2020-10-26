@@ -1747,7 +1747,8 @@ def rule_model_to_json(automatic_rule):
         # Get the rule condition string
         automatic_rule_condition = automatic_rule.conditionID
         automatic_rule_details['condition'] = json.loads(databaseConditionToJSONString(automatic_rule_condition))
-    
+
+        #fix for boolean conditions, now exports as boolean type rather than JSON string
         if 'rhstype' in automatic_rule_details['condition'] and 'rhsvalue' in automatic_rule_details['condition']:
             if automatic_rule_details['condition']['rhstype'] == 'X':
                 automatic_rule_details['condition']['rhsvalue'] = bool(automatic_rule_details['condition']['rhsvalue'])
