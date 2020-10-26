@@ -38,7 +38,8 @@ def createContextForGoalsList(request, currentCourse, context_dict, courseHome):
         logger.error("You must pass student object through context_dict")
         return context_dict
 
-    goal_ID = []      
+    goal_ID = []  
+    targetExact = []    
     student_ID = []
     course_ID = []
     start_date = []
@@ -60,6 +61,7 @@ def createContextForGoalsList(request, currentCourse, context_dict, courseHome):
         student_ID.append(goal.studentID)
         start_date.append(goal.timestamp)
         course_ID.append(goal.courseID) 
+        targetExact.append(goal.targetExact)
                                                     
         endDate = datetime_to_local(goal.timestamp) + timedelta(days=7)
         end_date.append(endDate)               
@@ -106,8 +108,8 @@ def createContextForGoalsList(request, currentCourse, context_dict, courseHome):
                 goal.save() 
       
     status_order = ['In Progress', 'Completed', 'Not Achieved']
-    context_dict['goal_range'] = sorted(list(zip(range(1,goals.count()+1),goal_ID,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit)), key=lambda x: (status_order.index(x[9]), 0 if x[10] == 'Yes' else 1, x[5] ))
-
+    context_dict['goal_range'] = sorted(list(zip(range(1,goals.count()+1),goal_ID,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit,targetExact)), key=lambda x: (status_order.index(x[9]), 0 if x[10] == 'Yes' else 1, x[5] ))
+    
     if courseHome:
         limit = 3
         context_dict['goal_range'] = context_dict['goal_range'][:limit]
