@@ -212,11 +212,17 @@
                         </div>
                         <div class="row">
                            <div class="col s12 m4">
-                              <label for="startTime">Display From:</label> 
+                              <label for="startTime">Display From:</label>
+                              {%if not challengeID and startTimestamp > currentDate%}         
+                              <input type="text" class="datepicker-from" name="startTime" value="{{currentDate}}" id="startTime" {%if view%}readonly{%endif%}>
+                              {%else%}
+                              
                               <input type="text" class="datepicker-from" name="startTime" value="{{startTimestamp}}" id="startTime" {%if view%}readonly{%endif%}>
+                              {%endif%}
                            </div>
                            <div class="col s12 m4">
-                              <label for="endTime">Display Until:</label> 
+                              <label for="endTime">Display Until:</label>
+                             
                               <input type="text" class="datepicker-until" name="endTime" value="{{endTimestamp}}" id="endTime" {%if view%}readonly{%endif%}>
                            </div>
                            <div class="col s12 m4">
