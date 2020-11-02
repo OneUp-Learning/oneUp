@@ -135,6 +135,9 @@ from Instructors.views.flashCardGroupListView import groupListView
 from Instructors.views.flashCardGroupCreateView import groupCreateView
 from Instructors.views.flashCardCreateView import CreateFlashCards
 
+#Teams
+from Instructors.views.teamListView import teamListView
+
 from Instructors.views.reorderViews import reorderGroups
 admin.autodiscover()
 urlpatterns = [
@@ -287,6 +290,8 @@ urlpatterns = [
     url(r'^groupList', groupListView, name='groupListView'),
     url(r'^groupCreate', groupCreateView, name='groupCreateView'),
     url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
-    url(r'^ReorderGroups', reorderGroups, name='reorderGroups')
+    url(r'^ReorderGroups', reorderGroups, name='reorderGroups'),
+    #Teams
+    url(r'^teamList',teamListView, name='teamListView'),
 ]
 
