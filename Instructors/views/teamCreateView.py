@@ -26,15 +26,15 @@ def teamCreateView(request):
         # Check if groups with this name already exist
         
         if 'teamID' in request.POST and request.POST['teamID'] != '':
-            team = Teams.object.get(teamID=request.POST['teamID'])
+            team = Teams.objects.get(teamID=request.POST['teamID'], courseID=currentCourse)
         else:
             print(request.POST['avatar'],"XXXXXX")
             team = Teams()
-            team.teamName = request.POST['teamName']
-            team.courseID=currentCourse
-            team.teamLeader =  StudentRegisteredCourses.objects.filter(courseID=currentCourse).first().studentID
-            team.avatarImage = request.POST['avatar']
-            team.save()
+        team.teamName = request.POST['teamName']
+        team.courseID=currentCourse
+        team.teamLeader =  StudentRegisteredCourses.objects.filter(courseID=currentCourse).first().studentID
+        team.avatarImage = request.POST['avatar']
+        team.save()
 
 
 
@@ -44,8 +44,9 @@ def teamCreateView(request):
     else:
         
         if 'teamID' in request.GET:
+            context_dict['teamID']=request.GET['teamID']
             team = Teams.objects.get(pk=int(request.GET['teamID']))
-            context_dict['team_name'] = team.teamName
+            context_dict['teamName'] = team.teamName
             context_dict['avatarImage'] = team.avatarImage
             team.save()
 

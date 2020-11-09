@@ -57,7 +57,7 @@ from Instructors.views.deleteView import (deleteActivity, deleteAnnouncement,
                                           deleteQuestion,
                                           deleteQuestionFromChallenge,
                                           deleteSkill, deleteStudent,
-                                          deleteTopic, deleteUser, deleteFlashCard, deleteGroup)
+                                          deleteTopic, deleteUser, deleteFlashCard, deleteGroup, deleteTeam)
 from Instructors.views.DuelReportView import duel_challenge_report, duel_report
 from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 # Dynamic Questions Stuff
@@ -136,7 +136,7 @@ from Instructors.views.flashCardGroupCreateView import groupCreateView
 from Instructors.views.flashCardCreateView import CreateFlashCards
 
 #Teams
-from Instructors.views.teamListView import teamListView
+from Instructors.views.teamListView import teamListView, autoAssign
 from Instructors.views.teamCreateView import teamCreateView
 from Instructors.views.teamCreateNView import CreateNTeams
 
@@ -205,7 +205,7 @@ urlpatterns = [
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
     url(r'^deleteFlashCard', deleteFlashCard, name='deleteFlashCard'),
-    #    url(r'^deleteUser', deleteUser, name='deleteUser'),
+
     url(r'^$', index, name='home'),
    
     url(r'^forms/MatchingForm', matchingForm, name='newEssayForm'),
@@ -297,5 +297,7 @@ urlpatterns = [
     url(r'^teamList',teamListView, name='teamListView'),
     url(r'^teamCreateN', CreateNTeams, name='teamCreateNView'),
     url(r'^teamCreate', teamCreateView, name='teamCreateView'),
+    url(r'^deleteTeam', deleteTeam, name='deleteTeam'),
+    url(r'^teamAutoAssign',autoAssign, name='autoAssign')
 ]
 

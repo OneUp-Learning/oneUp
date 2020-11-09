@@ -20,7 +20,7 @@ from Instructors.models import (Activities, Announcements, Challenges,
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import (Student, StudentConfigParams,
-                             StudentRegisteredCourses)
+                             StudentRegisteredCourses, Teams)
 
 
 @login_required
@@ -399,4 +399,23 @@ def deleteFlashCard(request):
             
         context_dict['message'] = message  
     return redirect('/oneUp/instructors/groupList', context_dict)
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
+def deleteTeam(request):
+    
+    context_dict, currentCourse = initialContextDict(request)
+    if request.POST:
+
+        try:
+            if request.POST['team_ID']:
+                print("Here")
+                team = Teams.objects.get(pk=int(request.POST['team_ID']), courseID=currentCourse) 
+                message = f"Team #{team.teamID} {team.teamName} successfully deleted"
+                team.delete()
+        except Teams.DoesNotExist:
+            message = f"There was a problem deleting flash card #{team.teamID} {team.teamName}"
+        context_dict['message'] = message  
+    return redirect('/oneUp/instructors/teamList', context_dict)
+
     

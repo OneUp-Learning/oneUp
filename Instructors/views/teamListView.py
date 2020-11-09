@@ -4,9 +4,9 @@ Created on Oct 23, 2019
 @author: cmickle
 '''
 import pprint
-
+import random
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from Students.models import Teams, TeamStudents, StudentRegisteredCourses
 from Instructors.views import utils
 from oneUp.decorators import instructorsCheck
@@ -26,7 +26,7 @@ def teamListView(request):
         unassigned_team.teamLeader = StudentRegisteredCourses.objects.filter(courseID=currentCourse)[0].studentID
         unassigned_team.save()
     else:
-        unassigned_team = Teams.objects.get(teamName="Unassigned Students")
+        unassigned_team = Teams.objects.get(courseID=currentCourse, teamName="Unassigned Students")
         
     unassigned_students = getUnassignedStudents(unassigned_team,currentCourse)
     if unassigned_students:
@@ -75,13 +75,54 @@ def getUnassignedStudents(unassigned_team, course):
     #get students in course
     students = StudentRegisteredCourses.objects.filter(courseID=course)
     studentIDs = [student.studentID for student in students]
+    print(studentIDs)
 
     #get students that aren't in a team
     unassigned_students = []
-    [unassigned_students.append(ID) for ID in studentIDs if not TeamStudents.objects.filter(studentID=ID).exists() and not ID.isTestStudent]
+    for ID in studentIDs:
+        ts = TeamStudents.objects.filter(teamID__courseID=course, studentID=ID)
+        #if student has no team
+        if not ts and not ID.isTestStudent:
+            unassigned_students.append(ID)
     if unassigned_students:
         unassigned_team.teamLeader = unassigned_students[0]
         unassigned_team.save()
     return unassigned_students
+#function for auto assigned unassigned students to teams
+def autoAssign(request):
+    context_dict,currentCourse = utils.initialContextDict(request)
+
+    unassigned_team = Teams.objects.get(courseID=currentCourse, teamName="Unassigned Students")
+    team_students = TeamStudents.objects.filter(teamID=unassigned_team)
+
+    for student in team_students:
+        studentID=student.studentID
+        student.delete()
+        team = getRandomTeam(currentCourse)
+        new_team = TeamStudents()
+        new_team.studentID=studentID
+        new_team.teamID=team
+        new_team.save()
+
+    return redirect('/oneUp/instructors/teamList')
+    
+#returns a random team fitting the needs student criteria for auto assign
+def getRandomTeam(course):
+   
+    team_list=[]
+    minimum=500
+    #get all teams in course
+    teams = Teams.objects.filter(courseID=course)
+    for team in teams:
+        ts = TeamStudents.objects.filter(teamID=team)
+        if ts.count()<minimum:
+            minimum = ts.count()
+    for team in teams:
+        ts = TeamStudents.objects.filter(teamID=team)
+        if ts.count()==minimum:
+            team_list.append(team)
+    print(teams)
+    return random.choice(team_list)
+
     
 

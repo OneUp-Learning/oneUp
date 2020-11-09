@@ -54,7 +54,7 @@
                <i class="material-icons left">add_circle</i>Add a New Team</a>
             <a class="waves-effect waves-light btn modal-trigger" href="#add-modal">
                <i class="material-icons left">add_circle</i>Add N New Teams</a>
-            <a class="waves-effect waves-light btn" href="#!">
+            <a class="waves-effect waves-light btn" href="/oneUp/instructors/teamAutoAssign">
                <i class="material-icons left">add_circle</i>Auto Assign Students</a>
 
             <div id="add-modal" class="modal">
@@ -100,7 +100,7 @@
                                        data-activates='dropdown-{{i}}' data-position="right" data-delay="50"
                                        data-tooltip="Options"><i class="material-icons">more_vert</i></a>
                                     <ul id='dropdown-{{i}}' class='dropdown-content'>
-                                       <li><a href="/oneUp/instructors/teamCreate?teamID={{team_id}}">Edit</a></li>
+                                       <li><a href="/oneUp/instructors/teamCreate?teamID={{team_ID}}">Edit</a></li>
                                        <li class="divider"></li>
                                        <li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
                                     </ul>
@@ -123,12 +123,13 @@
                            </div>
                            <div class="collapsible-body">
 
-                              <ul id="{{groupID}}">
+                              <ul id="{{team_ID}}">
                                  {% for student in students_in_group %}
                                  <li class="row">
                                     <div class="no-padding collapsible-header"> &nbsp&nbsp&nbsp&nbsp&nbsp
                                        <i class="material-icons">swap_vert</i>
                                        <span style="max-width: 40%;min-width: 40%">{{student}}</span>
+                                       {% if not team_name == "Unassigned Students" %}
 
                                        <span class="badge right-align">
                                           <a class="dropdown-button tooltipped secondary-content" href="#!"
@@ -165,7 +166,7 @@
                                              </div>
                                           </div>
                                        </span>
-
+                                       {% endif %}
                                     </div>
                                  </li>
                                  {% empty %}
