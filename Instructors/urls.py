@@ -137,6 +137,8 @@ from Instructors.views.flashCardCreateView import CreateFlashCards
 
 #Teams
 from Instructors.views.teamListView import teamListView
+from Instructors.views.teamCreateView import teamCreateView
+from Instructors.views.teamCreateNView import CreateNTeams
 
 from Instructors.views.reorderViews import reorderGroups
 admin.autodiscover()
@@ -293,5 +295,7 @@ urlpatterns = [
     url(r'^ReorderGroups', reorderGroups, name='reorderGroups'),
     #Teams
     url(r'^teamList',teamListView, name='teamListView'),
+    url(r'^teamCreateN', CreateNTeams, name='teamCreateNView'),
+    url(r'^teamCreate', teamCreateView, name='teamCreateView'),
 ]
 
