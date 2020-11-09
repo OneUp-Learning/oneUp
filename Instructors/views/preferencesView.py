@@ -132,21 +132,22 @@ def preferencesView(request):
         if vcaddedString:
             
             vcaddedInt = int(vcaddedString)
-            ccparams.virtualCurrencyAdded += vcaddedInt
-            
-            # If students were already added to the class: Add the specified quantity to the account of every student in this class
-            st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
-            for st_c in st_crs:
-                # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
-                # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
-                createSCVforInstructorGrant(st_c.studentID,currentCourse,vcaddedInt)
-            
-                st_c.virtualCurrencyAmount += vcaddedInt
-                st_c.save()
-                recalculate_student_virtual_currency_total_offline(st_c.studentID.pk,currentCourse.pk)
-
-                # Update student xp
-                refresh_xp(st_c)
+            if vcaddedInt != 0:
+                ccparams.virtualCurrencyAdded += vcaddedInt
+                
+                # If students were already added to the class: Add the specified quantity to the account of every student in this class
+                st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+                for st_c in st_crs:
+                    # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
+                    # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
+                    createSCVforInstructorGrant(st_c.studentID,currentCourse,vcaddedInt)
+                
+                    st_c.virtualCurrencyAmount += vcaddedInt
+                    st_c.save()
+                    recalculate_student_virtual_currency_total_offline(st_c.studentID.pk,currentCourse.pk)
+    
+                    # Update student xp
+                    refresh_xp(st_c)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
         ccparams.classAverageUsed = "classAverageUsed" in request.POST
