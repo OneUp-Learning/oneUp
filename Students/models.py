@@ -485,7 +485,7 @@ class studentFlashCards(models.Model):
 class Teams(models.Model):
     teamID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name="the course",db_index=True)
-    teamLeader = models.ForeignKey(Student,on_delete=models.CASCADE, verbose_name="the team's leader",db_index=True)
+    teamLeader = models.ForeignKey(Student,on_delete=models.CASCADE, blank=True, null=True, verbose_name="the team's leader",db_index=True)
     teamName = models.CharField(max_length=100, default='')
     avatarImage= models.CharField(max_length=200, default='')
 
