@@ -64,7 +64,7 @@ def add_instructor_test_student(instructor, course):
             # We have now switched to the canonical virtual currency amount a student has being determined by their transactions,
             # so we first add a StudentVirtualCurrency entry to show their gain and then we adjust the virtualCurrencyAmount.
             createSCVforInstructorGrant(student,course,ccparams.virtualCurrencyAdded)
-            studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
+            studentRegisteredCourse.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
     studentRegisteredCourse.save()
 
     if newStudent:

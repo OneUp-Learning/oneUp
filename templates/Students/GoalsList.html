@@ -45,15 +45,22 @@ by James Cherry -->
                         </tr>
                      </thead>
                      <tbody>
-                        {% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit in goal_range %}
+                        {% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal, can_edit,targetExact in goal_range %}
                         <tr>
                            <td>{{goal_name}}</td>
                            <td>{{start_date}}</td>
                            <td>{{end_date}}</td>
-                           <td>{{goal_target}}</td>
-                           <td>{{goal_progress}}%</td>   
+                            
+                            {% if targetExact %}checked
+                           <td>{{goal_target}} Total</td>
+                            {% endif %}
+                            {% if not targetExact %}checked
+                           <td>{{goal_target}} New</td>
+                           {% endif %}
+                            
+                           <td>{{goal_progress|floatformat:1}}%</td>   
                            <td>
-                           		{% if goal_status == "Not Achieved" %}
+                           		{% if goal_status == "In Progress" %}
                            		<font color="red">{{goal_status}}</font>
                            		{% elif goal_status == "Completed" %}
                            		<font color="green">{{goal_status}}</font>
@@ -117,3 +124,6 @@ by James Cherry -->
       {% include 'footer.html' %}    
    </body>
 </html>
+
+
+
