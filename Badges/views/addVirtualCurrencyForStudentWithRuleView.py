@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict, current_localtime
 from Instructors.constants import unspecified_vc_manual_rule_name, unspecified_vc_manual_rule_description
 from Badges.models import VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo, BadgesVCLog
-from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased
+from Students.models import StudentRegisteredCourses, Student, StudentVirtualCurrencyRuleBased, StudentVirtualCurrency
 from Badges.systemVariables import logger
 from notify.signals import notify
 import json
@@ -92,20 +92,22 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                     vcAmount = 0
                 prev_amount = studentobj.virtualCurrencyAmount
                 if accumulative_type == 'set':
+                    createSCVforAdjustment(studentobj, vcAmount - studentobj.virtualCurrencyAmount)
                     studentobj.virtualCurrencyAmount = vcAmount
                 elif accumulative_type == 'combine':
                     studentobj.virtualCurrencyAmount += vcAmount
 
                 studentobj.save()
-
-                ruleCustom = VirtualCurrencyCustomRuleInfo.objects.get(
-                    courseID=course, vcRuleID=int(request.POST[studentRuleAttribute]))
-                studentVC = StudentVirtualCurrencyRuleBased()
-                studentVC.courseID = course
-                studentVC.studentID = studentobj.studentID
-                studentVC.vcRuleID = ruleCustom
-                studentVC.value = vcAmount
-                studentVC.save()
+                
+                if accumulative_type == 'combine':
+                    ruleCustom = VirtualCurrencyCustomRuleInfo.objects.get(
+                        courseID=course, vcRuleID=int(request.POST[studentRuleAttribute]))
+                    studentVC = StudentVirtualCurrencyRuleBased()
+                    studentVC.courseID = course
+                    studentVC.studentID = studentobj.studentID
+                    studentVC.vcRuleID = ruleCustom
+                    studentVC.value = vcAmount
+                    studentVC.save()
 
                 studentAddBadgeLog = BadgesVCLog()
                 studentAddBadgeLog.timestamp = current_localtime()
@@ -131,3 +133,13 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                                 nf_type='Increase VirtualCurrency', extra=json.dumps({"course": str(course.courseID), "name": str(course.courseName), "related_link": '/oneUp/students/Transactions'}))
 
             return redirect('AddVirtualCurrency.html')
+
+def createSCVforAdjustment(src, vc):
+    svc = StudentVirtualCurrency()
+    svc.studentID = src.studentID
+    svc.courseID = src.courseID
+    svc.objectID = 0
+    svc.value = vc
+    svc.vcName = "Instructor Adjustment"
+    svc.vcDescription = "An adjustment to the Student VC was issued to correct a mistake"
+    svc.save()
