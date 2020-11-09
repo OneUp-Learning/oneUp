@@ -92,14 +92,15 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                     vcAmount = 0
                 prev_amount = studentobj.virtualCurrencyAmount
                 if accumulative_type == 'set':
-                    adjustment = vcAmount - studentobj.virtualCurrencyAmount)
+                    adjustment = vcAmount - studentobj.virtualCurrencyAmount
                     studentobj.virtualCurrencyAmount = vcAmount
                 elif accumulative_type == 'combine':
                     studentobj.virtualCurrencyAmount += vcAmount
 
                 studentobj.save()
                 
-                if accumulative_type == 'combine' || (accumulative_type == 'set' and adjustment > 0:
+                #if accumulative_type == 'combine' or (accumulative_type == 'set' and adjustment > 0):
+                if True:
                     ruleCustom = VirtualCurrencyCustomRuleInfo.objects.get(
                         courseID=course, vcRuleID=int(request.POST[studentRuleAttribute]))
                     studentVC = StudentVirtualCurrencyRuleBased()
@@ -120,16 +121,13 @@ def addVirtualCurrencyForStudentWithRuleView(request):
                         request.user, studentVC, "VC", "Manual", vc_award_type=vc_award_type)
                     studentAddBadgeLog.log_data = json.dumps(log_data)
                     studentAddBadgeLog.save()
-                else:
-                    # This is the case which covers negative adjustments
-                    # These should show up as spending for things to make sense
-                    # Note: ideally this whole bit could be written differently so that
-                    # earning and spending aren't two separate types to being with
+                #else:
+                    # This part is weird.  For the moment, I create a negative 
                     # -Keith
-                    svct = StudentVirtualCurrencyTransactions()
-                    svct.courseID = course
-                    svct.studentID = studentobj.studentID
-                    svct.studentEvent = 
+                    #svct = StudentVirtualCurrencyTransactions()
+                    #svct.courseID = course
+                    #svct.studentID = studentobj.studentID
+                    #svct.studentEvent = 
                     
                 virtual_currency_amount = abs(vcAmount)
                 if accumulative_type == 'set':
