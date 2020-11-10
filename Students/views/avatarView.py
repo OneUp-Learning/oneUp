@@ -75,10 +75,12 @@ def checkIfAvatarExist(student):
 def checkAvatar(request):
 	''' This view is called by an ajax function to check for avatar duplicates'''
 	print("Here***")
-	context_dict, currentCourse = utils.initialContextDict(request)
+	context_dict,currentCourse = studentInitialContextDict(request)
+
 	if request.POST:
 		avatar = request.POST.get('avatarstr')
+		print("avatar:", avatar)
 		if StudentRegisteredCourses.objects.filter(courseID=currentCourse, avatarImage=avatar).exists():
-			return JsonResponse({"error": True, "message":"A student has already selection that avatar"})
+			return JsonResponse({"success": False, "message":"A student has already selected that avatar"})
 		
-	return JsonResponse({"success": True})
+	return JsonResponse({"success": True, "message": 'Great success!'})
