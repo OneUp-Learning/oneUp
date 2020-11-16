@@ -16,7 +16,7 @@ from Students.views.activitesView import ActivityList
 from Students.views.activityDescription import ActivityDetail
 from Students.views.allAnnouncementsView import allAnnouncements
 from Students.views.avatarUploadView import avatarUpload
-from Students.views.avatarView import avatar
+from Students.views.avatarView import avatar, checkAvatar
 from Students.views.calloutsView import (
     callout_create, callout_description,
     get_class_callout_qualified_challenges,
@@ -129,5 +129,6 @@ urlpatterns = [
     url(r'^goal', goal_view, name='goal'),
     url(r'^FlashCardsList', flashCardsList, name='flashCardsList'),
     url(r'^FlashCards', flashCards, name='flashCards'),
-    url(r'^flashCardUsed', flashCardUsed, name='flashCardUsed')
+    url(r'^flashCardUsed', flashCardUsed, name='flashCardUsed'),
+    url(r'^checkAvatar', checkAvatar, name='checkAvatar')
 ]
