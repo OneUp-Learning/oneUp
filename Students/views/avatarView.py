@@ -5,6 +5,7 @@ Created on Nov 14, 2016
 '''
 
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 import glob
 
 from Students.models import Student, StudentRegisteredCourses
@@ -68,6 +69,18 @@ def checkIfAvatarExist(student):
 	else:
 		student.avatarImage = defaultAvatar #change the students avatar to the default
 		student.save()
-    
+	
 	return defaultAvatar 
 
+def checkAvatar(request):
+	''' This view is called by an ajax function to check for avatar duplicates'''
+	print("Here***")
+	context_dict,currentCourse = studentInitialContextDict(request)
+
+	if request.POST:
+		avatar = request.POST.get('avatarstr')
+		print("avatar:", avatar)
+		if StudentRegisteredCourses.objects.filter(courseID=currentCourse, avatarImage=avatar).exists():
+			return JsonResponse({"success": False, "message":"A student has already selected that avatar"})
+		
+	return JsonResponse({"success": True, "message": 'Great success!'})

@@ -11,11 +11,12 @@
             return false;
          }
       }
-      function validateAvatar(){
+
+      function validateAvatar() {
          //console.log(document.getElementsByName('avatar')[0].value);
          var avatars = document.getElementsByName('avatar');
-         for(var i = 0; i < avatars.length; i++){
-            if(document.getElementsByName('avatar')[i].checked)
+         for (var i = 0; i < avatars.length; i++) {
+            if (document.getElementsByName('avatar')[i].checked)
                return true;
          }
          alert("Please select an avatar.");
@@ -35,7 +36,7 @@
       <div class="row">
          <div class="col s12 m10 offset-m1">
             <div class="card">
-               <form  onsubmit="return validateAvatar()" action="/oneUp/students/avatarView " method="POST">
+               <form id="frm" onsubmit="return validateAvatar()" action="/oneUp/students/avatarView " method="POST">
                   {% csrf_token %}
                   <div class="card-content">
                      <div class="row">
@@ -56,11 +57,12 @@
                      </div>
                   </div>
                   <div class="card-action right-align">
-                     <button class="btn waves-effect waves-light" type="submit" name="submit" value="Save">Save
+                     <button class="btn waves-effect waves-light" type="submit" name="submit"
+                        value="Save">Save
                         <i class="material-icons right">done</i>
                      </button>
-                     <a class="waves-effect waves-light btn"
-                        href="/oneUp/students/StudentCourseHome"><i class="material-icons right">close</i>Cancel</a>
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome"><i
+                           class="material-icons right">close</i>Cancel</a>
                   </div>
                </form>
             </div>
@@ -69,51 +71,53 @@
       <script>
          // Lazy load avatars images
          // Code from https://developers.google.com/web/fundamentals/performance/lazy-loading-guidance/images-and-video/
-         document.addEventListener("DOMContentLoaded", function() {
+         document.addEventListener("DOMContentLoaded", function () {
             var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
 
             if ("IntersectionObserver" in window) {
-               let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
-                  entries.forEach(function(entry) {
-                  if (entry.isIntersecting) {
-                     let lazyImage = entry.target;
-                     lazyImage.src = lazyImage.dataset.src;
-                     lazyImage.classList.remove("lazy");
-                     lazyImageObserver.unobserve(lazyImage);
-                  }
+               let lazyImageObserver = new IntersectionObserver(function (entries, observer) {
+                  entries.forEach(function (entry) {
+                     if (entry.isIntersecting) {
+                        let lazyImage = entry.target;
+                        lazyImage.src = lazyImage.dataset.src;
+                        lazyImage.classList.remove("lazy");
+                        lazyImageObserver.unobserve(lazyImage);
+                     }
                   });
                });
 
-               lazyImages.forEach(function(lazyImage) {
+               lazyImages.forEach(function (lazyImage) {
                   lazyImageObserver.observe(lazyImage);
                });
             } else {
                // Possibly fall back to a more compatible method here
                let active = false;
 
-               const lazyLoad = function() {
+               const lazyLoad = function () {
                   if (active === false) {
                      active = true;
 
-                     setTimeout(function() {
-                     lazyImages.forEach(function(lazyImage) {
-                        if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
-                           lazyImage.src = lazyImage.dataset.src;
-                           lazyImage.classList.remove("lazy");
+                     setTimeout(function () {
+                        lazyImages.forEach(function (lazyImage) {
+                           if ((lazyImage.getBoundingClientRect().top <= window.innerHeight &&
+                                 lazyImage.getBoundingClientRect().bottom >= 0) &&
+                              getComputedStyle(lazyImage).display !== "none") {
+                              lazyImage.src = lazyImage.dataset.src;
+                              lazyImage.classList.remove("lazy");
 
-                           lazyImages = lazyImages.filter(function(image) {
-                           return image !== lazyImage;
-                           });
+                              lazyImages = lazyImages.filter(function (image) {
+                                 return image !== lazyImage;
+                              });
 
-                           if (lazyImages.length === 0) {
-                              document.removeEventListener("scroll", lazyLoad);
-                              window.removeEventListener("resize", lazyLoad);
-                              window.removeEventListener("orientationchange", lazyLoad);
+                              if (lazyImages.length === 0) {
+                                 document.removeEventListener("scroll", lazyLoad);
+                                 window.removeEventListener("resize", lazyLoad);
+                                 window.removeEventListener("orientationchange", lazyLoad);
+                              }
                            }
-                        }
-                     });
+                        });
 
-                     active = false;
+                        active = false;
                      }, 200);
                   }
                };
@@ -123,6 +127,124 @@
                window.addEventListener("orientationchange", lazyLoad);
             }
          });
+         $(function () {
+            var frm = $('#frm');
+            
+            frm.submit(function (ev) {
+               var avatarstr = document.querySelector('input[name=avatar]:checked').value
+               function getCookie(name) {
+                  var cookieValue = null;
+                  if (document.cookie && document.cookie !== '') {
+                     var cookies = document.cookie.split(';');
+                     for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                           break;
+                        }
+                     }
+                  }
+                  return cookieValue;
+               }
+
+               function csrfSafeMethod(method) {
+                  // these HTTP methods do not require CSRF protection
+                  return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+               }
+
+               var csrftoken = getCookie('csrftoken');
+               $.ajaxSetup({
+                  beforeSend: function (xhr, settings) {
+                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                     }
+                  }
+               });
+               $.ajax({
+                  type: "POST",
+                  url: "/oneUp/students/checkAvatar",
+                  data: {
+                     'avatarstr': avatarstr // from form
+                  },
+                  dataType: 'json',
+                  async:false,
+                  success: function (response) {
+                     if (response.success == false) {
+                        alert("A student has already selected that avatar. Please reselect.")
+                        ev.preventDefault();
+                        location.reload()
+                        
+                     } else {
+                        
+                        console.log("Great Success!")
+                        
+                     }
+
+
+
+                  }
+               });
+               
+            });
+
+         });
+
+
+         /*
+         function submitAvatar(avatarstr) {
+            function getCookie(name) {
+               var cookieValue = null;
+               if (document.cookie && document.cookie !== '') {
+                  var cookies = document.cookie.split(';');
+                  for (var i = 0; i < cookies.length; i++) {
+                     var cookie = jQuery.trim(cookies[i]);
+                     // Does this cookie string begin with the name we want?
+                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                     }
+                  }
+               }
+               return cookieValue;
+            }
+
+            function csrfSafeMethod(method) {
+               // these HTTP methods do not require CSRF protection
+               return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+               beforeSend: function (xhr, settings) {
+                  if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                  }
+               }
+            });
+            $.ajax({
+               type: "POST",
+               url: "/oneUp/students/checkAvatar",
+               data: {
+                  'avatarstr': avatarstr // from form
+               },
+               dataType:'json',
+               success: function (response) {
+                  if (response.success == false){
+                     alert("A student has already selected that avatar. Please reselect.")
+                     location.reload()
+                     return false;
+                  }
+                  else{
+                     console.log("Great Success!")
+                  }
+
+                  
+                  
+               }
+            });
+            return false;
+	      }*/
       </script>
    </main>
    {% include 'footer.html' %}
