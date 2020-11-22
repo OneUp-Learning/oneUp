@@ -208,7 +208,8 @@
                                 <span class="card-title">Calculating Total Experience Points (XP) </span>
                                 <div class="row">
                                     <div class="input-field col s10">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>serious challenge points to be added to XP</i>
+                                        <p style="font-size: 0.8rem;">Percentage of <i>serious challenge points to be
+                                                added to XP</i>
                                         </p>
                                         <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge"
                                             id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
@@ -217,7 +218,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>warmup challenge points to be added to XP</i>
+                                        <p style="font-size: 0.8rem;">Percentage of <i>warmup challenge points to be
+                                                added to XP</i>
                                         </p>
                                         <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge"
                                             id="w_challenge_weight" maxlength="3" type="number" min="0" max="100">
@@ -225,14 +227,16 @@
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>skill points to be added to XP</i></p>
+                                        <p style="font-size: 0.8rem;">Percentage of <i>skill points to be added to
+                                                XP</i></p>
                                         <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight"
                                             maxlength="3" type="number" class="validate" min="0" max="100">
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>activity points to be added to XP</i></p>
+                                        <p style="font-size: 0.8rem;">Percentage of <i>activity points to be added to
+                                                XP</i></p>
                                         <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight"
                                             maxlength="3" type="number" min="0" max="100">
                                     </div>
@@ -281,6 +285,37 @@
                                 </div>
                             </div>
                         </div>
+                        {% if ccparams.teamsEnabled %}
+                        <div class="col s12"
+                            style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                            <div class="card" style="transform: translateZ(0);">
+                                <div class="card-content">
+                                    <span class="card-title">Teams</span>
+
+
+                                    <div class="row">
+                                        <div class="input-field col s10">
+                                            <p style="font-size: 0.8rem;">Max Number of Students Per Team
+                                            </p>
+                                            <input value="{{maxNumberOfTeamStudents}}" name="maxNumberOfTeamStudents"
+                                                id="maxNumberOfTeamStudents" maxlength="3" type="number" min="2"
+                                                max="100">
+
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+
+                                            <label for="lockInDate">Display Group From Date:</label>
+                                            <input type="text" class="datepicker-from" name="lockInDate"
+                                                value="" id="lockInDate"
+                                                required{%if view%}readonly{%endif%}>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="col s12"
@@ -449,20 +484,20 @@
                                         </label>
                                     </div>
                                 </div>
-                                 <div class="row">
-                                        <div class="input-field col s12">
-                                            <p style="font-size: 0.8rem;">Amount of XP to level 1</p>
-                                            <input value={{levelTo1XP}} name="levelTo1XP" id="levelTo1XP" maxlength="3"
-                                                type="number" min="0" required>
-                                        </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Amount of XP to level 1</p>
+                                        <input value={{levelTo1XP}} name="levelTo1XP" id="levelTo1XP" maxlength="3"
+                                            type="number" min="0" required>
                                     </div>
-                                 <div class="row">
-                                        <div class="input-field col s12">
-                                            <p style="font-size: 0.8rem;">Percentage to next level after level 1</p>
-                                            <input value={{nextLevelPercent}} name="nextLevelPercent" id="nextLevelPercent" maxlength="3"
-                                                type="number" min="0" max="100" required>
-                                        </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Percentage to next level after level 1</p>
+                                        <input value={{nextLevelPercent}} name="nextLevelPercent" id="nextLevelPercent"
+                                            maxlength="3" type="number" min="0" max="100" required>
                                     </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -485,7 +520,7 @@
                                         </label>
                                     </div>
                                     <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Number of recent badges to be displayed on 
+                                        <p style="font-size: 0.8rem;">Number of recent badges to be displayed on
                                             course home pages</p>
                                         <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed"
                                             id="badges_recent" maxlength="3" type="number" min="0" max="100" required>
@@ -813,6 +848,17 @@
                     }
                 }
             }
+
+
+            $(document).ready(function () {
+                $
+
+                var startDate = $('#lockInDate').bootstrapMaterialDatePicker({
+                    weekStart: 0,
+                    format: 'MM/DD/YYYY hh:mm A',
+                    shortTime: true
+                })
+            });
         </script>
     </main>
     {% include 'footer.html' %}

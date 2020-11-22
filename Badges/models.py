@@ -382,7 +382,7 @@ class CourseConfigParams(models.Model):
     weightStrongHint = models.IntegerField(default=0) ##     
 
     #Teams system
-    teamsLockInDeadline = models.DateTimeField(default=custom_now()+timedelta(days=7), verbose_name='Deadline for team members to be locked in to the team')
+    teamsLockInDeadline = models.DateTimeField(default=custom_now, verbose_name='Deadline for team members to be locked in to the team')
     maxNumberOfTeamStudents = models.IntegerField(default=3)   
     teamsEnabled = models.BooleanField(default = False)
     def __str__(self):
