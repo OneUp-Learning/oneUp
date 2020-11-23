@@ -931,6 +931,10 @@ def recalculate_student_virtual_currency_total(student,course):
                 if avcr:
                     if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
                         total += int(ActionArguments.objects.get(ruleID=avcr.ruleID).argumentValue)
+                else:
+                    # This means it is a custom manual rule, I think.  Honestly, I'm a little lost about some of this
+                    # and that irritates me, but I don't want to rewrite the whole thing myself
+                    total += et_svc.value
         else:
             total += et_svc.value
       
