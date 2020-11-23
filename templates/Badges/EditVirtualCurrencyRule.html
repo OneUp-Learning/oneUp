@@ -17,13 +17,15 @@
 	 var rule_amt = document.getElementById("rule_amt")
 	 var rule_amount = document.getElementById("rule_amount");
 	 var rule_varies = document.getElementById("rule_varies");
-	 if(rule_varies.checked){
+         if(rule_varies) {
+	    if(rule_varies.checked){
 		 rule_amount.required=false;
 		 rule_amt.style.display ="none";
 		
-	 }else{
+	    }else{
 		 rule_amt.style.display ="block"; 
-	 }
+	    }
+         }
  }
  
 </script>
