@@ -18,12 +18,21 @@ import glob
 def CreateNTeams(request):
     
     context_dict,currentCourse = utils.initialContextDict(request)
-    total_teams = Teams.objects.all().count()-1
+    teams = Teams.objects.filter(courseID=currentCourse)
+    total_teams = teams.count()-1
     if 'numberOfTeams' in request.POST and int(request.POST['numberOfTeams']) != 0:
         for i in range(int(request.POST['numberOfTeams'])):
             team = Teams()
             team.courseID=currentCourse
-            team.teamName = "Team {}".format(i+1+total_teams)
+            if Teams.objects.filter(courseID=currentCourse, teamName="Team {}".format(i+1+total_teams)).exists():
+                for j in range(i+1+total_teams, i+1+total_teams*2):
+                    if Teams.objects.filter(courseID=currentCourse, teamName="Team {}".format(j)).exists():
+                        continue
+                    else:
+                        team.teamName = "Team {}".format(j)
+                        break
+            else:
+                team.teamName = "Team {}".format(i+1+total_teams)
             team.teamLeader = StudentRegisteredCourses.objects.filter(courseID=currentCourse)[0].studentID
             team.save()    
         

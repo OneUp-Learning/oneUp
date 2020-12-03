@@ -9,8 +9,7 @@ from django.utils.timezone import now
 from Badges.models import CourseConfigParams, LeaderboardsConfig
 from Badges.tasks import refresh_xp, recalculate_student_virtual_currency_total_offline
 from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
-from Instructors.views.utils import initialContextDict, current_localtime
-from datetime import date
+from Instructors.views.utils import initialContextDict, current_localtime, str_datetime_to_local, datetime_to_selected
 from oneUp.decorators import instructorsCheck
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 
@@ -172,8 +171,8 @@ def preferencesView(request):
         ccparams.studCanChangeGoal = "studCanChangeGoal" in request.POST
 
         #Teams
-        ccparams.teamsLockInDeadline = "lockInDate" in request.POST
-        ccparams.maxNumberOfTeamStudents = 'maxNumberOfTeamStudents' in request.POST
+        ccparams.teamsLockInDeadline = str_datetime_to_local(request.POST['lockInDate'])
+        ccparams.maxNumberOfTeamStudents = request.POST['maxNumberOfTeamStudents']
 
        # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
@@ -276,11 +275,11 @@ def preferencesView(request):
 
             #Teams
             context_dict['teamsEnabled'] = ccparams.teamsEnabled
-            ccparams.teamsLockInDeadline = now().replace(microsecond=0)
-            print(type(ccparams.teamsLockInDeadline))
-            context_dict['lockInDate'] = ccparams.teamsLockInDeadline
+            
+
+            context_dict['lockInDate'] = datetime_to_selected(ccparams.teamsLockInDeadline)
             context_dict['maxNumberOfTeamStudents'] = ccparams.maxNumberOfTeamStudents
-            print("XXXXXXXXXX", ccparams.teamsLockInDeadline.isoformat())
+            
             # Streaks
             # moved to course config
             #context_dict["streaksUsed"] = ccparams.streaksUsed

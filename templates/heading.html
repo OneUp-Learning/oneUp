@@ -449,6 +449,10 @@
                 <ul id="courseinfo" class="dropdown-content">
                     <li><a class="waves-effect " href="/oneUp/instructors/courseInformation">Course Description</a></li>
                     <li><a class="waves-effect " href="/oneUp/instructors/createStudentListView">Students</a></li>
+                    {% if ccparams.teamsEnabled %}
+                    <li><a class="waves-effect " href="/oneUp/instructors/teamList">Teams</a></li>
+
+                    {% endif %}
                     {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/topicsList">Course Topics</a></li>
                     {%if ccparams.skillsUsed %}

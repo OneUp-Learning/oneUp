@@ -11,7 +11,7 @@
 
             stop: function (event, ui) {
 
-               var itemOrder = $('#sortableGroups').sortable("toArray");
+               var itemOrder = $('#sortableStudents').sortable("toArray");
 
                var idsPositions = []
 
@@ -26,7 +26,7 @@
 
                console.log(idsPositions)
 
-               $.post("/oneUp/instructors/ReorderGroups", {
+               $.post("/oneUp/instructors/moveTeamStudents", {
                   groupIdsPositions: idsPositions,
                   csrfmiddlewaretoken: csrftoken,
                }, function (data) {
@@ -66,7 +66,7 @@
 
                         <div class="row center-align" style="margin-top: 50px;">
 
-                           <label class="left" for="flashcard-name"><span class="red-text">*</span>
+                           <label class="left" for="numberOfTeams"><span class="red-text">*</span>
                               Number of Teams to be Created</label>
                            <input value="0" name="numberOfTeams" id="numberOfTeams" type="text" class="validate">
                         </div>
@@ -87,6 +87,7 @@
 
                      <ul id="sortableGroups" class="collapsible" data-collapsible="expandable">
                         {% for i, team_ID, team_name, team_avatar, students_in_group in teams_range %}
+                        
                         <li id={{team_ID}}>
                            <div class="collapsible-header"> <img width="5%" src={{team_avatar}}><i class="material-icons">swap_vert</i> {{team_name}}
                               &nbsp;&nbsp;

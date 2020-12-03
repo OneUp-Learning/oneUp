@@ -297,8 +297,8 @@
                                         <div class="input-field col s10">
                                             <p style="font-size: 0.8rem;">Max Number of Students Per Team
                                             </p>
-                                            <input value="{{maxNumberOfTeamStudents}}" name="maxNumberOfTeamStudents"
-                                                id="maxNumberOfTeamStudents" maxlength="3" type="number" min="2"
+                                            <input value="{{maxNumberOfTeamStudents}}"name="maxNumberOfTeamStudents"
+                                                id="maxNumberOfTeamStudents" maxlength="3" type="number" min="0"
                                                 max="100">
 
                                         </div>
@@ -308,7 +308,7 @@
 
                                             <label for="lockInDate">Display Group From Date:</label>
                                             <input type="text" class="datepicker-from" name="lockInDate"
-                                                value="" id="lockInDate"
+                                                value="{{lockInDate}}" id="lockInDate"
                                                 required{%if view%}readonly{%endif%}>
                                         </div>
                                     </div>

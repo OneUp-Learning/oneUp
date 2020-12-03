@@ -332,3 +332,7 @@ def reorderGroups(request):
 
         return JsonResponse({"success": True})
     return JsonResponse({"success": False})
+
+def moveTeamStudents(request):
+
+    

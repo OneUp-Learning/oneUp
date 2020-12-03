@@ -112,7 +112,7 @@ def getRandomTeam(course):
     team_list=[]
     minimum=500
     #get all teams in course
-    teams = Teams.objects.filter(courseID=course)
+    teams = Teams.objects.filter(courseID=course).exclude(teamName='Unassigned Students')
     for team in teams:
         ts = TeamStudents.objects.filter(teamID=team)
         if ts.count()<minimum:

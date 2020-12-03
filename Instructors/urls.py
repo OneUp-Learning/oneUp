@@ -298,6 +298,8 @@ urlpatterns = [
     url(r'^teamCreateN', CreateNTeams, name='teamCreateNView'),
     url(r'^teamCreate', teamCreateView, name='teamCreateView'),
     url(r'^deleteTeam', deleteTeam, name='deleteTeam'),
-    url(r'^teamAutoAssign',autoAssign, name='autoAssign')
+    url(r'^teamAutoAssign',autoAssign, name='autoAssign'),
+    url(r'^moveTeamStudents', moveTeamStudents, name='moveTeamStudents'),
+
 ]
 
