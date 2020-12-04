@@ -17,7 +17,7 @@ from Instructors.models import (Activities, ActivitiesCategory, Challenges,
                                 ChallengesQuestions, ChallengesTopics,
                                 CoursesTopics, Topics)
 from Instructors.views import utils
-
+from Students.models import Teams, TeamStudents, Student
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -335,4 +335,52 @@ def reorderGroups(request):
 
 def moveTeamStudents(request):
 
-    
+    ''' This view is called by an ajax function to reorder team students'''
+    if request.method == "POST":
+        json_data = json.loads(request.body)
+        context_dict, current_course = utils.initialContextDict(request)
+
+        old_team = Teams.objects.filter(courseID=current_course, teamLeader=json_data['student-id']).first()
+        new_team = Teams.objects.filter(courseID=current_course, teamID=json_data['team-id']).first()
+        team_student = TeamStudents.objects.filter(teamID__courseID=current_course, studentID=json_data['student-id']).first()
+
+        team_student.teamID = new_team
+        team_student.save()
+
+        if old_team:
+            old_students = TeamStudents.objects.filter(teamID=old_team)
+            if old_students:
+                old_team.teamLeader = old_students.first().studentID
+            else:
+                old_team.teamLeader = None
+            old_team.save()
+
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+def updateTeamLeader(request):
+
+    ''' This view is called by an ajax function to reorder team students'''
+    if request.method == "POST":
+        json_data = json.loads(request.body)
+        context_dict, current_course = utils.initialContextDict(request)
+
+        # old_team = Teams.objects.filter(courseID=current_course, teamLeader=json_data['student-id']).first()
+        new_team = Teams.objects.filter(courseID=current_course, teamID=json_data['team-id']).first()
+        #team_student = TeamStudents.objects.filter(teamID__courseID=current_course, studentID=json_data['student-id']).first()
+
+        #team_student.teamID = new_team
+        #team_student.save()
+
+        student = Student.objects.get(pk=json_data['student-id'])
+        print(json_data, student)
+        makeTeamLeader(new_team, student)
+       
+
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+def makeTeamLeader(teamID, studentID):
+    teamID.teamLeader = studentID
+    teamID.save()

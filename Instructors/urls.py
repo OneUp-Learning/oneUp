@@ -86,7 +86,8 @@ from Instructors.views.reorderChallengeSaveQuestions import \
     reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 from Instructors.views.reorderViews import (receive_item_in_section,
-                                            reorder_list)
+                                            reorder_list, moveTeamStudents,
+                                            updateTeamLeader)
 from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
@@ -300,6 +301,8 @@ urlpatterns = [
     url(r'^deleteTeam', deleteTeam, name='deleteTeam'),
     url(r'^teamAutoAssign',autoAssign, name='autoAssign'),
     url(r'^moveTeamStudents', moveTeamStudents, name='moveTeamStudents'),
+        url(r'^updateTeamLeader', updateTeamLeader, name='updateTeamLeader'),
+
 
 ]
 

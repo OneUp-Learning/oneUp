@@ -7,7 +7,7 @@
    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
    <script>
       $(function () {
-         $("#sortableGroups").sortable({
+         /*$("#sortableGroups").sortable({
 
             stop: function (event, ui) {
 
@@ -34,8 +34,99 @@
                });
 
             }
-         });
+         });*/
+         $(".sortable-students").sortable({
+			connectWith: ".sortable-students",
+			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var team_id = $(event.target).data("team-id");
+				var item_list = $(`.sortable-students[data-team-id="${team_id}"]`).sortable(
+					"toArray");
+            
+            var positions = []
+				// console.log(item_list);
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]) {
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push(item_list[i]);
+					}
+				}
+            var student_id = positions[0];
+            
+            console.log("team id:"+team_id, "itemList:" + item_list, student_id)
+            // console.log(positions)
+            if (student_id !== undefined){
+               const params = {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json',
+                     'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+                  },
+                  body: JSON.stringify({
+                     "student-id": parseInt(student_id),
+                     "team-id": parseInt(team_id)
+                  })
+               };
+               fetch("/oneUp/instructors/updateTeamLeader", params)
+               .then((response) => {return response.json()})
+               .then((response) => {console.log(response); update_star(team_id)})
+            }
+			},
+			receive: (event, ui) => {
+				var team_id = $(event.target).data("team-id");
+				var student_id = ui.item[0].id;
+
+				$(`#${student_id}`).data("team-id", team_id);
+            console.log("Team ID:" ,team_id, "Student ID: ",student_id)
+
+				const params = {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({
+						"student-id": parseInt(student_id),
+						"team-id": parseInt(team_id)
+					})
+				};
+				fetch("/oneUp/instructors/moveTeamStudents", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response); update_star(team_id)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
       });
+      var update_star = (team_id) => {
+         var get_team_star_element = (element) => {
+            return $(element).children().first();
+         }
+         var team_leader = $(`.sortable-students[data-team-id="${team_id}"]`).sortable(
+               "toArray")[0];
+         if (team_leader === undefined) return;
+
+         var items = $(`.sortable-students[data-team-id="${team_id}"]`).children();
+         for(let i = 0; i < items.length; i++){
+            let item = items[i];
+            let star = get_team_star_element(item);
+            if (star !== undefined && star.children().length > 2){
+               star.children()[2].remove();
+            }
+         }
+         var team_star = `<div id="${team_id}-star" style="padding-right: 8px;">
+                                          <i class="material-icons" style="vertical-align: bottom;">stars</i>
+                     </div>`;
+         $(`.sortable-students[data-team-id="${team_id}"]`).children().first().children().first().append(team_star)
+      }
+
+      });
+      
    </script>
 </head>
 
@@ -87,9 +178,10 @@
 
                      <ul id="sortableGroups" class="collapsible" data-collapsible="expandable">
                         {% for i, team_ID, team_name, team_avatar, students_in_group in teams_range %}
-                        
+
                         <li id={{team_ID}}>
-                           <div class="collapsible-header"> <img width="5%" src={{team_avatar}}><i class="material-icons">swap_vert</i> {{team_name}}
+                           <div class="collapsible-header"> <img width="5%" src={{team_avatar}}><i
+                                 class="material-icons">people_outline</i> {{team_name}}
                               &nbsp;&nbsp;
                               {% if not team_name == "Unassigned Students" %}
                               <span class="badge">
@@ -123,58 +215,24 @@
                               {% endif %}
                            </div>
                            <div class="collapsible-body">
-
-                              <ul id="{{team_ID}}">
+                              <ul class="sortable-students" data-team-id="{{team_ID}}"
+                                 style="padding-bottom: 1px;">
                                  {% for student in students_in_group %}
-                                 <li class="row">
-                                    <div class="no-padding collapsible-header"> &nbsp&nbsp&nbsp&nbsp&nbsp
-                                       <i class="material-icons">swap_vert</i>
+                                 <li id="{{student.id}}" data-team-id="{{team_ID}}">
+                                    <div class="sortable-item" style="display: grid;
+                                    grid-template-columns: auto 1fr auto; text-align: left">
+                                       <div style="padding-right: 8px;">
+                                          <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+                                       </div>
+                                       
                                        <span style="max-width: 40%;min-width: 40%">{{student}}</span>
-                                       {% if not team_name == "Unassigned Students" %}
-
-                                       <span class="badge right-align">
-                                          <a class="dropdown-button tooltipped secondary-content" href="#!"
-                                             data-constrainwidth="false" data-beloworigin="true"
-                                             data-activates='dropdown-{{i}}-{{groupID}}-{{card.flashID}}'
-                                             data-position="right" data-delay="50" data-tooltip="Options">
-                                             <i class="material-icons">more_vert</i>
-                                          </a>
-                                          <ul id='dropdown-{{i}}-{{groupID}}-{{card.flashID}}' class='dropdown-content'>
-                                             <li>
-                                                <a href="#!" onclick="edit_card('{{card.flashID}}')">Edit</a>
-                                             </li>
-
-                                             <li class="divider"></li>
-                                             <li>
-                                                <a class="modal-trigger"
-                                                   href="#modal_delete-{{i}}-{{card.flashID}}">Delete</a>
-                                             </li>
-                                          </ul>
-
-                                          <div id="modal_delete-{{i}}-{{card.flashID}}" class="modal">
-                                             <div class="modal-content">
-                                                <h5>Are you sure you want to delete?</h5>
-                                                <p>The selected flash card will be deleted.</p>
-                                             </div>
-                                             <div class="modal-footer">
-                                                <a href="#!"
-                                                   class="modal-action modal-close waves-effect waves-light btn-flat"
-                                                   style="color: #00bcd4">Cancel</a>
-                                                <button type="button"
-                                                   class="modal-action modal-close waves-effect waves-light btn-flat"
-                                                   value="Delete" onclick="deleteFlashcard('{{card.flashID}}')">Delete
-                                                </button>
-                                             </div>
-                                          </div>
-                                       </span>
+                                       {% if forloop.first %}
+                                       <div id="{{team_ID}}-star" style="padding-right: 8px;">
+                                          <i class="material-icons" style="vertical-align: bottom;">stars</i>
+                                       </div>
                                        {% endif %}
+                                       
                                     </div>
-                                 </li>
-                                 {% empty %}
-                                 <li>
-                                    <td class="left-align" colspan="4">
-                                       <i>There are no students in this team</i>
-                                    </td>
                                  </li>
                                  {% endfor %}
                               </ul>

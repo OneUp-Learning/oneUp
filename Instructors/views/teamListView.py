@@ -47,6 +47,9 @@ def teamListView(request):
         temp = []
         for ts in team_students:
             temp.append(ts.studentID)
+        if team.teamLeader in temp:
+            temp.remove(team.teamLeader)
+            temp.insert(0, team.teamLeader)
         students_in_team.append(temp)
        
     team_ID = team_ID[1:] + [team_ID[0]]
@@ -99,6 +102,9 @@ def autoAssign(request):
         studentID=student.studentID
         student.delete()
         team = getRandomTeam(currentCourse)
+        if not team.teamLeader:
+            team.teamLeader = studentID
+            team.save()
         new_team = TeamStudents()
         new_team.studentID=studentID
         new_team.teamID=team
