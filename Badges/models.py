@@ -385,6 +385,7 @@ class CourseConfigParams(models.Model):
     teamsLockInDeadline = models.DateTimeField(default=custom_now, verbose_name='Deadline for team members to be locked in to the team')
     maxNumberOfTeamStudents = models.IntegerField(default=3)   
     teamsEnabled = models.BooleanField(default = False)
+    selfAssignment = models.BooleanField(default = True, verbose_name='Students can auto-assign themselves to teams')
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -433,7 +434,8 @@ class CourseConfigParams(models.Model):
         +str(self.weightStrongHint)+","\
         +str(self.teamsLockInDeadline)+","\
         +str(self.maxNumberOfTeamStudents)+","\
-        +str(self.teamsEnabled)
+        +str(self.teamsEnabled)+","\
+        +str(self.selfAssignment)
  
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
