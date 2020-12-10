@@ -485,9 +485,12 @@ class studentFlashCards(models.Model):
 class Teams(models.Model):
     teamID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name="the course",db_index=True)
+    #team leader designation meant to allow for editing teams settings/interacting with the server during challenges/activities
     teamLeader = models.ForeignKey(Student,on_delete=models.CASCADE, blank=True, null=True, verbose_name="the team's leader",db_index=True)
     teamName = models.CharField(max_length=100, default='')
     avatarImage= models.CharField(max_length=200, default='')
+    #Allows for multiple team sets throughout a course, set to false when creating a new group of teams
+    activeTeam = models.BooleanField(default=True, verbose_name = 'Indicates whether or not team is in current set of active teams')
 
     def __str__(self):
         return "{} : {} : {} : {} : {}".format(self.teamID, self.courseID, self.teamLeader, self.teamName, self.avatarImage)
@@ -495,6 +498,8 @@ class Teams(models.Model):
 class TeamStudents(models.Model):
     teamID = models.ForeignKey(Teams, on_delete=models.CASCADE, verbose_name="the team", db_index=True)
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    #Allows for multiple team sets throughout a course, set to false when creating a new group of teams
+    activeMember = models.BooleanField(default = True, verbose_name = 'Indicates whether student is currently an active member of team')
     
     def __str__(self):
         return "{} : {}".format(self.teamID, self.studentID)
