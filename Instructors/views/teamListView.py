@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from Students.models import Teams, TeamStudents, StudentRegisteredCourses
 from Instructors.views import utils
+from Badges.models import CourseConfigParams
 from oneUp.decorators import instructorsCheck
 from Students.views.avatarView import checkIfAvatarExist
 pp = pprint.PrettyPrinter(indent=4)
@@ -59,6 +60,10 @@ def teamListView(request):
     students_in_team = students_in_team[1:] + [students_in_team[0]]
     context_dict['teams_range'] = list(zip(range(teams.count()), team_ID, team_name, team_avatar, students_in_team))
     context_dict['group'] = (1, 3, 4, 6)
+    ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
+    
+    context_dict['lockInDate'] = ccparams.teamsLockInDeadline
+    context_dict['selfAssignment'] = ccparams.selfAssignment
    
    
 

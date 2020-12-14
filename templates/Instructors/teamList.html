@@ -6,6 +6,15 @@
    {% include 'scripts.html' %}
    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
    <script>
+      $(document).ready(function () {
+         
+         // Format Date
+         date='{{lockInDate}}';
+         tokens = date.split(',').slice(0,-1)
+         result = tokens.join(','); 
+         console.log(result,'XXX');
+         document.getElementById('date').innerHTML = result
+      });
       $(function () {
          /*$("#sortableGroups").sortable({
 
@@ -139,8 +148,8 @@
          </div>
       </div>
       <div class="row right-align">
+         
          <div class="col s12 m10 offset-m1">
-
             <a class="waves-effect waves-light btn" href="/oneUp/instructors/teamCreate">
                <i class="material-icons left">add_circle</i>Add a New Team</a>
             <a class="waves-effect waves-light btn modal-trigger" href="#add-modal">
@@ -175,7 +184,9 @@
             <div class="row">
                <div class="col s12 m10 offset-m1">
                   <div class="card-panel">
-
+                     {% if selfAssignment %}
+                     <p style="text-align: left;"><b>Student Self-Assignment Deadline:</b> <span id='date'> </span></p>
+                     {% endif %}
                      <ul id="sortableGroups" class="collapsible" data-collapsible="expandable">
                         {% for i, team_ID, team_name, team_avatar, students_in_group in teams_range %}
 
@@ -262,6 +273,7 @@
 
       $(document).ready(function () {
          $('.modal').modal();
+         
       });
    </script>
 </body>
