@@ -500,7 +500,8 @@ class TeamStudents(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     #Allows for multiple team sets throughout a course, set to false when creating a new group of teams
     activeMember = models.BooleanField(default = True, verbose_name = 'Indicates whether student is currently an active member of team')
-    
+    #indicates how the student was enrolled in the team: S = self-enrolled, I = Individually by instructor, A = auto-assigned by instructor
+    modeOfEnrollment = models.CharField(max_length=1, default = '')
     def __str__(self):
         return "{} : {}".format(self.teamID, self.studentID)
 class TeamChallenges(models.Model):
