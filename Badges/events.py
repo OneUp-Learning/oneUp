@@ -617,18 +617,18 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
 
         vcRule = VirtualCurrencyRuleInfo.objects.get(ruleID=rule)
-        print("[TEST1] Begin reward student with VC")
+        print("[VCTEST1] Begin reward student with VC")
         for retries in range(0,transaction_retry_count):
             try:
                 with transaction.atomic(): 
                     if actionID == Action.increaseVirtualCurrency:
-                        print("[TEST2] Checking if student was already awarded")
+                        print("[VCTEST2] Checking if student was already awarded")
                         previousAwards = StudentVirtualCurrencyRuleBased.objects.select_for_update().filter(studentID = student.studentID, vcRuleID = vcRule)
                         if rule.awardFrequency != AwardFrequency.justOnce:
                             previousAwards = previousAwards.filter(objectID = objID)
                         if previousAwards.exists():
                             # Student was already awarded this virtual currency award for this object and this rule.  Do nothing.
-                            print("[TEST3] In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
+                            print("[VCTEST3] In Event w/timestamp:"+timestampstr+" Student was previously awarded this virtual currency award.")
                             return
                                     
                         studVCRec = StudentVirtualCurrencyRuleBased()
@@ -650,13 +650,16 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
                         studentAddBadgeLog.timestamp = current_time
                         studentAddBadgeLog.save()
 
-                        print("[TEST4] StudentVirtualCurrencyRuleBased object was saved.")
+                        print("[VCTEST4] StudentVirtualCurrencyRuleBased object was saved.")
             except OperationalError as e:
                 if e.__cause__.__class__ == TransactionRollbackError:
+                    print("VC rollback occuring")
                     continue
                 else:
+                    print("VC non-rollback exception occurred")
                     raise
             else:
+                print("Exited VC Award transaction successfully")
                 break
         
         if actionID == Action.increaseVirtualCurrency:
