@@ -3,6 +3,20 @@ from oneUp.settings import BASE_DIR
 import os
 from decimal import Decimal
 
+runcode_string = """
+function (code, name)
+    local fn, err = load(code, name, 't', sandbox);
+    
+    if err then
+        return false, err;
+    end;
+    
+    local fn_result = fn();
+    
+    return true, fn_result;
+end;
+"""
+
 lupa_spec = importlib.util.find_spec('lupa')
 lupa_available = True
 if lupa_spec is None:
@@ -159,6 +173,8 @@ else:
     def parseLuaError(luaerr):
         errstr = str(luaerr)
         
+        print(errstr)
+        
         # A dictionary which we're going to fill with information about the error
         error = {}
         
@@ -205,7 +221,7 @@ else:
                 self.runtime = sandboxLupaWithLibraries(libs,seed)
                 self.version = 0
                 self.cache[self.uuid] = self
-                self.runcode_function = self.runtime.eval("function (code, name) return load(code,name,'t',sandbox)() end")
+                self.runcode_function = self.runtime.eval(runcode_string)
             
         def getIdentifier(self):
             return str(self.uuid)+'+'+str(self.version)
@@ -238,7 +254,7 @@ else:
             link.uuid = uuid
             link.version = version
             link.runtime = sandboxLupaWithLibraries(link.libs,link.seed)
-            link.runcode_function = link.runtime.eval("function (code, name) return load(code,name,'t',sandbox)() end")
+            link.runcode_function = link.runtime.eval(runcode_string)
     
     #       set_persistents = runtime.eval('function (val) persistents=val return end')
     #       set_persistents(self.persistents)
@@ -253,21 +269,28 @@ else:
         
         def eval(self,code):
             try:
-                result = self.runcode_function("return "+code,"Eval")
+                success, result = self.runcode_function("return "+code,"Eval")
                 self.history.append(('eval',code))
                 #print ("EVAL:"+code)
                 self.version += 1
-                return (True,result)
+                if success:
+                    return (True,result)
+                else:
+                    return (False,parseLuaError(result))
             except LuaError as luaerr:
                 return (False,parseLuaError(luaerr))
         def sys_exec(self,code):
             try:
                 #result = self.runtime.execute(code)
-                result = self.runcode_function(code,"System Exec")
+                success, result = self.runcode_function(code,"System Exec")
                 self.history.append(('execute',code))
                 #print ("SYS_EXEC:"+code)
                 self.version += 1
-                return True
+                
+                if success:
+                    return True
+                else:
+                    return parseLuaError(result)
             except LuaError as luaerr:
                 return parseLuaError(luaerr)
         def user_exec(self,codesegments):            
@@ -281,8 +304,11 @@ else:
             self.version += 1
             
             try:
-                self.runcode_function(code,"User Exec")
-                return True
+                success, result = self.runcode_function(code,"User Exec")
+                if success:
+                    return True
+                else:
+                    return parseLuaError(result)
             except LuaError as luaerr:
                 return parseLuaError(luaerr)
     
