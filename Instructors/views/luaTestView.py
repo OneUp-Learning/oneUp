@@ -10,7 +10,7 @@ def luaTestView(request):
 	context = RequestContext(request)
 	context_dict = { } 
 	
-	lupa = LupaRuntimeLink({},0)
+	lupa = LupaRuntimeLink([],0)
 	
 	if request.method == 'GET':
 		request.session['lupaid'] = lupa.getIdentifier()

@@ -105,7 +105,8 @@ else:
         # we're using, but the overhead of generating one additional random number is so
         # small that it's worth doing just in case.
         lua.eval("math.random()")
-        sandbox = lua.eval("{}")
+        lua.execute("sandbox = {}")
+        sandbox = lua.eval("sandbox")
         
         globalstuff = lua.globals()
             
@@ -131,10 +132,9 @@ else:
             lua.execute('table.insert(_libs,"'+lib+'")')
         
         init_library_function_code = '''function(uniqid,seed,questiondir)
-            env = getfenv(0)
             for _,lib in pairs(_libs) do
-                if env[lib].initialize then
-                    env[lib].initialize(uniqid,seed,questiondir)
+                if sandbox[lib].initialize then
+                    sandbox[lib].initialize(uniqid,seed,questiondir)
                 end
             end
         end'''
@@ -142,9 +142,6 @@ else:
         init_library_function = lua.eval(init_library_function_code)
         setattr(sandbox,"_libs",lua.eval("_libs"))
         setattr(sandbox,"_initialize_libraries",init_library_function)
-        
-        setfenv = lua.eval("setfenv")
-        setfenv(0, sandbox)
         return lua
     
     class LuaErrorType:
@@ -208,6 +205,7 @@ else:
                 self.runtime = sandboxLupaWithLibraries(libs,seed)
                 self.version = 0
                 self.cache[self.uuid] = self
+                self.runcode_function = self.runtime.eval("function (code, name) return load(code,name,'t',sandbox)() end")
             
         def getIdentifier(self):
             return str(self.uuid)+'+'+str(self.version)
@@ -240,21 +238,22 @@ else:
             link.uuid = uuid
             link.version = version
             link.runtime = sandboxLupaWithLibraries(link.libs,link.seed)
+            link.runcode_function = link.runtime.eval("function (code, name) return load(code,name,'t',sandbox)() end")
     
     #       set_persistents = runtime.eval('function (val) persistents=val return end')
     #       set_persistents(self.persistents)
             for cmdtype,text in link.history:
                 if cmdtype == 'eval':
-                    link.runtime.eval(text)
+                    link.runcode_function("return "+text,"Eval")
                 if cmdtype == 'execute':
-                    link.runtime.execute(text)
+                    link.runcode_function(text,"Exec")
     
             LupaRuntimeLink.cache[uuid] = link 
             return link
         
         def eval(self,code):
             try:
-                result = self.runtime.eval(code)
+                result = self.runcode_function("return "+code,"Eval")
                 self.history.append(('eval',code))
                 #print ("EVAL:"+code)
                 self.version += 1
@@ -263,7 +262,8 @@ else:
                 return (False,parseLuaError(luaerr))
         def sys_exec(self,code):
             try:
-                result = self.runtime.execute(code)
+                #result = self.runtime.execute(code)
+                result = self.runcode_function(code,"System Exec")
                 self.history.append(('execute',code))
                 #print ("SYS_EXEC:"+code)
                 self.version += 1
@@ -281,7 +281,7 @@ else:
             self.version += 1
             
             try:
-                self.runtime.execute(code)
+                self.runcode_function(code,"User Exec")
                 return True
             except LuaError as luaerr:
                 return parseLuaError(luaerr)
