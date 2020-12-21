@@ -651,9 +651,9 @@ def isWarmUpChallenge(course,student,challenge):
     ''' This will return True/False if the a particular challenge is a warmup challenge'''
     return not challenge.isGraded
 
-def totalTimeSpentOnChallenges(course,student):
+def totalTimeSpentOnChallenges(course,student,topic=None):
     ''' This will return the total minutes a student has spent completing any challenges'''
-    return getTimeSpentOnChallenges(course, student, True) + getTimeSpentOnChallenges(course, student, False)
+    return getTimeSpentOnChallenges(course, student, True,topic) + getTimeSpentOnChallenges(course, student, False,topic)
 
 def getTotalMinutesSpentOnWarmupChallenges(course, student):
     ''' This will return the number of minutes a student has spent on all warmup challenges'''    
@@ -1063,9 +1063,14 @@ def getNumberOfCalloutParticipationLost(course, student):
     from Students.models import CalloutParticipants
     return len(CalloutParticipants.objects.filter(participantID=student, courseID=course, hasWon=False, hasSubmitted=True))
 
-def getNumberOfUniqueSeriousChallengesAttempted(course, student):
+def getNumberOfUniqueSeriousChallengesAttempted(course, student,topic=None):
     ''' Get the number of unique serious challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=True)
+    if topic:
+        from Instructors.models import ChallengesTopics
+        challengesTopics = ChallengesTopics.objects.filter(topicID = topic)
+        challenges_in_topic = [ct.challengeID for ct in challengesTopics]
+        challenges = challenges.filter(challengeID__in=challenges_in_topic)
     attempted = 0
     for challenge in challenges:
         studentChallenges = getNumAttempts(course, student, challenge)
@@ -1394,7 +1399,7 @@ class SystemVariable():
     totalMinutesSpentOnWarmupChallengesPerTopic = 980
     timeSpentOnFlashcards = 981
     totalFlashcardsCompleted = 982
-
+    timeSpentOnChallengesPerTopic = 983
     
 
     systemVariables = {
@@ -1782,6 +1787,20 @@ class SystemVariable():
             },
             'studentGoal': False,
         },
+        timeSpentOnChallenges:{
+            'index': timeSpentOnChallenges,
+            'name':'timeSpentOnChallenges',
+            'displayName':'Time Minutes Spent On Challenges',
+            'description':'The total time in minutes a student has spent completing both warmup and serious challenges',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic: totalTimeSpentOnChallenges
+            },
+            'studentGoal': False,
+        },
         totalMinutesSpentOnWarmupChallenges:{
             'index': totalMinutesSpentOnWarmupChallenges,
             'name':'totalMinutesSpentOnWarmupChallenges',
@@ -1965,6 +1984,20 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesAttempted
+            },
+            'studentGoal': True,
+        },
+        uniqueSeriousChallengesAttemptedForTopic:{
+            'index': uniqueSeriousChallengesAttempted,
+            'name':'uniqueSeriousChallengesAttempted',
+            'displayName':'# of Unique Serious Challenges Completed',
+            'description':'The number of serious challenges that a student has attempted at least once with a score > 0.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfUniqueSeriousChallengesAttempted
             },
             'studentGoal': True,
         },
