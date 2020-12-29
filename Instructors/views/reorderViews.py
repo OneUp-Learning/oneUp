@@ -342,11 +342,13 @@ def moveTeamStudents(request):
 
         old_team = Teams.objects.filter(courseID=current_course, teamLeader=json_data['student-id']).first()
         new_team = Teams.objects.filter(courseID=current_course, teamID=json_data['team-id']).first()
-        team_student = TeamStudents.objects.filter(teamID__courseID=current_course, studentID=json_data['student-id']).first()
-
+        team_student = TeamStudents.objects.filter(activeMember=True, teamID__courseID=current_course, studentID=json_data['student-id']).first()
+        team_student.modeOfEnrollment = 'Instructor'
         team_student.teamID = new_team
         team_student.save()
-
+        print("Old Team: ", old_team)
+        print("New Team: ", new_team)
+        print("TS: ", team_student , 'EM:', team_student.modeOfEnrollment, team_student.activeMember)
         if old_team:
             old_students = TeamStudents.objects.filter(teamID=old_team)
             if old_students:

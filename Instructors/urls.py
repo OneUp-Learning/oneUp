@@ -140,6 +140,8 @@ from Instructors.views.flashCardCreateView import CreateFlashCards
 from Instructors.views.teamListView import teamListView, autoAssign
 from Instructors.views.teamCreateView import teamCreateView
 from Instructors.views.teamCreateNView import CreateNTeams
+from Instructors.views.teamsDeactivateView import deactivateTeams
+from Instructors.views.teamsPastTeamsView import pastTeams
 
 from Instructors.views.reorderViews import reorderGroups
 admin.autodiscover()
@@ -301,7 +303,9 @@ urlpatterns = [
     url(r'^deleteTeam', deleteTeam, name='deleteTeam'),
     url(r'^teamAutoAssign',autoAssign, name='autoAssign'),
     url(r'^moveTeamStudents', moveTeamStudents, name='moveTeamStudents'),
-        url(r'^updateTeamLeader', updateTeamLeader, name='updateTeamLeader'),
+    url(r'^updateTeamLeader', updateTeamLeader, name='updateTeamLeader'),
+    url(r'^deactivateTeams', deactivateTeams, name='deactivateTeamsView'),
+    url(r'^pastTeams', pastTeams, name='teamsPastTeamsView'),
 
 
 ]

@@ -9,15 +9,17 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 from Students.models import Teams, TeamStudents, StudentRegisteredCourses
 from Instructors.views import utils
+from Instructors.views.utils import current_localtime
 from Badges.models import CourseConfigParams
 from oneUp.decorators import instructorsCheck
 from Students.views.avatarView import checkIfAvatarExist
+from Students.views.utils import studentInitialContextDict
+
 pp = pprint.PrettyPrinter(indent=4)
 
 @login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='') 
-def teamListView(request):
-    context_dict,currentCourse = utils.initialContextDict(request)
+def teamList(request):
+    context_dict,currentCourse = studentInitialContextDict(request)
 
     #create category that will contain the students without a team
     if not Teams.objects.filter(courseID=currentCourse, teamName="Unassigned Students").exists():
@@ -36,9 +38,12 @@ def teamListView(request):
     team_ID = []
     team_name = []
     team_avatar = []
-    
+    #Does team have the max number students allowed?
+    team_available = []
     students_in_team = []
     teams = Teams.objects.filter(courseID=currentCourse, activeTeam=True)
+
+    ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
 
     for team in teams:
         team_ID.append(team.teamID)
@@ -46,12 +51,17 @@ def teamListView(request):
         team_avatar.append(team.avatarImage)
 
         team_students = TeamStudents.objects.filter(teamID=team)
+        if ccparams.maxNumberOfTeamStudents > len(team_students):
+            team_available.append(True)
+        else: 
+            team_available.append(False)
         temp = []
         enroll_mode = []
         for ts in team_students:
             temp.append(ts.studentID)
             print(ts.studentID)
             enroll_mode.append(ts.modeOfEnrollment)
+
         if team.teamLeader in temp:
             index = temp.index(team.teamLeader)
             print("Index: ", index)
@@ -62,28 +72,31 @@ def teamListView(request):
             enroll_mode.remove(em)
             enroll_mode.insert(0, em)
             print("EMI", em)
-
         students_in_team.append(list(zip(temp, enroll_mode)))
         
     if teams:
+        #Put unassigned students at bottom
         team_ID = team_ID[1:] + [team_ID[0]]
         team_name = team_name[1:] + [team_name[0]]
         team_avatar = team_avatar[1:] + [team_avatar[0]]
-        
+        team_available = team_available[1:] + [team_available[0]]
         students_in_team = students_in_team[1:] + [students_in_team[0]]
         
 
     
-    context_dict['teams_range'] = list(zip(range(teams.count()), team_ID, team_name, team_avatar, students_in_team))
+    context_dict['teams_range'] = list(zip(range(teams.count()), team_ID, team_name, team_avatar,team_available, students_in_team))
     context_dict['group'] = (1, 3, 4, 6)
-    ccparams = CourseConfigParams.objects.get(courseID=currentCourse)
     
     context_dict['lockInDate'] = ccparams.teamsLockInDeadline
+    #Ensure teams havent been locked
+    if ccparams.teamsLockInDeadline > current_localtime():
+        context_dict['joinable'] = True
+    
     context_dict['selfAssignment'] = ccparams.selfAssignment
-   
+    
    
 
-    return render(request,'Instructors/teamList.html', context_dict)
+    return render(request,'Students/teamList.html', context_dict)
 #function adds students to a team
 def addStudentsToTeam(team,students,course):
     for student in students:
@@ -112,45 +125,22 @@ def getUnassignedStudents(unassigned_team, course):
         unassigned_team.teamLeader = unassigned_students[0]
         unassigned_team.save()
     return unassigned_students
-#function for auto assigned unassigned students to teams
-def autoAssign(request):
-    context_dict,currentCourse = utils.initialContextDict(request)
 
-    unassigned_team = Teams.objects.get(courseID=currentCourse, teamName="Unassigned Students")
-    team_students = TeamStudents.objects.filter(teamID=unassigned_team)
+def studentTeamJoin(request):
+    context_dict,currentCourse = studentInitialContextDict(request)
 
-    for student in team_students:
-        studentID=student.studentID
-        student.delete()
-        team = getRandomTeam(currentCourse)
-        if not team.teamLeader:
-            team.teamLeader = studentID
-            team.save()
-        new_team = TeamStudents()
-        new_team.studentID=studentID
-        new_team.teamID=team
-        new_team.modeOfEnrollment = 'Auto'
-        new_team.save()
+    if 'teamID' in request.GET:
+        team = Teams.objects.get(teamID=request.GET['teamID'], courseID=currentCourse)
+        team_student = TeamStudents.objects.get(studentID=context_dict['student'], activeMember=True, teamID__courseID=currentCourse)
+        team_student.teamID = team
+        team_student.modeOfEnrollment = 'Student'
+        team_student.save()
+        print(team_student, "XXX")
+        
+    return redirect('teamList')
 
-    return redirect('/oneUp/instructors/teamList')
     
-#returns a random team fitting the needs student criteria for auto assign
-def getRandomTeam(course):
-   
-    team_list=[]
-    minimum=500
-    #get all teams in course
-    teams = Teams.objects.filter(courseID=course, activeTeam=True).exclude(teamName='Unassigned Students')
-    for team in teams:
-        ts = TeamStudents.objects.filter(teamID=team)
-        if ts.count()<minimum:
-            minimum = ts.count()
-    for team in teams:
-        ts = TeamStudents.objects.filter(teamID=team)
-        if ts.count()==minimum:
-            team_list.append(team)
-    print(teams)
-    return random.choice(team_list)
+
 
     
 

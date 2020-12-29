@@ -155,8 +155,22 @@
             <a class="waves-effect waves-light btn modal-trigger" href="#add-modal">
                <i class="material-icons left">add_circle</i>Add N New Teams</a>
             <a class="waves-effect waves-light btn" href="/oneUp/instructors/teamAutoAssign">
-               <i class="material-icons left">add_circle</i>Auto Assign Students</a>
-
+               <i class="material-icons left">autorenew</i>Auto Assign Students</a>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+            <a class="waves-effect waves-light btn modal-trigger" href="#modal-new-teams"><i class="material-icons left">archive</i>Archive All Teams</a></li>
+               <div id="modal-new-teams" class="modal">
+                  <div class="modal-content">
+                     <h5>Are you sure you want to create a new team set?</h5>
+                     <p>All current teams will be deactivated allowing for a new set of teams to be created.</p>
+                  </div>
+                  <div class="modal-footer">
+                     <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+                     <a href='/oneUp/instructors/deactivateTeams' class="modal-action modal-close waves-effect waves-light btn-flat">Continue</a>
+               
+                  </div>
+               </div>
+               <a class="waves-effect waves-light btn" href="/oneUp/instructors/pastTeams">
+                  <i class="material-icons left">remove_red_eye</i>View Archived Teams</a>
             <div id="add-modal" class="modal">
                <div class="modal-content">
                   <div class="row center-align">
@@ -228,7 +242,7 @@
                            <div class="collapsible-body">
                               <ul class="sortable-students" data-team-id="{{team_ID}}"
                                  style="padding-bottom: 1px;">
-                                 {% for student in students_in_group %}
+                                 {% for student, enrollment in students_in_group %}
                                  <li id="{{student.id}}" data-team-id="{{team_ID}}">
                                     <div class="sortable-item" style="display: grid;
                                     grid-template-columns: auto 1fr auto; text-align: left">
@@ -236,13 +250,17 @@
                                           <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
                                        </div>
                                        
-                                       <span style="max-width: 40%;min-width: 40%">{{student}}</span>
-                                       {% if forloop.first %}
-                                       <div id="{{team_ID}}-star" style="padding-right: 8px;">
-                                          <i class="material-icons" style="vertical-align: bottom;">stars</i>
-                                       </div>
-                                       {% endif %}
+                                       <span style="max-width: 40%;min-width: 40%">{{student}} </span> 
+                                       {% if not team_name == "Unassigned Students" %}
+                                       <span style="color:gray;">Enrollment Method: <b>{{enrollment}}</b></span>
+
                                        
+                                       {% if forloop.first %}
+                                       <span id="{{team_ID}}-star" style="width:15%;white-space: nowrap;padding-right: 8px;">
+                                          <i class="material-icons" style="vertical-align: bottom;">stars</i>
+                                       </span>
+                                       {% endif %}
+                                       {% endif %}
                                     </div>
                                  </li>
                                  {% endfor %}

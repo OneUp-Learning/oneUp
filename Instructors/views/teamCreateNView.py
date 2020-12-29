@@ -33,7 +33,7 @@ def CreateNTeams(request):
                         break
             else:
                 team.teamName = "Team {}".format(i+1+total_teams)
-            team.teamLeader = StudentRegisteredCourses.objects.filter(courseID=currentCourse)[0].studentID
+            team.avatarImage = '/static/images/avatars/anonymous.png'
             team.save()    
         
     return redirect("/oneUp/instructors/teamList")
