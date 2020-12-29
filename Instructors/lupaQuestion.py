@@ -169,8 +169,9 @@ else:
     luaModuleSyntaxErrorRegex = re.compile("\s*error loading module '(.*)' from file '(.*)':(.*)")
     luaMainErrorRegex = re.compile('\s*(error loading code:)?\s*(.*):(\d+):(.*)')
     luaErrorPythonStringRegex = re.compile('.*string.*python')
+    luaErrorOneUpRegex = re.compile('.*OneUp.*')
     # Parses a Lua Error and returns a dictionary which contains information gleaned from the error message
-    def parseLuaError(luaerr):
+    def parseLuaError(luaerr,errTypeHint=None):
         errstr = str(luaerr)
         
         print(errstr)
@@ -199,7 +200,7 @@ else:
                 else:
                     error['type'] = LuaErrorType.runtime
         
-        if re.match(luaErrorPythonStringRegex,main_matches.group(2)):
+        if re.match(luaErrorPythonStringRegex,main_matches.group(2)) or re.match(luaErrorOneUpRegex,main_matches.group(2)):
             error['source'] = 'input'
         else:
             error['source'] = 'module'
@@ -207,7 +208,11 @@ else:
         error['line'] = int(main_matches.group(3))
         error['message'] = main_matches.group(4)
         
-        return error            
+        if error['type'] == LuaErrorType.runtime and errTypeHint:
+            # Newest code gives indistinguishable messages for syntax and runtime errors, but we can tell which is which based
+            # on when they occur, so we've add this hint in some cases to tell it that it is syntax rather than runtime
+            error['type'] = errTypeHint  
+        return error
     
     class LupaRuntimeLink:
         cache = {}
@@ -260,29 +265,29 @@ else:
     #       set_persistents(self.persistents)
             for cmdtype,text in link.history:
                 if cmdtype == 'eval':
-                    link.runcode_function("return "+text,"Eval")
+                    link.runcode_function("return "+text,"OneUp Eval")
                 if cmdtype == 'execute':
-                    link.runcode_function(text,"Exec")
+                    link.runcode_function(text,"OneUp Exec")
     
             LupaRuntimeLink.cache[uuid] = link 
             return link
         
         def eval(self,code):
             try:
-                success, result = self.runcode_function("return "+code,"Eval")
+                success, result = self.runcode_function("return "+code,"OneUp Eval")
                 self.history.append(('eval',code))
                 #print ("EVAL:"+code)
                 self.version += 1
                 if success:
                     return (True,result)
                 else:
-                    return (False,parseLuaError(result))
+                    return (False,parseLuaError(result,LuaErrorType.syntax))
             except LuaError as luaerr:
                 return (False,parseLuaError(luaerr))
         def sys_exec(self,code):
             try:
                 #result = self.runtime.execute(code)
-                success, result = self.runcode_function(code,"System Exec")
+                success, result = self.runcode_function(code,"OneUp System Exec")
                 self.history.append(('execute',code))
                 #print ("SYS_EXEC:"+code)
                 self.version += 1
@@ -290,7 +295,7 @@ else:
                 if success:
                     return True
                 else:
-                    return parseLuaError(result)
+                    return parseLuaError(result,LuaErrorType.syntax)
             except LuaError as luaerr:
                 return parseLuaError(luaerr)
         def user_exec(self,codesegments):            
@@ -304,11 +309,11 @@ else:
             self.version += 1
             
             try:
-                success, result = self.runcode_function(code,"User Exec")
+                success, result = self.runcode_function(code,"OneUp User Exec")
                 if success:
                     return True
                 else:
-                    return parseLuaError(result)
+                    return parseLuaError(result,LuaErrorType.syntax)
             except LuaError as luaerr:
                 return parseLuaError(luaerr)
     
