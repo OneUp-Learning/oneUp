@@ -89,7 +89,7 @@ def teamList(request):
     
     context_dict['lockInDate'] = ccparams.teamsLockInDeadline
     #Ensure teams havent been locked
-    if ccparams.teamsLockInDeadline > current_localtime():
+    if ccparams.teamsLockInDeadline > current_localtime() and ccparams.selfAssignment:
         context_dict['joinable'] = True
     
     context_dict['selfAssignment'] = ccparams.selfAssignment
