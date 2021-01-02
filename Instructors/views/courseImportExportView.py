@@ -962,13 +962,13 @@ def validateCourseExport(request):
                 'topics' not in request.POST:
                 messages.append({'type': 'warn', 'message': 'Topics assigned to challenges will not be exported. Please select Topics when exporting to change this'})
 
-            if 'activities' in request.POST:
+            #if 'activities' in request.POST:
                 # Notify user about fields not being exported 
-                messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
+                #messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
 
-            if 'serious-challenges' in request.POST or 'warmup-challenges' in request.POST:
+            #if 'serious-challenges' in request.POST or 'warmup-challenges' in request.POST:
                 # Notify user about field export decisions
-                messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
+                #messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
 
             post_request = dict(request.POST)
             # Versioning
@@ -1924,13 +1924,13 @@ def importCourse(request):
 
                     id_map = initialize_id_map(root_json)
 
-                    if 'activities' in root_json:
+                    #if 'activities' in root_json:
                         # Notify user about fields not being exported 
-                        messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date fields was not set after importing'})
+                        #messages.append({'type': 'info', 'message': 'Activities Display From, Display To, and Due Date fields was not set after importing'})
 
-                    if 'serious-challenges' in root_json or 'warmup-challenges' in root_json:
+                    #if 'serious-challenges' in root_json or 'warmup-challenges' in root_json:
                         # Notify user about field export decisions
-                        messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
+                        #messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
                     
                     if 'topics' in root_json:
                         import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
@@ -2168,23 +2168,11 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
             # start, end, and due date to course start date,
             # course end date, and course end date respectively
             course_config_params_list_should_contain_just_one = CourseConfigParams.objects.filter(courseID=current_course)        
-            if len(course_config_params_list_should_contain_just_one) == 1:
-                course_config_params = course_config_params_list_should_contain_just_one[0]
-                
-                # Create the challenge model instance
-                challenge_fields_to_save = {'hasStartTimestamp': course_config_params.hasCourseStartDate,
-                        'hasEndTimestamp': course_config_params.hasCourseEndDate,
-                        'hasDueDate': course_config_params.hasCourseEndDate,
-                        'startTimestamp': course_config_params.courseStartDate,
-                        'endTimestamp': course_config_params.courseEndDate,
-                        'dueDate': course_config_params.courseEndDate,
-                        'courseID': current_course}
-            else:
-                # Something weird is going on with the current course, it has no params.  We're going to just give the challenges no dates.
-                challenge_fields_to_save = {'hasStartTimestamp': False,
-                        'hasEndTimestamp': False,
-                        'hasDueDate': False,
-                        'courseID': current_course}
+            
+            challenge_fields_to_save = {'hasStartTimestamp': False,
+                'hasEndTimestamp': False,
+                'hasDueDate': False,
+                'courseID': current_course}
                 
             challenge = create_model_instance(Challenges, challenge_json, custom_fields_to_save=challenge_fields_to_save)
             challenge.save()
