@@ -817,9 +817,9 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="font-size:26px" class="primary-colored-text">{{studentXP_range}}</td>
+                                <td style="font-size:26px" class="primary-colored-text">{{studentXP_range | floatformat:"0"}}</td>
                                 {% if ccparams.warmupsUsed %}
-                                <td style="font-size:26px"><span class="primary-colored-text">{{totalWCEarnedPoints|floatformat}}</span> / <span class="primary-colored-text">{{totalWCPossiblePoints|floatformat}}</span></td>
+                                <td style="font-size:26px"><span class="primary-colored-text">{{totalWCEarnedPoints|floatformat:"0"}}</span> / <span class="primary-colored-text">{{totalWCPossiblePoints|floatformat}}</span></td>
                                 {% endif %}
                                 {% if ccparams.virtualCurrencyUsed %}
                                 <td style="font-size:26px" class="primary-colored-text">{{course_Bucks}}</td>

@@ -37,7 +37,7 @@
             <div style="padding-left: 8px; padding-right: 8px; display:flex; justify-content: space-evenly;">
                 <div style="max-width: 80px; min-width: 80px;">
                     <div title="{{studentXP_range}}" class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
-                        {{studentXP_range}}
+                        {{studentXP_range | floatformat:"0"}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
                         Experience Points
@@ -46,7 +46,7 @@
                 {% if ccparams.warmupsUsed %}
                 <div style="max-width: 80px; min-width: 80px;">
                     <div title="{{totalWCEarnedPoints|floatformat}}" class="primary-colored-text" style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
-                        {{totalWCEarnedPoints|floatformat}}
+                        {{totalWCEarnedPoints|floatformat:"0"}}
                     </div>
                     <div style="font-size: 0.9em;font-weight: 300; text-align: center;">
                         Practice Points
