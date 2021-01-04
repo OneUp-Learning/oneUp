@@ -183,18 +183,22 @@ def virtualCurrencyShopView(request):
                                    'description': rule.vcRuleDescription, 'challenges': copy.deepcopy(challenges), 'limit': rule.vcRuleLimit if not rule.vcRuleLimit == unlimited_constant else 0, 'remaining': 0})
 
             # filter out the potential buy options if the student has went over the limit by looking at their transactions
+            finalBuyOptions = []
             for buyOption in buyOptions:
-                studentTransactions = StudentVirtualCurrencyTransactions.objects.filter(course=currentCourse, student=student, status__in=[
-                                                                                        'Requested', 'In Progress', 'Complete'], studentEvent__event=Event.spendingVirtualCurrency, studentEvent__objectID=buyOption['id'])
+                numStudentTransactions = StudentVirtualCurrencyTransactions.objects.filter(
+                    course=currentCourse,
+                    student=student, status__in=['Requested', 'In Progress', 'Complete'],
+                    studentEvent__event=Event.spendingVirtualCurrency,
+                    studentEvent__objectID=buyOption['id']).count()
                 if buyOption['limit'] == 0:
-                    continue
-                elif len(studentTransactions) >= buyOption['limit']:
-                    buyOptions.remove(buyOption)
+                    finalBuyOptions.append(buyOption)
+                elif numStudentTransactions >= buyOption['limit']:
+                    continue                    
                 else:
-                    buyOption['remaining'] = abs(
-                        buyOption['limit'] - len(studentTransactions))
+                    buyOption['remaining'] = buyOption['limit'] - numStudentTransactions
+                    finalBuyOptions.append(buyOption)
 
-            context_dict['buyOptions'] = buyOptions
+            context_dict['buyOptions'] = finalBuyOptions
             request.session['buyoptions'] = [
                 {'id': buyOption['id']} for buyOption in buyOptions]
             context_dict['numBuyOptions'] = len(buyOptions)
@@ -207,13 +211,25 @@ def virtualCurrencyShopView(request):
             enabledBuyOptions = request.session['buyoptions']
             total = 0
             for buyOption in enabledBuyOptions:
-                quantity = request.POST['buyOptionQuantity' +
-                                        str(buyOption['id'])]
+                quantity = int(request.POST['buyOptionQuantity' +
+                                        str(buyOption['id'])])
                 rule = VirtualCurrencyCustomRuleInfo.objects.filter(
                     vcRuleType=False, courseID=currentCourse, vcRuleID=buyOption['id']).first()
                 if rule:
+                    numStudentTransactions = StudentVirtualCurrencyTransactions.objects.filter(
+                        course=currentCourse, 
+                        student=student, 
+                        status__in=['Requested', 'In Progress', 'Complete'],
+                        studentEvent__event=Event.spendingVirtualCurrency,
+                        studentEvent__objectID=buyOption['id']).count()
+
+                    remaining = rule.vcRuleLimit - numStudentTransactions
+                    quantity = min(quantity, remaining)
+                    if quantity <= 0:
+                        continue
+
                     total += int(quantity) * int(rule.vcRuleAmount)
-                    for j in range(0, int(quantity)):
+                    for j in range(0, quantity):
                         studentVCTransaction = StudentVirtualCurrencyTransactions()
                         studentVCTransaction.student = student
                         studentVCTransaction.course = currentCourse

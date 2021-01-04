@@ -70,10 +70,12 @@ def preferencesView(request):
             ccparams.vcDuelParticipants = request.POST.get(
                 'vc_duel_participants')
             ccparams.vcDuelMaxBet = request.POST.get("vc_duel_max_bet")
+            ccparams.minimumCreditPercentage = request.POST.get('minimumCreditPercent')
         else:
             ccparams.vcDuel = 0
             ccparams.vcCallout = 0
             ccparams.vcDuelParticipants = 0
+            ccparams.minimumCreditPercentage = 0
         ccparams.betVC = "betVC" in request.POST
         ccparams.calloutAfterWarmup = "calloutAfterWarmup" in request.POST
 
@@ -259,6 +261,7 @@ def preferencesView(request):
             context_dict["vc_duel_participants"] = ccparams.vcDuelParticipants
             context_dict["vc_duel_max_bet"] = ccparams.vcDuelMaxBet
             context_dict["calloutAfterWarmup"] = ccparams.calloutAfterWarmup
+            context_dict["minimumCreditPercent"] = ccparams.minimumCreditPercentage
 
             # Hints
             context_dict["hintsUsed"] = ccparams.hintsUsed

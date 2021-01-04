@@ -1087,7 +1087,7 @@ def getNumberOfUniqueWarmupChallengesAttempted(course, student):
         if challengeAttempts.exists():
             #iterates through all attempts checking for one > 0
             for attempt in challengeAttempts:
-                print("****************************"+str(attempt.testScore))
+#                print("****************************"+str(attempt.testScore))
                 if attempt.testScore > 0:
                     gradeMoreThanZero=True
             if gradeMoreThanZero:
