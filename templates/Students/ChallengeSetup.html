@@ -42,6 +42,13 @@
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
    <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
    <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		// Warning before leaving the page (back button, or outgoinglink)
+		window.onbeforeunload = function() {
+			// Note: The message leaving function is only fired after the page is interacted with as a security precaution.
+		   return "A challenge is in progress, Navigating away from this page may result in loss of data!";
+		};
+	</script>
    <script type="text/javascript">
       // Set time out for the test if the time limit has reached 
       var duration = {{ testDuration }}; //time limit in minutes from database
