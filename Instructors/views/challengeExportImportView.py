@@ -88,7 +88,7 @@ def validateChallengeExport(request):
         root_json = {}
         
         # Notify user about field export decisions
-        messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
+        #messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date will not be exported. These options should be set after importing'})
 
 
         # get the list of all checked challenges
@@ -194,7 +194,7 @@ def importChallenge(request):
                     if 'code-paths' in root_json:
                         id_map['code-paths'] = {}
                     # Notify user about field export decisions
-                    messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
+                    #messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
                     if 'topics' in root_json:
                         import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
                     

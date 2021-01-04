@@ -505,12 +505,12 @@
                                         <input value={{levelTo1XP}} name="levelTo1XP" id="levelTo1XP" maxlength="3"
                                             type="number" min="0" required>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Percentage to next level after level 1</p>
-                                        <input value={{nextLevelPercent}} name="nextLevelPercent" id="nextLevelPercent"
-                                            maxlength="3" type="number" min="0" max="100" required>
+                                 <div class="row">
+                                        <div class="input-field col s12">
+                                            <p style="font-size: 0.8rem;">Percentage to increase the XP needed for each next level after level 1</p>
+                                            <input value={{nextLevelPercent}} name="nextLevelPercent" id="nextLevelPercent" maxlength="3"
+                                                type="number" min="0" max="100" required>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -748,6 +748,13 @@
                                         <input value="{{vc_callout}}" name=vc_callout id="vc_callout" maxlength="7"
                                             type="number" min="0" max="100" required>
 
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Percent required to receive credit for winning a duel</p>
+                                        <input value={{minimumCreditPercent}} name="minimumCreditPercent" id="minimumCreditPercent" maxlength="3"
+                                            type="number" min="0" max="100" required>
                                     </div>
                                 </div>
                             </div>
