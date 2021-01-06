@@ -493,7 +493,7 @@ class Teams(models.Model):
     activeTeam = models.BooleanField(default=True, verbose_name = 'Indicates whether or not team is in current set of active teams')
 
     def __str__(self):
-        return "{} : {} : {} : {} : {}".format(self.teamID, self.courseID, self.teamLeader, self.teamName, self.avatarImage)
+        return "{} : {} : {} : {} : {} : {}".format(self.teamID, self.courseID, self.teamLeader, self.teamName, self.avatarImage, self.activeTeam)
 
 class TeamStudents(models.Model):
     teamID = models.ForeignKey(Teams, on_delete=models.CASCADE, verbose_name="the team", db_index=True)
@@ -503,7 +503,7 @@ class TeamStudents(models.Model):
     #indicates how the student was enrolled in the team: S = self-enrolled, I = Individually by instructor, A = auto-assigned by instructor
     modeOfEnrollment = models.CharField(max_length=1, default = '')
     def __str__(self):
-        return "{} : {}".format(self.teamID, self.studentID)
+        return "{} : {} : {} : {}".format(self.teamID, self.studentID, self.activeMember, self.modeOfEnrollment)
 class TeamChallenges(models.Model):
     teamChallengeID = models.AutoField(primary_key=True)
     teamID = models.ForeignKey(Teams, on_delete=models.CASCADE, verbose_name="the related team", db_index=True)
