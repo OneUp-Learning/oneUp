@@ -185,6 +185,7 @@ model_lookup_table = {
             'startTimestamp': None,
             'endTimestamp': None,
             'dueDate': None,
+            'isVisible': None,
         },
         'Export': {
             'challengeID': None,
@@ -2169,10 +2170,14 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
             # course end date, and course end date respectively
             course_config_params_list_should_contain_just_one = CourseConfigParams.objects.filter(courseID=current_course)        
             
-            challenge_fields_to_save = {'hasStartTimestamp': False,
+            challenge_fields_to_save = {
+                'hasStartTimestamp': False,
                 'hasEndTimestamp': False,
                 'hasDueDate': False,
-                'courseID': current_course}
+                'courseID': current_course,
+                'isVisible': False,
+            }
+                
                 
             challenge = create_model_instance(Challenges, challenge_json, custom_fields_to_save=challenge_fields_to_save)
             challenge.save()
