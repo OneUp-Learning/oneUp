@@ -955,32 +955,39 @@ def getNumberOfBadgesEarned(course, student):
     logger.debug("Number of Earned Badges by student: " + str(badges_total))
     return badges_total
 
-def getNumberOfDuelsSent(course, student):
+def getDuelChallenges(course,topic=None):
+    from Students.models import DuelChallenges
+    result = DuelChallenges.objects.filter(courseID=course)
+    if topic:
+        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
+        result = result.filter(challengeID__in = challenges_in_topic)
+    return result
+
+def getNumberOfDuelsSent(course, student, topic=None):
     ''' This will return the number of duels sent by a student regardless of the
         outcome of the duel
     '''
-    from Students.models import DuelChallenges
-    sent = len(DuelChallenges.objects.filter(challenger=student, courseID=course))
-    print("getNumberOfDuelsSent")
-    print(sent)
+    sent = getDuelChallenges(course,topic).filter(challenger=student).count()
     return sent
 
-def getNumberOfDuelsAccepted(course, student):
+def getNumberOfDuelsAccepted(course, student, topic=None):
     ''' This will return the number of duels a student has accepted sent by any other
         student.
         Status -> indicates the status of the challenge 0=canceled ,1=pending, 2=accepted
     '''
-    from Students.models import DuelChallenges
-    accepted = len(DuelChallenges.objects.filter(challengee=student, courseID=course, status=2))
+    accepted = getDuelChallenges(course,topic).filter(challengee=student, status=2).count()
     return accepted
 
-def getNumberOfDuelsWon(course, student):
+def getNumberOfDuelsWon(course, student, topic=None):
     ''' This will return the number of wins the student has earned for every duel 
         in the course
     '''
     from Students.models import Winners
-    wins = len(Winners.objects.filter(studentID=student, courseID=course))
-    return wins
+    wins = Winners.objects.filter(studentID=student, courseID=course)
+    if topic:
+        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
+        wins = wins.filter(duelChallengeID__challengeID__in=challenges_in_topic)
+    return wins.count()
 
 def getNumberOfDuelsParticipated(course, student):
     ''' This will return the number of duels the student has participated
@@ -1028,40 +1035,56 @@ def getNumberOfDuelsLost(course, student):
 
     return count
 
-def getNumberOfCalloutSent(course, student):
+def getCallouts(course,topic=None):
+    from Students.models import Callouts
+    callouts = Callouts.objects.filter(courseID=course)
+    if topic:
+        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
+        callouts = callouts.filter(challengeID__in = challenges_in_topic)
+    return callouts
+
+def getNumberOfCalloutSent(course, student, topic=None):
     ''' This will return the number of call outs sent by a student regardless of weather sender won or not
     '''
-    from Students.models import Callouts
-    sent = len(Callouts.objects.filter(sender=student, courseID=course))
+    sent = getCallouts(course,topic).filter(sender=student).count()
     return sent
 
-def getNumberOfCalloutParticipate(course, student):
+def getNumberOfCalloutParticipate(course, student, topic=None):
     ''' This will return the number of call outs a student has participated in sent by any other
         student regardless of weather participant won or not.
     '''
     from Students.models import CalloutStats
-    return len(CalloutStats.objects.filter(studentID=student, courseID=course))
+    calloutstats = CalloutStats.objects.filter(studentID=student, courseID=course)
+    if topic:
+        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
+        calloutstats = calloutstats.filter(calloutID__challengeID__in=challenges_in_topic)
+    return calloutstats.count()
 
-def getNumberOfCalloutRequested(course, student):
+def getCalloutParticipants(course, student, topic=None):
+    from Students.models import CalloutParticipants
+    callouts = CalloutParticipants.objects.filter(courseID=course, participantID=student)
+    if topic:
+        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
+        callouts = callouts.filter(challengeID__in = challenges_in_topic)
+    return callouts 
+
+def getNumberOfCalloutRequested(course, student, topic=None):
     ''' This will return the number of call outs a student has been requested, sent by any other
         student regardless of weather participant won or not.
     '''
-    from Students.models import CalloutParticipants
-    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course))
-    
-def getNumberOfCalloutParticipationWon(course, student):
+    return getCalloutParticipants(course, student, topic).count()
+
+def getNumberOfCalloutParticipationWon(course, student, topic=None):
     ''' This will return the number of wins the student has earned for every requested call out 
         in the course 
     '''
-    from Students.models import CalloutParticipants
-    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course, hasWon=True))
+    return getCalloutParticipants(course, student, topic).filter(hasWon=True).count()
 
-def getNumberOfCalloutParticipationLost(course, student):
+def getNumberOfCalloutParticipationLost(course, student, topic=None):
     ''' This will return the number of lost the student has for every requested call out 
         in the course 
     '''
-    from Students.models import CalloutParticipants
-    return len(CalloutParticipants.objects.filter(participantID=student, courseID=course, hasWon=False, hasSubmitted=True))
+    return getCalloutParticipants(course, student, topic).filter(hasWon=False, hasSubmitted=True).count()
 
 def getNumberOfUniqueSeriousChallengesAttempted(course, student,topic=None):
     ''' Get the number of unique serious challenges the student has taken.'''    
@@ -1400,7 +1423,11 @@ class SystemVariable():
     timeSpentOnFlashcards = 981
     totalFlashcardsCompleted = 982
     timeSpentOnChallengesPerTopic = 983
-    
+    uniqueSeriousChallengesAttemptedForTopic = 984
+    totalMinutesSpentOnSeriousChallengesPerTopic = 986
+    duelsSentPerTopic = 987
+    duelsAcceptedPerTopic = 988
+    duelsWonPerTopic = 989
 
     systemVariables = {
         score:{
@@ -1787,11 +1814,11 @@ class SystemVariable():
             },
             'studentGoal': False,
         },
-        timeSpentOnChallenges:{
-            'index': timeSpentOnChallenges,
+        timeSpentOnChallengesPerTopic:{
+            'index': timeSpentOnChallengesPerTopic,
             'name':'timeSpentOnChallenges',
             'displayName':'Time Minutes Spent On Challenges',
-            'description':'The total time in minutes a student has spent completing both warmup and serious challenges',
+            'description':'The total time in minutes a student has spent completing both warmup and serious challenges in a particular topic',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge],
             },
@@ -1826,6 +1853,34 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none:getTotalMinutesSpentOnSeriousChallenges
+            },
+            'studentGoal': False,
+        },
+        totalMinutesSpentOnWarmupChallengesPerTopic:{
+            'index': totalMinutesSpentOnWarmupChallengesPerTopic,
+            'name':'totalMinutesSpentOnWarmupChallenges',
+            'displayName':'Total Minutes Spent on Warmup Challenges',
+            'description':'The total minutes a student has spent on warmup challenges in a topic',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getTotalMinutesSpentOnWarmupChallenges
+            },
+            'studentGoal': False,
+        },
+        totalMinutesSpentOnSeriousChallengesPerTopic:{
+            'index': totalMinutesSpentOnSeriousChallengesPerTopic,
+            'name':'totalMinutesSpentOnSeriousChallenges',
+            'displayName':'Total Minutes Spent on Serious Challenges',
+            'description':'The total minutes a student has spent on serious challenges in a topic',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getTotalMinutesSpentOnSeriousChallenges
             },
             'studentGoal': False,
         },
@@ -2294,12 +2349,54 @@ class SystemVariable():
                 ObjectTypes.none:getNumberOfDuelsWon
             },
             'studentGoal': True,
+        },      
+        duelsSentPerTopic:{
+            'index': duelsSentPerTopic,
+            'name':'duelsSent',
+            'displayName':'# of Duels Sent',
+            'description':'The total number of duels a student has sent to other students in a given topic',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.duelSent],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfDuelsSent
+            },
+            'studentGoal': False,
+        },  
+        duelsAcceptedPerTopic:{
+            'index': duelsAcceptedPerTopic,
+            'name':'duelsAccepted',
+            'displayName':'# of Duels Accepted',
+            'description':'The total number of duels a student has accepted from other students in a given topic',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.duelAccepted],  
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfDuelsAccepted
+            },
+            'studentGoal': False,
+        },     
+        duelsWonPerTopic:{
+            'index': duelsWonPerTopic,
+            'name':'duelsWon',
+            'displayName':'# of Duels Won',
+            'description':'The total number of duels a student has won in a given topic',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.duelWon],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfDuelsWon
+            },
+            'studentGoal': True,
         },       
         duelsParticipated:{
             'index': duelsParticipated,
             'name':'duelsParticipated',
             'displayName':'# of Duels Participation',
-            'description':'The total number of duels a student has participated in regarless of the duels outcomes',
+            'description':'The total number of duels a student has participated in a given topic regardless of the duels outcomes',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.duelWon, Event.duelLost],
             },
@@ -2418,20 +2515,6 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none: getStudentVC
-            },
-            'studentGoal': True,
-        },
-        totalMinutesSpentOnWarmupChallengesPerTopic: {
-            'index': totalMinutesSpentOnWarmupChallengesPerTopic,
-            'name': 'totalMinutesSpentOnWarmupChallengesPerTopic',
-            'displayName':'Total Minutes Spent on Warmup Challenges in a Topic',
-            'description':'The sum total time that a student has spent on warm-up challenges in a given topic.',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.topic:[Event.endChallenge]
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.topic: getTotalMinutesSpentOnWarmupChallengesPerTopic
             },
             'studentGoal': True,
         },
