@@ -1,4 +1,5 @@
-#module for builtsin for oneUp.
+--- Module for builtsin for oneUp
+-- This file should be kept in sync with the code in Instructors/views/templateDynamicQuestionsView.py
 
 local oneUp = {}
 
@@ -11,6 +12,14 @@ function(inputsTable,checkerTable)
   return results
 end
 
+--- Answer checker for exact equality.
+-- This checker checks if the answer is exactly numeric equal to a given value.
+-- If it is an exact match, it awards full points.
+-- Otherwise, it awards 0.
+-- It is recommended to use this checker with numeric equality of whole number
+-- values, but not for strings or floating point values.
+-- @tparam number a The answer
+-- @usage exact_equality(5)
 oneUp.exact_equality = function(a)
   return function(b,pts)
     if tonumber(a)==tonumber(b) then
@@ -21,63 +30,72 @@ oneUp.exact_equality = function(a)
   end
 end
 
-oneUp.exact_equality_with_partial_credit_range = function(a,range,partialpts)
-  return function(b,pts)
-    a = tonumber(a)
-    b = tonumber(b)
-    if b==nil then
-      return {success=false,value=0}
-    end
-    if a==b then
-      return {success=true,value=pts}
-    elseif math.abs(a-b) <= range then
-      return {success=false,value=partialpts}
-    else
-      return {success=false,value=0}
-    end
-  end
-end
-
+--- Answer checker for approximate equality
+-- Checks if an answer is approximately equal to another one.
+-- If the student answer is within a given ratio of the correct answer
+-- full points are awarded.
+-- Otherwise, no point are awarded.
+-- For example, if you want the student to be within 1% of the answer 79.28
+-- you would use approximate_equality(79.28,0.01)
+-- This checker is highly recommended for use with floating point values
+-- to avoid small differences in rounding as binary floating point numbers
+-- are rarely exactly the same as their decimal equivalents.
+-- Note that the behavior of this answer checker means that if the correct answer is 0, the student must get it exactly.
+--
+-- If this is called with the arguments `(20,0.01)` any answer
+-- greater than 19.8 and less than 20.2 would be counted as correct.
+-- Exactly 19.8 and exactly 20.2 may or may not be considered correct
+-- depending on the internal rounding of the floating point numbers.
+-- Anything less than 19.8 or greater than 20.2 will not be considered correct.
+--
+-- @tparam number a The correct answer
+-- @tparam number fudgefraction A ratio which expresses how close the student must be to the correct answer
+-- @usage approximate_equality(20,0.01)
 oneUp.approximate_equality = function(a,fudgefraction)
+  a = tonumber(a)
+  fudgefraction = tonumber(fudgefraction)
   return function(b,pts)
-    a = tonumber(a)
     b = tonumber(b)
     fudgefraction = tonumber(fudgefraction)
     if a == nil or b == nil or fudgefraction == nil then
       return {success=false,value=0}
     end
-    local diff = math.abs(a-b)
-    if diff/a<fudgefraction then
-      return {success=true,value=pts}
+    if a == 0 then
+       if b <= fudgefraction and b >= -fudgefraction then
+	  return {success=true,value=pts}
+       else
+	  return {success=false,value=0}
     else
-      return {success=false,value=0}
+       local diff = math.abs((a-b)/a)
+       if diff <= fudgefraction then
+	  return {success=true,value=pts}
+       else
+	  return {success=false,value=0}
     end
   end
 end
 
-oneUp.word_list_equality = function(wl)
-  return function(b,pts)
-    local blist = {}
-    while b ~= '' do
-      local word = string.match(b,"[%a%d]*")
-      table.insert(blist,word)
-      b = string.sub(b,word:len()+1)
-      local sep = string.match(b,"[^%a%d]*")
-      b = string.sub(b,sep:len()+1)
-    end
-    if #wl ~= #blist then 
-      return {success=false,value=0}
-    else
-      for i,v in ipairs(wl) do
-        if string.upper(v) ~= string.upper(blist[i]) then
-          return {success=false,value=0}
-        end
-      end
-    end
-    return {success=true,value=pts}
-  end
-end
-
+--- String equality answer checker which ignores spaces
+-- This answer checker checks a student answer against a string but it
+-- ignores any whitespace (before, after, or in the middle).
+-- It is also case-insensitive.
+--
+-- If called with `"the answer"` as the correct answer, here are
+-- some answers which would be marked correct
+--
+-- - `the answer`
+-- - `The Answer`
+-- - `theanswer`
+-- - `  t H e   a N S w e   r   `
+--
+-- Here are some example answers which would be marked as incorrect
+--
+-- - `the answer!`
+-- - `teh answer`
+-- - `an answer`
+--
+-- @tparam string str The correct answer
+-- @usage string_equality_ignore_spaces("the answer")
 oneUp.string_equality_ignore_spaces = function(str)
   return function(b,pts)
     if b == nil then
@@ -93,50 +111,3 @@ oneUp.string_equality_ignore_spaces = function(str)
   end
 end
 
-set_equality = function(wl)
-  return function(b,pts)
-     local make_failure_result_with_error = function(message,pts)
-	local onedetail = {seqnum=1,success=false,value=0,max_points=pts}
-	local details = {}
-	details[message] = onedetail
-	return {success=false,value=0, details=details}
-     end
-    b = string.gsub(b,"^%s*(.-)%s*$", "%1")
-    if string.sub(b,1,1) ~= '{' or string.sub(b,#b) ~= '}' then
-      name = "Used curly braces"
-      return make_failure_result_with_error("Used curly braces",pts)
-    end
-    b = string.sub(b,2,#b-1)
-    local blist = {}
-    while b ~= '' do
-      local superword = string.match(b,"^%s*[%a%d]+%s*,?%s*")
-      local word = string.match(superword,"^%s*([%a%d]+)%s*,?%s*")
-      local sep = string.match(superword,"^%s*[%a%d]+%s*(,?)%s*")
-      table.insert(blist,word)
-      b = string.sub(b,superword:len()+1)
-      print("superword: "..superword..">end")
-      print("word: "..word..">end")
-      print("sep: "..sep..">end")
-      print("b: "..b..">end")
-      if sep ~= ',' and b ~= '' then
-        return make_failure_result_with_error("Used commas properly",pts)
-      end
-    end
-    if #wl ~= #blist then 
-      return make_failure_result_with_error("Correct number of values",pts)
-    else
-      for i=1,#wl do
-        local isGood=false
-        for j=1,#wl do
-        if string.upper(wl[i]) == string.upper(blist[j]) then
-            isGood=true
-        end
-        end
-        if not isGood then
-          return make_failure_result_with_error("Matched values correctly",pts)
-        end
-      end
-    end
-    return {success=true,value=pts}
-  end
-end
