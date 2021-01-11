@@ -1,36 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
+
+<head>
     {% include 'scripts.html' %}
     <script>
-        $( document ).ready(function(){
+        $(document).ready(function () {
             var endDate = $('#endTime').bootstrapMaterialDatePicker({
-                weekStart: 0, time: false, format: 'MMMM D, Y'
-            }).on('change', function(e, date) {
+                weekStart: 0,
+                time: false,
+                format: 'MMMM D, Y'
+            }).on('change', function (e, date) {
                 $('#startTime').bootstrapMaterialDatePicker('setMaxDate', date);
             });;
-            
+
             var startDate = $('#startTime').bootstrapMaterialDatePicker({
-                weekStart: 0, time: false, format: 'MMMM D, Y'
-            }).on('change', function(e, date) {
+                weekStart: 0,
+                time: false,
+                format: 'MMMM D, Y'
+            }).on('change', function (e, date) {
                 $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
             });
         });
     </script>
-   </head>
-   <body>
-        {% include 'heading.html' %}
-        <main>
-            <div class="row center-align" style="margin-bottom: 0;">
-                <div class="col s12">
-                    <h3>Course Configuration</h3>
-                </div>
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align" style="margin-bottom: 0;">
+            <div class="col s12">
+                <h3>Course Configuration</h3>
             </div>
-            <form name="CourseConfigParam" action="/oneUp/instructors/courseConfiguration" method="POST">
-            {% csrf_token %} 
+        </div>
+        <form name="CourseConfigParam" action="/oneUp/instructors/courseConfiguration" method="POST">
+            {% csrf_token %}
             <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
             <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Availability</span>
@@ -50,28 +56,28 @@
                         </div>
                     </div>
                 </div>
-            </div>
-              <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Duration</span>
                             <div class="row">
                                 <div class="col s12 m6">
-                                    <label for="startTime">Course Start Date</label> 
-                                    <input type="text" class="datepicker-from" name="courseStartDate" value="{{courseStartDate}}" id="startTime">
+                                    <label for="startTime">Course Start Date</label>
+                                    <input type="text" class="datepicker-from" name="courseStartDate"
+                                        value="{{courseStartDate}}" id="startTime">
                                 </div>
                                 <div class="col s12 m6">
-                                    <label for="endTime">Course End Date</label> 
-                                    <input type="text" class="datepicker-until" name="courseEndDate" value="{{courseEndDate}}" id="endTime">
+                                    <label for="endTime">Course End Date</label>
+                                    <input type="text" class="datepicker-until" name="courseEndDate"
+                                        value="{{courseEndDate}}" id="endTime">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-             <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Warmup Challenges</span>
@@ -91,9 +97,7 @@
                         </div>
                     </div>
                 </div>
-              </div>
-             <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Serious Challenges</span>
@@ -113,9 +117,9 @@
                         </div>
                     </div>
                 </div>
-              </div>
-                <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+            </div>
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Display the Serious Challenges List By Topics</span>
@@ -135,9 +139,7 @@
                         </div>
                     </div>
                 </div>
-              </div>
-             <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Activities</span>
@@ -157,9 +159,9 @@
                         </div>
                     </div>
                 </div>
-              </div>
-             <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+            </div>
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Skills</span>
@@ -179,9 +181,7 @@
                         </div>
                     </div>
                 </div>
-              </div>
-              <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Flashcards</span>
@@ -201,9 +201,9 @@
                         </div>
                     </div>
                 </div>
-              </div>
+            </div> 
             <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Gradebook</span>
@@ -223,9 +223,7 @@
                         </div>
                     </div>
                 </div>
-              </div>
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Announcements</span>
@@ -245,32 +243,9 @@
                         </div>
                     </div>
                 </div>
-              </div>
-              <!-- <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
-                    <div class="card">
-                        <div class="card-content">
-                            <span class="card-title">Set Chat</span>
-                            <div class="row">
-                                <div class="switch col s12">
-                                    <label>
-                                        Enable Chat Support
-                                        {% if chatUsed %}
-                                        <input name="chatUsed" type="checkbox" checked>
-                                        {% else %}
-                                        <input name="chatUsed" type="checkbox">
-                                        {% endif %}
-                                        <span class="lever secondary-content"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-              </div> -->
-           
-                   <div class="row" style="margin-bottom: 0;">
-                <div class="col s12 m4 offset-m4">
+            </div> 
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Attendance Streaks</span>
@@ -290,10 +265,7 @@
                         </div>
                     </div>
                 </div>
-              </div>
-              
-              <div class="row">
-                <div class="col s12 m4 offset-m4">
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Gamification</span>
@@ -313,16 +285,95 @@
                         </div>
                     </div>
                 </div>
-              </div>
-               
-                <div class="row">
-                    <div class="col s12 m4 offset-m8">
-                        <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i class="material-icons right">done</i></button> 
-                        <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i class="material-icons right">close</i>Cancel</a>
+            </div> 
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col s6">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Achievements Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Achievement Page
+                                        {% if displayAchievementPage %}
+                                        <input name="displayAchievementPage" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="displayAchievementPage" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Display class average
+                                        {% if classAverageUsed %}
+                                        <input name="classAverageUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="classAverageUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </form>
-        </main>
-        {% include 'footer.html' %}
-    </body>
+                <div class="col s6">
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Hints Configuration</span>
+                            <div class="switch col s12">
+                                <label>
+                                    Enable Hints:
+                                    {% if hintsUsed %}
+                                    <input name="hintsUsed" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="hintsUsed" type="checkbox">
+                                    {% endif %}
+                                    <span class="lever secondary-content"></span>
+                                </label>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s10">
+                                    Reducing student score for using hints:
+                                    <p style="font-size: 0.8rem;">Weight of <i>basic hint (in %)</i>
+                                    </p>
+                                    <input value="{{weightBasicHint}}" name="weightBasicHint" id="s_challenge_weight"
+                                        maxlength="3" type="number" min="0" max="100">
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s10">
+                                    <p style="font-size: 0.8rem;">Weight of <i>strong hint (in %)</i>
+                                    </p>
+                                    <input value="{{weightStrongHint}}" name="weightStrongHint" id="s_challenge_weight"
+                                        maxlength="3" type="number" min="0" max="100">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            
+           
+           
+          
+    
+            <div class="row">
+                <div class="col s12 m4 offset-m8">
+                    <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i
+                            class="material-icons right">done</i></button>
+                    <a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i
+                            class="material-icons right">close</i>Cancel</a>
+                </div>
+            </div>
+        </form>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
 </html>
