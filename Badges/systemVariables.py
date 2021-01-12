@@ -288,6 +288,15 @@ def topicScore(course, student, topic):
     best_scores = [max(scores) for attempt,scores in attempts_by_challenge.items()]
     return sum(best_scores)
 
+def topicPercentOfScoreOutOfMaxChallengeScore(course, student, topic):
+    student_total = topicScore(course,student,topic)
+    challenges = challengesForTopic(course, topic)
+    possible_score = sum([challenge.getCombinedScore() for challenge in challenges])
+    if possible_score == 0:
+        possible_score = 0.00001;
+        # Avoid division by 0 in case there are no points
+    return student_total/possible_score*100
+
 def getMaxTestScore(course,student,challenge):   
     ''' This will return the highest score of all the student submissions of a challenge.
         Score is calculated by score + adjustment + curve.'''
@@ -1361,7 +1370,7 @@ class SystemVariable():
 #    averageTestScore = 914  # Deprecated folded into averageScore
     consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
-    percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
+    percentage = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
     uniqueSeriousChallengesAttempted = 920 # The number of unique serious challenges completed by the student
     uniqueWarmupChallengesGreaterThan60Percent = 921 # Number of warmup challenges with a score percentage equal or greater than 60%
     uniqueWarmupChallengesGreaterThan75Percent = 922 # Number of warmup challenges with a score percentage equal or greater than 75%
@@ -1577,17 +1586,19 @@ class SystemVariable():
             },
             'studentGoal': False,
         },
-        percentOfScoreOutOfMaxChallengeScore:{
-            'index': percentOfScoreOutOfMaxChallengeScore,
-            'name':'percentOfScoreOutOfMaxChallengeScore',
-            'displayName':'Percentage of Student Max Score Out of Challenge Score',
-            'description':'The percentage of the student max score for a particular challenge. The student score only includes the student score, adjustment, and curve.',
+        percentage:{
+            'index': percentage,
+            'name':'percentage',
+            'displayName':"Percentage of Student's Score Out of Possible Score",
+            'description':"The percentage of the student's score.  For challenges, the best attempt is used. The student score only includes the student score, adjustment, and curve, but not any bonus points they have bought.",
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
+                ObjectTypes.topic: [Event.endChallenge, Event.adjustment],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore
+                ObjectTypes.challenge:getPercentOfScoreOutOfMaxChallengeScore,
+                ObjectTypes.topic:topicPercentOfScoreOutOfMaxChallengeScore,
             },
             'studentGoal': False,
         },  
