@@ -41,6 +41,24 @@
          $( document ).ready(function(){
           $("#collapsible-custom-content").css('display', 'none');
 
+			// this function attaches to a date-time field & updates the date to the current date whenever it is in the past
+        	function updateCurrentField(field){
+              let todaysDate = new Date();
+              
+              field.click(function(){ 
+                  let startDateValue = new Date(field.val()); // create new date for the date 
+                  // MM/DD/YYYY hh:mm AMPM
+                  let todayDateString = todaysDate.toLocaleString('en-US'); // Create new string for the current timestamp
+    					
+                  if(todaysDate.setHours(0,0,0,0) > startDateValue.setHours(0,0,0,0)) { // compare the current date to the date entered into the form
+                	  field.val(todayDateString); // set the field to today's date
+                  }
+               })
+            }
+			updateCurrentField($('#dueDate'));
+			updateCurrentField($('#endTime'));
+			updateCurrentField($('#startTime'));
+          
         	{% if view %}
 	        	var tags = JSON.parse('{{ tags | escapejs }}')
 				var topics = JSON.parse('{{ topics | escapejs }}')
@@ -55,7 +73,7 @@
 					$('#topics').append($(topicDOM));
 				}
         	{% else %}
-        	
+            
           var endDate = $('#endTime').bootstrapMaterialDatePicker({
             weekStart: 0, format: 'MM/DD/YYYY hh:mm A'
           });

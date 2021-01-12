@@ -284,7 +284,7 @@ class CourseConfigParams(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
 
     gamificationUsed = models.BooleanField(default=False) 
-    courseAvailable = models.BooleanField(default=True)               ## Is the course open or closed?
+    courseAvailable = models.BooleanField(default=False)               ## Is the course open or closed?
     badgesUsed = models.BooleanField(default=False)                   ## The badgesUsed is for instructor dashboard purposes and system uses as well
     studCanChangeBadgeVis = models.BooleanField(default=False)        ## The studCanChangeBadgeVis is for allowing student to configure student dashboard visibility only
     numBadgesDisplayed = models.IntegerField(default=0)               ## This is used to display the number of students in the leaderboard dashboard html table
@@ -300,17 +300,18 @@ class CourseConfigParams(models.Model):
     vcDuel = models.IntegerField(default=0)                           ## Amount of virtual currency rewarded to duel winners
     vcDuelMaxBet = models.IntegerField(default=3)                     ## Max Amount of betting virtual currency 
     vcCallout = models.IntegerField(default=0)                        ## Amount of virtual currency rewarded to call-outs participants
-    calloutAfterWarmup = models.BooleanField(default=True)            ## Allow students to callout other students after correctly solve a warm up 
-    
+    calloutAfterWarmup = models.BooleanField(default=False)           ## Allow students to callout other students after correctly solve a warm up 
+    minimumCreditPercentage = models.IntegerField(default=0)          ## Instructor may set the minimum score percentage that must be reached for a student to get credit for the duel
+
     # Progress bar
-    progressBarUsed = models.BooleanField(default=True)               ## This is the progress bar in the student achievements page and student course home page
+    progressBarUsed = models.BooleanField(default=False)               ## This is the progress bar in the student achievements page and student course home page
     progressBarTotalPoints = models.IntegerField(default=100)         ## This is the default maximum points on the progress bar
     progressBarGroupUsed = models.BooleanField(default=False)          ## This will make the progress bar show data for the class instead of a student
     progressBarGroupAverage = models.BooleanField(default=True)       ## When the group progress bar is enabled, this will calculate the class values as a sum (total) or average
 
     displayStudentStartPageSummary = models.BooleanField(default=False) ## This toggles the view on the student course home page to show class achievements or student achievements summary
 
-    displayAchievementPage = models.BooleanField(default=True)       ## This toggles the view on the student achievement page in the nav bars
+    displayAchievementPage = models.BooleanField(default=False)       ## This toggles the view on the student achievement page in the nav bars
 
     chatUsed = models.BooleanField(default=False)                      ## This will enable or disable the chat feature 
     
@@ -364,17 +365,17 @@ class CourseConfigParams(models.Model):
     
     ## Student Goal Setting
     goalsUsed = models.BooleanField(default=False)                    ## Enables the use of goal setting for students
-    studCanChangeGoal = models.BooleanField(default=True)             ## Allows student to change the visibility of goals component
+    studCanChangeGoal = models.BooleanField(default=False)             ## Allows student to change the visibility of goals component
 
     #Options to disable Warmups, Serious Challenges, FlashCards, and the Gradebook
     warmupsUsed = models.BooleanField(default=True)
     seriousChallengesUsed = models.BooleanField(default=True)
-    gradebookUsed = models.BooleanField(default=True)
-    flashcardsUsed = models.BooleanField(default=True)
+    gradebookUsed = models.BooleanField(default=False)
+    flashcardsUsed = models.BooleanField(default=False)
     #Options to disable activities, skills, and announcements
-    activitiesUsed = models.BooleanField(default=True)  
+    activitiesUsed = models.BooleanField(default=False)  
     skillsUsed = models.BooleanField(default=False)
-    announcementsUsed = models.BooleanField(default=True)
+    announcementsUsed = models.BooleanField(default=False)
 
     #hints system
     hintsUsed = models.BooleanField(default = False)
@@ -382,10 +383,10 @@ class CourseConfigParams(models.Model):
     weightStrongHint = models.IntegerField(default=0) ##     
 
     #Teams system
-    teamsLockInDeadline = models.DateTimeField(default=custom_now, verbose_name='Deadline for team members to be locked in to the team')
-    maxNumberOfTeamStudents = models.IntegerField(default=3)   
-    teamsEnabled = models.BooleanField(default = False)
-    selfAssignment = models.BooleanField(default = True, verbose_name='Students can auto-assign themselves to teams')
+    teamsLockInDeadline = models.DateTimeField(default=custom_now, verbose_name='Deadline for team members to be locked in to the team') ##Deadline for students to join a team
+    maxNumberOfTeamStudents = models.IntegerField(default=3)   ##maximum number of team students allowed per team
+    teamsEnabled = models.BooleanField(default = False) ##teams enabled for the course
+    selfAssignment = models.BooleanField(default = True, verbose_name='Students can auto-assign themselves to teams') ##allow student self-assignment to teams
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
