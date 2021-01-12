@@ -157,6 +157,11 @@ def getDaysBetweenCurrentTimeAndDeadline(challenge):
     diff = deadline-now
     return diff.days
 
+def challengesForTopic(course,topic):
+    challengesTopics = ChallengesTopics.objects.filter(topicID = topic,challengeID__courseID=course)
+    challenges_in_topic = [ct.challengeID for ct in challengesTopics]
+    return challenges_in_topic
+
 def getTimeSpentOnChallenges(course, student, isGraded, topic=None):
     ''' Utility function used by other functions.
         Returns the total time in minutes a student has spent on challenges.
@@ -169,9 +174,7 @@ def getTimeSpentOnChallenges(course, student, isGraded, topic=None):
     challengeTimes = StudentChallenges.objects.filter(courseID = course,studentID = student, challengeID__isGraded=isGraded).exclude(endTimestamp__isnull=True) #ensure that the challenge has an endTimestamp
     if topic:
         from Instructors.models import ChallengesTopics
-        challengesTopics = ChallengesTopics.objects.filter(topicID = topic)
-        challenges_in_topic = [ct.challengeID for ct in challengesTopics]
-        challengeTimes = challengeTimes.filter(challengeID__in=challenges_in_topic)
+        challengeTimes = challengeTimes.filter(challengeID__in=challengesForTopic(course,topic))
     #Accumulate the elapsed time for all challenges in the database with matching student and course ID's
     #initialize totalTime as arbitrary datetime object in order to accumulate elapsed time
     totalTime = datetime(2000,1,1,0,0,0) #python throws Value Error if the date is too small, otherwise it would have been initialized to all 0's
@@ -256,7 +259,7 @@ def challengeScore(course,student,challenge):
     scores = getTestScores(course,student,challenge)
     if len(scores) == 0:
         return 0 
-    return scores.latest('testScore').getScore() 
+    return scores.latest('testScore').getScore()    
 
 def getTotalScoreForWarmupChallenges(course,student):
     ''' This will return the student total score for a warmup challenge'''
@@ -275,6 +278,15 @@ def activityScore(course,student,activity):
     if len(scores) == 0:
         return 0
     return scores.latest('activityScore').activityScore
+
+def topicScore(course, student, topic):
+    from Students.models import StudentChallenges
+    attempts = StudentChallenges.objects.filter(studentID=student,courseID=course,challengeID__in=challengesForTopic(course, topic))
+    attempts_by_challenge = {attempt.challengeID_id:[] for attempt in attempts}
+    for attempt in attempts:
+        attempts_by_challenge[attempt.challengeID_id].append(attempt.getScore())
+    best_scores = [max(scores) for attempt,scores in attempts_by_challenge.items()]
+    return sum(best_scores)
 
 def getMaxTestScore(course,student,challenge):   
     ''' This will return the highest score of all the student submissions of a challenge.
@@ -318,7 +330,7 @@ def getAverageTestScore(course, student, challenge):
         sum_max_scores += score
     
     return sum_max_scores / len(students)
-            
+
 def getAverageActivityScore(course,student, activity):
     ''' Return the average score of an activity for a course'''
     scores = getAllActivityScores(course, activity)
@@ -335,13 +347,13 @@ def getSumOfScoreOfEveryStudentActivity(course,student, activity):
 
 def getSumOfScoreOfAllStudentActivitiesCategory(course, student, category):
     ''' Return the sum of student's activities for a particular category'''
-    print("coooom here")
-    print(category)
+    #print("coooom here")
+    #print(category)
     from Students.models import StudentActivities
     StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category)
     if len(StudActivities) == 0:
         return 0
-    print(float(sum([StudActivity.activityScore for StudActivity in StudActivities])))
+    #print(float(sum([StudActivity.activityScore for StudActivity in StudActivities])))
     return float(sum([StudActivity.activityScore for StudActivity in StudActivities]))
 
 def getMinScoreOfStudentsActivitiesCategory(course, student, category):
@@ -655,22 +667,16 @@ def totalTimeSpentOnChallenges(course,student,topic=None):
     ''' This will return the total minutes a student has spent completing any challenges'''
     return getTimeSpentOnChallenges(course, student, True,topic) + getTimeSpentOnChallenges(course, student, False,topic)
 
-def getTotalMinutesSpentOnWarmupChallenges(course, student):
+def getTotalMinutesSpentOnWarmupChallenges(course, student, topic = None):
     ''' This will return the number of minutes a student has spent on all warmup challenges'''    
-    minutes = getTimeSpentOnChallenges(course, student, False)
-    logger.debug("Total minutes spent on warmup challenges: " + str(minutes))
-    return minutes
-
-def getTotalMinutesSpentOnSeriousChallenges(course, student):
-    ''' This will return the number of minutes a student has spent on all serious challenges'''    
-    minutes = getTimeSpentOnChallenges(course, student, True)
-    logger.debug("Total minutes spent on serious challenges: " + str(minutes))
-    return minutes
-
-def getTotalMinutesSpentOnWarmupChallengesPerTopic(course, student, topic):
-    ''' This will return the number of minutes a student has spent on all warmup challenges in a given topic'''    
     minutes = getTimeSpentOnChallenges(course, student, False, topic)
     logger.debug("Total minutes spent on warmup challenges: " + str(minutes))
+    return minutes
+
+def getTotalMinutesSpentOnSeriousChallenges(course, student, topic = None):
+    ''' This will return the number of minutes a student has spent on all serious challenges'''    
+    minutes = getTimeSpentOnChallenges(course, student, True, topic)
+    logger.debug("Total minutes spent on serious challenges: " + str(minutes))
     return minutes
 
 def totalTimeSpentOnQuestions(course,student):
@@ -959,8 +965,7 @@ def getDuelChallenges(course,topic=None):
     from Students.models import DuelChallenges
     result = DuelChallenges.objects.filter(courseID=course)
     if topic:
-        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
-        result = result.filter(challengeID__in = challenges_in_topic)
+        result = result.filter(challengeID__in = challengesForTopic(course,topic))
     return result
 
 def getNumberOfDuelsSent(course, student, topic=None):
@@ -985,8 +990,7 @@ def getNumberOfDuelsWon(course, student, topic=None):
     from Students.models import Winners
     wins = Winners.objects.filter(studentID=student, courseID=course)
     if topic:
-        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
-        wins = wins.filter(duelChallengeID__challengeID__in=challenges_in_topic)
+        wins = wins.filter(DuelChallengeID__challengeID__in=challengesForTopic(course,topic))
     return wins.count()
 
 def getNumberOfDuelsParticipated(course, student):
@@ -1039,8 +1043,7 @@ def getCallouts(course,topic=None):
     from Students.models import Callouts
     callouts = Callouts.objects.filter(courseID=course)
     if topic:
-        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
-        callouts = callouts.filter(challengeID__in = challenges_in_topic)
+        callouts = callouts.filter(challengeID__in = challengesForTopic(course,topic))
     return callouts
 
 def getNumberOfCalloutSent(course, student, topic=None):
@@ -1056,16 +1059,14 @@ def getNumberOfCalloutParticipate(course, student, topic=None):
     from Students.models import CalloutStats
     calloutstats = CalloutStats.objects.filter(studentID=student, courseID=course)
     if topic:
-        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
-        calloutstats = calloutstats.filter(calloutID__challengeID__in=challenges_in_topic)
+        calloutstats = calloutstats.filter(calloutID__challengeID__in=challengesForTopic(course,topic))
     return calloutstats.count()
 
 def getCalloutParticipants(course, student, topic=None):
     from Students.models import CalloutParticipants
     callouts = CalloutParticipants.objects.filter(courseID=course, participantID=student)
     if topic:
-        challenges_in_topic = ChallengesTopics.objects.filter(topicID=topic)
-        callouts = callouts.filter(challengeID__in = challenges_in_topic)
+        callouts = callouts.filter(calloutID__challengeID__in = challengesForTopic(course,topic))
     return callouts 
 
 def getNumberOfCalloutRequested(course, student, topic=None):
@@ -1090,10 +1091,7 @@ def getNumberOfUniqueSeriousChallengesAttempted(course, student,topic=None):
     ''' Get the number of unique serious challenges the student has taken.'''    
     challenges = Challenges.objects.filter(courseID=course, isGraded=True)
     if topic:
-        from Instructors.models import ChallengesTopics
-        challengesTopics = ChallengesTopics.objects.filter(topicID = topic)
-        challenges_in_topic = [ct.challengeID for ct in challengesTopics]
-        challenges = challenges.filter(challengeID__in=challenges_in_topic)
+        challenges = challenges.filter(challengeID__in=challengesForTopic(course,topic))
     attempted = 0
     for challenge in challenges:
         studentChallenges = getNumAttempts(course, student, challenge)
@@ -1216,7 +1214,7 @@ def allWarmupChallengesTopicGreaterThan70Percent(course, student, topic):
    
     from Instructors.models import ChallengesTopics 
     from Students.models import StudentChallenges 
-    challengesTopics = ChallengesTopics.objects.filter(topicID=topic)
+    challengesTopics = ChallengesTopics.objects.filter(topicID=topic,challengeID__courseID=course)
     for challsTopic in challengesTopics:
         if challsTopic.challengeID.isGraded == True:
             continue
@@ -1234,7 +1232,7 @@ def allWarmupChallengesTopicGreaterThan85Percent(course, student, topic):
    
     from Instructors.models import ChallengesTopics 
     from Students.models import StudentChallenges 
-    challengesTopics = ChallengesTopics.objects.filter(topicID=topic)
+    challengesTopics = ChallengesTopics.objects.filter(topicID=topic,challengeID__courseID=course)
     for challsTopic in challengesTopics:
         if challsTopic.challengeID.isGraded == True:
             continue
@@ -1252,14 +1250,14 @@ def getAveragePercentageOfWarmupsForTopic(course, student, topic):
    
     from Instructors.models import ChallengesTopics 
     from Students.models import StudentChallenges 
-    challengesTopics = ChallengesTopics.objects.filter(topicID=topic)
+    challengesTopics = ChallengesTopics.objects.filter(topicID=topic,challengeID__courseID=course)
     percentage = 0.0
     count = 0.0
     for challsTopic in challengesTopics:
         if challsTopic.challengeID.isGraded == True:
             continue
         if StudentChallenges.objects.filter(studentID = student, challengeID = challsTopic.challengeID, challengeID__isGraded=False):
-            percentage += (float(getPercentOfScoreOutOfMaxChallengeScore(course, student, challsTopic.challengeID)) / float(challsTopic.challengeID.totalScore)) * 100.0
+            percentage += getPercentOfScoreOutOfMaxChallengeScore(course, student, challsTopic.challengeID)
             count += 1.0
     # Prevent divide by zero
     count = max(1.0, count)
@@ -1351,8 +1349,8 @@ def getTotalOfCompletedFlashcards(course, student):
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
     score = 902 # The score for the challenge or activity
-    maxTestScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
-    minTestScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
+    maxScore = 904 # The maximum of the test scores of all the student's attempts for a particular challenge
+    minScore = 905 # The minimum of the test scores of all the student's attempts for a particular challenge
     dateOfFirstChallengeSubmission = 906 # The date on which the student has submitted a particular challenge for the first time.
     timeSpentOnChallenges = 907 # Time spent on a particular challenge.
     timeSpentOnQuestions = 908 # Time spent on a particular question. INCOMPLETE
@@ -1360,7 +1358,7 @@ class SystemVariable():
     activitiesCompleted = 910 # The number of activities a student has completed for a particular course
     numDaysSubmissionEarlier = 912 #Number of days an assignment is submitted earlier INCOMPLETE
     numDaysSubmissionLate = 913 #Number of days an assignment is submitted late INCOMPLETE
-    averageTestScore = 914  # Average Test Score INCOMPLETE
+#    averageTestScore = 914  # Deprecated folded into averageScore
     consecutiveDaysWarmUpChallengesTaken30Percent = 917 #Consecutive days warm up challenges at least 30% correct are taken
     consecutiveDaysWarmUpChallengesTaken75Percent = 918 #Consecutive days warm up challenges at least 75% correct are taken
     percentOfScoreOutOfMaxChallengeScore = 919  # percentage of student's score (for the max scored attempt ) out of the max possible challenge score
@@ -1370,7 +1368,7 @@ class SystemVariable():
     uniqueWarmupChallengesGreaterThan75PercentForTopic = 923 # Number of warmup challenges with a score percentage equal or greater than 75% for a particular topic
     totalMinutesSpentOnWarmupChallenges = 924 # Total minutes spent on warmup challenges only
     differenceFromLastChallengeScore = 925 # Score difference from last complete challenge/warmup challenge and a specific challenge
-    averageActivityScore = 928 # average activity score of the course 
+    averageScore = 928  
     percentageOfCorrectAnswersPerChallengePerStudent = 931 #percentage of correctly answered questions out of all the questions
     isWarmUp = 932 # is a warm-up challenge
     scorePercentageDifferenceFromPreviousActivity = 934 # Difference between the percentages of the student's scores for this activity and the one preceding it'''      
@@ -1410,10 +1408,10 @@ class SystemVariable():
     totalEarndVC = 968 # Total amount of vc earned by a student
     totalSpentVC = 969 # Total amount of vc spent by a student
     sumOfScoreOfEveryStudentActivity = 970
-    sumOfScoreOfAllStudentActivitiesCategory = 971
-    minScoreOfStudentsActivitiesCategory = 972
-    maxScoreOfStudentsActivitiesCategory = 973
-    averageScoreOfStudentsActivitiesCategory = 974
+#    sumOfScoreOfAllStudentActivitiesCategory = 971  Deprecated.  Folded into the score variable
+#    minScoreOfStudentsActivitiesCategory = 972 Deprecated.  Folded into MinScore
+#    maxScoreOfStudentsActivitiesCategory = 973 Deprecated.  Folded into MaxScore
+#    averageScoreOfStudentsActivitiesCategory = 974 Deprecated.  Folded into AverageScore
     sumOfScoreOfAllStudentsActivitiesCategory = 975
     averageScoreOfStudentActivitiesCategory = 976
     studentXP = 977 # Returns the current amount of XP a student has
@@ -1428,6 +1426,11 @@ class SystemVariable():
     duelsSentPerTopic = 987
     duelsAcceptedPerTopic = 988
     duelsWonPerTopic = 989
+    calloutSentPerTopic = 990
+    calloutParticipatePerTopic = 991
+    calloutParticipationWonPerTopic = 992
+    calloutParticipationLostPerTopic = 993
+    calloutRequestedPerTopic = 994
 
     systemVariables = {
         score:{
@@ -1438,11 +1441,15 @@ class SystemVariable():
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[Event.endChallenge, Event.adjustment],
                 ObjectTypes.activity:[Event.participationNoted,],
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+                ObjectTypes.activityCategory: [Event.participationNoted],
             },
             'type':'int',
             'functions':{
                 ObjectTypes.activity: activityScore,
-                ObjectTypes.challenge: challengeScore
+                ObjectTypes.challenge: challengeScore,
+                ObjectTypes.topic: topicScore,
+                ObjectTypes.activityCategory: getSumOfScoreOfAllStudentActivitiesCategory
             },
             'studentGoal': False,   
         },
@@ -1474,63 +1481,57 @@ class SystemVariable():
             },
             'studentGoal': False,
         },
-        maxTestScore:{
-            'index': maxTestScore,
-            'name':'maxTestScore',
-            'displayName':'Highest Score',
+        maxScore:{
+            'index': maxScore,
+            'name':'maxScore',
+            'displayName':'Highest Score amongst all Students',
             'description':"The highest score of all student submissions for a particular challenge or activity. The student activity score does not include bonus points. The student challenge score only includes the student score, adjustment, and curve.",
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[ Event.challengeExpiration, Event.adjustment],
-                ObjectTypes.activity: [Event.participationNoted]
+                ObjectTypes.activity: [Event.participationNoted],
+                ObjectTypes.activityCategory: [Event.participationNoted],
             },
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getMaxTestScore,
-                ObjectTypes.activity: getMaxActivityScore
+                ObjectTypes.activity: getMaxActivityScore,
+                ObjectTypes.activityCategory: getMaxScoreOfStudentsActivitiesCategory,
             },
             'studentGoal': False,
         },
-        minTestScore:{
-            'index': minTestScore,
-            'name':'minTestScore',
-            'displayName':'Lowest Score',
+        minScore:{
+            'index': minScore,
+            'name':'minScore',
+            'displayName':'Lowest Score amongst all Students',
             'description':"The lowest score of all student submissions for a particular challenge or activity. The student activity score does not include bonus points. The student challenge score only includes the student score, adjustment, and curve.",
             'eventsWhichCanChangeThis':{
                 ObjectTypes.challenge:[ Event.challengeExpiration,Event.adjustment],
-                ObjectTypes.activity: [Event.participationNoted]
+                ObjectTypes.activity: [Event.participationNoted],
+                ObjectTypes.activityCategory: [Event.participationNoted],
             },
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getMinTestScore,
-                ObjectTypes.activity: getMinActivityScore
+                ObjectTypes.activity: getMinActivityScore,
+                ObjectTypes.activityCategory: getMinScoreOfStudentsActivitiesCategory
             },
             'studentGoal': False,
         },
-        averageTestScore:{
-            'index': averageTestScore,
-            'name':'averageTestScore',
-            'displayName':'Average Test Score',
-            'description':'The students average for a challenge. Using the best score from each student',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.challenge:[Event.endChallenge,Event.adjustment],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.challenge:getAverageTestScore
-            },
-            'studentGoal': False,
-        }, 
-        averageActivityScore:{
-            'index':averageActivityScore,
-            'name':'averageActivityScore',
-            'displayName':'Average Activity Score',
-            'description':'The average activity score of all students',
+        averageScore:{
+            'index':averageScore,
+            'name':'averageScore',
+            'displayName':'Average Score',
+            'description':'The average score of all students for this thing',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.activity: [Event.participationNoted],
+                ObjectTypes.challenge:[Event.endChallenge,Event.adjustment],
+                ObjectTypes.activityCategory: [Event.participationNoted],
             },
             'type':'int',
             'functions':{
-                ObjectTypes.activity: getAverageActivityScore
+                ObjectTypes.activity: getAverageActivityScore,
+                ObjectTypes.challenge:getAverageTestScore,
+                ObjectTypes.activityCategory: getAverageScoreOfStudentsActivitiesCategory
             },
             'studentGoal': False,
         },
@@ -1545,48 +1546,6 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activity: getSumOfScoreOfEveryStudentActivity
-            },
-            'studentGoal': False,
-        },
-        minScoreOfStudentsActivitiesCategory:{
-            'index':minScoreOfStudentsActivitiesCategory,
-            'name':'minScoreOfStudentsActivitiesCategory',
-            'displayName':"Minimum score for a category for all students",
-            'description':'The minimum score for a category for all students',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activityCategory: [Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activityCategory: getMinScoreOfStudentsActivitiesCategory
-            },
-            'studentGoal': False,
-        },
-        maxScoreOfStudentsActivitiesCategory:{
-            'index':maxScoreOfStudentsActivitiesCategory,
-            'name':'maxScoreOfStudentsActivitiesCategory',
-            'displayName':"Maximum score for a category for all students",
-            'description':'The maximum score for a category for all students',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activityCategory: [Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activityCategory: getMaxScoreOfStudentsActivitiesCategory
-            },
-            'studentGoal': False,
-        },
-        averageScoreOfStudentsActivitiesCategory:{
-            'index':averageScoreOfStudentsActivitiesCategory,
-            'name':'averageScoreOfStudentsActivitiesCategory',
-            'displayName':"Average score for a category for all students",
-            'description':'The average score for a category for all students',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activityCategory: [Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activityCategory: getAverageScoreOfStudentsActivitiesCategory
             },
             'studentGoal': False,
         },
@@ -1615,20 +1574,6 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getSumOfScoreOfAllStudentsActivitiesCategory
-            },
-            'studentGoal': False,
-        },
-        sumOfScoreOfAllStudentActivitiesCategory:{
-            'index':sumOfScoreOfAllStudentActivitiesCategory,
-            'name':'sumOfScoreOfAllStudentActivitiesCategory',
-            'displayName':"Total score for a category for a students",
-            'description':'The total score for a category for a students',
-            'eventsWhichCanChangeThis':{
-                ObjectTypes.activityCategory: [Event.participationNoted],
-            },
-            'type':'int',
-            'functions':{
-                ObjectTypes.activityCategory: getSumOfScoreOfAllStudentActivitiesCategory
             },
             'studentGoal': False,
         },
@@ -1732,7 +1677,7 @@ class SystemVariable():
         },
         activityScoreDifferenceByCategory:{
             'index': activityScoreDifferenceByCategory,
-            'name':'activityScoreDifferenceFromPreviousAveragedScoresByCategory',
+            'name':'activityScoreDifferenceByCategory',
             'displayName':'Score Difference From Averaged Previous Activities Scores For Activity Category',
             'description':'The student score difference from averaged previous activities scores based on a particular activity category',
             'eventsWhichCanChangeThis':{
@@ -1816,7 +1761,7 @@ class SystemVariable():
         },
         timeSpentOnChallengesPerTopic:{
             'index': timeSpentOnChallengesPerTopic,
-            'name':'timeSpentOnChallenges',
+            'name':'timeSpentOnChallengesPerTopic',
             'displayName':'Time Minutes Spent On Challenges',
             'description':'The total time in minutes a student has spent completing both warmup and serious challenges in a particular topic',
             'eventsWhichCanChangeThis':{
@@ -1858,8 +1803,8 @@ class SystemVariable():
         },
         totalMinutesSpentOnWarmupChallengesPerTopic:{
             'index': totalMinutesSpentOnWarmupChallengesPerTopic,
-            'name':'totalMinutesSpentOnWarmupChallenges',
-            'displayName':'Total Minutes Spent on Warmup Challenges',
+            'name':'totalMinutesSpentOnWarmupChallengesPerTopic',
+            'displayName':'Total Minutes Spent on Warmup Challenges Per Topic',
             'description':'The total minutes a student has spent on warmup challenges in a topic',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge],
@@ -1872,8 +1817,8 @@ class SystemVariable():
         },
         totalMinutesSpentOnSeriousChallengesPerTopic:{
             'index': totalMinutesSpentOnSeriousChallengesPerTopic,
-            'name':'totalMinutesSpentOnSeriousChallenges',
-            'displayName':'Total Minutes Spent on Serious Challenges',
+            'name':'totalMinutesSpentOnSeriousChallengesPerTopic',
+            'displayName':'Total Minutes Spent on Serious Challenges Per Topic',
             'description':'The total minutes a student has spent on serious challenges in a topic',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge],
@@ -2043,8 +1988,8 @@ class SystemVariable():
             'studentGoal': True,
         },
         uniqueSeriousChallengesAttemptedForTopic:{
-            'index': uniqueSeriousChallengesAttempted,
-            'name':'uniqueSeriousChallengesAttempted',
+            'index': uniqueSeriousChallengesAttemptedForTopic,
+            'name':'uniqueSeriousChallengesAttemptedForTopic',
             'displayName':'# of Unique Serious Challenges Completed',
             'description':'The number of serious challenges that a student has attempted at least once with a score > 0.',
             'eventsWhichCanChangeThis':{
@@ -2352,8 +2297,8 @@ class SystemVariable():
         },      
         duelsSentPerTopic:{
             'index': duelsSentPerTopic,
-            'name':'duelsSent',
-            'displayName':'# of Duels Sent',
+            'name':'duelsSentPerTopic',
+            'displayName':'# of Duels Sent per Topic',
             'description':'The total number of duels a student has sent to other students in a given topic',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.duelSent],
@@ -2366,8 +2311,8 @@ class SystemVariable():
         },  
         duelsAcceptedPerTopic:{
             'index': duelsAcceptedPerTopic,
-            'name':'duelsAccepted',
-            'displayName':'# of Duels Accepted',
+            'name':'duelsAcceptedPerTopic',
+            'displayName':'# of Duels Accepted Per Topic',
             'description':'The total number of duels a student has accepted from other students in a given topic',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.duelAccepted],  
@@ -2380,8 +2325,8 @@ class SystemVariable():
         },     
         duelsWonPerTopic:{
             'index': duelsWonPerTopic,
-            'name':'duelsWon',
-            'displayName':'# of Duels Won',
+            'name':'duelsWonPerTopic',
+            'displayName':'# of Duels Won per Topic',
             'description':'The total number of duels a student has won in a given topic',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.duelWon],
@@ -2437,7 +2382,7 @@ class SystemVariable():
         calloutParticipate:{
             'index': calloutParticipate,
             'name':'calloutParticipate',
-            'displayName':'# of Call Outs Participation',
+            'displayName':'# of Call Outs Participated in',
             'description':'The total number of call outs a student has participated in weather they won or not',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutWon, Event.calloutLost],  
@@ -2487,6 +2432,76 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutRequested
+            },
+            'studentGoal': False,
+        },  
+        calloutSentPerTopic:{
+            'index': calloutSentPerTopic,
+            'name':'calloutSentPerTopic',
+            'displayName':'# of Call Outs Sent per topic',
+            'description':'The total number of call outs a student has sent to other students',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.calloutSent],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfCalloutSent
+            },
+            'studentGoal': False,
+        },  
+        calloutParticipatePerTopic:{
+            'index': calloutParticipatePerTopic,
+            'name':'calloutParticipatePerTopic',
+            'displayName':'# of Call Outs Participated in per topic',
+            'description':'The total number of call outs a student has participated in weather they won or not',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.calloutWon, Event.calloutLost],  
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfCalloutParticipate
+            },
+            'studentGoal': True,
+        },     
+        calloutParticipationWonPerTopic:{
+            'index': calloutParticipationWonPerTopic,
+            'name':'calloutParticipationWonPerTopic',
+            'displayName':'# of Call Outs a participant has won per topic',
+            'description':'The total number of calls out a student has won',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.calloutWon],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfCalloutParticipationWon
+            },
+            'studentGoal': True,
+        },    
+        calloutParticipationLostPerTopic:{
+            'index': calloutParticipationLostPerTopic,
+            'name':'calloutParticipationLostPerTopic',
+            'displayName':'# of Call Outs a participant has lost per topic',
+            'description':'The total number of call outs a student has lost',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.calloutLost],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfCalloutParticipationLost
+            },
+            'studentGoal': False,
+        },   
+        calloutRequestedPerTopic:{
+            'index': calloutRequestedPerTopic,
+            'name':'calloutRequestedPerTopic',
+            'displayName':'# of Call Outs a participant has been reqeusted per topic',
+            'description':'The total number of call outs a student has been requested',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.calloutRequested],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getNumberOfCalloutRequested
             },
             'studentGoal': False,
         },  
@@ -2561,6 +2576,8 @@ if __debug__:
         sysVarNumSet.add(sysVarNum)
         assert sysVarNum in SystemVariable.systemVariables, "System variable number created without corresponding structure in systemVariables dictionary.  %s = %i " % (sysVarName,sysVarNum)
         dictEntry = SystemVariable.systemVariables[sysVarNum]
+        assert dictEntry["name"] == sysVarName, "Variable %s has incorrect name, %s instead" % (sysVarName,dictEntry["name"])
+        assert dictEntry["index"] == sysVarNum, "Variable %s has incoorect index.  Currently %i.  Should be %i instead." % (sysVarName,dictEntry["index"],sysVarNum)
         for field in expectedFieldsInSysVarStruct:
             assert field in dictEntry, "System variable structure missing expected field.  %s missing %s" % (sysVarName,field)
         eventsList = list(dictEntry['eventsWhichCanChangeThis'])
