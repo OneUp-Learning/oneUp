@@ -22,6 +22,12 @@
             });
         });
     </script>
+    <style>
+        .card{
+            margin-top:25px!important;
+            padding-top:0px!important;
+        }
+    </style>
 </head>
 
 <body>
@@ -55,8 +61,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Duration</span>
@@ -74,10 +78,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Warmup Challenges</span>
@@ -96,8 +96,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Serious Challenges</span>
@@ -116,10 +114,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Display the Serious Challenges List By Topics</span>
@@ -138,8 +132,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Activities</span>
@@ -158,10 +150,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Skills</span>
@@ -180,41 +168,17 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
-                            <span class="card-title">Set Flashcards</span>
+                            <span class="card-title">Set Gamification</span>
                             <div class="row">
                                 <div class="switch col s12">
                                     <label>
-                                        Enable Flashcards
-                                        {% if flashcardsUsed %}
-                                        <input name="flashcardsUsed" type="checkbox" checked>
+                                        Enable Gamification Support
+                                        {% if gamificationUsed %}
+                                        <input name="gamificationUsed" type="checkbox" checked>
                                         {% else %}
-                                        <input name="flashcardsUsed" type="checkbox">
-                                        {% endif %}
-                                        <span class="lever secondary-content"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> 
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col s6">
-                    <div class="card">
-                        <div class="card-content">
-                            <span class="card-title">Set Gradebook</span>
-                            <div class="row">
-                                <div class="switch col s12">
-                                    <label>
-                                        Enable Gradebook
-                                        {% if gradebookUsed %}
-                                        <input name="gradebookUsed" type="checkbox" checked>
-                                        {% else %}
-                                        <input name="gradebookUsed" type="checkbox">
+                                        <input name="gamificationUsed" type="checkbox">
                                         {% endif %}
                                         <span class="lever secondary-content"></span>
                                     </label>
@@ -242,87 +206,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div> 
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col s6">
-                    <div class="card">
-                        <div class="card-content">
-                            <span class="card-title">Set Attendance Streaks</span>
-                            <div class="row">
-                                <div class="switch col s12">
-                                    <label>
-                                        Enable Attendance Streaks
-                                        {% if attendanceUsed %}
-                                        <input name="attendanceUsed" type="checkbox" checked>
-                                        {% else %}
-                                        <input name="attendanceUsed" type="checkbox">
-                                        {% endif %}
-                                        <span class="lever secondary-content"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col s6">
-                    <div class="card">
-                        <div class="card-content">
-                            <span class="card-title">Set Gamification</span>
-                            <div class="row">
-                                <div class="switch col s12">
-                                    <label>
-                                        Enable Gamification Support
-                                        {% if gamificationUsed %}
-                                        <input name="gamificationUsed" type="checkbox" checked>
-                                        {% else %}
-                                        <input name="gamificationUsed" type="checkbox">
-                                        {% endif %}
-                                        <span class="lever secondary-content"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> 
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col s6">
-                    <div class="card" style="transform: translateZ(0);">
-                        <div class="card-content">
-                            <span class="card-title">Achievements Configuration</span>
-                            <div class="row">
-                                <div class="switch col s12">
-                                    <label>
-                                        Enable Achievement Page
-                                        {% if displayAchievementPage %}
-                                        <input name="displayAchievementPage" type="checkbox" checked>
-                                        {% else %}
-                                        <input name="displayAchievementPage" type="checkbox">
-                                        {% endif %}
-                                        <span class="lever secondary-content"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="switch col s12">
-                                    <label>
-                                        Display class average
-                                        {% if classAverageUsed %}
-                                        <input name="classAverageUsed" type="checkbox" checked>
-                                        {% else %}
-                                        <input name="classAverageUsed" type="checkbox">
-                                        {% endif %}
-                                        <span class="lever secondary-content"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col s6">
-                    <div class="card" style="transform: translateZ(0);">
-                        <div class="card-content">
+                    <div class="card" id='large-card' style="transform: translateZ(0);">
+                        <div class="card-content" style='padding-top:8px; padding-bottom: 8px;'>
                             <span class="card-title">Hints Configuration</span>
                             <div class="switch col s12">
                                 <label>
@@ -356,13 +241,101 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Set Flashcards</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Flashcards
+                                        {% if flashcardsUsed %}
+                                        <input name="flashcardsUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="flashcardsUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Set Gradebook</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Gradebook
+                                        {% if gradebookUsed %}
+                                        <input name="gradebookUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="gradebookUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card"  style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Achievements Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Achievement Page
+                                        {% if displayAchievementPage %}
+                                        <input name="displayAchievementPage" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="displayAchievementPage" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Display class average
+                                        {% if classAverageUsed %}
+                                        <input name="classAverageUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="classAverageUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Set Attendance Streaks</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Attendance Streaks
+                                        {% if attendanceUsed %}
+                                        <input name="attendanceUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="attendanceUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-            </div> 
-            
-           
-           
-          
-    
+                
+                </div>
+            </div>
+
+
+
+
+
             <div class="row">
                 <div class="col s12 m4 offset-m8">
                     <button class="btn waves-effect waves-light" type="submit" name="save" value="Save">Save<i

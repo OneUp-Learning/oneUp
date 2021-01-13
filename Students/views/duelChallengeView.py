@@ -1597,7 +1597,17 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 
     def evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const, duel_vc_participants_const):
         print("come to eval")
-        if challenger_challenge.testScore > challengee_challenge.testScore:
+        #Instructor may set a minimum percentage of the total score students must achieve to receive credit
+        ccparams = CourseConfigParams(courseID=current_course)
+        minimum_credit_percentage = ccparams.minimumCreditPercentage
+
+        #Get the total score possible for the challenge and derive minimum eligible score
+        chall = duel_challenge.challengeID
+        min_eligible_score = chall.totalScore * (minimum_credit_percentage/100)
+        #Boolean vars that determin if challenger and challengee eligible for credit for duel
+        challenger_eligible = challenger_challenge.testScore >= min_eligible_score
+        challengee_eligible = challengee_challenge.testScore >= min_eligible_score
+        if challenger_challenge.testScore > challengee_challenge.testScore and challenger_eligible:
             winner_s = challenger_challenge.studentID
             vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s , courseID=current_course)
             # Winner gets the total virtual currency and an amount of virtual currency set by teacher
@@ -1683,7 +1693,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
             register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
-        elif challengee_challenge.testScore > challenger_challenge.testScore:
+        elif challengee_challenge.testScore > challenger_challenge.testScore and challengee_eligible:
             winner_s = challengee_challenge.studentID
             vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s, courseID=current_course)
             # Winner gets the total virtual currency and an amount of virtual currency set by teacher
@@ -1808,8 +1818,8 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                     challengee_vc = challengee_reg_crs.virtualCurrencyAmount
                     challengee_reg_crs.virtualCurrencyAmount = challengee_vc + duel_challenge.vcBet
                     challengee_reg_crs.save()
-                
-            else:
+            #In case both are tied, ensure that the scores are eligible for credit    
+            elif challengee_eligible and challenger_eligible:
                 winner1 = challengee_challenge.studentID
                 vc_winner1 = StudentRegisteredCourses.objects.get(studentID=winner1, courseID=current_course)
                 virtualCurrencyAmount1 = vc_winner1.virtualCurrencyAmount + duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
@@ -1901,7 +1911,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         duel_challenge.hasEnded = True
         duel_challenge.save()
     
-    ccparams = CourseConfigParams.objects.get(courseID = current_course)
+    
     duel_vc_const = ccparams.vcDuel
     duel_vc_participants_const = ccparams.vcDuelParticipants
 
