@@ -1052,7 +1052,7 @@ def getNumberOfDuelsLost(course, student):
         if duel_win.DuelChallengeID in duel_challenges:
             count += 1
 
-    return count
+    return count'''
 
 def getCallouts(course,topic=None):
     from Students.models import Callouts
