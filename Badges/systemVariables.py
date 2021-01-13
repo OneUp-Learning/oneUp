@@ -1037,7 +1037,13 @@ def getNumberOfDuelsLost(course, student):
     '''
     from Students.models import DuelChallenges
     from Students.models import Winners
-
+    sent = DuelChallenges.objects.filter(challenger=student, courseID=course, status=2).count()
+    received = DuelChallenges.objects.filter(challengee=student, courseID=course, status=2).count()
+    total_duels = sent+received
+    duel_wins = Winners.objects.filter(studentID=student, courseID=course).count()
+    duel_losses = total_duels - duel_wins
+    return duel_losses
+    ''' Previous code that was incorrect
     duel_challenges = DuelChallenges.objects.filter(challenger=student, courseID=course)
     duel_wins = Winners.objects.filter(studentID=student, courseID=course)
     
