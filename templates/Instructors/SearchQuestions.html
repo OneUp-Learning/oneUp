@@ -67,10 +67,14 @@
                            </div>
                            <div class="col s12">
                               {% for i,displayName in qtypes_range %}
+                              <!-- filters Raw lua out since unused-->
+                                 {% if 'Raw' in displayName %}
+                                 {% else %}
                               <p>
                                  <input name="selectedType" class="filled-in" type="checkbox" id="pType-{{i}}" value="{{i}}"/>
                                  <label for="pType-{{i}}">{{displayName}}</label>
                               </p>
+                                 {% endif %}
                               {% endfor %}
                            </div>
                         </div>

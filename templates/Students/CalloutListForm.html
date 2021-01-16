@@ -77,7 +77,7 @@
                           <tbody>
                           {% for i, sent_chall, is_editable, vcBet, status, challengee_avatar, challenger_avatar, topic, w_l in sent_duel_challenges %}
                           <tr>
-                            <td>{{sent_chall.duelChallengeName}}</td>
+                            <td>{{sent_chall.challengeID.challengeName}}</td>
                             <td>{{status}}</td>
                             {% if sent_chall.hasEnded %}
                             <td>Completed</td>
@@ -121,7 +121,7 @@
                             <tbody>
                             {% for i, requested_chall, vcBet, status, has_accepted, challengee_avatar, challenger_avatar, topic, w_l in requested_duel_challenges %}
                             <tr>
-                              <td>{{requested_chall.duelChallengeName}}</td>
+                              <td>{{requested_chall.challengeID.challengeName}}</td>
                               <td>{{status}}</td>
                               {% if requested_chall.hasEnded %}
                               <td>Completed</td>
