@@ -187,6 +187,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="col s6">
                     <div class="card">
                         <div class="card-content">
                             <span class="card-title">Set Announcements</span>
@@ -212,6 +213,9 @@
                                 <label>
                                     Enable Hints:
                                     {% if hintsUsed %}
+                                    <input name="hintsUsed" type="checkbox" checked>
+                                    {% else %}
+                                    <input name="hintsUsed" type="checkbox">
                                     {% endif %}
                                     <span class="lever secondary-content"></span>
                                 </label>
@@ -315,6 +319,24 @@
                                         <input name="attendanceUsed" type="checkbox" checked>
                                         {% else %}
                                         <input name="attendanceUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Set Teams</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Teams
+                                        {% if teamsUsed %}
+                                        <input name="teamsUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="teamsUsed" type="checkbox">
                                         {% endif %}
                                         <span class="lever secondary-content"></span>
                                     </label>
