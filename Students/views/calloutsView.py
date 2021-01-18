@@ -53,6 +53,12 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
     if call_out.hasEnded:
         return
 
+    #Instructor may set a minimum percentage of the total score students must achieve to receive credit    
+    ccparams = CourseConfigParams.objects.get(courseID=current_course)
+    minimum_credit_percentage = ccparams.minimumCreditPercentage
+    #Get the total score possible for the challenge and derive minimum eligible score
+    chall = call_out.challengeID
+    min_eligible_score = chall.totalScore * (minimum_credit_percentage/100)
     def reward_sender(sender_stat, current_course, call_out):
         '''Reward Sender when participant participates'''
 
@@ -102,9 +108,11 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
     # if not, then give participant a chance to retake the warmup challenge
 
     if already_taken:
+        
         participant_score = participant_chall.testScore
+        participant_eligible = participant_score >= min_eligible_score
 
-        if participant_score >= sender_stat.studentChallenge.testScore:
+        if participant_score >= sender_stat.studentChallenge.testScore and participant_eligible:
 
             # Add neccessary fields for callout stats
             call_out_stat = CalloutStats()
@@ -177,7 +185,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
     else:
 
         participant_score = participant_chall.testScore
-
+        participant_eligible = participant_score >= min_eligible_score
         # Add neccessary fields for callout stats
         call_out_stat = CalloutStats()
         call_out_stat.calloutID = call_out
@@ -199,7 +207,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             call_out.hasEnded = True
             call_out.save()
 
-        if participant_score >= sender_stat.studentChallenge.testScore:
+        if participant_score >= sender_stat.studentChallenge.testScore and participant_eligible:
 
             call_out_participant.hasWon = True
             call_out_participant.hasSubmitted = True

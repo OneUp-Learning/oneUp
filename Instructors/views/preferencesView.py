@@ -53,8 +53,6 @@ def preferencesView(request):
         ccparams.displayStudentStartPageSummary = request.POST.get(
             'displayStudentStartPageSummary')
 
-        # Student Achievement Page
-        ccparams.displayAchievementPage = "displayAchievementPage" in request.POST
 
         # Leveling
         ccparams.levelingUsed = "levelingUsed" in request.POST
@@ -152,7 +150,7 @@ def preferencesView(request):
                     refresh_xp(st_c)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
-        ccparams.classAverageUsed = "classAverageUsed" in request.POST
+        
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
 
         ccparams.contentUnlockingDisplayed = "contentUnlockingDisplayed" in request.POST
@@ -163,10 +161,7 @@ def preferencesView(request):
         ccparams.thresholdToLevelDifficulty = request.POST.get(
             'thresholdToLevelDifficulty')
 
-        # hints
-        ccparams.hintsUsed = "hintsUsed" in request.POST
-        ccparams.weightBasicHint = request.POST["weightBasicHint"]
-        context_dict = ccparams.weightStrongHint = request.POST["weightStrongHint"]
+
 
         # Goals
         ccparams.goalsUsed = "goalsUsed" in request.POST
@@ -204,8 +199,7 @@ def preferencesView(request):
             # Student Start Page
             context_dict["displayStudentStartPageSummary"] = ccparams.displayStudentStartPageSummary
 
-            # Student Achievement Page
-            context_dict["displayAchievementPage"] = ccparams.displayAchievementPage
+            
 
             # Leveling
             context_dict["levelingUsed"] = ccparams.levelingUsed
@@ -251,7 +245,7 @@ def preferencesView(request):
             context_dict["avatarUsed"] = ccparams.avatarUsed
 
             # Student Settings
-            context_dict["classAverageUsed"] = ccparams.classAverageUsed
+            
             context_dict["studCanChangeclassAverageVis"] = ccparams.studCanChangeclassAverageVis
 
             # Challenge Difficulty
@@ -268,10 +262,7 @@ def preferencesView(request):
             context_dict["calloutAfterWarmup"] = ccparams.calloutAfterWarmup
             context_dict["minimumCreditPercent"] = ccparams.minimumCreditPercentage
 
-            # Hints
-            context_dict["hintsUsed"] = ccparams.hintsUsed
-            context_dict["weightBasicHint"] = ccparams.weightBasicHint
-            context_dict["weightStrongHint"] = ccparams.weightStrongHint
+            
 
             # Goals
             context_dict['goalsUsed'] = ccparams.goalsUsed

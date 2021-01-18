@@ -74,7 +74,7 @@
                                  {% for student, enrollment in students_in_group %}
                                  <li id="{{student.id}}" data-team-id="{{team_ID}}">
                                     <div class="sortable-item" style="display: grid;
-                                    grid-template-columns: auto 1fr auto; text-align: left">
+                                    grid-template-columns: auto 1fr auto auto; text-align: left">
                                        <div style="padding-right: 8px;">
                                           <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
                                        </div>
@@ -85,7 +85,7 @@
 
                                        
                                        {% if forloop.first %}
-                                       <span id="{{team_ID}}-star" style="width:15%;white-space: nowrap;padding-right: 8px;">
+                                       <span id="{{team_ID}}-star" style="width:15%;white-space: nowrap;padding-right: 8px; justify-self:center;">
                                           <i class="material-icons" style="vertical-align: bottom;">stars</i>
                                        </span>
                                        {% endif %}

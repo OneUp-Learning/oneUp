@@ -128,7 +128,7 @@
                star.children()[2].remove();
             }
          }
-         var team_star = `<div id="${team_id}-star" style="padding-right: 8px;">
+         var team_star = `<div id="${team_id}-star" style="padding-right: 8px; justify-self:center;">
                                           <i class="material-icons" style="vertical-align: bottom;">stars</i>
                      </div>`;
          $(`.sortable-students[data-team-id="${team_id}"]`).children().first().children().first().append(team_star)
@@ -245,18 +245,18 @@
                                  {% for student, enrollment in students_in_group %}
                                  <li id="{{student.id}}" data-team-id="{{team_ID}}">
                                     <div class="sortable-item" style="display: grid;
-                                    grid-template-columns: auto 1fr auto; text-align: left">
+                                    grid-template-columns: auto 1fr auto auto; text-align: left">
                                        <div style="padding-right: 8px;">
                                           <i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
                                        </div>
                                        
-                                       <span style="max-width: 40%;min-width: 40%">{{student}} </span> 
+                                       <span style="max-width: 30%;min-width: 30%">{{student}} </span> 
                                        {% if not team_name == "Unassigned Students" %}
                                        <span style="color:gray;">Enrollment Method: <b>{{enrollment}}</b></span>
 
                                        
                                        {% if forloop.first %}
-                                       <span id="{{team_ID}}-star" style="width:15%;white-space: nowrap;padding-right: 8px;">
+                                       <span id="{{team_ID}}-star" style="width:15%;white-space: nowrap;padding-right: 8px; justify-self:center;">
                                           <i class="material-icons" style="vertical-align: bottom;">stars</i>
                                        </span>
                                        {% endif %}

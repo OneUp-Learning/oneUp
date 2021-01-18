@@ -43,6 +43,16 @@ def courseConfigurationView(request):
         ccparams.announcementsUsed = "announcementsUsed" in request.POST
         ccparams.flashcardsUsed = "flashcardsUsed" in request.POST
         ccparams.teamsEnabled = 'teamsUsed' in request.POST
+        
+        # Student Achievement Page
+        ccparams.displayAchievementPage = "displayAchievementPage" in request.POST
+        ccparams.classAverageUsed = "classAverageUsed" in request.POST
+
+        # hints
+        ccparams.hintsUsed = "hintsUsed" in request.POST
+        ccparams.weightBasicHint = request.POST["weightBasicHint"]
+        ccparams.weightStrongHint = request.POST["weightStrongHint"]
+
         logger.debug(request.POST['courseStartDate'])
 
         if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
@@ -81,6 +91,16 @@ def courseConfigurationView(request):
             context_dict['activitiesUsed'] = ccparams.activitiesUsed
             context_dict['flashcardsUsed'] = ccparams.flashcardsUsed
             context_dict['teamsUsed'] = ccparams.teamsEnabled
+
+            # Student Achievement Page
+            context_dict["displayAchievementPage"] = ccparams.displayAchievementPage
+            context_dict["classAverageUsed"] = ccparams.classAverageUsed
+
+            # Hints
+            context_dict["hintsUsed"] = ccparams.hintsUsed
+            context_dict["weightBasicHint"] = ccparams.weightBasicHint
+            context_dict["weightStrongHint"] = ccparams.weightStrongHint
+
             if ccparams.hasCourseStartDate:
                 context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")
             else:

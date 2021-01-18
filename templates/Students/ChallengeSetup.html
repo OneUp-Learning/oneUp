@@ -42,6 +42,22 @@
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
    <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
    <script src="/static/ThirdParty/aceEditor/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		// Warning before leaving the page (back button, or outgoinglink)
+		let submittedForm = false;
+		
+		function beforeUnloadClicked(){
+			submittedForm = true;
+		}
+		
+		window.onbeforeunload = function() {
+			// Note: The message leaving function is only fired after the page is interacted with as a security precaution.
+			if (submittedForm){
+				return null;
+			}
+		   return "A challenge is in progress, Navigating away from this page may result in loss of data!";
+		};
+	</script>
    <script type="text/javascript">
       // Set time out for the test if the time limit has reached 
       var duration = {{ testDuration }}; //time limit in minutes from database
@@ -305,7 +321,7 @@
                            <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
                            <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit"
                               id="submit4" name="submitduel" value="Submit"
-                              onclick="copyContentsToHidden();return submitAllUnsubmitted();">Submit
+                              onclick="beforeUnloadClicked();copyContentsToHidden();return submitAllUnsubmitted();">Submit
                            </button>
                         </div>
                      </div>
@@ -318,7 +334,7 @@
                            <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
                            <button class="modal-action modal-close waves-effect waves-light btn-flat" type="submit"
                               id="submit5" name="submitchallenge" value="Submit"
-                              onclick="copyContentsToHidden();return submitAllUnsubmitted();">Submit
+                              onclick="beforeUnloadClicked();copyContentsToHidden();return submitAllUnsubmitted();">Submit
                            </button>
                         </div>
                      </div>
@@ -391,7 +407,7 @@
       function gradeParsons() {
          // var parsonsProblems = document.getElementsByName("serious_parson");
          var parsonsProblems = $('[id^="serious_parson"]');
-      
+         
          for (var i = 0; i < parsonsProblems.length; ++i) {
             var parsonObject = window["seriousParson_" + parsonsProblems[i].value];
             parsonObject.loadParsonForSubmit();
