@@ -84,6 +84,9 @@ def challengeCreateView(request):
         # get isVisible
         isVisible = str(request.POST.get('isVisible', 'false'))
 
+        # get isTeamChallenge
+        isTeamChallenge = str(request.POST.get('isTeamChallenge', 'false'))
+
         # get randomization GGM
         isRandomized = str(request.POST.get('randomizeProblems', 'false'))
 
@@ -130,6 +133,11 @@ def challengeCreateView(request):
         if isVisible == str("false"):
             isVisible = ""
         challenge.isVisible = bool(isVisible)
+
+        # only empty strings return false when converted to boolean
+        if isTeamChallenge == str("false"):
+            isTeamChallenge = ""
+        challenge.isTeamChallenge = bool(isTeamChallenge)
 
         # only empty strings return false when converted to boolean
         if isRandomized == str("false"):
@@ -276,6 +284,11 @@ def challengeCreateView(request):
                 context_dict['isVisible'] = True
             else:
                 context_dict['isVisible'] = False
+            
+            if challenge.isTeamChallenge:
+                context_dict['isTeamChallenge'] = True
+            else:
+                context_dict['isTeamChallenge'] = False
 
             if challenge.isRandomized:
                 context_dict['randomizeProblems'] = True
@@ -354,7 +367,9 @@ def challengeCreateView(request):
             if ccp.hasCourseEndDate and ccp.courseEndDate > current_localtime().date(): 
                 context_dict['endTimestamp'] = datetime_to_selected(ccp.courseEndDate) 
                 context_dict['dueDate'] = datetime_to_selected(ccp.courseEndDate)
-                
+        
+        ccp = CourseConfigParams.objects.get(courseID=currentCourse)
+        context_dict['teamsEnabled'] = ccp.teamsEnabled
         context_dict['question_range'] = zip(
             range(1, len(questionObjects)+1), qlist)
         # logger.debug("[GET] " + str(context_dict))

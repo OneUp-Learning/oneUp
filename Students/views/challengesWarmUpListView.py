@@ -33,7 +33,7 @@ def challengesForTopic(request, topic, student, currentCourse):
         challengeID__hasStartTimestamp=False), Q(challengeID__endTimestamp__gt=currentTime) | Q(challengeID__hasEndTimestamp=False))
     if challenge_topics:
         for ct in challenge_topics:
-            if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isVisible=True, courseID=currentCourse):
+            if Challenges.objects.filter(challengeID=ct.challengeID.challengeID, isGraded=False, isTeamChallenge = False, isVisible=True, courseID=currentCourse):
 
                 challQuestions = ChallengesQuestions.objects.filter(
                     challengeID=ct.challengeID.challengeID)

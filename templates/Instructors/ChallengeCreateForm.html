@@ -52,6 +52,7 @@
     					
                   if(todaysDate.setHours(0,0,0,0) > startDateValue.setHours(0,0,0,0)) { // compare the current date to the date entered into the form
                 	  field.val(todayDateString); // set the field to today's date
+                    console.log(todayDateString)
                   }
                })
             }
@@ -228,6 +229,17 @@
                               <label for="challenge_visible">Make challenge available</label>
                            </div>
                         </div>
+                        {% if teamsEnabled and warmUp %}
+                        <div class="row">
+                           <div class="col s12">
+                              <h6>Team Challenge</h6>
+                           </div>
+                           <div class="col s12">
+                              <input class="filled-in" name="isTeamChallenge" type="checkbox" id="team_challenge" {% if isTeamChallenge %} checked {% endif %} {%if view%}disabled{%endif%}/>
+                              <label for="team_challenge">Make challenge a team challenge</label>
+                           </div>
+                        </div>
+                        {% endif %}
                         <div class="row">
                            <div class="col s12 m4">
                               <label for="startTime">Display From:</label>

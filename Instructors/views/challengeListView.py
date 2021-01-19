@@ -265,7 +265,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
         challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
         if challenge_topics:           
             for challt in challenge_topics:
-                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=isGraded, courseID=currentCourse):
+                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=isGraded, isTeamChallenge=False, courseID=currentCourse):
                     chall_ID.append(challt.challengeID.challengeID)
                     chall_Name.append(challt.challengeID.challengeName)
                     #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
