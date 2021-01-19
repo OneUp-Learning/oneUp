@@ -63,7 +63,7 @@
                            </div>
                            <div class="input-field col s12">
                               <i class="material-icons prefix">mode_edit</i>
-                              <input {% if libEdit %}value="{{libDescription}}"{%endif%} name="libDescription" id="lib_Description" type="text" onchange="checkUnique()" onkeydown="return nospaces(event)" pattern=".*\S+.*">
+                              <input {% if libEdit %}value="{{libDescription}}"{%endif%} name="libDescription" id="lib_Description" type="text">
                               <label for="lib_Description">Library Description</label>
                               <div id="uniqueNameWarning" style="display:none" color="red">Libraries are required to have unique names!  That one is already taken!</div>
                            </div>

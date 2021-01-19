@@ -1499,88 +1499,96 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             duel_allowed_time = datetime_to_local(duel_challenge.acceptTime+timedelta(minutes=start_and_limit_time)+timedelta(seconds=2))
             
             if duel_allowed_time <= current_localtime():
-                
+                #Instructor may set a minimum percentage of the total score students must achieve to receive credit
+                ccparams = CourseConfigParams(courseID=current_course)
+                minimum_credit_percentage = ccparams.minimumCreditPercentage
+                #Get the total score possible for the challenge and derive minimum eligible score
+                chall = duel_challenge.challengeID
+                min_eligible_score = chall.totalScore * (minimum_credit_percentage/100)
+                #Boolean vars that determin if challenger and challengee eligible for credit for duel
+                score = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course)
+                student_eligible = score >= min_eligible_score
                 # Challenge is expired
                 context_dict['isExpired']=True
-
-                vc_winner = StudentRegisteredCourses.objects.get(studentID=student_id, courseID=duel_challenge.courseID)
-                # Winner gets the total virtual currency and an amount of virtual currency set by teacher
-                virtualCurrencyAmount = vc_winner.virtualCurrencyAmount + 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                vc_winner.virtualCurrencyAmount = virtualCurrencyAmount
-                vc_winner.save()
-                winner = Winners()
-                winner.DuelChallengeID = duel_challenge
-                winner.studentID = student_id
-                winner.courseID = current_course
-                winner.save()
-                
-                if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                    # save earning transaction
-                    w_student_vc = StudentVirtualCurrency()
-                    w_student_vc.courseID = duel_challenge.courseID
-                    w_student_vc.studentID = student_id
-                    w_student_vc.objectID = 0
-                    w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
-                    w_student_vc.vcName = duel_challenge.duelChallengeName
-                    w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
-                    w_student_vc.save()
-
-                    # Record this trasaction in the log to show that the system awarded this vc
-                    studentAddBadgeLog = BadgesVCLog()
-                    studentAddBadgeLog.timestamp = current_localtime()
-                    studentAddBadgeLog.courseID = duel_challenge.courseID
-                    log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
-                    studentAddBadgeLog.log_data = json.dumps(log_data)
-                    studentAddBadgeLog.save()
-
-                duel_challenge.hasEnded = True
-                duel_challenge.save()
-
-                if duel_challenge.challenger == student_id:
-                    notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
-                    # Register event that the student has won the duel
-                    mini_req = {
-                        'currentCourseID': duel_challenge.courseID.pk,
-                        'user': duel_challenge.challenger.user.username,
-                    }
+                if student_eligible:
+                    vc_winner = StudentRegisteredCourses.objects.get(studentID=student_id, courseID=duel_challenge.courseID)
+                    # Winner gets the total virtual currency and an amount of virtual currency set by teacher
+                    virtualCurrencyAmount = vc_winner.virtualCurrencyAmount + 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                    vc_winner.virtualCurrencyAmount = virtualCurrencyAmount
+                    vc_winner.save()
+                    winner = Winners()
+                    winner.DuelChallengeID = duel_challenge
+                    winner.studentID = student_id
+                    winner.courseID = current_course
+                    winner.save()
+                    
                     if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                        register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challenger, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+                        # save earning transaction
+                        w_student_vc = StudentVirtualCurrency()
+                        w_student_vc.courseID = duel_challenge.courseID
+                        w_student_vc.studentID = student_id
+                        w_student_vc.objectID = 0
+                        w_student_vc.value = 2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const
+                        w_student_vc.vcName = duel_challenge.duelChallengeName
+                        w_student_vc.vcDescription = "You have won the duel, "+duel_challenge.duelChallengeName+". Total amount might include particpation's awards"
+                        w_student_vc.save()
 
-                    register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
+                        # Record this trasaction in the log to show that the system awarded this vc
+                        studentAddBadgeLog = BadgesVCLog()
+                        studentAddBadgeLog.timestamp = current_localtime()
+                        studentAddBadgeLog.courseID = duel_challenge.courseID
+                        log_data = create_badge_vc_log_json("System", w_student_vc, "VC", "Duel")
+                        studentAddBadgeLog.log_data = json.dumps(log_data)
+                        studentAddBadgeLog.save()
 
-                    notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
-                    # Register event that the student has lost the duel
-                    mini_req = {
-                        'currentCourseID': duel_challenge.courseID.pk,
-                        'user': duel_challenge.challengee.user.username,
-                        'timezone': get_current_timezone_name()
-                    }
-                    register_event_simple(Event.duelLost, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+                    duel_challenge.hasEnded = True
+                    duel_challenge.save()
 
-                else: 
-                        
-                    notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
-                                            verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
-                    mini_req = {
-                        'currentCourseID': duel_challenge.courseID.pk,
-                        'user': duel_challenge.challengee.user.username,
-                        'timezone': get_current_timezone_name()
-                    }
-                    if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
-                        register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+                    if duel_challenge.challenger == student_id:
+                        notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
+                                                verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                        # Register event that the student has won the duel
+                        mini_req = {
+                            'currentCourseID': duel_challenge.courseID.pk,
+                            'user': duel_challenge.challenger.user.username,
+                        }
+                        if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                            register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challenger, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
 
-                    register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+                        register_event_simple(Event.duelWon, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
 
-                    notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
-                                            verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
-                    mini_req = {
-                        'currentCourseID': duel_challenge.courseID.pk,
-                        'user': duel_challenge.challenger.user.username,
-                        'timezone': get_current_timezone_name()
-                    }
-                    register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
+                        notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
+                                                verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                        # Register event that the student has lost the duel
+                        mini_req = {
+                            'currentCourseID': duel_challenge.courseID.pk,
+                            'user': duel_challenge.challengee.user.username,
+                            'timezone': get_current_timezone_name()
+                        }
+                        register_event_simple(Event.duelLost, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+
+                    else: 
+                            
+                        notify.send(None, recipient=duel_challenge.challengee.user, actor=duel_challenge.challenger.user,
+                                                verb= 'Congratulations! You have won the duel ' +duel_challenge.duelChallengeName+". \nYou are the only one who has taken the duel and the duel has just expired.", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                        mini_req = {
+                            'currentCourseID': duel_challenge.courseID.pk,
+                            'user': duel_challenge.challengee.user.username,
+                            'timezone': get_current_timezone_name()
+                        }
+                        if (2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const) > 0:
+                            register_event_simple(Event.virtualCurrencyEarned, mini_req, duel_challenge.challengee, objectId=(2*duel_challenge.vcBet + duel_vc_const + duel_vc_participants_const))
+
+                        register_event_simple(Event.duelWon, mini_req, duel_challenge.challengee, objectId=duel_challenge.duelChallengeID)
+
+                        notify.send(None, recipient=duel_challenge.challenger.user, actor=duel_challenge.challengee.user,
+                                                verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+". \nYou have not submitted the duel on time and the duel has just expired.", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                        mini_req = {
+                            'currentCourseID': duel_challenge.courseID.pk,
+                            'user': duel_challenge.challenger.user.username,
+                            'timezone': get_current_timezone_name()
+                        }
+                        register_event_simple(Event.duelLost, mini_req, duel_challenge.challenger, objectId=duel_challenge.duelChallengeID)
 
                 context_dict['areAllDone'] = True
                 return context_dict
@@ -1608,6 +1616,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         challenger_eligible = challenger_challenge.testScore >= min_eligible_score
         challengee_eligible = challengee_challenge.testScore >= min_eligible_score
         if challenger_challenge.testScore > challengee_challenge.testScore and challenger_eligible:
+          
             winner_s = challenger_challenge.studentID
             vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s , courseID=current_course)
             # Winner gets the total virtual currency and an amount of virtual currency set by teacher
@@ -1694,6 +1703,8 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             register_event_simple(Event.duelLost, mini_req, challengee_challenge.studentID, objectId=duel_challenge.duelChallengeID)
 
         elif challengee_challenge.testScore > challenger_challenge.testScore and challengee_eligible:
+            
+            
             winner_s = challengee_challenge.studentID
             vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s, courseID=current_course)
             # Winner gets the total virtual currency and an amount of virtual currency set by teacher
@@ -1778,9 +1789,25 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                                     verb= 'You have lost the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
             register_event_simple(Event.duelLost, mini_req, challenger_challenge.studentID, objectId=duel_challenge.duelChallengeID)
-
         else:
             print("even here")
+            if challengee_challenge.testScore < challenger_challenge.testScore:
+                # Notify they did better but didn't meet minimum score
+                notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
+                                            verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                # Notify opponent did better but didn't meet minimum score
+                notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
+                                            verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receivecredit' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+
+
+            if challengee_challenge.testScore > challenger_challenge.testScore:
+                # Notify they did better but didn't meet minimum score
+                notify.send(None, recipient=challengee_challenge.studentID.user, actor=challenger_challenge.studentID.user,
+                                            verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                # Notify opponent did better but didn't meet minimum score
+                notify.send(None, recipient=challenger_challenge.studentID.user, actor=challengee_challenge.studentID.user,
+                                            verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+            
             if int(challengee_challenge.testScore) == int(challenger_challenge.testScore) and int(challenger_challenge.testScore) == 0:
                 
                 duel_challenge.customMessage = "Both you and your oppenent have failed the duel. Duel has already expired and cannot be taken."
@@ -1911,7 +1938,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         duel_challenge.hasEnded = True
         duel_challenge.save()
     
-    
+    ccparams = CourseConfigParams(courseID=current_course)
     duel_vc_const = ccparams.vcDuel
     duel_vc_participants_const = ccparams.vcDuelParticipants
 
