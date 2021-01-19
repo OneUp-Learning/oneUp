@@ -112,7 +112,7 @@
                    <td class="truncate" style="max-width: 200px; display: table-cell;">{{topic}}</td>
                    
                    <td style="width: 350px;">
-                   {% if winners == 1 or winners == 3 %} <i class='material-icons'>check</i> {% endif %} {{duel_challenge.challenger.user.last_name}}&nbsp &nbsp 
+                   {% if winners == 1 or winners == 3 %} <i class='material-icons'>check</i> {% else %} <span style="height:24px;width:24px; display:inline-block"></span> {% endif %}{{duel_challenge.challenger.user.last_name}}&nbsp &nbsp 
                     <img alt="Avatar Image" class="circle" width="28" height="28"  src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp 
                     <img alt="Avatar Image" class="circle" width="28" height="28"  src="{{challengee_avatar}}"> &nbsp &nbsp {{duel_challenge.challengee.user.last_name}}
                     {% if winners == 2 or winners == 3 %}<i class='material-icons'>check</i> {% endif %}</td>
