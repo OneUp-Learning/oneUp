@@ -181,6 +181,17 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
 
             register_event_simple(Event.calloutWon, mini_req,
                                   objectId=call_out_stat.calloutID.calloutID)
+        else:
+            if participant_score >= sender_stat.studentChallenge.testScore:
+                # Notify participant about the call out if they did not meet min
+                notify.send(None, recipient=participant_id.user, actor=participant_id.user,
+                            verb="You did better than the call out, but did not meet the minimum score set by the instructor to receive credit"+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
+                
+            else:
+                # Notify participant about the call out
+                notify.send(None, recipient=participant_id.user, actor=participant_id.user,
+                            verb="You have lost the call out "+call_out.challengeID.challengeName, nf_type='callout lost', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
+
 
     else:
 
@@ -268,10 +279,14 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             call_out_participant.hasWon = False
             call_out_participant.hasSubmitted = True
             call_out_participant.save()
-
-            # Notify participant about the call out
-            notify.send(None, recipient=participant_id.user, actor=participant_id.user,
-                        verb="You have lost the call out "+call_out.challengeID.challengeName, nf_type='callout lost', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
+            if participant_score >= sender_stat.studentChallenge.testScore:
+                # Notify participant about the call out if they did not meet min
+                notify.send(None, recipient=participant_id.user, actor=participant_id.user,
+                            verb="You did better than the call out, but did not meet the minimum score set by the instructor to receive credit"+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
+            else:
+                # Notify participant about the call out
+                notify.send(None, recipient=participant_id.user, actor=participant_id.user,
+                            verb="You have lost the call out "+call_out.challengeID.challengeName, nf_type='callout lost', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
 
             # mini req for calloutSent event
             mini_req = {

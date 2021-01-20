@@ -86,7 +86,7 @@
                         <table class="responsive-table" style="width:100%">
                         
                  <tbody>
-                 {% for duel_challenge, challenger_avatar, challengee_avatar, topic, has_expired in duel_challenges %}
+                 {% for duel_challenge, challenger_avatar, challengee_avatar, topic, has_expired, winners in duel_challenges %}
                  <tr>
                    <!--<td class="truncate" style="max-width: 200px; display: table-cell;">{{duel_challenge.duelChallengeName}}</td>-->
                    {%if not duel_challenge.status == 2 %}
@@ -111,7 +111,11 @@
                    
                    <td class="truncate" style="max-width: 200px; display: table-cell;">{{topic}}</td>
                    
-                   <td style="width: 350px;"> {{duel_challenge.challenger.user.last_name}}&nbsp &nbsp <img alt="Avatar Image" class="circle" width="28" height="28"  src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp <img alt="Avatar Image" class="circle" width="28" height="28"  src="{{challengee_avatar}}"> &nbsp &nbsp {{duel_challenge.challengee.user.last_name}} </td>
+                   <td style="width: 350px;">
+                   {% if winners == 1 or winners == 3 %} <i class='material-icons'>check</i> {% else %} <span style="height:24px;width:24px; display:inline-block"></span> {% endif %}{{duel_challenge.challenger.user.last_name}}&nbsp &nbsp 
+                    <img alt="Avatar Image" class="circle" width="28" height="28"  src="{{challenger_avatar}}">&nbsp &nbsp vs &nbsp &nbsp 
+                    <img alt="Avatar Image" class="circle" width="28" height="28"  src="{{challengee_avatar}}"> &nbsp &nbsp {{duel_challenge.challengee.user.last_name}}
+                    {% if winners == 2 or winners == 3 %}<i class='material-icons'>check</i> {% endif %}</td>
                    
                    <!--
                    <td>
