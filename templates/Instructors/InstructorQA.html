@@ -94,7 +94,7 @@
                   <i class="material-icons">question_answer</i>How are Students Added to Courses?</div>
                 <div class="collapsible-body">
                   <span>
-                    <p style="text-indent:40px">Students do not create their own accounts, Instructors must make it for
+                    <p style="text-indent:40px">Students do not create their own account, Instructors must make it for
                       them. To do so, in the Course Information menu select Students.
                       On this page, Instructors can view their students’ names, email, and the time of their most recent
                       online activity.
@@ -104,14 +104,14 @@
                     <p style="text-indent:40px; margin-top: 1ex">
                       Alternatively, you can import a file with students' registration information.
                       You should be sure to select the format for the imported file and to enter the email domain for
-                      your university (the part after the @ sign) .
-                      Currently there are two supported file formats:
+                      your university (the part after the @ sign).
+                      Currently there is only one supported file format:
                       <ul style="text-indent:60px">
-                        <li>* <b>CANVAS</b> format: A file, exported from the CANVAS LMS: simply go to CANVA Grades,
+                        <!--li>* <b>CANVAS</b> format: A file, exported from the CANVAS LMS: simply go to CANVA Grades,
                           export (in the standard CSV format) and save the file on your computer.
                           Then in OneUP's Create Student page choose the option "Import from CANVAS", and upload the
                           previously exported file.
-                        </li>
+                        </li-->
                         <li>* <b>OneUp</b> format: A file in CSV (Comma Separated Values) format: you can prepare such
                           file in any spreadsheet program (e.g. Excel) and save it in the CSV format.
                           The spreadsheet has to have 3 columns: First name, Last name, and the local part (the part
@@ -121,13 +121,24 @@
                         </li>
                       </ul>
                     </p>
+                    <p>
+                      After clicking Import, a pop-up will open, where you will see all imported students with system-generated passwords.
+                      If you want to change a password with one created by you, click on the Edit icon (the little pencil) next to the password.
+                      In the Edit mode you can enter a new password. Then click Confirm to confirm it and exit the Edit mode for this password. 
+                      Note that after closing the pop-up window, you cannot see anymore the passwords of the imported students. So, if you want 
+                      to keep a system generated password and have it, make sure you copy it in the Edit mode. 
+                    </p>
+           			<p style="text-indent:40px"><b>When an OneUp student account is created (either manually or through an import), an email is sent to
+           			the student's email address with their credentials (user name and password) set by the Instructor.
+                    </b></p>
+                                       
                     <p style="text-indent:40px; margin-top: 1ex">
                       If you wish to add students that are already registered in other OneUp courses, then click on the
                       Add Existing Student button to be taken to the Add Students page.
-                      Simply select which students you wish to add to your course and click the Add to Class button.
+                      Simply select which students you wish to add to your course and click the Add to Class button. The students will use 
+                      their existing password to access all OneUp courses in which they are registered.
                     </p>
-                    <p style="text-indent:20px"><b>When the student is created, the email provided will be sent the credentials the Instructor set
-                    for the student.</b></p>
+          
                   </span>
                 </div>
               </li>
