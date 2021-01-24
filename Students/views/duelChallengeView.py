@@ -1488,7 +1488,7 @@ def duel_challenge_delete(request):
 
 def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_dict):
     '''duel_challenge_evaluate evalutes and determines the winners, and handles virtual current transaction if betting is enable'''
-   
+    import decimal
     def has_duel_expired(student_id, duel_challenge, context_dict, duel_vc_const, duel_vc_participants_const):
             ''' Check whether duel has expired and if has expired, then reward student who submitted duel on time'''
 
@@ -1504,7 +1504,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
                 minimum_credit_percentage = ccparams.minimumCreditPercentage
                 #Get the total score possible for the challenge and derive minimum eligible score
                 chall = duel_challenge.challengeID
-                min_eligible_score = chall.totalScore * (minimum_credit_percentage/100)
+                min_eligible_score = chall.totalScore * (decimal.Decimal(minimum_credit_percentage)/100)
                 #Boolean vars that determin if challenger and challengee eligible for credit for duel
                 score = StudentChallenges.objects.filter(studentID=student_id,challengeID=duel_challenge.challengeID, courseID=current_course)
                 student_eligible = score >= min_eligible_score
@@ -1611,7 +1611,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
 
         #Get the total score possible for the challenge and derive minimum eligible score
         chall = duel_challenge.challengeID
-        min_eligible_score = chall.totalScore * (minimum_credit_percentage/100)
+        min_eligible_score = chall.totalScore * (decimal.Decimal(minimum_credit_percentage)/100)
         #Boolean vars that determin if challenger and challengee eligible for credit for duel
         challenger_eligible = challenger_challenge.testScore >= min_eligible_score
         challengee_eligible = challengee_challenge.testScore >= min_eligible_score

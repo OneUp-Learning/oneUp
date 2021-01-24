@@ -48,7 +48,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
     '''This function evaluates a call out manually, in class call out case, this function
        evaluates the highest already taken challenge score against the sender's score 
        if warm up challenge has already been taken by participant '''
-
+    import decimal
     # if call out has ended, then abord
     if call_out.hasEnded:
         return
@@ -58,7 +58,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
     minimum_credit_percentage = ccparams.minimumCreditPercentage
     #Get the total score possible for the challenge and derive minimum eligible score
     chall = call_out.challengeID
-    min_eligible_score = chall.totalScore * (minimum_credit_percentage/100)
+    min_eligible_score = chall.totalScore * (decimal.Decimal(minimum_credit_percentage)/100)
     def reward_sender(sender_stat, current_course, call_out):
         '''Reward Sender when participant participates'''
 
