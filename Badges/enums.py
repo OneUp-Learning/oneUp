@@ -684,6 +684,7 @@ class ObjectTypes():
     activityCategory=1307
     virtualCurrencySpendRule=1308 # Used for manual virtual currency rules/transactions
     flashcard = 1309
+    skill = 1310
     objectTypes = {
         challenge:"challenge",
         activity:"activity",
@@ -693,7 +694,8 @@ class ObjectTypes():
         topic:"topic",
         activityCategory:"activityCategory",
         virtualCurrencySpendRule:"virtualCurrencySpendRule",
-        flashcard:"flashcard"
+        flashcard:"flashcard",
+        skill:"skill",
     }
 
 class OperandTypes():
