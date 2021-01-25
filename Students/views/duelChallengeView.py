@@ -125,6 +125,7 @@ def automatic_evaluator(duel_id, course_id):
             #Boolean vars that determin if challenger and challengee eligible for credit for duel
             challenger_eligible = challenger_challenge.testScore >= min_eligible_score
             challengee_eligible = challengee_challenge.testScore >= min_eligible_score
+            print("Eligibility:", challenger_eligible, challengee_eligible)
             if challenger_challenge.testScore > challengee_challenge.testScore and challenger_eligible:
                 winner_s = challenger_challenge.studentID
                 vc_winner = StudentRegisteredCourses.objects.get(studentID=winner_s, courseID=current_course)
@@ -1643,6 +1644,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         #Boolean vars that determin if challenger and challengee eligible for credit for duel
         challenger_eligible = challenger_challenge.testScore >= min_eligible_score
         challengee_eligible = challengee_challenge.testScore >= min_eligible_score
+        print("Eligibility non-automatic:", challenger_eligible, challengee_eligible)
         if challenger_challenge.testScore > challengee_challenge.testScore and challenger_eligible:
           
             winner_s = challenger_challenge.studentID
