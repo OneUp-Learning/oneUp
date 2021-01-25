@@ -65,10 +65,12 @@ def flashCards(request):
     #or is close to being here
     context_dict, current_course = studentInitialContextDict(request)
     student = Student.objects.get(user=request.user)
+    context_dict['flash_range']=''
+    
     if 'groupID' in request.GET:
         groupID=[]
         groupID.append(request.GET['groupID'])
-        print(len(groupID))
+        
         if groupID[0] == "ALL":
             context_dict['flash_range'] = getFlashCards(groupID, request, True)
         else:
@@ -84,6 +86,8 @@ def flashCards(request):
         context_dict['flash_range'] = getFlashCards(requested_groups, request)
     if len(context_dict['flash_range']) != 0:
         register_event(Event.viewFlashCard, request, student, context_dict['flash_range'][0]['flashID'])
+    elif context_dict['flash_range'] == '':
+        return redirect('FlashCardsList.html')
     return render(request,'Students/FlashCards.html',context_dict)
 
 def flashCardsList(request):
@@ -120,7 +124,7 @@ def getFlashCards(groupIDs, request, all_cards=False):
     #get all the cards in the course no exceptions
     if(all_cards):        
         context_dict, currentCourse = studentInitialContextDict(request)
-        card_groups = FlashCardGroupCourse.objects.filter(courseID=currentCourse).exclude(groupID_id__groupName="Unassigned")
+        card_groups = FlashCardGroupCourse.objects.filter(courseID=currentCourse)
 
         groupIDs = []
         for card_group in card_groups:
