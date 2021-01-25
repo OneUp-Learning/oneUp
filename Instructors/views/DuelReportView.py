@@ -106,6 +106,7 @@ def duel_report(request):
         challengee_avatars = []
         duel_topics = []
         has_expired_list = []
+        winners_list = []
         for duel_challenge in duel_challenges:
             challengee_av = StudentRegisteredCourses.objects.get(
                 studentID=duel_challenge.challengee, courseID=duel_challenge.courseID)
@@ -118,6 +119,28 @@ def duel_report(request):
             chall_topics = ChallengesTopics.objects.filter(
                 challengeID=duel_challenge.challengeID)
             topic_names = ""
+            #get winners
+            winners = Winners.objects.filter(DuelChallengeID=duel_challenge, courseID=current_course)
+            # 0: no winners, 1: challenger wins, 2: challengee wins, 3: both winners
+            result = 0
+            
+            for winner in winners:
+                if winner.studentID == duel_challenge.challenger:
+                    if result == 0:
+                        result = 1
+                    else:
+                        result = 3
+                        break
+                elif winner.studentID == duel_challenge.challengee:
+                    if result == 0:
+                        result = 2
+                    else:
+                        result = 3
+                        break
+            
+            winners_list.append(result)
+            
+
             for chall_topic in chall_topics:
                 topic_names += chall_topic.topicID.topicName + "   "
             duel_topics.append(topic_names)
@@ -129,7 +152,7 @@ def duel_report(request):
             else:
                 has_expired_list.append(False)
 
-        return (zip(duel_chall, challenger_avatars, challengee_avatars, duel_topics, has_expired_list), context_dict)
+        return (zip(duel_chall, challenger_avatars, challengee_avatars, duel_topics, has_expired_list, winners_list), context_dict)
 
     context_dict = {}
     if 'currentCourseID' in request.session:

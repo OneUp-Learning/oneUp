@@ -16,10 +16,28 @@ from Instructors.views.utils import initialContextDict
 from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
-from oneUp.decorators import instructorsCheck  
+from oneUp.decorators import instructorsCheck       
+import smtplib
+
 import logging
 
 logger = logging.getLogger(__name__)
+
+def sendEmail(recipient, subject, body):
+    gmail_user = 'oneupemailer@gmail.com'
+    gmail_password = 'vtrenmzgsahmfgcv'
+    
+    to = [recipient]
+    
+    email_text = 'Subject: {}\n\n{}'.format(subject, body)
+    
+    with smtplib.SMTP_SSL('smtp.gmail.com',465) as server:
+        server.set_debuglevel(1)
+        server.login(gmail_user, gmail_password)
+        text = email_text
+        server.sendmail(gmail_user, to[0], text)
+        server.quit()
+        
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def createStudentView(request):
@@ -43,7 +61,7 @@ def createStudentViewUnchecked(request):
         students = User.objects.filter(username=uname)
         
         if 'userID' in request.POST: # Update student information
-            # username cannot be changed; if needed, the studnet must be deleted and a new student created
+            # username cannot be changed; if needed, the student must be deleted and a new student created
             if students:
                 student = students[0]
             else:
@@ -76,7 +94,6 @@ def createStudentViewUnchecked(request):
                     createSCVforInstructorGrant(student,currentCourse,ccparams.virtualCurrencyAdded)
                     studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
                 studentRegisteredCourses.save()
-
                 
                 logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
                 
@@ -96,6 +113,18 @@ def createStudentViewUnchecked(request):
                 student.user = user
                 student.universityID = email
                 student.save()
+
+                sendEmail(email, "Welcome to OneUp!", 
+"""Hello """+firstname+""",
+
+    Your account has been created, please use the following credentials to sign-in.
+    
+    User Name: """+email+"""
+    Password: """+pword+"""
+    
+OneUp Admin"""
+            )
+                
                 print("New Student Created")        
                         
                 studentRegisteredCourses = StudentRegisteredCourses()
