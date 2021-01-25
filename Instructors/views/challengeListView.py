@@ -71,7 +71,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     return context_dict
 
 
-def makeContextDictForChallengeList(context_dict, courseId, indGraded):
+def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChallenge):
    
     chall_ID = []      
     chall_Name = []         
@@ -91,10 +91,13 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
         UnassignID = challID.challengeID   
         
     if indGraded:    
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=True)
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=True, isTeamChallenge=False)
+    elif teamChallenge:
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=True)
     else:
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False)
-    
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=False)
+
+ 
     for item in challenges:
         if item.challengeID != UnassignID:
             chall_ID.append(item.challengeID) #pk
@@ -154,11 +157,11 @@ def challengesList(request):
 
     
     if warmUp == 1:
-        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
+        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False, False)
         #print(context_dict)
     else:
         if not context_dict['ccparams'].seriousChallengesGrouped:
-            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
+            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True, False)
         else:
             topic_ID = []      
             topic_Name = [] 
@@ -354,3 +357,15 @@ def disableExpiredChallenges(request):
             for student in registeredStudents:
                 register_event(Event.challengeExpiration, request, student.studentID, challenge.challengeID)
                 #print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
+def teamChallengesList(request):
+    
+    context_dict, currentCourse = initialContextDict(request)
+        
+
+    context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False, True)
+        
+            
+    return render(request,'Instructors/teamChallengesList.html', context_dict)

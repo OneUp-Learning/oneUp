@@ -73,6 +73,8 @@ def challengeQuestionsListView(request):
                     context_dict['serious'] = True
                 else:
                     context_dict['warmUp'] = True
+                    if challenge.isTeamChallenge:
+                        context_dict['teamChallenge'] = True
             context_dict['challenge'] = True
             context_dict['challengeID'] = request.GET['challengeID']
             context_dict['challengeName'] = challenge.challengeName

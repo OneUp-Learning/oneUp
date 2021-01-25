@@ -25,7 +25,7 @@ from Instructors.views.challengeAdjusmentView import (adjustmentList,
 from Instructors.views.challengeCreateView import challengeCreateView
 
 from Instructors.views.challengeListView import (challengesList,
-                                                 warmUpChallengeList)
+                                                 warmUpChallengeList, teamChallengesList)
 from Instructors.views.challengeQuestionsListView import (
     challengeQuestionsListView, deleteProblemsButFilterTakenByStudent)
 from Instructors.views.challengeSaveSelectedQuestionsView import \
@@ -306,6 +306,7 @@ urlpatterns = [
     url(r'^updateTeamLeader', updateTeamLeader, name='updateTeamLeader'),
     url(r'^deactivateTeams', deactivateTeams, name='deactivateTeamsView'),
     url(r'^pastTeams', pastTeams, name='teamsPastTeamsView'),
+    url(r'^teamChallengesList', teamChallengesList, name='teamChallengesList'),
 
 
 ]
