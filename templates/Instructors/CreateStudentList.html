@@ -62,7 +62,9 @@
                      <div class="input-field col s3">
                         <select id="file_type" name="file_number">
                            {% for i, csv_type in file_types %}
+                           {% if csv_type.display_name == "OneUp" %}
                            <option value="{{i}}">File Type: {{csv_type.display_name}}</option>
+                           {% endif %}
                            {% endfor %}
                         </select>
                      </div>
