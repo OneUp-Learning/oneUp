@@ -23,6 +23,9 @@ from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+# Emailing options
+EMAILING_ENABLED = False #Option to set email sending to be disabled or enabled
+
 # This is used for uploading AvatarImages
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is for the sever
 MEDIA_URL = '/media/'  # This is for the html

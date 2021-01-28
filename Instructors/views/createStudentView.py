@@ -17,6 +17,7 @@ from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from oneUp.decorators import instructorsCheck       
+from django.conf import settings
 import smtplib
 
 import logging
@@ -31,12 +32,13 @@ def sendEmail(recipient, subject, body):
     
     email_text = 'Subject: {}\n\n{}'.format(subject, body)
     
-    with smtplib.SMTP_SSL('smtp.gmail.com',465) as server:
-        server.set_debuglevel(1)
-        server.login(gmail_user, gmail_password)
-        text = email_text
-        server.sendmail(gmail_user, to[0], text)
-        server.quit()
+    if settings.EMAILING_ENABLED == True:
+        with smtplib.SMTP_SSL('smtp.gmail.com',465) as server:
+            server.set_debuglevel(1)
+            server.login(gmail_user, gmail_password)
+            text = email_text
+            server.sendmail(gmail_user, to[0], text)
+            server.quit()
         
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
