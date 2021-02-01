@@ -185,7 +185,7 @@ def evaluator(call_out, sender_stat, call_out_participant, participant_id, curre
             if participant_score >= sender_stat.studentChallenge.testScore:
                 # Notify participant about the call out if they did not meet min
                 notify.send(None, recipient=participant_id.user, actor=participant_id.user,
-                            verb="You did better than the call out, but did not meet the minimum score set by the instructor to receive credit"+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
+                            verb="You did the same or better than the call out, but did not meet the minimum score set by the instructor to receive credit for the call out "+call_out.challengeID.challengeName, nf_type='callout won', extra=json.dumps({"course": str(current_course), "name": str(current_course.courseName), "related_link": '/oneUp/students/CalloutDescription?call_out_participant_id='+str(call_out_participant.id)+'&participant_id='+str(call_out_participant.participantID.user.id)}))
                 
             else:
                 # Notify participant about the call out

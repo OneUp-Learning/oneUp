@@ -115,7 +115,7 @@ def automatic_evaluator(duel_id, course_id):
             challengee_challenge = StudentChallenges.objects.filter(studentID=duel_challenge.challengee,challengeID=duel_challenge.challengeID, courseID=current_course).earliest('startTimestamp')
             
             #Instructor may set a minimum percentage of the total score students must achieve to receive credit
-            ccparams = CourseConfigParams(courseID=current_course)
+            ccparams = CourseConfigParams.object.get(courseID=current_course)
             minimum_credit_percentage = ccparams.minimumCreditPercentage
 
             #Get the total score possible for the challenge and derive minimum eligible score
@@ -309,19 +309,19 @@ def automatic_evaluator(duel_id, course_id):
                 if challengee_challenge.testScore < challenger_challenge.testScore:
                     # Notify they did better but didn't meet minimum score
                     notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
-                                                verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                                verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     # Notify opponent did better but didn't meet minimum score
                     notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
-                                                verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receivecredit' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                                verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receivecredit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
 
                 if challengee_challenge.testScore > challenger_challenge.testScore:
                     # Notify they did better but didn't meet minimum score
                     notify.send(None, recipient=challengee_challenge.studentID.user, actor=challenger_challenge.studentID.user,
-                                                verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                                verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                     # Notify opponent did better but didn't meet minimum score
                     notify.send(None, recipient=challenger_challenge.studentID.user, actor=challengee_challenge.studentID.user,
-                                                verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                                verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receive credit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                 
                 if int(challengee_challenge.testScore) == int(challenger_challenge.testScore) and int(challenger_challenge.testScore) == 0:
                     
@@ -1529,7 +1529,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             
             if duel_allowed_time <= current_localtime():
                 #Instructor may set a minimum percentage of the total score students must achieve to receive credit
-                ccparams = CourseConfigParams(courseID=current_course)
+                ccparams = CourseConfigParams.objects.get(courseID=current_course)
                 minimum_credit_percentage = ccparams.minimumCreditPercentage
                 #Get the total score possible for the challenge and derive minimum eligible score
                 chall = duel_challenge.challengeID
@@ -1635,7 +1635,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
     def evaluator(challenger_challenge, challengee_challenge, duel_challenge, current_course, duel_vc_const, duel_vc_participants_const):
         print("come to eval")
         #Instructor may set a minimum percentage of the total score students must achieve to receive credit
-        ccparams = CourseConfigParams(courseID=current_course)
+        ccparams = CourseConfigParams.objects.get(courseID=current_course)
         minimum_credit_percentage = ccparams.minimumCreditPercentage
 
         #Get the total score possible for the challenge and derive minimum eligible score
@@ -1644,7 +1644,18 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         #Boolean vars that determin if challenger and challengee eligible for credit for duel
         challenger_eligible = challenger_challenge.testScore >= min_eligible_score
         challengee_eligible = challengee_challenge.testScore >= min_eligible_score
+        '''
+        print('CC: ', current_course)
+        print("ccp: ", ccparams.minimumCreditPercentage)
+        print('Chall total: ', chall.totalScore)
+        print('ccmin: ', minimum_credit_percentage)
+        print("Min elig:", min_eligible_score)
+        print('er test: ', challenger_challenge.testScore)
+        print('ee test: ', challengee_challenge.testScore)
         print("Eligibility non-automatic:", challenger_eligible, challengee_eligible)
+        print(ccparams)
+        '''
+
         if challenger_challenge.testScore > challengee_challenge.testScore and challenger_eligible:
           
             winner_s = challenger_challenge.studentID
@@ -1824,19 +1835,19 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
             if challengee_challenge.testScore < challenger_challenge.testScore:
                 # Notify they did better but didn't meet minimum score
                 notify.send(None, recipient=winner.studentID.user, actor=challengee_challenge.studentID.user,
-                                            verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                            verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                 # Notify opponent did better but didn't meet minimum score
                 notify.send(None, recipient=challengee_challenge.studentID.user, actor=winner.studentID.user,
-                                            verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receivecredit' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                            verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receive credit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
 
 
             if challengee_challenge.testScore > challenger_challenge.testScore:
                 # Notify they did better but didn't meet minimum score
                 notify.send(None, recipient=challengee_challenge.studentID.user, actor=challenger_challenge.studentID.user,
-                                            verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                            verb= 'You outperformed your opponent, however you did not meet the minimum score required by the instructor to receive credit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Win Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
                 # Notify opponent did better but didn't meet minimum score
                 notify.send(None, recipient=challenger_challenge.studentID.user, actor=challengee_challenge.studentID.user,
-                                            verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receive credit' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
+                                            verb= 'Your opponent outperformed you, however they did not meet the minimum score required by the instructor to receive credit for the duel ' +duel_challenge.duelChallengeName+".", nf_type='Lost Annoucement', extra=json.dumps({"course": str(current_course.courseID), "name": str(current_course.courseName), "related_link": '/oneUp/students/DuelChallengeDescription?duelChallengeID='+str(duel_challenge.duelChallengeID)}))
             
             if int(challengee_challenge.testScore) == int(challenger_challenge.testScore) and int(challenger_challenge.testScore) == 0:
                 
@@ -1968,7 +1979,7 @@ def duel_challenge_evaluate(student_id, current_course, duel_challenge,context_d
         duel_challenge.hasEnded = True
         duel_challenge.save()
     
-    ccparams = CourseConfigParams(courseID=current_course)
+    ccparams = CourseConfigParams.objects.get(courseID=current_course)
     duel_vc_const = ccparams.vcDuel
     duel_vc_participants_const = ccparams.vcDuelParticipants
 
