@@ -24,7 +24,7 @@ from django.conf.global_settings import LOGIN_URL, STATIC_ROOT, DATE_FORMAT,\
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Emailing options
-EMAILING_ENABLED = False #Option to set email sending to be disabled or enabled
+EMAILING_ENABLED = True #Option to set email sending to be disabled or enabled
 
 # This is used for uploading AvatarImages
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is for the sever
@@ -116,7 +116,7 @@ LOGGING = {
 LOGSTASH_HOST = 'localhost'
 LOGSTASH_PORT = 5959
 
-ALLOWED_HOSTS = ['oneup.wssu.edu','127.0.0.1']
+ALLOWED_HOSTS = ['oneup.wssu.edu','127.0.0.1','152.12.26.240']
 
 # Including the static folder to access it in the urls.py
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
