@@ -40,7 +40,6 @@ def flashCardUsed(request):
             else:
                 studentFlashCard = studentFlashCards()
             studentFlashCard.studentID = student
-            print("XXX")
             studentFlashCard.flashID = getFlashCardObjFromID(flashID)
             
             if(gotIt):
@@ -77,13 +76,17 @@ def flashCards(request):
             context_dict['flash_range'] = getFlashCards(groupID, request)
             print("###",groupID)
     if 'study-checkboxes' in request.POST:
+        show_all = False
+        if 'ignore_interval' in request.POST:
+            show_all = True
         listOfRequestedCardsGroups = []
         requested_groups = request.POST.getlist('study-checkboxes')
         print(requested_groups,"LLL")
         print(len(requested_groups))
        
         print("$$$$",requested_groups)
-        context_dict['flash_range'] = getFlashCards(requested_groups, request)
+        context_dict['flash_range'] = getFlashCards(requested_groups, request, False, show_all)
+
     if len(context_dict['flash_range']) != 0:
         register_event(Event.viewFlashCard, request, student, context_dict['flash_range'][0]['flashID'])
     elif context_dict['flash_range'] == '':
@@ -120,16 +123,17 @@ def createGroupRange(current_course):
 def getFlashCardObjFromID(flashID):
     return FlashCards.objects.get(flashID=flashID)
 
-def getFlashCards(groupIDs, request, all_cards=False):
+def getFlashCards(groupIDs, request, just_show=False, show_all= False):
     #get all the cards in the course no exceptions
-    if(all_cards):        
+    print("Ignore1: ", show_all)
+    if(just_show):        
         context_dict, currentCourse = studentInitialContextDict(request)
         card_groups = FlashCardGroupCourse.objects.filter(courseID=currentCourse)
 
         groupIDs = []
         for card_group in card_groups:
             groupIDs.extend(list(FlashCardToGroup.objects.filter(groupID=card_group.groupID)))
-        return getCardsFromGroup(groupIDs,request, True)
+        return getCardsFromGroup(groupIDs,request, False)
     
     #get the the flash cards for a predetermined list of groups
     if(len(groupIDs)> 1):
@@ -137,22 +141,23 @@ def getFlashCards(groupIDs, request, all_cards=False):
         for groupID in groupIDs:
             card_groups.extend(list(FlashCardToGroup.objects.filter(groupID=groupID)))
         print("^^^^^^^^^^^",groupIDs[0])
-        return getCardsFromGroup(card_groups, request)
+        return getCardsFromGroup(card_groups, request, False, show_all)
     
     #singular card group
     if(len(groupIDs) == 1):
         card_group = list(FlashCardToGroup.objects.filter(groupID=groupIDs[0]))
         print("************",card_group)
-        return getCardsFromGroup(card_group, request)
+        return getCardsFromGroup(card_group, request, False, show_all)
 
-def getCardsFromGroup(flashCards, request, all_cards=False):
+def getCardsFromGroup(flashCards, request, just_show=False, show_all=False):
+    print("Ignore2: ", show_all)
     flash_cards = []
     for flashCardToGroup in flashCards:
         flash_card = flashCardToGroup.flashID
         groupID = flashCardToGroup.groupID.groupID
 
-        #all cards is used to overide the filtering for the case of all cards
-        if(cardShouldBeAdded(flash_card.flashID, request) or all_cards):
+        #ignore_interval is used to ignore the built-in delay that prevents the student from seeing correct cards for a given timeframe
+        if(cardShouldBeAdded(flash_card.flashID, request) or show_all):
             flash_cards.append({'question': flash_card.front, 'answer': flash_card.back,
         'flashName': flash_card.flashName, 'flashID': flash_card.flashID, 'groupID': groupID})
     return flash_cards

@@ -37,9 +37,11 @@
          });
       });
 
-      function validateFlashcard(front) {
-         cardFront = document.getElementById(front).value;
+      function validateFlashcard(e) {
+         
+         cardFront = document.getElementById('flashcard-front').value;
          console.log(cardFront);
+         var isTrue=false;
          function getCookie(name) {
             var cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -69,25 +71,37 @@
                }
             }
          });
+         
          $.ajax({
             type: "POST",
             url: "/oneUp/instructors/validateFlashCard",
+            async:false,
             data: {
                'flashcard-front': cardFront // from form
             },
             success: function (data) {
                if (data.duplicate){
+                  
                   console.log("Dupe");
-                  alert("A flash card with this front side already exists.")
-                  location.reload();
+                  var check = confirm("A flash card with this front side already exists.");
+                  if (check){
+                     isTrue = true;
+                  }
+                  else{
+                     e.preventDefault();
+                     location.reload();
+                  }
                }
                else{
+                  isTrue=true;
                   console.log("Unique")
                }
                
             }
          });
+         return isTrue;
       }
+
    </script>
 </head>
 
@@ -111,7 +125,7 @@
                <div class="modal-content">
                   <div class="row center-align">
                      <form id="flashcard-form" name="flashcard"
-                        action="/oneUp/instructors/createFlashCard" method="POST">
+                        action="/oneUp/instructors/createFlashCard" method="POST" onsubmit="return validateFlashcard(event)">
                         {% csrf_token %}
                         <h4 id="flashcard-modal-title">Create a Flashcard</h4>
                         <!-- <input id='flashcard-id' type='hidden' name='flashcard-id' value='' /> -->
@@ -154,7 +168,7 @@
                               class="modal-action modal-close waves-effect waves-light btn-flat"
                               style="color: #00bcd4">Cancel</a>
                            <button class="btn waves-effect waves-light" type="submit"
-                              name="submit" onclick="validateFlashcard('flashcard-front')"> Save
+                              name="submit"> Save
                            </button>
                         </div>
                      </form>
@@ -208,7 +222,7 @@
                            {% for card in all_cards_in_group %}
                            <li class="row">
                               <div class="no-padding collapsible-header"> &nbsp&nbsp&nbsp&nbsp&nbsp
-                                 <i class="material-icons">swap_vert</i>
+                                 <i class="material-icons">dehaze</i>
                                  <span style="max-width: 40%;min-width: 40%">{{card.flashName}}</span>
 
                                  <span class="badge right-align">
