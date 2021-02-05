@@ -8,14 +8,13 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.http import JsonResponse
 
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, sendEmail
 from Instructors.models import UploadedFiles
 from Instructors.constants import anonymous_avatar
 from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck  
-from Instructors.views.createStudentView import sendEmail
 import json
 
 import logging, random, secrets
@@ -217,6 +216,7 @@ def saveImportStudentsPasswords(request):
     if request.method == 'POST':     
         # Create new users with the generated or new passwords
         if "users" in request.POST:
+            print(request.POST['users'])
             users = json.loads(request.POST['users'])
             print(users)
             for user_info in users:

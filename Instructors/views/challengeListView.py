@@ -290,7 +290,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
                     else:
                         chall_visible.append("Not Visible")
                     
-        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_available,chall_visible,chall_position)), key=lambda tup: tup[4])
+        return sorted(list(zip(range(1,challenge_topics.count()+1),chall_ID,chall_Name,chall_available,chall_visible,chall_position)), key=lambda tup: tup[5])
 
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')

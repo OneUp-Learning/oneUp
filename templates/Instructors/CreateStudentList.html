@@ -234,11 +234,16 @@
 
    function validateFileSelection() {
       x = document.forms["uploader"]["studentslist"].value;
+      email_domain_data = document.forms["uploader"]["email_domain_name"].value;
       if (x == "") {
          alert("Please choose a file.");
          return false;
       }
 
+      if (email_domain_data == "") {
+         alert("Please input a email domain name.");
+         return false;
+      }
    }
    function validatePasswords(){
       var inputs = $("input[id^='default-input-']");
@@ -280,7 +285,7 @@
             if(file_type.value == 0)
                users_container.append("<input type='hidden' name='users' value='"+ JSON.stringify(users)+"'>\n");
             else
-               users_container.append("<input type='hidden' name='users' value="+ JSON.stringify(users)+">\n");
+               users_container.append("<input type='hidden' name='users' value='"+ JSON.stringify(users)+"'>\n"); // Not sure why the OneUp csv was un-escaped.
 
             // Add the users information to users container
             for (var index = 0; index < users.length; index++) {
@@ -330,8 +335,8 @@
          contentType: false,
          processData: false,
          success: function (response) {
-            window.location.reload();
-         }
+        	window.location.reload();
+         },
       });
       return false;
    }
