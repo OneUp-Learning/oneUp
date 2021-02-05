@@ -712,6 +712,7 @@ class OperandTypes():
     noOperand=1011
     topicSet=1012
     activtiyCategorySet = 1013
+    skillSet = 1014
     operandTypes={
         immediateInteger:'immediateInteger',
         condition:'condition',

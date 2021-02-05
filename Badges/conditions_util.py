@@ -13,11 +13,11 @@ from Badges.events import (chosenObjectSpecifierFields,
                            operandSetTypeToObjectType)
 from Badges.models import (ActivityCategorySet, ActivitySet, ChallengeSet,
                            Conditions, ConditionSet, Dates, FloatConstants,
-                           StringConstants, TopicSet)
+                           StringConstants, TopicSet, SkillSet)
 from Badges.systemVariables import SystemVariable
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
-                                CoursesTopics)
+                                CoursesTopics, CoursesSkills)
 from Instructors.views.utils import date_to_selected
 
 
@@ -171,7 +171,9 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
             elif parts[1] == "topic":
                 cond.operand1Type = OperandTypes.topicSet
             elif parts[1] == "activitycategory":
-                cond.operand1Type = OperandTypes.activtiyCategorySet   
+                cond.operand1Type = OperandTypes.activtiyCategorySet
+            elif parts[1] == "skill":
+                cond.operand1Type = OperandTypes.skillSet
             else:
                 print("not activities, category, challenges, or topics, instead: "+parts[1])
                 return None
@@ -213,6 +215,12 @@ def stringAndPostDictToCondition(conditionString,post,courseID):
                         activityCategorySetItem.category_id= int(activityCategory)
                         activityCategorySetItem.condition = cond
                         activityCategorySetItem.save()
+                elif cond.operand1Type == OperandTypes.skillSet:
+                    for skill in subThingieIndexList:
+                        skillSetItem = SkillSet()
+                        skillSetItem.skill_id = int(skill)
+                        skillSetItem.condition = cond
+                        skillSetItem.save() 
                 else:
                     print("for leaving at the return which should never happen")
                     return None
@@ -309,6 +317,16 @@ def databaseConditionToJSONString(condition):
                 else:
                     output += '"'+str(activityCategoryID)+'"'
                 count -= 1
+        elif condition.operand1Type == OperandTypes.skillSet:
+            output += 'skill","objects":['
+            skillIDs = [skillSet.skill.skillID for skillSet in SkillSet.objects.filter(condition=condition)]
+            count = len(skillIDs)
+            for skillID in skillIDs:
+                if count != 1:
+                    output += '"'+str(skillID)+'",'
+                else:
+                    output += '"'+str(skillID)+'"'
+                count -= 1
         else: # Other types not supported in FOR_ALL or FOR_ANY conditions.
             return ""
         # In the next statement, we presuppose that the type of the second operand is a condition because it is supposed to be
@@ -347,12 +365,13 @@ def setUpContextDictForConditions(context_dict,course,rule = None):
     act_list = [{"id":act.activityID,"name":act.activityName} for act in Activities.objects.filter(courseID = course)]
     actCat_list = [{"id":actCat.categoryID,"name":actCat.name} for actCat in ActivitiesCategory.objects.filter(courseID = course)]
     topic_list = [{"id":ct.topicID.topicID,"name":ct.topicID.topicName} for ct in CoursesTopics.objects.filter(courseID = course)]
-    
+    skill_list = [{"id":sk.skillID.skillID,"name":sk.skillID.skillName} for sk in CoursesSkills.objects.filter(courseID = course)]
     
     context_dict['objectTypes'] = [{"name":"challenge","plural":"challenges","objects":chall_list,"index":ObjectTypes.challenge },
                                    {"name":"activity","plural":"activities", "objects":act_list,"index":ObjectTypes.activity },
                                    {"name":"topic","plural":"topics","objects":topic_list,"index":ObjectTypes.topic },
-                                   {"name":"activitycategory","plural":"categories","objects":actCat_list,"index":ObjectTypes.activityCategory},]
+                                   {"name":"activitycategory","plural":"categories","objects":actCat_list,"index":ObjectTypes.activityCategory},
+                                   {"name":"skill","plural":"skills","objects":skill_list,"index":ObjectTypes.skill},]
     
     objectTypesStruct = { ot["index"]:ot for ot in context_dict['objectTypes'] }
     context_dict['defaultObject'] = "challenge"
