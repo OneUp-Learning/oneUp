@@ -2615,7 +2615,7 @@ if __debug__:
         assert sysVarNum in SystemVariable.systemVariables, "System variable number created without corresponding structure in systemVariables dictionary.  %s = %i " % (sysVarName,sysVarNum)
         dictEntry = SystemVariable.systemVariables[sysVarNum]
         assert dictEntry["name"] == sysVarName, "Variable %s has incorrect name, %s instead" % (sysVarName,dictEntry["name"])
-        assert dictEntry["index"] == sysVarNum, "Variable %s has incoorect index.  Currently %i.  Should be %i instead." % (sysVarName,dictEntry["index"],sysVarNum)
+        assert dictEntry["index"] == sysVarNum, "Variable %s has incorrect index.  Currently %i.  Should be %i instead." % (sysVarName,dictEntry["index"],sysVarNum)
         for field in expectedFieldsInSysVarStruct:
             assert field in dictEntry, "System variable structure missing expected field.  %s missing %s" % (sysVarName,field)
         eventsList = list(dictEntry['eventsWhichCanChangeThis'])
