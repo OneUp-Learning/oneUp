@@ -176,9 +176,15 @@ def virtualCurrencyShopView(request):
             #     index += 1
 
             vc_rules = VirtualCurrencyCustomRuleInfo.objects.filter(
-                vcRuleType=False, courseID=currentCourse)
+                vcRuleType=False, courseID=currentCourse).order_by('vcRulePosition') 
+                
+            # Little hack to sort rules by automatic then periodic. 
+            x = [r for r in list(vc_rules) if hasattr(r, 'virtualcurrencyruleinfo') and not hasattr(r, 'virtualcurrencyperiodicrule')]
+            x.extend([r for r in list(vc_rules) if not hasattr(r, 'virtualcurrencyruleinfo') and  hasattr(r, 'virtualcurrencyperiodicrule')])
+            x.extend([r for r in list(vc_rules) if not hasattr(r, 'virtualcurrencyruleinfo') and  not hasattr(r, 'virtualcurrencyperiodicrule')])
+            
             challenges = getChallengesForShop(request)
-            for rule in vc_rules:
+            for rule in x:
                 buyOptions.append({'id': rule.vcRuleID, 'cost': rule.vcRuleAmount, 'name': rule.vcRuleName, 'displayName': rule.vcRuleName,
                                    'description': rule.vcRuleDescription, 'challenges': copy.deepcopy(challenges), 'limit': rule.vcRuleLimit if not rule.vcRuleLimit == unlimited_constant else 0, 'remaining': 0})
 

@@ -348,7 +348,7 @@ def create_due_date_process(request, challenge_id, due_date, tz_info):
     from Instructors.views.utils import str_datetime_to_local
     # Make date naive since celery eta accepts only naive datetimes then localize it
     # due_date = make_naive(due_date)
-    due_date = make_naive(due_date).replace(microsecond=0)
+    #due_date = make_naive(due_date).replace(microsecond=0)
     localized_due_date = str_datetime_to_local(str(due_date), to_format="%Y-%m-%d %H:%M:%S")
     # Setup the task and run at a later time (due_date)
     # Will delete itself after one minute once it has finished running

@@ -12,14 +12,16 @@ from oneUp.auth import createStudents, checkPermBeforeView
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from Instructors.views.createStudentListView import createStudentListView
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, sendEmail
 from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
-from oneUp.decorators import instructorsCheck  
+from oneUp.decorators import instructorsCheck       
+
 import logging
 
 logger = logging.getLogger(__name__)
+
 @login_required
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
 def createStudentView(request):
@@ -43,7 +45,7 @@ def createStudentViewUnchecked(request):
         students = User.objects.filter(username=uname)
         
         if 'userID' in request.POST: # Update student information
-            # username cannot be changed; if needed, the studnet must be deleted and a new student created
+            # username cannot be changed; if needed, the student must be deleted and a new student created
             if students:
                 student = students[0]
             else:
@@ -76,7 +78,6 @@ def createStudentViewUnchecked(request):
                     createSCVforInstructorGrant(student,currentCourse,ccparams.virtualCurrencyAdded)
                     studentRegisteredCourses.virtualCurrencyAmount += int(ccparams.virtualCurrencyAdded)
                 studentRegisteredCourses.save()
-
                 
                 logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
                 
@@ -96,6 +97,18 @@ def createStudentViewUnchecked(request):
                 student.user = user
                 student.universityID = email
                 student.save()
+
+                sendEmail(email, "Welcome to OneUp!", 
+"""Hello """+firstname+""",
+
+    Your account has been created, please use the following credentials to sign-in.
+    
+    User Name: """+email+"""
+    Password: """+pword+"""
+    
+OneUp Admin"""
+            )
+                
                 print("New Student Created")        
                         
                 studentRegisteredCourses = StudentRegisteredCourses()

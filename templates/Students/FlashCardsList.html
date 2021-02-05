@@ -14,8 +14,12 @@
          </div>
       </div>
       <div class="row">
+         <button style="float:right; position: relative; right:11.5em;"id="gotItButton" type="button" onclick="location.href='/oneUp/students/FlashCards?groupID=ALL'" class="btn waves-effect waves-light"><i
+            class="material-icons right">chevron_right</i>Just Show Me Some Flash Cards!</button>
          <div class="col s12 m10 offset-m1">
+            
             <form name="studentGoal" action="/oneUp/students/FlashCards" method="POST">
+               
                <div class="card-panel">
                   {% csrf_token %}
                   <ul id="sortableGroups" class="collapsible" data-collapsible="">
@@ -40,12 +44,13 @@
                      <li class="center-align" colspan="5">No Groups</li>
                      {% endfor %}
                   </ul>
+                  <input type="checkbox" name="ignore_interval" id="display_checkbox"/>
+               <label style="color:#808080;"for="display_checkbox">Override automatic selection and show all cards</label>
                </div>
                <div class="right-align">
                   <button id="gotItButton" type="submit" class="btn waves-effect waves-light"><i
                         class="material-icons right">chevron_right</i>Practice Selected</button>
-                  <button id="gotItButton" type="button" onclick="location.href='/oneUp/students/FlashCards?groupID=ALL'" class="btn waves-effect waves-light"><i
-                        class="material-icons right">chevron_right</i>Practice All</button>
+                  
                </div>
             </form>
          </div>
