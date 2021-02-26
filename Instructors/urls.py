@@ -131,7 +131,7 @@ from Instructors.views.CalloutReportView import callout_report, callout_challeng
 from Instructors.views.leaderboardView import LeaderboardInstructorsView
 
 #FlashCards
-from Instructors.views.flashCardGroupListView import groupListView
+from Instructors.views.flashCardGroupListView import groupListView, validateFlashCard
 from Instructors.views.flashCardGroupCreateView import groupCreateView
 from Instructors.views.flashCardCreateView import CreateFlashCards
 
@@ -285,6 +285,7 @@ urlpatterns = [
     url(r'^receiveItemInSection', receive_item_in_section, name="receive_item_in_section"),
     # Flash cards
     url(r'^groupList', groupListView, name='groupListView'),
+    url(r'^validateFlashCard', validateFlashCard, name='groupListView'),
     url(r'^groupCreate', groupCreateView, name='groupCreateView'),
     url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
     url(r'^ReorderGroups', reorderGroups, name='reorderGroups')

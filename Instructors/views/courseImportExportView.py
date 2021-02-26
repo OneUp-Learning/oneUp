@@ -25,7 +25,7 @@ from Badges.models import (ActionArguments, ActivityCategorySet, ActivitySet,
                            ChallengeSet, Conditions, ConditionSet,
                            CourseConfigParams, Dates, FloatConstants,
                            LeaderboardsConfig, PeriodicBadges,
-                           ProgressiveUnlocking, RuleEvents, Rules,
+                           ProgressiveUnlocking, RuleEvents, Rules, SkillSet,
                            StringConstants, TopicSet,
                            VirtualCurrencyCustomRuleInfo,
                            VirtualCurrencyPeriodicRule,
@@ -433,6 +433,15 @@ model_lookup_table = {
     ActivityCategorySet: {
         'Import': {
             'category_id': int,
+            'condition': None,
+        },
+        'Export': {
+            # Done by databaseConditionToJSONString
+        }
+    },
+    SkillSet: {
+        'Import': {
+            'skill_id': int,
             'condition': None,
         },
         'Export': {
@@ -2562,7 +2571,8 @@ char_operand_types_map = {v: k for k, v in operand_types_to_char.items()}
 for_type_map = {'ALL': 'FOR_ALL', 'ANY': 'FOR_ANY'}
 # Map of object type to operand set type
 object_type_map = {'activity': OperandTypes.activitySet, 'challenge': OperandTypes.challengeSet, 
-                    'topic': OperandTypes.topicSet, 'category': OperandTypes.activtiyCategorySet}
+                    'topic': OperandTypes.topicSet, 'category': OperandTypes.activtiyCategorySet,
+                    'skill': OperandTypes.skillSet}
 
 def import_condition_from_json(condition_json, current_course, id_map=None, messages=[]):
     ''' Converts a condition to model '''
@@ -2710,6 +2720,17 @@ def import_condition_from_json(condition_json, current_course, id_map=None, mess
                         activity_category_set_fields_to_save = {'category_id': mapped_activity_category_id, 'condition': condition}
                         activity_category_set = create_model_instance(ActivityCategorySet, None, custom_fields_to_save=activity_category_set_fields_to_save)
                         activity_category_set.save()
+                elif condition.operand1Type == OperandTypes.skillSet:
+                    # Create the skill set for each object id
+                    for skill_id in condition_json['objects']:
+                        mapped_skill_id = search_for_mapped_id('skills',int(skill_id),id_map=id_map)
+                        if not mapped_skill_id:
+                            messages.append({'type': 'error', 'message': 'Unable to find skill id in mapped is dictionary for conditions'})
+                            continue
+                        
+                        skill_set_fields_to_save = {'skill_id': mapped_skill_id, 'condition': condition}
+                        skill_set = create_model_instance(SkillSet, None, custom_fields_to_save=skill_set_fields_to_save)
+                        skill_set.save()
                 else:
                     messages.append({'type': 'error', 'message': 'FOR Condition operand 1 type is not a valid type'})
                     return None

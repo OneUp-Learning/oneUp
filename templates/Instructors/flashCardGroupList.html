@@ -37,6 +37,70 @@
          });
       });
 
+      function validateFlashcard(e) {
+         
+         cardFront = document.getElementById('flashcard-front').value;
+         console.log(cardFront);
+         var isTrue=false;
+         function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+               var cookies = document.cookie.split(';');
+               for (var i = 0; i < cookies.length; i++) {
+                  var cookie = jQuery.trim(cookies[i]);
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                     break;
+                  }
+               }
+            }
+            return cookieValue;
+         }
+
+         function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+         }
+
+         var csrftoken = getCookie('csrftoken');
+         $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+               if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", csrftoken);
+               }
+            }
+         });
+         
+         $.ajax({
+            type: "POST",
+            url: "/oneUp/instructors/validateFlashCard",
+            async:false,
+            data: {
+               'flashcard-front': cardFront // from form
+            },
+            success: function (data) {
+               if (data.duplicate){
+                  
+                  console.log("Dupe");
+                  var check = confirm("A flash card with this front side already exists.");
+                  if (check){
+                     isTrue = true;
+                  }
+                  else{
+                     e.preventDefault();
+                     location.reload();
+                  }
+               }
+               else{
+                  isTrue=true;
+                  console.log("Unique")
+               }
+               
+            }
+         });
+         return isTrue;
+      }
 
    </script>
 </head>
@@ -61,7 +125,7 @@
                <div class="modal-content">
                   <div class="row center-align">
                      <form id="flashcard-form" name="flashcard"
-                        action="/oneUp/instructors/createFlashCard" method="POST">
+                        action="/oneUp/instructors/createFlashCard" method="POST" onsubmit="return validateFlashcard(event)">
                         {% csrf_token %}
                         <h4 id="flashcard-modal-title">Create a Flashcard</h4>
                         <!-- <input id='flashcard-id' type='hidden' name='flashcard-id' value='' /> -->
@@ -158,7 +222,7 @@
                            {% for card in all_cards_in_group %}
                            <li class="row">
                               <div class="no-padding collapsible-header"> &nbsp&nbsp&nbsp&nbsp&nbsp
-                                 <i class="material-icons">swap_vert</i>
+                                 <i class="material-icons">dehaze</i>
                                  <span style="max-width: 40%;min-width: 40%">{{card.flashName}}</span>
 
                                  <span class="badge right-align">

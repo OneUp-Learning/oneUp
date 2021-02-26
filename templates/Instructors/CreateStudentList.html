@@ -234,11 +234,16 @@
 
    function validateFileSelection() {
       x = document.forms["uploader"]["studentslist"].value;
+      email_domain_data = document.forms["uploader"]["email_domain_name"].value;
       if (x == "") {
          alert("Please choose a file.");
          return false;
       }
 
+      if (email_domain_data == "") {
+         alert("Please input a email domain name.");
+         return false;
+      }
    }
    function validatePasswords(){
       var inputs = $("input[id^='default-input-']");

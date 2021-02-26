@@ -4,8 +4,6 @@ Created on Sept 4, 2018
 @author: joelevans
 '''
 
-from lib2to3.fixes.fix_input import context
-from termios import CRPRNT
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -202,6 +200,8 @@ def getObjsForSysVar(request):
 
 
 def getSysValues(student, sysVar, objectType, currentCourse, time_period=None):
+    from Badges.events import objectTypesToGetAllFromCourse
+    
     values = []
     disaplyData = []
 
@@ -243,7 +243,11 @@ def getSysValues(student, sysVar, objectType, currentCourse, time_period=None):
                 sysVar, currentCourse, student, int(objectType), x.topicID.pk)
             disaplyData.append(prepForDisplay(
                 student, sysVar, objectType, val, x.topicID.topicName, currentCourse))
-
+    elif objString == 'skill':
+        skills = objectTypesToGetAllFromCourse[ObjectTypes.skill](currentCourse)
+        for skill in skills:
+            val = calculate_system_variable(sysVar, currentCourse, student, int(objectType), skill.pk)
+            disaplyData.append(prepForDisplay(student,sysVar,objectType,val,skill.skillName,currentCourse))
     elif objString == 'global':
         if sysVar in SystemVariable.systemVariables:
             val = calculate_system_variable(

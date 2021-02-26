@@ -12,7 +12,7 @@ from Instructors.models import (FlashCardGroup, FlashCardGroupCourse,
                                 FlashCards, FlashCardToGroup)
 from Instructors.views import utils
 from oneUp.decorators import instructorsCheck
-
+from django.http import JsonResponse
 pp = pprint.PrettyPrinter(indent=4)
 
 @login_required
@@ -130,3 +130,19 @@ def groupListView(request):
     context_dict['group_range'] = zip(range(cgroups.count()),groupID,groupName,groupPos,all_cards_in_group)
     
     return render(request,'Instructors/flashCardGroupList.html', context_dict)
+
+def validateFlashCard(request):
+    print("XXXXXXXXXXXXX")
+    context_dict,currentCourse = utils.initialContextDict(request) 
+    if 'flashcard-front' in request.POST:
+        front = request.POST['flashcard-front']
+        data={
+            'duplicate': False
+        }
+        print(front)
+        if FlashCards.objects.filter(front=front).exists():
+            courseGroups = FlashCardGroupCourse.objects.filter(courseID=currentCourse)
+            for cg in courseGroups:
+                if FlashCardToGroup.objects.filter(groupID=cg.groupID, flashID__front = front).exists():
+                    data['duplicate'] = True
+    return JsonResponse(data)
