@@ -1,7 +1,7 @@
-<!-- // NOTE To use this selector you must add this function at the very bottom to onsubmit-->
+{% comment %} // NOTE To use this selector you must add the function at the very bottom to onsubmit {% endcomment %}
 <div class="row">
 	<div class="input-field col s12">
-    	<select name="awardFrequency" onchange="condChangeAwardFreq(this);return true;" id="awardFrequencySelect">
+    	<select name="awardFrequency" onchange="condChangeAwardFreq(this,false);return true;" id="awardFrequencySelect">
         {% for dummy,awardFrequencyOption in awardFrequencyStruct.awardFrequency.items %}
             <option value="{{awardFrequencyOption.index}}" {% if awardFrequencyOption.index == awardFrequency %}selected{% endif %}>{{awardFrequencyOption.name}}</option>
         {% endfor %}
@@ -413,7 +413,7 @@ var condSpecifierDivs = {
 	{% endfor %}
 }
 
-function condChangeAwardFreq(select) {
+function condChangeAwardFreq(select,initialcall) {
 	var newAwardFreq = select.value;
 	console.log("changeAwardFrequency called");
 	console.log(newAwardFreq);
@@ -998,7 +998,8 @@ function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) 
             	}
             }
             updateThisSelect(curSelect, contextAttributeName, scope);
-            if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
+            var curOption = curSelect.options[curSelect.selectedIndex];
+            if (!curOption.dataset[contextAttributeName] && !curOption.dataset["condContextGlobal"]) {
                 curSelect.selectedIndex = 0;
             }
         } else if (curSelect.name == "cond-rhs-var") {
@@ -1008,7 +1009,8 @@ function condUpdateAtomSelectForContext(targetDiv, context, excludeFor = false) 
             	}
             }
             updateThisSelect(curSelect, contextAttributeName, true);
-            if (!curSelect.options[curSelect.selectedIndex].dataset[contextAttributeName]) {
+            var curOption = curSelect.options[curSelect.selectedIndex];
+            if (!curOption.dataset[contextAttributeName] && !curOption.dataset["condContextGlobal"]) {
                 curSelect.selectedIndex = 0;
             }
         }
@@ -1419,7 +1421,7 @@ if (initialCond === "empty") {
     condCreateUIFromCondition(initialCond, initialEmpty, "none");
 }
 
-condChangeAwardFreq(document.getElementById("awardFrequencySelect"));
+condChangeAwardFreq(document.getElementById("awardFrequencySelect"),true);
 
 function condCreateUIFromCondition(cond, targetEmpty, insideQualifier) {
     function selectOptionByValue(sel, val) {
