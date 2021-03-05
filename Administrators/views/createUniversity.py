@@ -24,13 +24,16 @@ def courseUniversityView(request):
         if 'universityTimezone' in request.POST:
             universityTimezone = request.POST.get("universityTimezone")
 
-
+        if 'universityPostfix' in request.POST:
+            universityPostfix = request.POST.get("universityPostfix")
         if 'universityID' in request.GET:  # Editing course
             university = Universities.objects.get(
                 universityID=int(request.GET['universityID']))
             university.universityName = name
             if universityTimezone:
                 university.universityTimezone = universityTimezone
+            if universityPostfix:
+                university.universityPostfix = universityPostfix
             university.save()
 
 
@@ -44,6 +47,8 @@ def courseUniversityView(request):
                 university.universityName = name
                 if universityTimezone:
                     university.universityTimezone = universityTimezone
+                if universityPostfix:
+                    university.universityPostfix = universityPostfix
                 university.save()
 
                 
@@ -59,7 +64,7 @@ def courseUniversityView(request):
             universityID=int(request.GET['universityID']))
         context_dict["universityName"] = university.universityName
         context_dict['universityTimezone'] = university.universityTimezone
-        
+        context_dict['universityPostfix'] = university.universityPostfix
         
   
         context_dict["editing"] = True
