@@ -43,28 +43,28 @@ def memcache_lock(lock_id, oid):
             # also don't release the lock if we didn't acquire it
             cache.delete(lock_id)
 
-def setup_periodic_badge(request=None, unique_id, badge_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None):
+def setup_periodic_badge(unique_id, badge_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None, request=None):
     ''' unique_id should be the created id for periodic badge object. badge_id is the id of the badge to award students'''
     unique_str = str(unique_id)+"_badge"
-    return setup_periodic_variable(request, unique_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, badge_id=badge_id)
+    return setup_periodic_variable(unique_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, badge_id=badge_id, request=request)
 
-def setup_periodic_vc(request=None, unique_id, virtual_currency_amount, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None):
+def setup_periodic_vc(unique_id, virtual_currency_amount, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None, request=None):
     ''' unique_id should be the created id for periodic vc object. virtual_currency_amount is the amount to award students.'''
     unique_str = str(unique_id)+"_vc"
-    return setup_periodic_variable(request, unique_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, virtual_currency_amount=virtual_currency_amount)
+    return setup_periodic_variable(unique_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, virtual_currency_amount=virtual_currency_amount, request=request)
     
-def setup_periodic_leaderboard(request=None, leaderboard_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None):
+def setup_periodic_leaderboard(leaderboard_id, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None, request=None):
     ''' leaderboard_id should be the created if for periodic learderboard object'''
     unique_str = str(leaderboard_id)+"_leaderboard"
-    return setup_periodic_variable(request, leaderboard_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, is_leaderboard=True, save_results=True)
+    return setup_periodic_variable(leaderboard_id, unique_str, variable_index, course, period_index, number_of_top_students=number_of_top_students, threshold=threshold, operator_type=operator_type, is_random=is_random, is_leaderboard=True, save_results=True, request=request)
 
-def setup_periodic_variable(request=None, unique_id, unique_str, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None,  is_leaderboard=False, badge_id=None, virtual_currency_amount=None, save_results=False):
+def setup_periodic_variable(unique_id, unique_str, variable_index, course, period_index, number_of_top_students=None, threshold=1, operator_type='>', is_random=None,  is_leaderboard=False, badge_id=None, virtual_currency_amount=None, save_results=False, request=None):
     ''' Creates Periodic Task if not created with the provided periodic variable function and schedule.'''
     periodic_variable = PeriodicVariables.periodicVariables[variable_index]
     if request:
         timezone = request.session['django_timezone']
     else:
-        timezone = settings.TIMEZONE
+        timezone = settings.TIME_ZONE
 
     periodic_task, _ = PeriodicTask.objects.get_or_create(
         name=periodic_variable['name']+'_'+unique_str,
