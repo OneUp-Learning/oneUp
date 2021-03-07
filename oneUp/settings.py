@@ -124,7 +124,7 @@ INSTALLED_APPS = (
     'notify',
     'easy_timezones',
     'rest_framework',
-    'channels',
+    #'channels',
     'ckeditor',
     'ckeditor_uploader'
 )
