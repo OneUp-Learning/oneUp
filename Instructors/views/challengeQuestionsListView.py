@@ -92,20 +92,26 @@ def challengeQuestionsListView(request):
 
     return render(request,'Instructors/ChallengeQuestionsList.html', context_dict)
 
-def makeSureTheresNoStudentsUsingThatProblem(problem):
+def makeSureTheresNoStudentsUsingThatProblem(course, problem):
     isAstudentUsingTheProblem = True
-    print("len(StudentChallengeQuestions.objects.filter(challengeQuestionID=int(problem)))", len(StudentChallengeQuestions.objects.filter(challengeQuestionID=int(problem))))
-    if(len(StudentChallengeQuestions.objects.filter(challengeQuestionID=int(problem))) == 0):
+    print("len(StudentChallengeQuestions.objects.filter(challengeQuestionID=int(problem)))", 
+    len(StudentChallengeQuestions.objects.filter(studentChallengeID__courseID=course,challengeQuestionID=int(problem))))
+    if(len(StudentChallengeQuestions.objects.filter(studentChallengeID__courseID=course,challengeQuestionID=int(problem))) == 0):
         isAstudentUsingTheProblem = False
+    print(isAstudentUsingTheProblem)
     return isAstudentUsingTheProblem
 
-def performDeletion(problems):
+def performDeletion(request, problems):
+    context_dict, currentCourse = initialContextDict(request)
     errorList = []
+    print("Problems:", problems)
     for problem in problems:
         challengeQuestion = ChallengesQuestions.objects.get(questionID=int(problem))
-        if makeSureTheresNoStudentsUsingThatProblem(problem):
+        if makeSureTheresNoStudentsUsingThatProblem(currentCourse, problem):
             errorList.append("Error: Student data found for problem: "+ challengeQuestion.questionID.preview)
+            print(errorList)
         else:
+            print(errorList)
             question = Questions.objects.get(questionID=int(problem))
             question.delete()
             challengeQuestion.delete()
@@ -127,7 +133,7 @@ def deleteProblemsButFilterTakenByStudent(request):
     if request.POST:
         if 'deletion_checkboxes' in request.POST:
             delete_list=str.split(request.POST['deletion_checkboxes'],sep=',')
-            errorList = performDeletion(delete_list)
+            errorList = performDeletion(request, delete_list)
             response['errorMessages'] = errorList
             
     return JsonResponse(response)
