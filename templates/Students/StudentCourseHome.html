@@ -39,7 +39,12 @@
                   </div>
                {% endif %}
                {% if ccparams.seriousChallengesUsed %}
-                  <div class="col s12 m6">
+               {% if not ccparams.announcementsUsed %} 
+               <div class=row>
+               <div class="col s12 m6 offset-m3">
+               {% else %}           
+               <div class="col s12 m6">
+               {%endif%} 
                      <div class="card-panel center-align">
                         <table>
                            <thead>
@@ -89,7 +94,7 @@
                      </table>
                 </div>
             </div>
-            </daiv>
+            </div>
             {% endif %}   
             {% if ccparams.gamificationUsed and ccparams.goalsUsed %}
             {% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
