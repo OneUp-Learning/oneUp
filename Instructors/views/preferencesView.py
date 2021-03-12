@@ -78,6 +78,7 @@ def preferencesView(request):
         ccparams.calloutAfterWarmup = "calloutAfterWarmup" in request.POST
 
         # Leaderboards
+        ccparams.leaderboardUsed = "leaderboardUsed" in request.POST
         if ccparams.leaderboardUsed == True:
             ccparams.studCanChangeLeaderboardVis = "studCanChangeLeaderboardVis" in request.POST
             ccparams.numStudentsDisplayed = request.POST.get(
