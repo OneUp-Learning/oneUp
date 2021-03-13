@@ -57,12 +57,9 @@ def searchQuestions(request):
             
     # Get challenges from the DB
     challenges = Challenges.objects.filter(courseID=currentCourse)
-    num_challenges = challenges.count()
-    for i in range(0, num_challenges):
-        qchallengeName.append(challenges[i].challengeName)
-        qchallengeID.append(challenges[i].challengeID)
-       
-        
+    for chall in challenges:
+        qchallengeName.append(chall.challengeName)
+        qchallengeID.append(chall.challengeID)
         
     context_dict['qtypes_range'] = questionTypesObjects
     context_dict['qdifficulty_range'] = zip(range(1, num_qdifficulties + 1), qdifficulty)
