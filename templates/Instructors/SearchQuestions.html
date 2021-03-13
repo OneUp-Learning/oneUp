@@ -112,12 +112,12 @@
                               <h5>Challenges</h5>
                            </div>
                            <div class="col s12">
-                              {% for i,qchallengeName,qchallengeID, parsons in challenge_range %}
+                              {% for i,qchallengeName,qchallengeID in challenge_range %}
                               <p>
-                              		{% if parsons %}
+                              		
                               			<input name="selectedChallenges" class="filled-in" type="checkbox"  id="challenge-{{i}}" value="{{qchallengeID}}"/>
                                  		<label for="challenge-{{i}}">{{qchallengeName}}</label>
-                                 	{% endif %}
+                                 	
                               </p>
                               {% endfor %}
                            </div>
