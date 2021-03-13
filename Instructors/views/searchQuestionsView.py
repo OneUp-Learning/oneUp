@@ -63,7 +63,7 @@ def searchQuestions(request):
         
     context_dict['qtypes_range'] = questionTypesObjects
     context_dict['qdifficulty_range'] = zip(range(1, num_qdifficulties + 1), qdifficulty)
-    zipped = zip(range(1, num_challenges + 1), qchallengeName, qchallengeID)
+    zipped = zip(range(1, len(challenges) + 1), qchallengeName, qchallengeID)
     context_dict['challenge_range'] = sorted(zipped, key=lambda x: x[1].lower())
     print('context_dict')
     print(qchallengeName)
