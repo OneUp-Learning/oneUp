@@ -1377,6 +1377,41 @@ def maxSkillPoints(course, student, skill):
         return 0
     else:
         return result
+def getTopicChallengesCompleted60Percent(course, student, topic):
+    ''' This will return the percentage of challenges in a topic a student has completed 
+    at >= 60% correctness
+    '''
+    return getCompletedChallengePercentageForTopic(course, student, 60.0, topic)       
+def getTopicChallengesCompleted85Percent(course, student, topic):
+    ''' This will return the percentage of challenges in a topic a student has completed 
+    at >= 85% correctness
+    '''        
+    return getCompletedChallengePercentageForTopic(course, student, 85.0, topic)     
+def getCompletedChallengePercentageForTopic(course, student, percentage, topic):
+    ''' This will return the percentage of challenges a student has completed in a given topic 
+    at a given percentage of correctness
+    '''        
+    from Instructors.models import ChallengesTopics, Challenges
+    from Students.models import StudentChallenges 
+    topicChallenges = ChallengesTopics.objects.filter(topicID=topic,challengeID__courseID=course)
+    totalChallengesInTopic = topicChallenges.count()
+    completed = 0.0
+    for tchall in topicChallenges:
+        studentChallenges = StudentChallenges.objects.filter(studentID = student, challengeID = tchall.challengeID)
+        totalScore = tchall.challengeID.totalScore
+        for schall in studentChallenges:
+            if schall.testScore/totalScore*100 >= percentage:
+                completed += 1
+                break
+    
+    if completed > 0:
+        studentPercentage = completed/totalChallengesInTopic*100
+    else:
+        studentPercentage = 0
+    return studentPercentage
+
+
+    
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
@@ -1463,6 +1498,8 @@ class SystemVariable():
     calloutParticipationWonPerTopic = 992
     calloutParticipationLostPerTopic = 993
     calloutRequestedPerTopic = 994
+    topicChallengesCompleted60Percent = 995 # Percentage of topic challenges completed at >= 60%
+    topicChallengesCompleted85Percent = 996 # Percentage of topic chalenges completed at >= 85%
 
     systemVariables = {
         score:{
@@ -2598,7 +2635,35 @@ class SystemVariable():
                 ObjectTypes.none: getTotalOfCompletedFlashcards
             },
             'studentGoal': True,
-        }
+        },
+        topicChallengesCompleted60Percent:{
+            'index': topicChallengesCompleted60Percent,
+            'name':'topicChallengesCompleted60Percent',
+            'displayName':'Percent of Challenges Completed Per Topic (>= 60%)',
+            'description':'This will return the percentage of challenges in a topic a student has completed at >= 60% correctness',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.topic:getTopicChallengesCompleted60Percent
+            },
+            'studentGoal': False,
+        },
+        topicChallengesCompleted85Percent:{
+            'index': topicChallengesCompleted85Percent,
+            'name':'topicChallengesCompleted85Percent',
+            'displayName':'Percent of Challenges Completed Per Topic (>= 85%)',
+            'description':'The percentage of challenges in a topic a student has completed at >= 85% correctness',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.topic:getTopicChallengesCompleted85Percent
+            },
+            'studentGoal': False,
+        },
                                                                             
     }
 
