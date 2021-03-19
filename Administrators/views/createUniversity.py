@@ -32,7 +32,11 @@ def courseUniversityView(request):
             university.universityName = name
             if universityTimezone:
                 university.universityTimezone = universityTimezone
+            #remove @ symbol and whitespace if present
             if universityPostfix:
+                if universityPostfix[0] == '@':
+                    universityPostfix = universityPostfix[1:]
+                universityPostfix=universityPostfix.replace(" ", "")
                 university.universityPostfix = universityPostfix
             university.save()
 
