@@ -63,7 +63,7 @@ def courseUniversityView(request):
                  {"value": "America/Chicago", "name": "Central (CST)"},
                  {"value": "America/Denver", "name": "Mountain (MST)"},
                  {"value": "America/Los_Angeles", "name": "Pacific (PST)"},
-                 {"value": "CET". "name": "Central European Time (CET)"},
+                 {"value": "CET", "name": "Central European Time (CET)"},
                  {"value": "Brazil/East", "name": "Brasilia Time (BRT)"},
                  {"value": "Brazil/West", "name": "Amazon Time (AMT)"},]
     context_dict['supported_timezones'] = timezones
