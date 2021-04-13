@@ -59,8 +59,13 @@ def courseUniversityView(request):
     # Get all universities
     context_dict['universities'] = Universities.objects.all()
    
-    timezones = [{"value": "America/New_York", "name": "Eastern (EST)"}, {"value": "America/Chicago", "name": "Central (CST)"},
-                {"value": "America/Denver", "name": "Mountain (MST)"}, {"value": "America/Los_Angeles", "name": "Pacific (PST)"}]
+    timezones = [{"value": "America/New_York", "name": "Eastern (EST)"}, 
+                 {"value": "America/Chicago", "name": "Central (CST)"},
+                 {"value": "America/Denver", "name": "Mountain (MST)"},
+                 {"value": "America/Los_Angeles", "name": "Pacific (PST)"},
+                 {"value": "CET". "name": "Central European Time (CET)"},
+                 {"value": "Brazil/East", "name": "Brasilia Time (BRT)"},
+                 {"value": "Brazil/West", "name": "Amazon Time (AMT)"},]
     context_dict['supported_timezones'] = timezones
 
     if 'universityID' in request.GET:
