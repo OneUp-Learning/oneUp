@@ -73,7 +73,7 @@ def listRules(request,current_course,context_dict):
             objs.append({'rule': rule, 'type' : 'Activity', 'typeString': 'activity'})
         elif objectString == 'challenge':
             chall_list = Challenges.objects.filter(pk=rule.objectID)
-            if len(chall_list == 1):
+            if len(chall_list) == 1:
                 chall = chall_list[0]
                 if(chall.isGraded): # It is a serious chall
                     objs.append({'rule': rule, 'type' : 'Serious Challenge','typeString': 'challenge'})
