@@ -146,9 +146,15 @@ def category_activities(category, studentId, current_course):
                 points.append("-")
             if student_act.submitted:
                 if act.hasDeadline and datetime_to_local(student_act.submissionTimestamp) > datetime_to_local(act.deadLine):
-                    submit_status.append("Late Submission")
+                    if student_act.graded:
+                        submit_status.append("Graded (Late Submission)") 
+                    else:
+                        submit_status.append("Late Submission")
                 else:
-                    submit_status.append("Submitted")
+                    if student_act.graded:
+                        submit_status.append("Graded")
+                    else:
+                        submit_status.append("Submitted")
         else: # Student has not yet uploaded
             points.append("-")
             if act.isGraded or act.isFileAllowed: #if the activity will be graded or Upload is enabled

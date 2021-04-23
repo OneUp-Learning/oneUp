@@ -68,9 +68,9 @@
                               {% endif %}
                               
                               <td>{% if activity_due_date %} Due at {{activity_due_date}} {% endif %}</td>
-                              {% if submit_status == "Submitted" %}
+                              {% if submit_status == "Submitted" or submit_status == "Graded" %}
                                  <td style="color:green;">{{submit_status}}</td>
-                              {% elif submit_status == "Not Yet Uploaded" %}
+                              {% elif submit_status == "Not Yet Uploaded" or submit_status == "Graded (Late Submission)" %}
                                  <td style="color:black;">{{submit_status}}</td>
                               {% else %}
                                  <td style="color:red;">{{submit_status}}</td>
