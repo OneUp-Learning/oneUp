@@ -111,8 +111,11 @@ def ChallengeDescription(request):
                         return redirect('/oneUp/students/DuelChallengeDescription?duelChallengeID=' +
                                         str(duel_challenge.duelChallengeID))
                 elif is_callout:
-                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds() / 60.0
-                    context_dict['timeLimit'] = ("%.2f" % time_left)
+                    time_left = (datetime_to_local(call_out_part.calloutID.endTime) - current_localtime()).total_seconds()
+                    m,s = divmod(time_left, 60)
+                    h,m = divmod(m, 60)
+                    string_time_left = '{:d}h, {:02d}m, {02d}s'.format(h,m,s)
+                    context_dict['timeLimit'] = string_time_left #("%.2f" % time_left)
                     if time_left <= 0:
                         return redirect('/oneUp/students/CalloutDescription?call_out_participant_id=' + str(call_out_part.id) + '&participant_id=' + str(call_out_part.participantID.user.id))
                 elif data == unlimited_constant:
