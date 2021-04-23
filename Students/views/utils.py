@@ -53,5 +53,14 @@ def checkIfAvatarExist(student):
     
     return defaultAvatar 
 
+def getLevelFromXP(level1_xp, n, leveling_percentage):
+    r = 1+(leveling_percentage/100);
+    
+    if(leveling_percentage==0):
+        return level1_xp * n
+    
+    total = (level1_xp * (1 - pow(r, n ))) / (1-r)
+    return total
+
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")
