@@ -1226,6 +1226,21 @@ def getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic >= 90%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def topicPercentageHelper(f,course,student,topic):
+    return f(course,student,topic)/len(challengesForTopic(course,topic))*100
+
+def getPercentageOfUniqueWarmupChallengesGreater70PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic,course, student, topic)
+
+def getPercentageOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic,course, student, topic)
+
+def getPercentageOfUniqueWarmupChallengesGreater85PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic,course, student, topic)
+
+def getPercentageOfUniqueWarmupChallengesGreater90PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic,course, student, topic)
+
 def allWarmupChallengesTopicGreaterThan70Percent(course, student, topic): 
     ''' This will return the 1 (true) or 0 (false) if every challenge related to the given topic is greater than 70%'''
    
@@ -1463,6 +1478,10 @@ class SystemVariable():
     calloutParticipationWonPerTopic = 992
     calloutParticipationLostPerTopic = 993
     calloutRequestedPerTopic = 994
+    percentageWarmupChallengesGreaterThan70PercentTopic = 995 # Percentage of warmup challenges related to a topic with a score percentage greater than 70%
+    percentageWarmupChallengesGreaterThan75PercentTopic = 996 # Percentage of warmup challenges related to a topic with a score percentage greater than 75%
+    percentageWarmupChallengesGreaterThan85PercentTopic = 997 # Percentage of warmup challenges related to a topic with a score percentage greater than 85%
+    percentageWarmupChallengesGreaterThan90PercentTopic = 998 # Percentage of warmup challenges related to a topic with a score percentage greater than 90%
 
     systemVariables = {
         score:{
@@ -2192,7 +2211,21 @@ class SystemVariable():
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic
             },
             'studentGoal': False,
-        },  
+        },
+        percentageWarmupChallengesGreaterThan75PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan75PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan75PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for Specific Topic with >= 75% Correct',
+            'description':'The percentage of warmup challenges a student has completed with a score equal or greater than 75% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater75PercentPerTopic
+            },
+            'studentGoal': False,
+        }, 
         uniqueWarmupChallengesGreaterThan85PercentTopic:{
             'index': uniqueWarmupChallengesGreaterThan85PercentTopic,
             'name':'uniqueWarmupChallengesGreaterThan85PercentTopic',
@@ -2220,7 +2253,50 @@ class SystemVariable():
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic
             },
             'studentGoal': False,
+        },
+        percentageWarmupChallengesGreaterThan70PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan70PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan70PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for a Specific Topic with >= 70% Correct',
+            'description':'The percentage of warmup challenges a student has completed with a score greater than or equal to 70% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater70PercentPerTopic
+            },
+            'studentGoal': False,
         },  
+        percentageWarmupChallengesGreaterThan85PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan85PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan85PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for a Specific Topic with >= 85% Correct',
+            'description':'The percentage of warmup challenges a student has completed with a score greater than or equal to 85% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater85PercentPerTopic
+            },
+            'studentGoal': False,
+        },
+        percentageWarmupChallengesGreaterThan90PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan90PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan90PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for a Specific Topic with >= 90% correct',
+            'description':'The percentage of warmup challenges a student has completed with a score greater than or equal to 90% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater90PercentPerTopic
+            },
+            'studentGoal': False,
+        },  
+
         warmupChallengesTopicGreaterThan70Percent:{
             'index': warmupChallengesTopicGreaterThan70Percent,
             'name':'warmupChallengesTopicGreaterThan70Percent',
