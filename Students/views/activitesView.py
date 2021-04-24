@@ -106,9 +106,10 @@ def category_activities(category, studentId, current_course):
     activity_objects = Activities.objects.filter(
         category=category, courseID=current_course)
 
+    act_graded = []
     for act in activity_objects:
         # if today is after the data it was assigninged display it
-        # logger.debug(timezone.localtime(act.startTimestamp))
+        # logger.debug(timezone.localtime(act.startTimestamp)
 
         # Filter out if current time is not in range
         if act.hasStartTimestamp and datetime_to_local(act.startTimestamp) > current_localtime():
@@ -118,7 +119,7 @@ def category_activities(category, studentId, current_course):
         
         activites.append(act)
         graded_acitvities.append(act.isGraded)
-        act_graded = [act.isGraded]
+        act_graded.append(act.isGraded)
 
         if act.isGraded:
             activity_points.append(round(act.points))
