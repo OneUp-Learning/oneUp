@@ -58,7 +58,7 @@ def ActivityList(request):
             filterCategory = request.POST.get('actCat')
             if filterCategory is not None:
                 categories = ActivitiesCategory.objects.filter(
-                    pk=filterCategory, courseID=current_course)
+                    pk=filterCategory, courseID=current_course).order_by('catPosition')
                 context_dict['currentCat'] = categories
             else:
                 context_dict['currentCat'] = "all"
@@ -73,7 +73,7 @@ def ActivityList(request):
                 categories_list.append(cat_activities)
                 categories_names.append(category.name)
 
-            # Progressvie Unlocking
+            # Progressive Unlocking
             studentPUnlocking = StudentProgressiveUnlocking.objects.filter(
                 studentID=studentId, objectID=category.pk, objectType=ObjectTypes.activityCategory, courseID=currentCourse).first()
             if studentPUnlocking:
@@ -104,7 +104,7 @@ def category_activities(category, studentId, current_course):
     unlockDescript = []
 
     activity_objects = Activities.objects.filter(
-        category=category, courseID=current_course)
+        category=category, courseID=current_course).order_by('activityPosition')
 
     act_graded = []
     for act in activity_objects:
