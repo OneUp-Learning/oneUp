@@ -538,6 +538,14 @@ class TeamChallengeQuestions(models.Model):
     def __str__(self):
         return "{} : {} : {} : {}".format(self.teamChallengeQuestionID, self.teamChallengeID, self.questionID, self.challengeQuestionID)
 
+# This table has each question's answer that is answered by teams for all the above table's questions    
+
+class TeamChallengeAnswers(models.Model):
+    teamChallengeQuestionID = models.ForeignKey(TeamChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related team_challenge_question", db_index=True)
+    teamAnswer = models.CharField(max_length=10000)
+    def __str__(self):              
+        return str(self.teamChallengeQuestionID) +","+str(self.teamAnswer)
+
 class TeamActivities(models.Model):
     teamActivityID = models.AutoField(primary_key=True)
     teamID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related team", db_index=True)
