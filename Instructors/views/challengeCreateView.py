@@ -3,6 +3,7 @@ import re
 from datetime import datetime
 from decimal import Decimal
 from time import time
+import pytz
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
@@ -159,19 +160,19 @@ def challengeCreateView(request):
             displayIncorrectAnswerFeedback)
 
         try:
-            challenge.startTimestamp = str_datetime_to_local(request.POST['startTime'])
+            challenge.startTimestamp = datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
             challenge.hasStartTimestamp = True
         except ValueError:
             challenge.hasStartTimestamp = False
 
         try:
-            challenge.endTimestamp = str_datetime_to_local(request.POST['endTime'])
+            challenge.endTimestamp = datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p") 
             challenge.hasEndTimestamp = True
         except ValueError:
             challenge.hasEndTimestamp = False
 
         try:
-            challenge.dueDate = str_datetime_to_local(request.POST['dueDate']) 
+            challenge.dueDate = datetime.strptime(request.POST['dueDate'], "%m/%d/%Y %I:%M %p") 
             challenge.hasDueDate = True
         except ValueError:
             challenge.hasDueDate = False

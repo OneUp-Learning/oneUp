@@ -166,7 +166,11 @@ class PeriodicBadges(BadgesInfo):
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the badge.'''
-        self.periodicTask.delete()
+        if self.periodicTask:
+            # In theory this should always run, but there was a bug
+            # where periodic badges were being created without associated
+            # periodic tasks, so we've added this if so we can delete them
+            self.periodicTask.delete()
         super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -206,7 +210,10 @@ class VirtualCurrencyPeriodicRule(VirtualCurrencyCustomRuleInfo):
     resetStreak = models.BooleanField(default = False)
     def delete(self, *args, **kwargs):
         ''' Custom delete method which deletes the PeriodicTask object before deleting the rule.'''
-        self.periodicTask.delete()
+        if self.periodicTask:
+            # Like periodicBadge, should always exist, but if it doesn't
+            # we shouldn't have an error
+            self.periodicTask.delete()
         super().delete(*args, **kwargs)
     def __str__(self):
         return "VirtualCurrencyRule #{} : {}".format(self.vcRuleID, self.vcRuleName)
@@ -468,6 +475,12 @@ class ActivityCategorySet(models.Model):
     category = models.ForeignKey(ActivitiesCategory,verbose_name="the category included in the set",db_index=True,on_delete=models.CASCADE)
     def __str__(self):
         return "ActivityCategorySet for Condition: "+str(self.condition)+" includes Category: "+str(self.category)
+    
+class SkillSet(models.Model):
+    condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skills,verbose_name="the skill included in the set",db_index=True,on_delete=models.CASCADE)
+    def __str__(self):
+        return "SkillSet for Condition: "+str(self.condition)+" includes Skill: "+str(self.skill)
 
 class ProgressiveUnlocking(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id

@@ -20,7 +20,8 @@ from Badges.tasks import process_event_offline
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (ActivitiesCategory, Challenges,
                                 ChallengesTopics, CoursesTopics,
-                                InstructorRegisteredCourses, Topics)
+                                InstructorRegisteredCourses, Topics, ChallengesQuestions,
+                                QuestionsSkills, CoursesSkills, Skills)
 from Instructors.views.utils import current_localtime
 from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Students.models import (Courses, Student, StudentBadges, StudentEventLog,
@@ -727,19 +728,43 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
 #                     break
             return
 
+def getSkillsForChallenge(chall):
+    questionSet = {cq.questionID for cq in chall.challengesquestions_set.all()}
+    skillSet = set()
+    for question in questionSet:
+        skillSet |= {qs.skillID for qs in question.questionsskills_set.all()}
+    return list(skillSet)
+'''
+This is not needed.  It was added because I thought that adding related objects required adding chosenObjectSpecifierFields.
+It doesn't, just relatedObject entries.
+I leave this code here because although untested, it is probably correct and this could be helpful if we do want to let
+Challenges be specified by the skills of the questions which they contain.
+
+def filterChallsBySkills(chall_list,skill_list):
+    questionSet = set()
+    for skill in skill_list:
+        skillQuestionSet |= {qs.questionID for qs in skill.questionsskills_set.all()}
+    results = []
+    for chall in chall_list:
+        challQuestionSet = {cq.questionID for cq in chall.challengesquestions_set.all()}
+        if not challQuestionSet.isdisjoint(skillQuestionSet):
+            results.append(chall)
+    return results
+'''
+
 chosenObjectSpecifierFields = {
     ObjectTypes.activity:{
         'id': {
             'fun': lambda act: [act.activityID],
             'selectionType': 'object',
             'objectType': ObjectTypes.activity,
-            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist)
+            'filter': lambda objs,idlist: objs.filter(pk__in=idlist)
         },
         'category': {
             'fun': lambda act: [act.category.categoryID],
             'selectionType': 'object',
             'objectType': ObjectTypes.activityCategory,
-            'addfilter': lambda objs,catlist: objs.filter(category__pk__in=catlist),
+            'filter': lambda objs,catlist: objs.filter(category__pk__in=catlist),
         },
     },
     ObjectTypes.challenge:{
@@ -747,27 +772,34 @@ chosenObjectSpecifierFields = {
             'fun': lambda chall: [chall.challengeID],
             'selectionType': 'object',
             'objectType': ObjectTypes.challenge,
-            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
+            'filter': lambda objs,idlist: objs.filter(pk__in=idlist),
         },
         'topic': {
             'fun': lambda chall: [ct.topicID.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)],
             'selectionType': 'object',
             'objectType': ObjectTypes.topic,
-            'addfilter': lambda objs,topiclist: objs.filter(topicID__pk__in=topiclist),
+            'filter': lambda objs,topiclist: objs.filter(topicID__pk__in=topiclist),
         },
         'type': {
             'fun': lambda chall: ['serious' if chall.isGraded else 'warmup'],
             'selectionType': 'list',
             'list': ['serious','warmup'],
-            'addfilter': lambda objs, valueList: objs.filter(isGraded=(valueList[0]=='serious')),
+            'filter': lambda objs, valueList: objs.filter(isGraded=(valueList[0]=='serious')),
         },
+# This isn't needed.  Could be completed if desired.  Was added in error
+#        'skill': {
+#            'fun': getSkillsForChallenge,
+#            'selectionType': 'object',
+#            'objectType': ObjectTypes.skill,
+#            'filter': filterChallsBySkills,
+#        },
     },
     ObjectTypes.topic:{
         'id': {
             'fun': lambda topic: [topic.topicID],
             'selectionType': 'object',
             'objectType': ObjectTypes.topic,
-            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
+            'filter': lambda objs,idlist: objs.filter(pk__in=idlist),
         },
     },
     ObjectTypes.activityCategory:{
@@ -775,7 +807,15 @@ chosenObjectSpecifierFields = {
             'fun': lambda ac: [ac.categoryID],
             'selectionType': 'object',
             'objectType': ObjectTypes.activityCategory,
-            'addfilter': lambda objs,idlist: objs.filter(pk__in=idlist),
+            'filter': lambda objs,idlist: objs.filter(pk__in=idlist),
+        },
+    },
+    ObjectTypes.skill:{
+        'id': {
+            'fun': lambda skill: [skill.skillID],
+            'selectionType': 'object',
+            'objectType': ObjectTypes.skill,
+            'filter': lambda objs, idlist: objs.filter(pk__in=idlist),
         },
     },
     ObjectTypes.none:{},
@@ -786,6 +826,7 @@ objectTypesToObjects = {
     ObjectTypes.activity: Activities,
     ObjectTypes.topic: Topics,
     ObjectTypes.activityCategory: ActivitiesCategory,
+    ObjectTypes.skill: Skills,
 }
 
 objectTypesToGetAllFromCourse = {
@@ -793,6 +834,7 @@ objectTypesToGetAllFromCourse = {
     ObjectTypes.activity: lambda course: Activities.objects.filter(courseID = course),
     ObjectTypes.topic: lambda course: CoursesTopics.objects.filter(courseID = course).select_related("topicID"),
     ObjectTypes.activityCategory: lambda course: ActivitiesCategory.objects.filter(courseID = course),
+    ObjectTypes.skill: lambda course: [cs.skillID for cs in CoursesSkills.objects.filter(courseID = course)],
 }
     
 def objectTypeFromObject(obj):
@@ -811,6 +853,9 @@ relatedObjects = {
     },
     ObjectTypes.topic: {
         ObjectTypes.challenge: (lambda chall: [ct.topicID.topicID for ct in ChallengesTopics.objects.filter(challengeID=chall)])
+    },
+    ObjectTypes.skill: {
+        ObjectTypes.challenge: getSkillsForChallenge
     },
 }                 
 
@@ -915,7 +960,7 @@ class ChosenObjectSpecifier:
         objects = objectTypesToGetAllFromCourse[self.objectType](course)
         for rule in self.rules:
             if rule['op'] == 'in':
-                objects = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['addfilter'](objects,rule['value'])
+                objects = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['filter'](objects,rule['value'])
         return [obj.pk for obj in objects]
     
 def recalculate_student_virtual_currency_total(student,course):

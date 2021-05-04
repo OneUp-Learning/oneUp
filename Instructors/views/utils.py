@@ -7,6 +7,8 @@ import string
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.conf import settings
+import smtplib
 
 from Badges.enums import ObjectTypes
 from Instructors.constants import unspecified_topic_name
@@ -556,6 +558,23 @@ def localizedDate(request, date_str, date_format, timezone=None):
     else:
         tz = pytz.timezone(timezone)
     return tz.localize(datetime.strptime(date_str, date_format))
+
+def sendEmail(recipient, subject, body):
+    gmail_user = 'oneupemailer@gmail.com'
+    gmail_password = 'vtrenmzgsahmfgcv'
+    
+    to = [recipient]
+    
+    email_text = 'Subject: {}\n\n{}'.format(subject, body)
+    
+    if settings.EMAILING_ENABLED == True:
+        print("Emailing",recipient)
+        with smtplib.SMTP_SSL('smtp.gmail.com',465) as server:
+            server.set_debuglevel(1)
+            server.login(gmail_user, gmail_password)
+            text = email_text
+            server.sendmail(gmail_user, to[0], text)
+            server.quit()
 
 # def addHintsToQuestion(course,question):
 # def removeHintsFromQuestion(course, question):

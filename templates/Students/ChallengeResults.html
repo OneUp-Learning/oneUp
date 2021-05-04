@@ -71,7 +71,7 @@
                         <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList">											
                         {% endif %}
                         <i class="material-icons left">check</i>Done</a>
-                        {% if isWarmUp %}
+                        {% if isWarmUp and not isDuel and not isCallout %}
                         <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{challengeID}}&isWarmup={{isWarmUp}}">
                         <i class="material-icons left">redo</i>Retry</a> 
                         {% endif %}

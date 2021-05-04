@@ -57,21 +57,13 @@ def searchQuestions(request):
             
     # Get challenges from the DB
     challenges = Challenges.objects.filter(courseID=currentCourse)
-    num_challenges = challenges.count()
-    for i in range(0, num_challenges):
-        qchallengeName.append(challenges[i].challengeName)
-        qchallengeID.append(challenges[i].challengeID)
-        #flags imported problems to check if contain parsons for serious challenges
-        if ChallengesQuestions.objects.filter(challengeID=challenges[i].challengeID, questionID__type=8).exists():
-            hasParsons.append("8")
-        else:
-            hasParsons.append("notParson")
-
-        
+    for chall in challenges:
+        qchallengeName.append(chall.challengeName)
+        qchallengeID.append(chall.challengeID)
         
     context_dict['qtypes_range'] = questionTypesObjects
     context_dict['qdifficulty_range'] = zip(range(1, num_qdifficulties + 1), qdifficulty)
-    zipped = zip(range(1, num_challenges + 1), qchallengeName, qchallengeID, hasParsons)
+    zipped = zip(range(1, len(challenges) + 1), qchallengeName, qchallengeID)
     context_dict['challenge_range'] = sorted(zipped, key=lambda x: x[1].lower())
     print('context_dict')
     print(qchallengeName)

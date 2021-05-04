@@ -88,22 +88,22 @@ def activityCreateView(request):
                 activity.uploadAttempts = request.POST['attempts']
 
         # Set the start date and end data to show the activity
-        print(str_datetime_to_local(request.POST['startTime']))
+        #print(str_datetime_to_local(request.POST['startTime']))
         try:
-            activity.startTimestamp = str_datetime_to_local(request.POST['startTime'])
+            activity.startTimestamp = datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p") 
             activity.hasStartTimestamp = True
             
         except ValueError:
             activity.hasStartTimestamp = False
 
         try:
-            activity.endTimestamp = str_datetime_to_local(request.POST['endTime'])
+            activity.endTimestamp = datetime.strptime(request.POST['endTime'], "%m/%d/%Y %I:%M %p") 
             activity.hasEndTimestamp = True
         except ValueError:
             activity.hasEndTimestamp = False
 
         try:
-            activity.deadLine = str_datetime_to_local(request.POST['deadLine'])
+            activity.deadLine = datetime.strptime(request.POST['deadLine'], "%m/%d/%Y %I:%M %p") 
             activity.hasDeadline = True
         except ValueError:
             activity.hasDeadline = False

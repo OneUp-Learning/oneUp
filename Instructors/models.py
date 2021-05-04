@@ -50,9 +50,9 @@ class Universities(models.Model):
     universityName = models.CharField(max_length=300)
     universityDescription = models.CharField(max_length=2000, default="")
     universityTimezone = models.CharField(max_length=100, default="America/New_York")
-   
+    universityPostfix = models.CharField(max_length=100, default="")
     def __str__(self):              
-        return f"{self.universityID} - {self.universityName} - {self.universityDescription} - {self.universityTimezone}"
+        return f"{self.universityID} - {self.universityName} - {self.universityDescription} - {self.universityTimezone} - {self.universityPostfix}"
 #Association table between instructors user table and Universities table
 class InstructorToUniversities(models.Model):
     instructorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Instructor ID", db_index=True)
@@ -260,7 +260,7 @@ class Activities(models.Model):
     courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True) 
 
     activityName = models.CharField(max_length=75)
-    description = models.CharField(max_length=200, default="")
+    description = models.CharField(max_length=2000, default="")
 
     points =  models.DecimalField(decimal_places=3, max_digits=6, default=0)
 

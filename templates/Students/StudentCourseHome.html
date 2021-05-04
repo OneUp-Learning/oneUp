@@ -39,7 +39,12 @@
                   </div>
                {% endif %}
                {% if ccparams.seriousChallengesUsed %}
-                  <div class="col s12 m6">
+               {% if not ccparams.announcementsUsed %} 
+               <div class=row>
+               <div class="col s12 m6 offset-m3">
+               {% else %}           
+               <div class="col s12 m6">
+               {%endif%} 
                      <div class="card-panel center-align">
                         <table>
                            <thead>
@@ -89,7 +94,7 @@
                      </table>
                 </div>
             </div>
-            </daiv>
+            </div>
             {% endif %}   
             {% if ccparams.gamificationUsed and ccparams.goalsUsed %}
             {% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
@@ -100,7 +105,7 @@
                             <div class="card-content">
                                 <span class="card-title">Goals</span>
 			            		<div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap; margin-bottom: 10px;">
-			            			{% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal,can_edit in goal_range %}                                                           
+			            			{% for i,goal_id,student_ID,course_ID,start_date,end_date,goal_name,goal_target,goal_progress,goal_status,recurring_goal,can_edit, targetExact in goal_range %}                                                           
 			                          <div style="width: 240px; height: 240px; margin-bottom: 24px; margin-top: 8px;">
                                         <div style="padding-left: 8px; padding-right: 8px; height: 40px;">
                                             <p>{{goal_name}}</p>

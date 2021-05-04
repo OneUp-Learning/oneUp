@@ -4,8 +4,9 @@ from datetime import datetime
 from Badges.enums import Event, ObjectTypes
 from Instructors.constants import unlimited_constant
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
-                                ChallengesTopics, Questions, Topics)
+                                ChallengesTopics, Questions, Topics, Skills)
 from Instructors.views.utils import current_utctime
+from django.db.models import Sum
 
 logger = logging.getLogger(__name__)
 objectTypeToObjectClass = {
@@ -14,6 +15,7 @@ objectTypeToObjectClass = {
     ObjectTypes.question: Questions,
     ObjectTypes.topic: Topics,
     ObjectTypes.activityCategory: ActivitiesCategory,
+    ObjectTypes.skill: Skills,
 }
     
 # This is where we evaluate the system variables in their appropriate
@@ -1224,6 +1226,21 @@ def getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic >= 90%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def topicPercentageHelper(f,course,student,topic):
+    return f(course,student,topic)/len(challengesForTopic(course,topic))*100
+
+def getPercentageOfUniqueWarmupChallengesGreater70PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic,course, student, topic)
+
+def getPercentageOfUniqueWarmupChallengesGreater75PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic,course, student, topic)
+
+def getPercentageOfUniqueWarmupChallengesGreater85PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic,course, student, topic)
+
+def getPercentageOfUniqueWarmupChallengesGreater90PercentPerTopic(course, student, topic):
+    return topicPercentageHelper(getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic,course, student, topic)
+
 def allWarmupChallengesTopicGreaterThan70Percent(course, student, topic): 
     ''' This will return the 1 (true) or 0 (false) if every challenge related to the given topic is greater than 70%'''
    
@@ -1351,15 +1368,30 @@ def getTotalMinutesSpentOnFlashcards(course, student):
     #add in to the total the cards capped at 1 minute
     totalMinutesSpent = (overMinute*60 + timeTotal.total_seconds())/60
         
-    return totalMinutesSpent
-
-    
-        
+    return totalMinutesSpent        
 
 def getTotalOfCompletedFlashcards(course, student):
     from Students.models import StudentEventLog
     totalCards = len(StudentEventLog.objects.filter(course_id=course, student_id=student, event=Event.submitFlashCard))
     return totalCards
+
+def skillPoints(course, student, skill):
+    from Students.models import StudentCourseSkills
+    scs =  StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__courseID = course, studentChallengeQuestionID__studentChallengeID__studentID = student, skillID = skill)
+    result = scs.aggregate(total_points=Sum('skillPoints'))['total_points']
+    if result is None:
+        return 0
+    else:
+        return result
+
+def maxSkillPoints(course, student, skill):
+    from Students.models import StudentCourseSkills
+    scs =  StudentCourseSkills.objects.filter(studentChallengeQuestionID_studentChallengeID_courseID = course, skillID = skill)
+    result = scs.values('studentChallengeQuestionID__studentChallengeID__studentID').annotate(total=Sum('skillPoints')).order_by('-total')[0]['total']
+    if result is None:
+        return 0
+    else:
+        return result
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
@@ -1446,6 +1478,10 @@ class SystemVariable():
     calloutParticipationWonPerTopic = 992
     calloutParticipationLostPerTopic = 993
     calloutRequestedPerTopic = 994
+    percentageWarmupChallengesGreaterThan70PercentTopic = 995 # Percentage of warmup challenges related to a topic with a score percentage greater than 70%
+    percentageWarmupChallengesGreaterThan75PercentTopic = 996 # Percentage of warmup challenges related to a topic with a score percentage greater than 75%
+    percentageWarmupChallengesGreaterThan85PercentTopic = 997 # Percentage of warmup challenges related to a topic with a score percentage greater than 85%
+    percentageWarmupChallengesGreaterThan90PercentTopic = 998 # Percentage of warmup challenges related to a topic with a score percentage greater than 90%
 
     systemVariables = {
         score:{
@@ -1458,13 +1494,15 @@ class SystemVariable():
                 ObjectTypes.activity:[Event.participationNoted,],
                 ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
                 ObjectTypes.activityCategory: [Event.participationNoted],
+                ObjectTypes.skill: [Event.endChallenge],
             },
             'type':'int',
             'functions':{
                 ObjectTypes.activity: activityScore,
                 ObjectTypes.challenge: challengeScore,
                 ObjectTypes.topic: topicScore,
-                ObjectTypes.activityCategory: getSumOfScoreOfAllStudentActivitiesCategory
+                ObjectTypes.activityCategory: getSumOfScoreOfAllStudentActivitiesCategory,
+                ObjectTypes.skill: skillPoints,
             },
             'studentGoal': False,   
         },
@@ -1505,12 +1543,14 @@ class SystemVariable():
                 ObjectTypes.challenge:[ Event.challengeExpiration, Event.adjustment],
                 ObjectTypes.activity: [Event.participationNoted],
                 ObjectTypes.activityCategory: [Event.participationNoted],
+                ObjectTypes.skill: [Event.endChallenge]
             },
             'type':'int',
             'functions':{
                 ObjectTypes.challenge: getMaxTestScore,
                 ObjectTypes.activity: getMaxActivityScore,
                 ObjectTypes.activityCategory: getMaxScoreOfStudentsActivitiesCategory,
+                ObjectTypes.skill: maxSkillPoints,
             },
             'studentGoal': False,
         },
@@ -2002,12 +2042,12 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesAttempted
             },
-            'studentGoal': True,
+            'studentGoal': False,
         },
         uniqueSeriousChallengesAttemptedForTopic:{
             'index': uniqueSeriousChallengesAttemptedForTopic,
             'name':'uniqueSeriousChallengesAttemptedForTopic',
-            'displayName':'# of Unique Serious Challenges Completed',
+            'displayName':'# of Unique Serious Challenges Completed Per Topic',
             'description':'The number of serious challenges that a student has attempted at least once with a score > 0.',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.endChallenge],
@@ -2016,7 +2056,7 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueSeriousChallengesAttempted
             },
-            'studentGoal': True,
+            'studentGoal': False,
         },
         uniqueWarmupChallengesAttempted:{
             'index': uniqueWarmupChallengesAttempted,
@@ -2171,7 +2211,21 @@ class SystemVariable():
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic
             },
             'studentGoal': False,
-        },  
+        },
+        percentageWarmupChallengesGreaterThan75PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan75PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan75PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for Specific Topic with >= 75% Correct',
+            'description':'The percentage of warmup challenges a student has completed with a score equal or greater than 75% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater75PercentPerTopic
+            },
+            'studentGoal': False,
+        }, 
         uniqueWarmupChallengesGreaterThan85PercentTopic:{
             'index': uniqueWarmupChallengesGreaterThan85PercentTopic,
             'name':'uniqueWarmupChallengesGreaterThan85PercentTopic',
@@ -2199,7 +2253,50 @@ class SystemVariable():
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater90PercentPerTopic
             },
             'studentGoal': False,
+        },
+        percentageWarmupChallengesGreaterThan70PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan70PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan70PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for a Specific Topic with >= 70% Correct',
+            'description':'The percentage of warmup challenges a student has completed with a score greater than or equal to 70% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater70PercentPerTopic
+            },
+            'studentGoal': False,
         },  
+        percentageWarmupChallengesGreaterThan85PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan85PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan85PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for a Specific Topic with >= 85% Correct',
+            'description':'The percentage of warmup challenges a student has completed with a score greater than or equal to 85% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater85PercentPerTopic
+            },
+            'studentGoal': False,
+        },
+        percentageWarmupChallengesGreaterThan90PercentTopic:{
+            'index': percentageWarmupChallengesGreaterThan90PercentTopic,
+            'name':'percentageWarmupChallengesGreaterThan90PercentTopic',
+            'displayName':'Percentage of Warmup Challenges for a Specific Topic with >= 90% correct',
+            'description':'The percentage of warmup challenges a student has completed with a score greater than or equal to 90% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.topic:getPercentageOfUniqueWarmupChallengesGreater90PercentPerTopic
+            },
+            'studentGoal': False,
+        },  
+
         warmupChallengesTopicGreaterThan70Percent:{
             'index': warmupChallengesTopicGreaterThan70Percent,
             'name':'warmupChallengesTopicGreaterThan70Percent',
@@ -2594,7 +2691,7 @@ if __debug__:
         assert sysVarNum in SystemVariable.systemVariables, "System variable number created without corresponding structure in systemVariables dictionary.  %s = %i " % (sysVarName,sysVarNum)
         dictEntry = SystemVariable.systemVariables[sysVarNum]
         assert dictEntry["name"] == sysVarName, "Variable %s has incorrect name, %s instead" % (sysVarName,dictEntry["name"])
-        assert dictEntry["index"] == sysVarNum, "Variable %s has incoorect index.  Currently %i.  Should be %i instead." % (sysVarName,dictEntry["index"],sysVarNum)
+        assert dictEntry["index"] == sysVarNum, "Variable %s has incorrect index.  Currently %i.  Should be %i instead." % (sysVarName,dictEntry["index"],sysVarNum)
         for field in expectedFieldsInSysVarStruct:
             assert field in dictEntry, "System variable structure missing expected field.  %s missing %s" % (sysVarName,field)
         eventsList = list(dictEntry['eventsWhichCanChangeThis'])

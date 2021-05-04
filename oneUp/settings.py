@@ -19,6 +19,9 @@ import oneUp
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+# Emailing options
+EMAILING_ENABLED = False #Option to set email sending to be disabled or enabled
+
 # This is used for uploading AvatarImages
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is for the sever
 MEDIA_URL = '/media/'  # This is for the html
@@ -27,6 +30,8 @@ CKEDITOR_UPLOAD_SLUGIFY_FILENAME = True
 CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_ALLOW_NONIMAGE_FILES = False
 CKEDITOR_IMAGE_BACKEND = "pillow"
+
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -140,7 +145,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'oneUp.urls'
 
 WSGI_APPLICATION = 'oneUp.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases

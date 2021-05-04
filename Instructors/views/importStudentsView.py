@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.http import JsonResponse
 
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, sendEmail
 from Instructors.models import UploadedFiles
 from Instructors.constants import anonymous_avatar
 from Instructors.views.preferencesView import createSCVforInstructorGrant
@@ -92,6 +92,19 @@ def generate_student_data(user_info, new_password, currentCourse, ccparams):
         student.user = user
         student.universityID = user_info['email']
         student.save()
+        
+        if user_info['email']:
+            sendEmail(user_info['email'], "Welcome to OneUp!", 
+"""Hello """+user_info['first-name']+""",
+
+    Your account has been created, please use the following credentials to sign-in.
+    Your password was randomly generated for your security.
+    
+    User Name: """+user_info['email']+"""
+    Password: """+user_info['password']+"""
+    
+OneUp Admin"""
+            )
     
     # register the student for this course
     if not StudentRegisteredCourses.objects.filter(courseID=currentCourse,studentID=student): # keeps us from registering the same students over and over
@@ -203,6 +216,7 @@ def saveImportStudentsPasswords(request):
     if request.method == 'POST':     
         # Create new users with the generated or new passwords
         if "users" in request.POST:
+            print(request.POST['users'])
             users = json.loads(request.POST['users'])
             print(users)
             for user_info in users:

@@ -84,13 +84,14 @@
 							</div>
 							<div class="collapsible-body">
 								<ul class="sortable-challenges" data-topic-id="{{topic_ID}}" style="padding-bottom: 1px;">
-									{% for i,chall_ID,chall_Name, chall_visible,start_Timestamp,end_Timestamp, due_date, chall_position in all_challenges %}
+									{% for i,chall_ID,chall_Name, chall_available,chall_visible,start_Timestamp,end_Timestamp, due_date, chall_position in all_challenges %}
 									<li id={{chall_ID}} data-topic-id="{{topic_ID}}"> 
 										<div class="sortable-item">
 											<div style="padding-right: 8px;">
 												<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
 											</div>
 											<div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_Name}}</div>
+											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_available}}</div>
 											<div style="width: 10%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_visible}}</div>
 											<div style="width: 20%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</div>
 											<div style="width: 20%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</div>

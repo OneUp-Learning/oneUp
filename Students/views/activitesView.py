@@ -58,7 +58,7 @@ def ActivityList(request):
             filterCategory = request.POST.get('actCat')
             if filterCategory is not None:
                 categories = ActivitiesCategory.objects.filter(
-                    pk=filterCategory, courseID=current_course)
+                    pk=filterCategory, courseID=current_course).order_by('catPosition')
                 context_dict['currentCat'] = categories
             else:
                 context_dict['currentCat'] = "all"
@@ -73,7 +73,7 @@ def ActivityList(request):
                 categories_list.append(cat_activities)
                 categories_names.append(category.name)
 
-            # Progressvie Unlocking
+            # Progressive Unlocking
             studentPUnlocking = StudentProgressiveUnlocking.objects.filter(
                 studentID=studentId, objectID=category.pk, objectType=ObjectTypes.activityCategory, courseID=currentCourse).first()
             if studentPUnlocking:
@@ -104,11 +104,12 @@ def category_activities(category, studentId, current_course):
     unlockDescript = []
 
     activity_objects = Activities.objects.filter(
-        category=category, courseID=current_course)
+        category=category, courseID=current_course).order_by('activityPosition')
 
+    act_graded = []
     for act in activity_objects:
         # if today is after the data it was assigninged display it
-        # logger.debug(timezone.localtime(act.startTimestamp))
+        # logger.debug(timezone.localtime(act.startTimestamp)
 
         # Filter out if current time is not in range
         if act.hasStartTimestamp and datetime_to_local(act.startTimestamp) > current_localtime():
@@ -118,8 +119,13 @@ def category_activities(category, studentId, current_course):
         
         activites.append(act)
         graded_acitvities.append(act.isGraded)
+        act_graded.append(act.isGraded)
 
-        activity_points.append(round(act.points))
+        if act.isGraded:
+            activity_points.append(round(act.points))
+        else:
+            activity_points.append(None)
+            
         if act.hasDeadline:
             activity_due_date.append(act.deadLine)
         else:
@@ -131,7 +137,7 @@ def category_activities(category, studentId, current_course):
             activity_date_status.append("Overdue Activity")
         else:
             activity_date_status.append("Upcoming Activity")
-        # get the activity record for this student
+        # get the activity record for this student 
         if StudentActivities.objects.filter(studentID=studentId, activityID=act):
             student_act = StudentActivities.objects.get(
                 studentID=studentId, activityID=act)
@@ -141,13 +147,22 @@ def category_activities(category, studentId, current_course):
                 points.append("-")
             if student_act.submitted:
                 if act.hasDeadline and datetime_to_local(student_act.submissionTimestamp) > datetime_to_local(act.deadLine):
-                    submit_status.append("Late Submission")
+                    if student_act.graded:
+                        submit_status.append("Graded (Late Submission)") 
+                    else:
+                        submit_status.append("Late Submission")
                 else:
-                    submit_status.append("Submitted")
-        else:
+                    if student_act.graded:
+                        submit_status.append("Graded")
+                    else:
+                        submit_status.append("Submitted")
+        else: # Student has not yet uploaded
             points.append("-")
-            if act.hasDeadline:
-                submit_status.append("Missing")
+            if act.isGraded or act.isFileAllowed: #if the activity will be graded or Upload is enabled
+                if act.hasDeadline and (datetime_to_local(act.deadLine) <= current_localtime()): #Has a deadline
+                    submit_status.append("Missing")# if we are past the deadline, append Missing
+                else:
+                    submit_status.append("Not Yet Uploaded")
             else:
                 submit_status.append("")
 
@@ -182,4 +197,4 @@ def category_activities(category, studentId, current_course):
             isUnlocked.append(True)
             unlockDescript.append('hi')
 
-    return list(zip(activites, points, activity_points, submit_status, activity_date_status, activity_due_date, isUnlocked, unlockDescript, graded_acitvities))
+    return list(zip(activites, points, activity_points, submit_status, activity_date_status, activity_due_date, isUnlocked, unlockDescript, graded_acitvities, act_graded))

@@ -145,9 +145,6 @@ def preferencesView(request):
                     st_c.virtualCurrencyAmount += vcaddedInt
                     st_c.save()
                     recalculate_student_virtual_currency_total_offline(st_c.studentID.pk,currentCourse.pk)
-    
-                    # Update student xp
-                    refresh_xp(st_c)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
         
@@ -175,6 +172,13 @@ def preferencesView(request):
        # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()
+
+        # Because leaderboard settings might have changed or VC might have been awarded, we recalculate every student's XP after this page is submitted
+        # This happens offline, so it won't slow down the page load, but it is a little wasteful.  I'm doing it anyway because we don't expect this page
+        # to be used very frequently, so the extra load shouldn't be significant and this way we make sure we don't miss any cases.
+        st_crs = StudentRegisteredCourses.objects.filter(courseID=currentCourse)
+        for st_c in st_crs:
+            refresh_xp(st_c)
 
         return redirect('/oneUp/instructors/instructorCourseHome', "", "")
 
