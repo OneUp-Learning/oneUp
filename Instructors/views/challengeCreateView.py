@@ -229,9 +229,6 @@ def challengeCreateView(request):
 
         if 'warmUp' in request.GET:
             context_dict['warmUp'] = 1
-            
-        if 'team' in request.GET:
-            context_dict['team'] = 1
 
         # If challengeID is specified then we load for editing.
         if 'challengeID' in request.GET:
@@ -381,11 +378,6 @@ def challengeCreateView(request):
     if 'wView' in request.GET:
         context_dict['warmUp'] = 1
         view = 1
-
-    elif 'tView' in request.GET:
-        context_dict['team'] = 1
-        view = 1
-
     elif 'view' in request.GET:
         view = 1
     else:
