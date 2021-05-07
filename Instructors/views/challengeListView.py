@@ -71,7 +71,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     return context_dict
 
 
-def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChallenge):
+def makeContextDictForChallengeList(context_dict, courseId, indGraded):
    
     chall_ID = []      
     chall_Name = []         
@@ -91,13 +91,10 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChall
         UnassignID = challID.challengeID   
         
     if indGraded:    
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=True, isTeamChallenge=False)
-    elif teamChallenge:
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=True)
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=True)
     else:
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=False)
-
- 
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False)
+    
     for item in challenges:
         if item.challengeID != UnassignID:
             chall_ID.append(item.challengeID) #pk
@@ -157,11 +154,11 @@ def challengesList(request):
 
     
     if warmUp == 1:
-        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False, False)
+        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
         #print(context_dict)
     else:
         if not context_dict['ccparams'].seriousChallengesGrouped:
-            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True, False)
+            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
         else:
             topic_ID = []      
             topic_Name = [] 
@@ -268,7 +265,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
         challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
         if challenge_topics:           
             for challt in challenge_topics:
-                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=isGraded, isTeamChallenge=False, courseID=currentCourse):
+                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=isGraded, courseID=currentCourse):
                     chall_ID.append(challt.challengeID.challengeID)
                     chall_Name.append(challt.challengeID.challengeName)
                     #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
@@ -357,15 +354,3 @@ def disableExpiredChallenges(request):
             for student in registeredStudents:
                 register_event(Event.challengeExpiration, request, student.studentID, challenge.challengeID)
                 #print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
-
-@login_required
-@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
-def teamChallengesList(request):
-    
-    context_dict, currentCourse = initialContextDict(request)
-        
-
-    context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False, True)
-        
-            
-    return render(request,'Instructors/teamChallengesList.html', context_dict)

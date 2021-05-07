@@ -57,7 +57,6 @@ from Students.views.transactionsView import (filterTransactions,
 from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
 from Students.views.flashCards import flashCards, flashCardsList, flashCardUsed
-from Students.views.teamListView import teamList, studentTeamJoin
 
 admin.autodiscover()
 
@@ -131,9 +130,5 @@ urlpatterns = [
     url(r'^FlashCardsList', flashCardsList, name='flashCardsList'),
     url(r'^FlashCards', flashCards, name='flashCards'),
     url(r'^flashCardUsed', flashCardUsed, name='flashCardUsed'),
-    url(r'^checkAvatar', checkAvatar, name='checkAvatar'),
-    url(r'^teamsList', teamList, name='teamList'),
-    url(r'^teamJoin', studentTeamJoin, name='studentTeamJoin'),
-
-
+    url(r'^checkAvatar', checkAvatar, name='checkAvatar')
 ]

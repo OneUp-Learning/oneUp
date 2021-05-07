@@ -5,11 +5,11 @@ Created on Sep 15, 2016
 '''
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
-from django.utils.timezone import now
+
 from Badges.models import CourseConfigParams, LeaderboardsConfig
 from Badges.tasks import refresh_xp, recalculate_student_virtual_currency_total_offline
 from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
-from Instructors.views.utils import initialContextDict, current_localtime, str_datetime_to_local, datetime_to_selected
+from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 
@@ -164,11 +164,6 @@ def preferencesView(request):
         ccparams.goalsUsed = "goalsUsed" in request.POST
         ccparams.studCanChangeGoal = "studCanChangeGoal" in request.POST
 
-        #Teams
-        if 'lockInDate' in request.POST:
-            ccparams.teamsLockInDeadline = str_datetime_to_local(request.POST['lockInDate'])
-        ccparams.maxNumberOfTeamStudents = request.POST['maxNumberOfTeamStudents']
-        ccparams.selfAssignment = 'selfAssignment' in request.POST
        # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()
@@ -272,16 +267,7 @@ def preferencesView(request):
             context_dict['goalsUsed'] = ccparams.goalsUsed
             context_dict['studCanChangeGoal'] = ccparams.studCanChangeGoal
 
-            #Teams
-            context_dict['teamsEnabled'] = ccparams.teamsEnabled
-            context_dict['lockInDate'] = datetime_to_selected(ccparams.teamsLockInDeadline)
-            context_dict['maxNumberOfTeamStudents'] = ccparams.maxNumberOfTeamStudents
-            #students can join teams on their own
-            context_dict['selfAssignment'] = ccparams.selfAssignment
             
-            # Streaks
-            # moved to course config
-            #context_dict["streaksUsed"] = ccparams.streaksUsed
 
         return render(request, 'Instructors/Preferences.html', context_dict)
 
