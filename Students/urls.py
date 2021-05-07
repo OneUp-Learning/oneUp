@@ -58,6 +58,7 @@ from Students.views.virtualCurrencyRuleView import VirtualCurrencyDisplay
 from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
 from Students.views.flashCards import flashCards, flashCardsList, flashCardUsed
 from Students.views.teamListView import teamList, studentTeamJoin
+from Students.views.teamChallengeResults import teamChallengeResults
 
 admin.autodiscover()
 
@@ -134,6 +135,7 @@ urlpatterns = [
     url(r'^checkAvatar', checkAvatar, name='checkAvatar'),
     url(r'^teamsList', teamList, name='teamList'),
     url(r'^teamJoin', studentTeamJoin, name='studentTeamJoin'),
-
+    url(r'^teamChallengeResults', teamChallengeResults, name='teamChallengeResults'),
+    
 
 ]

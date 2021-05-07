@@ -2538,7 +2538,7 @@ class SystemVariable():
         calloutRequested:{
             'index': calloutRequested,
             'name':'calloutRequested',
-            'displayName':'# of Call Outs a participant has been reqeusted',
+            'displayName':'# of Call Outs a participant has been requested',
             'description':'The total number of call outs a student has been requested',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.none:[Event.calloutRequested],
@@ -2608,7 +2608,7 @@ class SystemVariable():
         calloutRequestedPerTopic:{
             'index': calloutRequestedPerTopic,
             'name':'calloutRequestedPerTopic',
-            'displayName':'# of Call Outs a participant has been reqeusted per topic',
+            'displayName':'# of Call Outs a participant has been requested per topic',
             'description':'The total number of call outs a student has been requested',
             'eventsWhichCanChangeThis':{
                 ObjectTypes.topic:[Event.calloutRequested],

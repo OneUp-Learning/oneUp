@@ -29,6 +29,8 @@
                      <a class="waves-effect waves-light btn" href="/oneUp/students/DuelChallengeDescription?duelChallengeID={{duelID}}">  
                      {% elif isDuel %}
                      <a class="waves-effect waves-light btn" href="/oneUp/students/Callouts">
+                     {% elif isTeamChallenge %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList?teams">
                      {% elif view %}
                      <a class="waves-effect waves-ligh btn" href="/oneUp/students/ChallengesTaken?{% if not all %}challengeID={{challengeID}}{% endif %}{% if is_teacher %}&userID={{student}}{% endif %}{% if classAchievements %}&classAchievements{%endif%}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}">
                      {% elif warmUp %}									

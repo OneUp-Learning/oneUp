@@ -27,7 +27,7 @@ from Instructors.views.dynamicQuestionView import makeLibs
 from Instructors.views.utils import current_localtime, datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
 from Students.models import (CalloutParticipants, DuelChallenges, Student,
-                             StudentAnswerHints)
+                             StudentAnswerHints, Teams, TeamChallenges)
 from Students.views.utils import studentInitialContextDict
 
 
@@ -120,7 +120,8 @@ def ChallengeSetup(request):
                 context_dict['attemptId'] = attemptId
 
                 sessionDict['challengeId'] = challengeId
-
+                if Challenges.objects.filter(challengeID=challengeId, courseID=currentCourse, isTeamChallenge=True).exists():
+                    sessionDict['teamLeader'] = checkTeamLeader(context_dict['student'], currentCourse)
                 if not challenge.isGraded:
                     context_dict['warmUp'] = 1
                 else:
@@ -189,3 +190,6 @@ def dumpUnusedHints(student):
         #dump the hints that didnt get attached to anything
         for studentAnswerHint in studentAnswerHints:
             studentAnswerHint.delete()
+#Checks if user is a team leader
+def checkTeamLeader(student, course):
+    return Teams.objects.filter(courseID=course, teamLeader=student).exists()

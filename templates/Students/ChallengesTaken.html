@@ -22,6 +22,9 @@
                      <table class="responsive-table">
                         <thead>
                            <tr>
+                              {% if teams %}
+                              <th>Team Name</th>
+                              {% endif %}
                               <th>Challenge Name</th>
                               <th>Time Taken</th>
                               <th>Your Score </th>
@@ -31,6 +34,38 @@
                            </tr>
                         </thead>
                         <tbody>
+
+                           {% if teams %}
+                           {% for item in team_challenges %}
+                           <tr>
+                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{item.teamName}}</td>
+                              <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{item.challengeName}}</td>
+                              <td>{{item.dateTaken}}</td>
+                              <td>{{item.score}}</td>
+                              <td>{{item.adjustment}}</td>
+                              <td>{{item.max}}</td>
+                              <td>
+                              {% if item.hasQuestions %}
+                                 {% if is_teacher %}    	         			
+                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeResults?teamChallengeID={{item.teamChallengeID}}&challengeID={{item.challengeID}}&teamID={{item.teamID}}&userID={{student}}{% if classAchievements %}&classAchievements{% endif %}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}&view"><i class="material-icons left">visibility</i>View</a>
+                                 {% else  %}
+                                    {% if not isExpired %}
+                                    <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeResults?teamChallengeID={{item.teamChallengeID}}&challengeID={{item.challengeID}}&teamID={{item.teamID}}{% if warmUp %}&warmUp{% endif %}{% if all %}&all{%endif%}&view"><i class="material-icons left">visibility</i>View</a>
+                                    {% endif %}
+                                 {% endif %} 
+                              {% endif %}      				
+                              </td> 
+                           </tr>
+                           {% empty %}
+                           <tr>
+                           	  {% if is_teacher %}
+                           	  <td class="center-align" colspan="5"><i>{{student}} has not completed this challenge</i></td>
+                           	  {% else %}
+                              <td class="center-align" colspan="5"><i>You have not completed this challenge</i></td>
+                              {% endif %}
+                           </tr>
+                           {% endfor %}
+                           {% else%}
                            {% for i,studentChall_ID,chall_ID,chall_Name,chall_Difficulty,dateTaken,score,adjusted_score, total, show_view_button in challenge_range %}
                            <tr>
                               <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>
@@ -59,13 +94,16 @@
                               {% endif %}
                            </tr>
                            {% endfor %}
+                           {% endif %}
                         </tbody>
                         <tbody class="hide-on-large-only mobile-table-padding"></tbody>
                      </table>
                   </div>
                   <div class="card-action right-align">
-                  	 {% if classAchievements %}
-                  	 <a class="waves-effect waves-light btn" href="/oneUp/instructors/classAchievements"><i class="material-icons left">navigate_before</i>Back</a>
+                  	{% if classAchievements %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/instructors/classAchievements"><i class="material-icons left">navigate_before</i>Back</a>
+                     {% elif teams %}
+                     <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesList?teams{% if is_teacher %}&userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
                      {% elif warmUp %}
                      <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesWarmUpList{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">navigate_before</i>Back</a>
                      {% else %}

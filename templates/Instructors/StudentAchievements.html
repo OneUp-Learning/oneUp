@@ -53,6 +53,9 @@
                                     {% if activitiesUsed %}
                                         <li><a href="/oneUp/instructors/activityScore?userID={{userID}}">Activities</a></li>
                                     {% endif %}
+                                    {% if teamsEnabled %}
+                                    <li><a href="/oneUp/students/ChallengesList?userID={{userID}}&teams">Team Challenges</a></li>
+                                    {% endif %}
                                     {% if warmupsUsed%}
                                         <li><a href="/oneUp/students/ChallengesWarmUpList?userID={{userID}}">Warm Ups</a></li>
                                     {% endif %}

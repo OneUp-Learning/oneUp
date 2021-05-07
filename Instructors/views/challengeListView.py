@@ -71,7 +71,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     return context_dict
 
 
-def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChallenge):
+def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChallenge = False):
    
     chall_ID = []      
     chall_Name = []         
@@ -93,7 +93,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChall
     if indGraded:    
         challenges = Challenges.objects.filter(courseID=courseId, isGraded=True, isTeamChallenge=False)
     elif teamChallenge:
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=True)
+        challenges = Challenges.objects.filter(courseID=courseId, isTeamChallenge=True)
     else:
         challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=False)
 
@@ -137,9 +137,10 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChall
                 chall_visible.append("Visible")
             else:
                 chall_visible.append("Not Visible")
-               
+    
     # The range part is the index numbers.
     context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_available,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[8])  ##,chall_Category
+    print(challenges)
     return context_dict
 
 
