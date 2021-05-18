@@ -97,7 +97,7 @@ def ActivityDetail(request):
                         context_dict['submit_status'] = "Submitted"
 
                 # we are allowed to upload files
-                if activity.isFileAllowed == True and not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)):
+                if activity.isFileAllowed == True and (not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)) or not activity.hasEndTimestamp):
                     if student_activity.graded or (studentFile and student_activity.numOfUploads >= activity.uploadAttempts):
                         context_dict['canUpload'] = False
                     else:
@@ -110,7 +110,7 @@ def ActivityDetail(request):
                 context_dict['fileName'] = fileName
 
             else:
-                if activity.isFileAllowed == True and not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)):
+                if activity.isFileAllowed == True and (not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)) or not activity.hasEndTimestamp):
                     context_dict['canUpload'] = True
                 else:
                     context_dict['canUpload'] = False
