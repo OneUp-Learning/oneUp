@@ -207,7 +207,7 @@ class StudentActivities(models.Model):
     submitted = models.BooleanField(default=False) # Flags used to determine if the student has submitted or not
 
     activityScore = models.DecimalField(decimal_places=0, max_digits=6)  
-    instructorFeedback = models.CharField(max_length=200, default="")
+    instructorFeedback = models.CharField(max_length=20000, default="")
     bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)

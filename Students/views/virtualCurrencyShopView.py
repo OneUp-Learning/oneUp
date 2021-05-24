@@ -206,7 +206,7 @@ def virtualCurrencyShopView(request):
 
             context_dict['buyOptions'] = finalBuyOptions
             request.session['buyoptions'] = [
-                {'id': buyOption['id']} for buyOption in buyOptions]
+                {'id': buyOption['id']} for buyOption in finalBuyOptions]
             context_dict['numBuyOptions'] = len(buyOptions)
             context_dict['studentVirtualCurrency'] = currentStudentCurrencyAmmount
 
