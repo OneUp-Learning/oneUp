@@ -73,6 +73,11 @@ def activityCreateView(request):
             activity.isGraded = True
         else:
             activity.isGraded = False
+            
+        if 'isAvailable' in request.POST:
+            activity.isAvailable = True
+        else:
+            activity.isAvailable = False
 
         if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
@@ -156,7 +161,7 @@ def activityCreateView(request):
                 context_dict['uploadAttempts'] = activity.uploadAttempts
             context_dict['isFileUpload'] = activity.isFileAllowed
             context_dict['isGraded'] = activity.isGraded
-
+            context_dict['isAvailable'] = activity.isAvailable
             
             if activity.hasStartTimestamp:
                 context_dict['startTimestamp'] = datetime_to_selected(activity.startTimestamp)
