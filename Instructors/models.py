@@ -282,8 +282,10 @@ class Activities(models.Model):
 
     category = models.ForeignKey(ActivitiesCategory,on_delete=models.CASCADE, verbose_name = "Activities Category", db_index=True, default = 1)
     activityPosition = models.IntegerField(default = 0)
+    
+    isAvailable = models.BooleanField(default=True,verbose_name = "Activity is available for students to see.")
     def __str__(self):              
-        return f"{self.activityID} - {self.activityName} - {self.points} - {self.category} - {self.isGraded}" 
+        return f"{self.activityID} - {self.activityName} - {self.points} - {self.category} - {self.isGraded} - {self.isAvailable}" 
         
 class Announcements(models.Model):
     announcementID = models.AutoField(primary_key=True)
