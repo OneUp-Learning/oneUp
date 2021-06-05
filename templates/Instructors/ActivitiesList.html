@@ -103,7 +103,7 @@
 							<div class="collapsible-body">
 								<ul class="sortable-activities" data-category-id="{{categoryId}}"
 									style="padding-bottom: 1px;">
-									{% for i, activityID, activityName, description, start_Timestamp,end_Timestamp, deadline, points, activityPosition in activities %}
+									{% for activityID, activityName, description, start_Timestamp,end_Timestamp, deadline, points, activityPosition in activities %}
 									<li id="{{activityID}}" data-category-id="{{categoryId}}">
 										<div class="sortable-item">
 											<div style="padding-right: 8px;">
