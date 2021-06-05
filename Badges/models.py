@@ -528,3 +528,38 @@ class CeleryTestResult(models.Model):
     sequence = models.IntegerField()
     def __str__(self):
         return "Test "+self.sequence+":"+self.uniqid
+    
+class PlayerType(models.Model):
+    name = models.CharField(max_length=300, verbose_name="The name of the type of player", db_index=True)
+    course = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True, verbose_name="the related course", db_index=True)
+
+    badgesUsed = models.BooleanField(default=False)                   ## 
+    levelingUsed = models.BooleanField(default=False)                 ##
+    
+    # Duels related
+    classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
+    betVC = models.BooleanField(default=False)                        ## Allow the bet of virtual currency in duels
+
+    # Progress bar
+    progressBarUsed = models.BooleanField(default=False)               ## This is the progress bar in the student achievements page and student course home page
+
+    displayStudentStartPageSummary = models.BooleanField(default=False) ## This toggles the view on the student course home page to show class achievements or student achievements summary
+
+    displayAchievementPage = models.BooleanField(default=False)       ## This toggles the view on the student achievement page in the nav bars
+
+    leaderboardUsed = models.BooleanField(default=False)              ##
+        
+    ## Other fields for rule based configurations
+    virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
+    
+    ## Student Goal Setting
+    goalsUsed = models.BooleanField(default=False)                    ## Enables the use of goal setting for students
+    
+    def __str__(self):
+        return "name:"+str(self.name)+", course:"+str(self.course) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
+        +"levling:"+str(self.levelingUsed) +"," \
+        +"duels/callouts:"+str(self.classmatesChallenges) +"," \
+        +"progressBar"+str(self.progressBarUsed) +"," \
+        +"leaderboard:"+str(self.leaderboardUsed) +"," \
+        +"vc:"+str(self.virtualCurrencyUsed) +"," \
+        +"betting:"+str(self.betVC)
