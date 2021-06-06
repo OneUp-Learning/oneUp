@@ -56,14 +56,22 @@
                            <table class="responsive-table">
                            
                            <tbody>
-                              {% for activity,point,activity_point, submit_status,activity_date_status,activity_due_date,isUnlocked,unlockDescript, graded_acitvity in category %}
+                              {% for activity,point,activity_point, submit_status,activity_date_status,activity_due_date,isUnlocked,unlockDescript, graded_acitvity, activity_graded in category %}
                         	
                            <tr>
                               <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activity.activityName}}</td>
-                              <td>{{point}} / {{activity_point}} points</td>
+                              
+                              {% if activity_graded %}
+                             	 <td>{{point}} / {{activity_point}} points</td>
+                              {% else %}
+                             	 <td></td>
+                              {% endif %}
+                              
                               <td>{% if activity_due_date %} Due at {{activity_due_date}} {% endif %}</td>
-                              {% if submit_status == "Submitted" %}
+                              {% if submit_status == "Submitted" or submit_status == "Graded" %}
                                  <td style="color:green;">{{submit_status}}</td>
+                              {% elif submit_status == "Not Yet Uploaded" or submit_status == "Graded (Late Submission)" %}
+                                 <td style="color:black;">{{submit_status}}</td>
                               {% else %}
                                  <td style="color:red;">{{submit_status}}</td>
                               {% endif %}

@@ -75,6 +75,12 @@
                               {% endif %}
                            </div>
                         </div>
+                        <div class="row">
+                           <div class="input-field col s12">
+                              <input value="{{universityPostfix}}" name="universityPostfix" id="universityPostfix" type="text" {% if view == False %}class="validate"{%endif%} pattern="[A-Za-z-]+\.[A-Za-z]+(\.[A-Za-z]+)?" title="example.edu - example.example.edu, etc." {%if view%}readonly{%else%}required{%endif%}>
+                              <label for="universityPostfix"><span class= "red-text">*</span> University Postfix</label>
+                           </div>
+                        </div>
                        
                      <div class="card-action right-align">
                        

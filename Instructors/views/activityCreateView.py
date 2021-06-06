@@ -88,7 +88,7 @@ def activityCreateView(request):
                 activity.uploadAttempts = request.POST['attempts']
 
         # Set the start date and end data to show the activity
-        print(str_datetime_to_local(request.POST['startTime']))
+        #print(str_datetime_to_local(request.POST['startTime']))
         try:
             activity.startTimestamp = datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p") 
             activity.hasStartTimestamp = True

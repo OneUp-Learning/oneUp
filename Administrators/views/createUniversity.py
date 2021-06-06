@@ -24,13 +24,20 @@ def courseUniversityView(request):
         if 'universityTimezone' in request.POST:
             universityTimezone = request.POST.get("universityTimezone")
 
-
+        if 'universityPostfix' in request.POST:
+            universityPostfix = request.POST.get("universityPostfix")
         if 'universityID' in request.GET:  # Editing course
             university = Universities.objects.get(
                 universityID=int(request.GET['universityID']))
             university.universityName = name
             if universityTimezone:
                 university.universityTimezone = universityTimezone
+            #remove @ symbol and whitespace if present
+            if universityPostfix:
+                if universityPostfix[0] == '@':
+                    universityPostfix = universityPostfix[1:]
+                universityPostfix=universityPostfix.replace(" ", "")
+                university.universityPostfix = universityPostfix
             university.save()
 
 
@@ -44,14 +51,21 @@ def courseUniversityView(request):
                 university.universityName = name
                 if universityTimezone:
                     university.universityTimezone = universityTimezone
+                if universityPostfix:
+                    university.universityPostfix = universityPostfix
                 university.save()
 
                 
     # Get all universities
     context_dict['universities'] = Universities.objects.all()
    
-    timezones = [{"value": "America/New_York", "name": "Eastern (EST)"}, {"value": "America/Chicago", "name": "Central (CST)"},
-                {"value": "America/Denver", "name": "Mountain (MST)"}, {"value": "America/Los_Angeles", "name": "Pacific (PST)"}]
+    timezones = [{"value": "America/New_York", "name": "Eastern (EST)"}, 
+                 {"value": "America/Chicago", "name": "Central (CST)"},
+                 {"value": "America/Denver", "name": "Mountain (MST)"},
+                 {"value": "America/Los_Angeles", "name": "Pacific (PST)"},
+                 {"value": "CET", "name": "Central European Time (CET)"},
+                 {"value": "Brazil/East", "name": "Brasilia Time (BRT)"},
+                 {"value": "Brazil/West", "name": "Amazon Time (AMT)"},]
     context_dict['supported_timezones'] = timezones
 
     if 'universityID' in request.GET:
@@ -59,7 +73,7 @@ def courseUniversityView(request):
             universityID=int(request.GET['universityID']))
         context_dict["universityName"] = university.universityName
         context_dict['universityTimezone'] = university.universityTimezone
-        
+        context_dict['universityPostfix'] = university.universityPostfix
         
   
         context_dict["editing"] = True

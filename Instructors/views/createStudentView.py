@@ -16,6 +16,7 @@ from Instructors.views.utils import initialContextDict, sendEmail
 from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Instructors.constants import anonymous_avatar
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+from Instructors.models import UniversityCourses, Universities
 from oneUp.decorators import instructorsCheck       
 
 import logging
@@ -37,7 +38,18 @@ def createStudentViewUnchecked(request):
         
     if request.method == 'POST':
         
+        #get university email postfix from database
+        university_course = UniversityCourses.objects.get(courseID=currentCourse)
+        university = university_course.universityID
+        postfix = university.universityPostfix
         uname = request.POST['uname']
+
+        #incase instructor included @postfix, remove it
+        if '@' in uname:
+            idx=request.POST['uname'].index('@')
+            uname = uname[:idx]
+
+        uname = uname+'@'+postfix
         pword = request.POST['pword']
         firstname = request.POST['firstname']
         lastname = request.POST['lastname']

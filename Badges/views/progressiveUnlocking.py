@@ -72,11 +72,16 @@ def listRules(request,current_course,context_dict):
         if objectString == 'activity':
             objs.append({'rule': rule, 'type' : 'Activity', 'typeString': 'activity'})
         elif objectString == 'challenge':
-            chall = Challenges.objects.get(pk=rule.objectID)
-            if(chall.isGraded): # It is a serious chall
-                objs.append({'rule': rule, 'type' : 'Serious Challenge','typeString': 'challenge'})
+            chall_list = Challenges.objects.filter(pk=rule.objectID)
+            if len(chall_list) == 1:
+                chall = chall_list[0]
+                if(chall.isGraded): # It is a serious chall
+                    objs.append({'rule': rule, 'type' : 'Serious Challenge','typeString': 'challenge'})
+                else:
+                    objs.append({'rule': rule, 'type' : 'WarmUp Challenge','typeString': 'challenge'})
             else:
-                objs.append({'rule': rule, 'type' : 'WarmUp Challenge','typeString': 'challenge'})
+                print("We have a progressive unlocking rule for a challenge which has since been deleted")
+                rule.delete()
         elif objectString == 'topic':
             objs.append({'rule': rule, 'type' : 'Topic','typeString': "topic"})
         elif objectString == 'activityCategory':
