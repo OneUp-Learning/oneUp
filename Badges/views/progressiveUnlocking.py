@@ -323,3 +323,6 @@ def getObjs(request):
                     objs['objs'].append({'id': cat.pk, 'name': cat.name})
 
     return JsonResponse(objs)
+def _str_():
+    return( )
+
