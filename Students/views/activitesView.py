@@ -116,6 +116,8 @@ def category_activities(category, studentId, current_course):
             continue
         if act.hasEndTimestamp and datetime_to_local(act.endTimestamp) <= current_localtime():
             continue
+        if not act.isAvailable:
+            continue
         
         activites.append(act)
         graded_acitvities.append(act.isGraded)

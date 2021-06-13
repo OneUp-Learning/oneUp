@@ -1374,6 +1374,21 @@ def getTotalOfCompletedFlashcards(course, student):
     from Students.models import StudentEventLog
     totalCards = len(StudentEventLog.objects.filter(course_id=course, student_id=student, event=Event.submitFlashCard))
     return totalCards
+#percentage of activities in category submitted (percentage of activities which allow submission).
+
+def getPercentOfActivitiesSubmittedInCategory(course, student, category):
+    ''' Return the percentage of submitted activities for a particular category'''
+    from Students.models import StudentActivities
+    from Instructors.models import Activities
+    availableActivities = Activities.objects.filter(courseID=course, category=category, isAvailable=True)
+    numOfActivitiesAvailable = availableActivities.count()
+    StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category)
+    numSubmitted = StudActivities.count()
+
+    print('Available:', numOfActivitiesAvailable)
+    print('Submitted:', numSubmitted)
+    print('PCT:', int(numSubmitted/numOfActivitiesAvailable*100))
+    return int(numSubmitted/numOfActivitiesAvailable*100)
 
 def skillPoints(course, student, skill):
     from Students.models import StudentCourseSkills
@@ -1490,6 +1505,7 @@ class SystemVariable():
     totalEarndVC = 968 # Total amount of vc earned by a student
     totalSpentVC = 969 # Total amount of vc spent by a student
     sumOfScoreOfEveryStudentActivity = 970
+    percentageOfActivitiesSubmittedInCategory = 971
 #    sumOfScoreOfAllStudentActivitiesCategory = 971  Deprecated.  Folded into the score variable
 #    minScoreOfStudentsActivitiesCategory = 972 Deprecated.  Folded into MinScore
 #    maxScoreOfStudentsActivitiesCategory = 973 Deprecated.  Folded into MaxScore
@@ -1519,7 +1535,9 @@ class SystemVariable():
     percentageWarmupChallengesGreaterThan85PercentTopic = 997 # Percentage of warmup challenges related to a topic with a score percentage greater than 85%
     percentageWarmupChallengesGreaterThan90PercentTopic = 998 # Percentage of warmup challenges related to a topic with a score percentage greater than 90%
     topicChallengesCompleted60Percent = 999 # Percentage of topic challenges completed at >= 60%
-    topicChallengesCompleted85Percent = 9999 # Percentage of topic chalenges completed at >= 85% TODO: redo numbering?
+    
+    #Starting new enumeration at 9000 since we have enough variables to overflow the 900s
+    topicChallengesCompleted85Percent = 9000 # Percentage of topic chalenges completed at >= 85% TODO: redo numbering?
     systemVariables = {
         score:{
             'index': score,
@@ -2737,6 +2755,20 @@ class SystemVariable():
             'type':'boolean',
             'functions':{
                 ObjectTypes.topic:getTopicChallengesCompleted85Percent
+            },
+            'studentGoal': False,
+        },
+        percentageOfActivitiesSubmittedInCategory:{
+            'index':percentageOfActivitiesSubmittedInCategory,
+            'name':'percentageOfActivitiesSubmittedInCategory',
+            'displayName':'Percentage of Category Activities Submitted',
+            'description':'The percentage of activities submitted by the student per category',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted]
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getPercentOfActivitiesSubmittedInCategory
             },
             'studentGoal': False,
         },

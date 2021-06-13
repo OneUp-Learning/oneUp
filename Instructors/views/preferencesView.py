@@ -164,6 +164,9 @@ def preferencesView(request):
         ccparams.goalsUsed = "goalsUsed" in request.POST
         ccparams.studCanChangeGoal = "studCanChangeGoal" in request.POST
 
+        # Adaptation
+        ccparams.adaptationUsed = "adaptationUsed" in request.POST
+
        # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()
@@ -266,6 +269,9 @@ def preferencesView(request):
             # Goals
             context_dict['goalsUsed'] = ccparams.goalsUsed
             context_dict['studCanChangeGoal'] = ccparams.studCanChangeGoal
+
+            #Player-Types (Adaptation)
+            context_dict['adaptationUsed'] = ccparams.adaptationUsed
 
             
 

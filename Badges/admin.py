@@ -2,8 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from Badges.models import ActionArguments, Conditions, Rules, Badges,BadgesInfo,PeriodicBadges, CourseConfigParams,VirtualCurrencyCustomRuleInfo,VirtualCurrencyRuleInfo, VirtualCurrencyPeriodicRule
-from Badges.models import Dates, FloatConstants, StringConstants, GameMechanics, CourseMechanics, RuleEvents, LeaderboardsConfig, ProgressiveUnlocking, AttendanceStreakConfiguration, BadgesVCLog, CeleryTaskLog
-
+from Badges.models import Dates, FloatConstants, StringConstants, GameMechanics, CourseMechanics, RuleEvents, LeaderboardsConfig, ProgressiveUnlocking, AttendanceStreakConfiguration, BadgesVCLog, CeleryTaskLog, PlayerType
 
 admin.site.register(ActionArguments)
 admin.site.register(Conditions)
@@ -26,3 +25,4 @@ admin.site.register(ProgressiveUnlocking)
 admin.site.register(AttendanceStreakConfiguration)
 admin.site.register(CeleryTaskLog)
 admin.site.register(BadgesVCLog)
+admin.site.register(PlayerType)
