@@ -490,7 +490,7 @@ class ProgressiveUnlocking(models.Model):
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
     def __str__(self):
-        return str(self.courseID +", "+self.name+", "+self.description +", "+self.ruleID+", "+self.objectID +", "+self.objectType)
+        return str(self.courseID) +", "+str(self.name)+", "+str(self.description) +", "+str(self.ruleID)+", "+str(self.objectID) +", "+str(self.objectType)
     
 class AttendanceStreakConfiguration(models.Model):
     streakConfigurationID = models.AutoField(primary_key=True)
