@@ -360,8 +360,7 @@ class CourseConfigParams(models.Model):
     xpWeightWChallenge = models.IntegerField(default=0)               ## XP Weights for Warm up Challenges
     xpWeightAPoints    = models.IntegerField(default=0)               ## XP Weights for Activity Points
 
-    xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by 
-                                                                      ## max score of scores or by the first attempt score
+    xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by max score of scores or by the first attempt score
     xpCalculateWarmupByMaxScore = models.BooleanField(default=True)  ## Same as preivous but for warmup challenges
 
     ## Levels of Difficulties for the course
@@ -394,6 +393,10 @@ class CourseConfigParams(models.Model):
     maxNumberOfTeamStudents = models.IntegerField(default=3)   ##maximum number of team students allowed per team
     teamsEnabled = models.BooleanField(default = False) ##teams enabled for the course
     selfAssignment = models.BooleanField(default = True, verbose_name='Students can auto-assign themselves to teams') ##allow student self-assignment to teams
+    
+    #Player-Types
+    adaptationUsed = models.BooleanField(default = False)
+    
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -443,6 +446,7 @@ class CourseConfigParams(models.Model):
         +str(self.teamsLockInDeadline)+","\
         +str(self.maxNumberOfTeamStudents)+","\
         +str(self.teamsEnabled)+","\
+        +str(self.adaptationUsed)+","\
         +str(self.selfAssignment)
  
 class ChallengeSet(models.Model):
