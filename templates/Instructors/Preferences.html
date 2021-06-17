@@ -684,7 +684,29 @@
                             </div>
                         </div>
                     </div>
-
+                    
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
+                                <span class="card-title">Adaptation</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Adaptation
+                                            {% if adaptationUsed %}
+                                            <input name="adaptationUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="adaptationUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
