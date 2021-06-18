@@ -57,7 +57,9 @@ from Instructors.views.deleteView import (deleteActivity, deleteAnnouncement,
                                           deleteQuestion,
                                           deleteQuestionFromChallenge,
                                           deleteSkill, deleteStudent,
-                                          deleteTopic, deleteUser, deleteFlashCard, deleteGroup)
+                                          deleteTopic, deleteUser, 
+                                          deleteFlashCard, deleteGroup,
+                                          deletePlayerType)
 from Instructors.views.DuelReportView import duel_challenge_report, duel_report
 from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 # Dynamic Questions Stuff
@@ -137,6 +139,7 @@ from Instructors.views.flashCardCreateView import CreateFlashCards
 
 #Adaptation
 from Instructors.views.createPlayerType import createPlayerTypeView
+from Instructors.views.playerTypeList import playerTypeListView
 
 from Instructors.views.reorderViews import reorderGroups
 admin.autodiscover()
@@ -203,6 +206,7 @@ urlpatterns = [
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
     url(r'^deleteFlashCard', deleteFlashCard, name='deleteFlashCard'),
+    url(r'^deletePlayerType', deletePlayerType, name='deletePlayerType'),
     #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
    
@@ -292,6 +296,7 @@ urlpatterns = [
     url(r'^groupCreate', groupCreateView, name='groupCreateView'),
     url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
     url(r'^ReorderGroups', reorderGroups, name='reorderGroups'),
-    url(r'^CreatePlayerType', createPlayerTypeView, name='createPlayerType')
+    url(r'^CreatePlayerType', createPlayerTypeView, name='createPlayerType'),
+    url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList')
 ]
 

@@ -3,25 +3,6 @@
 
 <head>
     {% include 'scripts.html' %}
-    <script>
-        $(document).ready(function () {
-            var endDate = $('#endTime').bootstrapMaterialDatePicker({
-                weekStart: 0,
-                time: false,
-                format: 'MMMM D, Y'
-            }).on('change', function (e, date) {
-                $('#startTime').bootstrapMaterialDatePicker('setMaxDate', date);
-            });;
-
-            var startDate = $('#startTime').bootstrapMaterialDatePicker({
-                weekStart: 0,
-                time: false,
-                format: 'MMMM D, Y'
-            }).on('change', function (e, date) {
-                $('#endTime').bootstrapMaterialDatePicker('setMinDate', date);
-            });
-        });
-    </script>
     <style>
         .card{
             margin-top:25px!important;
@@ -40,7 +21,7 @@
         </div>
         <form name="AdapationConfiguration" action="/oneUp/instructors/CreatePlayerType" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="ccpID" id="ccpID" value="{{ccpID}}">
+            <input type="hidden" name="playerTypeID" id="playerTypeID" value="{{playerTypeID}}">
             <div class="row" style="margin-bottom: 0;">
                 <div class="col s6">
                     <div class="card">
@@ -49,7 +30,7 @@
                             <div class="row">
                                 <div class="col s12">
                                     <label for="name">Adapation Profile Name</label>
-                                    <input type="text" class="datepicker-from" name="name"
+                                    <input type="text" name="name"
                                         value="{{name}}">
                                 </div>
                             </div>
@@ -62,7 +43,7 @@
                                 <div class="switch col s12">
                                     <label>
                                         Enable Badges
-                                        {% if courseAvailable %}
+                                        {% if badgesUsed %}
                                         <input name="badgesUsed" type="checkbox" checked>
                                         {% else %}
                                         <input name="badgesUsed" type="checkbox">
@@ -81,7 +62,7 @@
                                 <div class="switch col s12">
                                     <label>
                                         Enable Progress Bar
-                                        {% if warmupsUsed %}
+                                        {% if progressBarUsed %}
                                         <input name="progressBarUsed" type="checkbox" checked>
                                         {% else %}
                                         <input name="progressBarUsed" type="checkbox">

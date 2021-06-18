@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
-from Badges.models import CourseConfigParams
+from Badges.models import CourseConfigParams, PlayerType
 from Badges.systemVariables import logger
 from Instructors.views.utils import initialContextDict, str_datetime_to_local
 from oneUp.decorators import instructorsCheck
@@ -20,93 +20,48 @@ def createPlayerTypeView(request):
     context_dict, currentCourse = initialContextDict(request)
 
     if request.POST:
-        
-        if request.POST['ccpID']:
+        if request.POST['playerTypeID']:
             print("--> POST Edit Mode")
-            ccparams = CourseConfigParams.objects.get(pk=int(request.POST['ccpID']))
-            print("POST Edit Mode",ccparams)
+            playerType = PlayerType.objects.filter(pk=int(request.POST['playerTypeID']),course=currentCourse).first()
+            print("POST Edit Mode",playerType)
         else:
-            # Create new Config Parameters
-            ccparams = CourseConfigParams()
-            ccparams.courseID = currentCourse
-            
-        ccparams.chatUsed = "chatUsed" in request.POST
-        ccparams.seriousChallengesGrouped = "seriousChallengesGrouped" in request.POST
-        ccparams.gamificationUsed = "gamificationUsed" in request.POST   
-        ccparams.courseAvailable = "courseAvailable" in request.POST
-        ccparams.warmupsUsed = "warmupsUsed" in request.POST
-        ccparams.seriousChallengesUsed = "seriousUsed" in request.POST
-        ccparams.gradebookUsed = "gradebookUsed" in request.POST
-        ccparams.activitiesUsed = "activitiesUsed" in request.POST
-        ccparams.streaksUsed = 'attendanceUsed' in request.POST
-        ccparams.skillsUsed = "skillsUsed" in request.POST
-        ccparams.announcementsUsed = "announcementsUsed" in request.POST
-        ccparams.flashcardsUsed = "flashcardsUsed" in request.POST
+            # Create new player type
+            print('NEW')
+            playerType = PlayerType()
+            playerType.course = currentCourse
+        playerType.name = request.POST['name']
+        playerType.badgesUsed = "badgesUsed" in request.POST
+        playerType.levelingUsed = "levelingUsed" in request.POST
+        playerType.progressBarUsed = "progressBarUsed" in request.POST   
+        playerType.goalsUsed = "goalsUsed" in request.POST
+        playerType.virtualCurrencyUsed = "virtualCurrencyUsed" in request.POST
+        playerType.leaderboardUsed = "leaderboardUsed" in request.POST
+        playerType.classmateChallenges = "classmateChallenges" in request.POST
+        playerType.displayAchievementPage= "displayAchievementPage" in request.POST
+        playerType.displayStudentStartPageSummary = 'displayStartPageSummary' in request.POST
         
-        # Student Achievement Page
-        ccparams.displayAchievementPage = "displayAchievementPage" in request.POST
-        ccparams.classAverageUsed = "classAverageUsed" in request.POST
 
-        # hints
-        ccparams.hintsUsed = "hintsUsed" in request.POST
-        ccparams.weightBasicHint = request.POST["weightBasicHint"]
-        ccparams.weightStrongHint = request.POST["weightStrongHint"]
-
-        logger.debug(request.POST['courseStartDate'])
-
-        if 'courseStartDate' in request.POST and request.POST['courseStartDate'] != "":
-            ccparams.courseStartDate = str_datetime_to_local(request.POST['courseStartDate'], to_format="%B %d, %Y")
-            ccparams.hasCourseStartDate = True
-        else:
-            ccparams.hasCourseStartDate = False
-            
-
-        if 'courseEndDate' in request.POST and request.POST['courseEndDate'] != "":
-            ccparams.courseEndDate = str_datetime_to_local(request.POST['courseEndDate'], to_format="%B %d, %Y")
-            ccparams.hasCourseEndDate = True
-        else:
-             ccparams.hasCourseEndDate = False
 
         
-        ccparams.save()
-        print(ccparams.announcementsUsed,"%%%%%%%%%%")
-        return redirect('/oneUp/instructors/instructorCourseHome')
+        playerType.save()
+        return redirect('/oneUp/instructors/PlayerTypeList')
                 
     elif request.method == 'GET':
-        ccparams = context_dict['ccparams']
-        if ccparams:
-            context_dict['ccpID'] = ccparams.ccpID
-            context_dict['gamificationUsed'] = ccparams.gamificationUsed
-            context_dict['chatUsed'] = ccparams.chatUsed
-            context_dict['seriousChallengesGrouped'] = ccparams.seriousChallengesGrouped
-            context_dict['courseAvailable'] = ccparams.courseAvailable
+        #Filter by ID from list page
+        if 'playerTypeID' in request.GET:
+            playerType = PlayerType.objects.filter(pk=int(request.GET['playerTypeID']),course=currentCourse).first()
+            context_dict['name'] = playerType.name
+            context_dict['playerTypeID'] = playerType.pk
+            context_dict['badgesUsed'] = playerType.badgesUsed
+            context_dict['levelingUsed'] = playerType.levelingUsed
+            context_dict['classmateChallenges'] = playerType.classmatesChallenges
+            context_dict['progressBarUsed'] = playerType.progressBarUsed
             
-            context_dict['warmupsUsed'] = ccparams.warmupsUsed
-            context_dict['seriousUsed'] = ccparams.seriousChallengesUsed
-            context_dict['gradebookUsed'] = ccparams.gradebookUsed
-            context_dict['attendanceUsed'] = ccparams.streaksUsed
-            context_dict['skillsUsed'] = ccparams.skillsUsed
-            context_dict['announcementsUsed'] = ccparams.announcementsUsed
-            context_dict['activitiesUsed'] = ccparams.activitiesUsed
-            context_dict['flashcardsUsed'] = ccparams.flashcardsUsed
-
-            # Student Achievement Page
-            context_dict["displayAchievementPage"] = ccparams.displayAchievementPage
-            context_dict["classAverageUsed"] = ccparams.classAverageUsed
-
-            # Hints
-            context_dict["hintsUsed"] = ccparams.hintsUsed
-            context_dict["weightBasicHint"] = ccparams.weightBasicHint
-            context_dict["weightStrongHint"] = ccparams.weightStrongHint
-
-            if ccparams.hasCourseStartDate:
-                context_dict["courseStartDate"]=ccparams.courseStartDate.strftime("%B %d, %Y")
-            else:
-                context_dict["courseStartDate"]=""
-
-            if ccparams.hasCourseEndDate:
-                context_dict["courseEndDate"]=ccparams.courseEndDate.strftime("%B %d, %Y")
-            else:
-                context_dict["courseEndDate"]=""
+            context_dict['displayAchievementPage'] = playerType.displayAchievementPage
+            context_dict['virtualCurrencyUsed'] = playerType.virtualCurrencyUsed
+            context_dict['leaderboardUsed'] = playerType.leaderboardUsed
+            context_dict['goalsUsed'] = playerType.goalsUsed
+            context_dict['displayStartPageSummary'] = playerType.displayStudentStartPageSummary
+           
  
         return render(request,'Instructors/CreatePlayerType.html', context_dict)
