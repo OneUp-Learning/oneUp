@@ -172,7 +172,7 @@
             <div class="collapsible" data-collapsible="accordion" style="padding-left: 8px; padding-right: 12px; display:flex; justify-content: space-evenly; margin-bottom: 8px;">
                 <a id="drop-goals" class="waves-effect waves-light" style="max-width: 80px; min-width: fit-content; align-self: center;">
                     <div style="font-size: 1.6em;font-weight: 400; text-align: center; overflow: hidden; text-overflow: ellipsis;">
-                        <i id="goals-drop-icon" class="material-icons">arrow_drop_up</i>
+                        <i id="goals-drop-icon" class="material-icons">arrow_drop_down</i>
                     </div>
                 </a>
             </div>
@@ -238,7 +238,7 @@
                         // Execute this after slideToggle is done
                         
                     });
-                });
+                });              
                 $("#drop-goals").click(function () {
 
                     $header = $(this);
@@ -252,8 +252,19 @@
                     $content.slideToggle(500, function () {
                         // Execute this after slideToggle is done
                     });
-
                 });
+ 				$(function () {
+					
+                    $header = $(this);
+                    // Getting the element to toggle
+                    $content = $("#goals-info");
+
+                    // Open up the content needed 
+                    $content.slideToggle(500, function () {
+                        // Execute this after slideToggle is done
+                    });
+                });
+               
             </script>
         </div>
 
