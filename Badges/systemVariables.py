@@ -493,6 +493,8 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
 def getPercentageOfActivityScore(course, student , activity):
     ''' This will return the percentage of the student's activity 
         score out of the max possible activity score'''
+    
+    print(activity.points)
 
     totalScore = activity.points
     if totalScore != 0:
@@ -594,7 +596,7 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
     if studentActivites.exists():
         latestAttempt = studentActivites.first()
         # Calculate the total of the earlier activities by percentage
-        total = sum(int(getPercentageOfActivityScore(course, student, act)) for act in studentActivites[1:])
+        total = sum(int(getPercentageOfActivityScore(course, student, act)) for act in activitiesWithCategory[1:])
         count = studentActivites.count()-1
         if count <= 0:
             print("Total: " + str(total))
