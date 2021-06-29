@@ -362,15 +362,20 @@ def callout_create(request):
         time = current_localtime()
         # send time is when the callout is being created
         callout.sendTime = time
-        # end time is send time plus a week. Basically the callout expires afte a week
-        callout.endTime = time + timedelta(weeks=1)
-
         # Retrieve challenge id from request
         challenge_id = request.POST['challenge_id']
         # Get challenge and add it to callout
         challenge = Challenges.objects.get(
             courseID=current_course, challengeID=challenge_id)
         callout.challengeID = challenge
+        
+        # end time is send time plus a week. Basically the callout expires after a week
+        
+        if not challenge.hasEndTimestamp or time > challenge.endTimestamp:
+            callout.endTime = time + timedelta(weeks=1) 
+        else:
+            callout.endTime = challenge.endTimestamp
+            
 
         # Retrive callout and determine if it is individual
         callout_type = request.POST['callout_type']
