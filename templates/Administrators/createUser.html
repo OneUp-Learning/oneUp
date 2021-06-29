@@ -66,6 +66,27 @@
                               <label for="pword2"><span class= "red-text">*</span> Confirm Password</label>
                            </div>
                         </div>
+                        {% if ccparams.adaptationUsed %}
+                        <div class="row">
+                           		<div class="input-field col s12">
+									<select id="playertype" name="playertype">
+											<option id="None" value="None">None</option>
+										{%for playertype in playertypes%}
+											<option id="{{playertype.name}}" value="{{playertype.name}}">{{playertype.name}}</option>
+										{%endfor%}
+									</select>
+                                    <label>PlayerType</label>
+                                    <script type="text/javascript">
+                                        window.onload = function() {
+                                            if ("{{currentplayertype}}" != '') {
+                                                document.getElementById("{{currentplayertype.name}}").selected = true;
+                                                $("#playertype").material_select();
+                                            }
+                                        }
+                                    </script>
+							</div>
+                        </div>
+                        {% endif %}
                      </div>
                      <input type="hidden" name="student_internal_id" id="student_internal_id" value="{{pk}}">
                      <div class="card-action right-align">

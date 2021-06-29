@@ -15,9 +15,10 @@ from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.utils import initialContextDict, sendEmail
 from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Instructors.constants import anonymous_avatar
-from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+from Students.models import Student, StudentRegisteredCourses, StudentConfigParams, StudentPlayerType
 from Instructors.models import UniversityCourses, Universities
 from oneUp.decorators import instructorsCheck       
+from Badges.models import PlayerType
 
 import logging
 
@@ -54,6 +55,13 @@ def createStudentViewUnchecked(request):
         firstname = request.POST['firstname']
         lastname = request.POST['lastname']
         email = request.POST['email']
+        
+        playertype = None
+        
+        if 'playertype' in request.POST:
+            if request.POST['playertype'] != 'None':
+                playertype = PlayerType.objects.get(name=request.POST['playertype'])
+            
         students = User.objects.filter(username=uname)
         
         if 'userID' in request.POST: # Update student information
@@ -69,10 +77,23 @@ def createStudentViewUnchecked(request):
             student.last_name = lastname
             student.email = email
             
+            student_object = Student.objects.get(user=student)
+            
+            student_playertype = StudentPlayerType.objects.filter(student=student_object)
+            
+            if playertype:
+                if student_playertype.exists():
+                    student_playertype.update(playerType=playertype)
+                else:
+                    new_player_type = StudentPlayerType()
+                    new_player_type.student = student_object
+                    new_player_type.course = currentCourse
+                    new_player_type.playerType = playertype
+                    new_player_type.save()
+            
             if not pword.startswith('bcrypt'):
                 student.set_password(pword)
             student.save()
-
 
         else:
             students = User.objects.filter(username=uname)
@@ -92,6 +113,12 @@ def createStudentViewUnchecked(request):
                 studentRegisteredCourses.save()
                 
                 logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
+                
+                new_player_type = StudentPlayerType()
+                new_player_type.student = student
+                new_player_type.course = currentCourse
+                new_player_type.playerType = playertype
+                new_player_type.save()
                 
                 # Create new Config Parameters
                 scparams = StudentConfigParams()
@@ -121,6 +148,12 @@ def createStudentViewUnchecked(request):
 OneUp Admin"""
             )
                 
+                new_player_type = StudentPlayerType()
+                new_player_type.student = student
+                new_player_type.course = currentCourse
+                new_player_type.playerType = playertype
+                new_player_type.save()
+                
                 print("New Student Created")        
                         
                 studentRegisteredCourses = StudentRegisteredCourses()
@@ -144,16 +177,27 @@ OneUp Admin"""
 
         return createStudentListView(request)
     elif request.method == 'GET':
+        context_dict['playertypes'] = PlayerType.objects.filter(course=currentCourse)
+            
         if 'userID' in request.GET:         # render information for editing
             context_dict['userID'] = request.GET['userID']
             studentID = User.objects.get(username=request.GET['userID'])
+            student_object = Student.objects.get(user=studentID)
             
             context_dict['uname'] = studentID.username
             context_dict['pword'] = studentID.password
             context_dict['firstname'] = studentID.first_name
             context_dict['lastname'] = studentID.last_name
             context_dict['email'] = studentID.email
-            context_dict['pk'] = Student.objects.get(user=studentID).pk
+            context_dict['pk'] = student_object.pk
+            
+            if ccparams.adaptationUsed:
+                player_type = StudentPlayerType.objects.filter(student=student_object)
+                
+                if player_type.exists():
+                    context_dict['currentplayertype'] = player_type[0].playerType
+                else:
+                    print('no player found')
             
         return render(request,"Administrators/createUser.html", context_dict)
     
