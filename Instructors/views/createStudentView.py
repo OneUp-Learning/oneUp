@@ -79,7 +79,7 @@ def createStudentViewUnchecked(request):
             
             student_object = Student.objects.get(user=student)
             
-            student_playertype = StudentPlayerType.objects.filter(student=student_object)
+            student_playertype = StudentPlayerType.objects.filter(course=currentCourse, student=student_object)
             
             if playertype:
                 if student_playertype.exists():
@@ -192,10 +192,10 @@ OneUp Admin"""
             context_dict['pk'] = student_object.pk
             
             if ccparams.adaptationUsed:
-                player_type = StudentPlayerType.objects.filter(student=student_object)
+                player_type = StudentPlayerType.objects.filter(course=currentCourse, student=student_object).first()
                 
-                if player_type.exists():
-                    context_dict['currentplayertype'] = player_type[0].playerType
+                if player_type:
+                    context_dict['currentplayertype'] = player_type.playerType
                 else:
                     print('no player found')
             
