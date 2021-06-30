@@ -22,7 +22,8 @@ from Instructors.models import Courses
 from Instructors.views.utils import (CoursesSkills, Skills, current_localtime,
                                      initialContextDict)
 from Students.models import (PeriodicallyUpdatedleaderboards, Student,
-                             StudentCourseSkills, StudentRegisteredCourses)
+                             StudentCourseSkills, StudentRegisteredCourses,
+    StudentPlayerType)
 from Students.views.avatarView import checkIfAvatarExist
 
 logger = logging.getLogger(__name__)
@@ -282,6 +283,8 @@ def generateLeaderboards(currentCourse, displayHomePage):
     else:
         leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=False)
         
+        
+    ccparams= CourseConfigParams.objects.filter(courseID=currentCourse)
     leaderboardNames = []
     leaderboardDescriptions = []
     leaderboardRankings = []
@@ -302,7 +305,17 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 points.append(result[1])
                 studentFirstNameLastName.append(result[0].user.first_name +" " + result[0].user.last_name)
                 studentRegisteredCourses = StudentRegisteredCourses.objects.get(studentID=result[0],courseID=currentCourse)
-                avatarImages.append(studentRegisteredCourses.avatarImage)
+                
+                studentPlayerType = StudentPlayerType.objects.filter(student=result[0])
+                
+                if studentPlayerType.exists() and ccparams.adaptationUsed:
+                    playerType = studentPlayerType[0].playerType
+                    if playerType.leaderboardUsed:
+                        avatarImages.append(studentRegisteredCourses.avatarImage)
+                    else:
+                        avatarImages.append('')
+                else:
+                    avatarImages.append('')
                 
             
         else:#if its not continuous we must get the data from the database
@@ -320,7 +333,16 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 points.append(leaderboardRecord.studentPoints)
                 studentFirstNameLastName.append(leaderboardRecord.studentID.user.first_name +" " + leaderboardRecord.studentID.user.last_name)
                 studentRegisteredCoursesObject = StudentRegisteredCourses.objects.get(studentID=leaderboardRecord.studentID, courseID=currentCourse)
-                avatarImages.append(studentRegisteredCoursesObject.avatarImage)
+                studentPlayerType = StudentPlayerType.objects.filter(student=result[0], course=currentCourse)
+                
+                if studentPlayerType.exists() and ccparams.adaptationUsed:
+                    playerType = studentPlayerType[0].playerType
+                    if playerType.leaderboardUsed:
+                        avatarImages.append(studentRegisteredCourses.avatarImage)
+                    else:
+                        avatarImages.append('')
+                else:
+                    avatarImages.append('')
                     
         # if hasRecords:
         leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))
