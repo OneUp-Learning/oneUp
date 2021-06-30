@@ -33,7 +33,7 @@ def studentInitialContextDict(request):
             playerType = studentPlayerType.playerType
             context_dict['ccparams'].badgesUsed = playerType.badgesUsed
             context_dict['ccparams'].levelingUsed = playerType.levelingUsed
-            context_dict['ccparams'].classmatesChallenge = playerType.classmatesChallenge
+            context_dict['ccparams'].classmatesChallenges = playerType.classmatesChallenges
             context_dict['ccparams'].betVC = playerType.betVC
             context_dict['ccparams'].progressBarUsed= playerType.progressBarUsed
             context_dict['ccparams'].displayStudentStartPageSummary = playerType.displayStudentStartPageSummary
