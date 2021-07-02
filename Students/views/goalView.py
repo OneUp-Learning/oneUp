@@ -50,7 +50,9 @@ def goal_view(request):
     if request.method == 'POST':
 
         if 'goal_target' in request.POST:
-            student_duplicate_goal = StudentGoalSetting.objects.filter(targetExact=bool(int(request.POST.get("target_exact"))))
+            student_duplicate_goal = StudentGoalSetting.objects.filter(completed=False, courseID=current_course, studentID=context_dict['student'], goalVariable=int(request.POST['goal_variable']))
+            
+            print('duplicated goal')
             
             if student_duplicate_goal.exists():
                 return redirect('goalslist')
