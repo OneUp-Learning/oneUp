@@ -362,7 +362,10 @@ class CourseConfigParams(models.Model):
 
     xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by max score of scores or by the first attempt score
     xpCalculateWarmupByMaxScore = models.BooleanField(default=True)  ## Same as preivous but for warmup challenges
-
+    
+    xpDisplayUsed = models.BooleanField(default=False)               ## XP Point display on/off setting      
+    xpLeaderboardUsed = models.BooleanField(default=False)           ## XP Leaderboard enable/disable
+    
     ## Levels of Difficulties for the course
     thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium
     thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
@@ -396,7 +399,7 @@ class CourseConfigParams(models.Model):
     
     #Player-Types
     adaptationUsed = models.BooleanField(default = False)
-    
+    ## xp settings
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -447,8 +450,10 @@ class CourseConfigParams(models.Model):
         +str(self.maxNumberOfTeamStudents)+","\
         +str(self.teamsEnabled)+","\
         +str(self.adaptationUsed)+","\
-        +str(self.selfAssignment)
- 
+        +str(self.selfAssignment)+","\
+        +str(self.xpDisplayUsed)+","\
+        +str(self.xpLeaderboardUsed)
+        
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
     challenge = models.ForeignKey(Challenges,verbose_name="the challenge included in the set",db_index=True,on_delete=models.CASCADE)
@@ -538,7 +543,7 @@ class CeleryTestResult(models.Model):
 class PlayerType(models.Model):
     name = models.CharField(max_length=300, verbose_name="The name of the type of player", db_index=True)
     course = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True, verbose_name="the related course", db_index=True)
-
+    
     badgesUsed = models.BooleanField(default=False)                   ## 
     levelingUsed = models.BooleanField(default=False)                 ##
     
@@ -561,6 +566,11 @@ class PlayerType(models.Model):
     ## Student Goal Setting
     goalsUsed = models.BooleanField(default=False)                    ## Enables the use of goal setting for students
     
+    ##for XP settings
+    xpDisplayUsed = models.BooleanField(default=False)   
+        
+    xpLeaderboardUsed = models.BooleanField(default=False)     
+      
     def __str__(self):
         return "name:"+str(self.name)+", course:"+str(self.course) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +"levling:"+str(self.levelingUsed) +"," \
@@ -568,4 +578,7 @@ class PlayerType(models.Model):
         +"progressBar"+str(self.progressBarUsed) +"," \
         +"leaderboard:"+str(self.leaderboardUsed) +"," \
         +"vc:"+str(self.virtualCurrencyUsed) +"," \
-        +"betting:"+str(self.betVC)
+        +"betting:"+str(self.betVC) +"," \
+        +"goals:"+str(self.goalsUsed) +"," \
+        +"xp display:" + str(self.xpDisplayUsed) +"," \
+        +"xp leaderboardused:" + str(self.xpLeaderboardUsed)
