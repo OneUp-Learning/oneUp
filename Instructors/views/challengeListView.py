@@ -93,7 +93,7 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChall
     if indGraded:    
         challenges = Challenges.objects.filter(courseID=courseId, isGraded=True, isTeamChallenge=False)
     elif teamChallenge:
-        challenges = Challenges.objects.filter(courseID=courseId, isTeamChallenge=True)
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=True)
     else:
         challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=False)
 
