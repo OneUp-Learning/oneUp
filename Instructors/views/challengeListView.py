@@ -71,7 +71,7 @@ def makeContextDictForQuestionsInChallenge(challengeId, context_dict):    # 02/2
     return context_dict
 
 
-def makeContextDictForChallengeList(context_dict, courseId, indGraded):
+def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChallenge = False):
    
     chall_ID = []      
     chall_Name = []         
@@ -134,9 +134,10 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded):
                 chall_visible.append("Visible")
             else:
                 chall_visible.append("Not Visible")
-               
+    
     # The range part is the index numbers.
     context_dict['challenge_range'] = sorted(list(zip(range(1,challenges.count()+1),chall_ID,chall_Name,chall_available,chall_visible,start_Timestamp,end_Timestamp,chall_due_date, chall_Position)), key=lambda tup: tup[8])  ##,chall_Category
+    print(challenges)
     return context_dict
 
 
@@ -354,3 +355,15 @@ def disableExpiredChallenges(request):
             for student in registeredStudents:
                 register_event(Event.challengeExpiration, request, student.studentID, challenge.challengeID)
                 #print("Registered Event: Challenge Expiration Event, Student: " + str(student.studentID) + ", Challenge: " + str(challenge.challengeID))
+
+@login_required
+@user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')
+def teamChallengesList(request):
+    
+    context_dict, currentCourse = initialContextDict(request)
+        
+
+    context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False, True)
+        
+            
+    return render(request,'Instructors/teamChallengesList.html', context_dict)

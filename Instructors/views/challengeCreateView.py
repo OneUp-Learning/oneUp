@@ -27,7 +27,7 @@ from Instructors.views.utils import (
 from oneUp.ckeditorUtil import config_ck_editor
 from oneUp.decorators import instructorsCheck
 from oneUp.logger import logger
-
+from Students.models import TeamChallenges
 pp = pprint.PrettyPrinter(indent=4)
 
 
@@ -198,8 +198,9 @@ def challengeCreateView(request):
         challenge.save()  # Save challenge to database
 
         # check if course was selected
-        addTopicsToChallenge(
-            challenge, request.POST['topics'], unspecified_topic, currentCourse)
+        if not challenge.isTeamChallenge:
+            addTopicsToChallenge(
+                challenge, request.POST['topics'], unspecified_topic, currentCourse)
         # Processing and saving tags in DB
         saveTags(request.POST['tags'], challenge, ObjectTypes.challenge)
 
@@ -208,7 +209,8 @@ def challengeCreateView(request):
                                     challenge.dueDate, request.session['django_timezone'])
         else:
             print("No due date selected")
-
+        if challenge.isTeamChallenge:
+            return redirect('/oneUp/instructors/teamChallengesList')
         if isGraded == "":
             return redirect('/oneUp/instructors/warmUpChallengeList')
         else:

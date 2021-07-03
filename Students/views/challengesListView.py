@@ -17,7 +17,7 @@ from Instructors.constants import (unassigned_problems_challenge_name,
 from Instructors.models import (Challenges, ChallengesQuestions,
                                 ChallengesTopics, CoursesTopics, Topics)
 from Instructors.views.utils import current_localtime
-from Students.models import StudentChallenges, StudentProgressiveUnlocking
+from Students.models import StudentChallenges, StudentProgressiveUnlocking, TeamChallenges
 from Students.views.utils import studentInitialContextDict
 
 
@@ -32,7 +32,8 @@ def ChallengesList(request):
     user = -1
     if request.user.is_authenticated:
         user = request.user.username
-    
+    if 'teams' in request.GET:
+        context_dict['teams'] = True
     if 'ID' in request.GET:
         optionSelected = request.GET['ID']
         context_dict['ID'] = request.GET['ID']
@@ -41,8 +42,10 @@ def ChallengesList(request):
 
     studentId = context_dict['student']
 
-    if 'currentCourseID' in request.session:  
-        if not context_dict['ccparams'].seriousChallengesGrouped:
+    if 'currentCourseID' in request.session: 
+        if 'teams' in request.GET:
+            context_dict['challenge_range'] = teamChallengeList(studentId, currentCourse)
+        elif not context_dict['ccparams'].seriousChallengesGrouped:
             chall_ID = []      
             chall_Name = []         
             chall_position = []
@@ -179,7 +182,7 @@ def ChallengesList(request):
                             
             context_dict['topic_range'] = sorted(list(zip(range(1,course_topics.count()+1),topic_ID,topic_Name,topic_Pos,challenges_count,all_challenges_for_topic)),key=lambda tup: tup[3])
 
-    return render(request,'Students/ChallengesList.html', context_dict)
+    return render(request,'Students/ChallengesListBase.html', context_dict)
 
 def studentChallengesForTopic(request, studentId, context_dict, topic, currentCourse):
 
@@ -292,3 +295,38 @@ def studentChallengesForTopic(request, studentId, context_dict, topic, currentCo
 
         # The range part is the index numbers.
     return sorted(list(zip(range(1,len(challenge_topics)+1),chall_ID,chall_Name,grade, numberOfAttempts,adjusmentReason, chall_position, challDueDate,isUnlocked)), key=lambda tup: tup[6])
+
+def teamChallengeList(studentId, currentCourse):
+    team_challenges = Challenges.objects.filter(courseID=currentCourse, isTeamChallenge=True, isVisible=True)
+    chall_ID = []      
+    chall_Name = []         
+    chall_position = []
+    adjustmentReason = []
+    challDueDate = []
+
+    for challenge in team_challenges:
+                
+                challQuestions = ChallengesQuestions.objects.filter(challengeID=challenge)
+                if challQuestions:
+                    
+                    if challenge.hasDueDate:
+                        challDueDate.append(challenge.dueDate)
+                    else:
+                        challDueDate.append("")
+                
+                    chall_ID.append(challenge.challengeID) #pk
+                    chall_Name.append(challenge.challengeName)
+                    chall_position.append(challenge.challengePosition)
+                    
+                    print(challenge.challengeName)
+                    
+                    if TeamChallenges.objects.filter(courseID=currentCourse, challengeID = challenge ):
+                        
+                        latestSC = TeamChallenges.objects.filter(courseID=currentCourse, challengeID = challenge).latest('startTimestamp')
+                        adjustmentReason.append(latestSC.adjustmentReason)
+                        
+                    else:
+                        adjustmentReason.append("")
+    print(chall_Name)
+            # The range part is the index numbers.
+    return sorted(list(zip(range(1,len(team_challenges)+1),chall_ID,chall_Name,adjustmentReason, chall_position, challDueDate)), key=lambda tup: tup[5])

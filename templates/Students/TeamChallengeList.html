@@ -1,0 +1,51 @@
+
+{% load instructors_tags %}
+<table class="responsive-table">
+   <thead>
+      <th style="padding-bottom: .1em;">Team Challenge Name</th>
+      <th style="padding-bottom: .1em;">Due Date</th>
+      <th style="padding-bottom: .1em;">Adjustment Reason</th>
+   
+   </thead>
+   <tbody>
+      {% for i,chall_ID,chall_Name, adjustment, chall_position, challDueDate in challenge_range %}
+      <tr>
+            <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis; padding-bottom: .1em;">{{chall_Name}}</td>	
+            <td style="padding-bottom: .1em;">{{challDueDate}}</td>
+           
+            <td style="padding-bottom: .1em;">{{adjustment}}</td>
+         
+         <td class="right-align" style="padding-bottom: .1em;">
+            <div class="row" style="margin: 0;">
+            
+            {% if is_teacher %} 
+            <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+            <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher={{is_teacher}}&teams"><i class="material-icons left">visibility</i>View</a>   
+            </div>
+            {% else %}
+            {% if challDueDate|passed_current_time %}
+            <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+            <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
+            </div>
+            {% else %}
+            <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+            <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
+            </div>
+            {% endif %}
+            <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+            <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&teams"><i class="material-icons left">visibility</i>View</a>   
+            </div>
+            {% endif %}
+        
+            </div>
+         </td>
+      </tr>
+      {% empty %}
+      <tr style="padding-bottom: .1em;">
+         <td class="center-align" colspan="4"><i>No Challenges</i></td>
+      </tr>
+      {% endfor %}
+   </tbody>
+   <tbody class="hide-on-large-only mobile-table-padding"></tbody>
+</table>
+                     

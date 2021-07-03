@@ -25,6 +25,7 @@ def studentAchievements(request):
     #for hiding dropdown
     context_dict['warmupsUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).warmupsUsed
     context_dict['seriousUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).seriousChallengesUsed
+    context_dict['teamsEnabled'] = CourseConfigParams.objects.get(courseID=currentCourse).teamsEnabled
     context_dict['activitiesUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).activitiesUsed    
     context_dict['skillsUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).skillsUsed
     

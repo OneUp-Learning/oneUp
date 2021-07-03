@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>{% load instructors_tags %}
+      {% include 'scripts.html' %}
+      
+   </head>
+   <body>
+      {% if is_teacher %}    
+      {% include 'heading.html' %}
+      {% else %}
+      {% include 'stheading.html' %}
+      {% endif %}
+      <main>
+        
+         <div class="row center-align">
+            <div class="col s12">
+            {% if ccparams.teamsEnabled and teams %}
+                <h3> Team Challenges </h3>
+            {% else %}
+               <h3>Serious Challenges</h3>
+            {% endif %}
+            </div>
+         </div>
+         {% if ccparams.teamsEnabled and teams %}
+         <div class="row right-align">
+			<div class="col s12 m10 offset-m1">
+				<a class="waves-effect waves-light btn" href="/oneUp/students/teamChallengeResults"><i class="material-icons left">emoji_events</i>Team Challenge Rankings</a>
+			</div>
+        </div>
+        {% endif %}
+         <div class="row">
+            <div class="col s12 m10 offset-m1">
+               <div class="card">
+                  <div class="card-content">
+                     {% if not ccparams.seriousChallengesGrouped %}
+                     {% if ccparams.teamsEnabled and teams %}
+                     {% include 'Students/TeamChallengeList.html' %}
+                     {% else %}
+                     {% include 'Students/ChallengesList.html' %}
+                     {% endif %}
+                     {% else %}
+                     <ul class="collapsible" data-collapsible="expandable">
+                           {% for j,topic_ID,topic_Name,topic_Pos, challenges_count, all_challenges in topic_range %}
+                           <input type="hidden" name="topicID" value="{{topic_ID}}">
+                           <li>
+                              <div class="collapsible-header"><i class="material-icons">layers</i>{{topic_Name}}&nbsp;&nbsp;
+                                 {% if all_challenges != '0' and challenges_count > 0 %}
+                                 <span class="badge">{{challenges_count}}</span>
+                                 {% else %}
+                                 <span class="badge">0</span>
+                                 {% endif %}
+                              </div>
+                              <div class="collapsible-body">
+                                 <table class="responsive-table">
+                                    <thead>
+                                          <th>Name</th>
+                                          <th>Due Date</th>
+                                          <th>Score</th>
+                                          
+                                          <th>Remaining Attempts</th>
+                                          <th>Adjustment Reason</th>
+                                          <th class="secondary-content">
+                                             <a class="dropdown-button tooltipped" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown1' data-position="top" data-delay="50" data-tooltip="Display"><i class="material-icons" >filter_list</i></a>
+                                             <ul id='dropdown1' class='dropdown-content'>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{1}}{% if is_teacher %}&userID={{student}}{% endif %}">Latest Score</a></li>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{2}}{% if is_teacher %}&userID={{student}}{% endif %}">Earliest Score</a></li>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{3}}{% if is_teacher %}&userID={{student}}{% endif %}">Highest Score</a></li>
+                                                <li><a href="/oneUp/students/ChallengesList?ID={{4}}{% if is_teacher %}&userID={{student}}{% endif %}">Lowest Score</a></li>
+                                             </ul>
+                                          </th>
+                                    </thead>
+                                    <tbody>
+                                       {% for i,chall_ID,chall_Name, grade,numberOfAttempts,adjusmentReason, chall_position, challDueDate, isUnlocked in all_challenges %}
+                                       <input type="hidden" name="challengeID" value="{{chall_ID}}">
+                                       <tr>
+                                             <td style="max-width: 40vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{chall_Name}}</td>	
+                                             <td>{{challDueDate}}</td>
+                                             <td>{{grade}}</td>
+                                             {% if numberOfAttempts == 99999 %}
+                                             <td>Unlimited</td>
+                                             {% else %}
+                                             <td>{{numberOfAttempts}}</td>
+                                             {% endif %}		
+                                             <td>{{adjusmentReason}}</td>
+                                           
+                                           <td class="right-align">
+                                             <div class="row" style="margin: 0;">
+                                             {% if isUnlocked.isFullfilled %}
+                                             {% if is_teacher %} 
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a>   
+                                                </div>
+                                                {% else %}
+                                                {% if challDueDate|passed_current_time %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="Challenge due date has been reached" href="#"><i class="material-icons left">lock</i>Take</a>   
+                                                </div>
+                                                {% else %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengeDescription?challengeID={{chall_ID}}"><i class="material-icons left">assignment</i>Take</a>   
+                                                </div>
+                                                {% endif %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}"><i class="material-icons left">visibility</i>View</a>   
+                                                </div>
+                                                {% endif %}
+
+                                              {% else %}
+                                              {% if not is_teacher %}
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>Take</a>
+                                                </div>
+                                                <div class="col s12 m6" style="padding-bottom: 4px; padding-left: 0; padding-right: 0;">
+                                                <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{isUnlocked.description}}" href="#"><i class="material-icons left">lock</i>View</a> 
+                                                </div>  
+                                             {% else %}
+                                                <div class="col s12">
+                                                <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}&is_teacher{{is_teacher}}"><i class="material-icons left">visibility</i>View</a> 
+                                                </div>  
+                                             {% endif %}
+                                              {% endif %}
+                                              </div>
+                                           </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                           <td class="center-align" colspan="4"><i>No Serious Challenges</i></td>
+                                        </tr>
+                                       {% endfor %}
+                                    </tbody>
+                                    <tbody class="hide-on-large-only mobile-table-padding"></tbody>
+                                 </table>
+                              </div>
+                           </li>
+                           {% empty %}
+                           <li>No Topics</li>
+                           {% endfor %}
+                        </ul>
+                        {% endif %}
+                  </div>
+                  <div class="card-action right-align">
+                     <div class="hide-on-med-and-up">
+                        <div class="row center-align">
+                           <div class="col s12">
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken{% if is_teacher %}?userID={{student}}{% endif %}"><i class="material-icons left">assignment_turned_in</i>View All Completed Challenges</a>
+                           </div>
+                        </div>
+                        <div class="row center-align">
+                           <div class="col s12">
+                              {% if is_teacher %} 
+                              <a class="waves-effect waves-light btn" href="/oneUp/instructors/studentChallengesCompleted?userID={{user}}">   
+                              {% else %}
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome">                              
+                              {% endif %}
+                              <i class="material-icons left">navigate_before</i>Back</a> 
+                           </div>
+                        </div>
+                     </div>
+                     <div class="hide-on-small-only">
+                        <div class="row right-align">
+                           <div class="col s12">
+                            {% if not teams %}
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken{% if is_teacher %}?userID={{student}}&all{% endif %}"><i class="material-icons left">assignment_turned_in</i>View All Completed Challenges</a>
+                            {% endif %}
+                              {% if is_teacher %} 
+                              <a class="waves-effect waves-light btn" href="/oneUp/instructors/studentAchievements">   
+                              {% else %}
+                              <a class="waves-effect waves-light btn" href="/oneUp/students/StudentCourseHome">                              
+                              {% endif %}
+                              <i class="material-icons left">navigate_before</i>Back</a> 
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      {% include 'footer.html' %}
+   </body>
+</html>

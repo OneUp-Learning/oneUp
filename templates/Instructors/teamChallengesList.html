@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{% include 'scripts.html' %}
+	{% load instructors_tags %}
+</head>
+
+<body>
+	{% include 'heading.html' %}
+	<main>
+		<div class="row center-align">
+			<div class="col s12">
+				<h3>Team Challenges</h3>
+			</div>
+		</div>
+		{% csrf_token %}
+		<div class="row right-align">
+			<div class="col s12 m10 offset-m1">
+				<a class="waves-effect waves-light btn" href="/oneUp/instructors/challengeCreate?team"><i class="material-icons left">add_circle</i>Add
+					a Challenge</a>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s12 m10 offset-m1">
+				<div class="card-panel">
+					
+					{% if challenge_range|length > 0 %}
+					<ul id="sortable-challenges" class="collapsible">
+						{% for i,chall_ID,chall_Name,chall_available, chall_visible,start_Timestamp,end_Timestamp, due_date, chall_position in challenge_range %}
+						<li id={{chall_ID}}>
+							<div class="sortable-item">
+								<div style="padding-right: 8px;">
+									<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+								</div>
+								<div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_Name}}</div>
+								<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_available}}</div>
+								<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{chall_visible}}</div>
+								<div style="width: 25%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{% if start_Timestamp %} Starts at {{start_Timestamp}} {% endif %}</div>
+								<div style="width: 25%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;"> {% if end_Timestamp %} Ends at {{end_Timestamp}} {% endif %}</div>
+								<div style="width: 25%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> {% if due_date %} Due at {{due_date}} {% endif %}</div>
+								<div class="badge">
+									<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+									data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+										class="material-icons">more_vert</i></a>
+									<ul id='dropdown-{{i}}' class='dropdown-content'>
+										<li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&tView">View</a></li>
+										<li><a href="/oneUp/instructors/challengeCreate?team=True&challengeID={{chall_ID}}">Edit</a></li>
+										<li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
+										<!--<li><a href="/oneUp/instructors/adjustmentList?challengeID={{chall_ID}}">Adjustment</a></li>-->
+										<li class="divider"></li>
+										<li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
+									</ul>
+									<div id="modal_delete-{{i}}" class="modal">
+										<div class="modal-content">
+											<h5>Are you sure you want to delete?</h5>
+											<p>Problems will not be deleted. They will be sent to unassigned problems section</p>
+										</div>
+										<div class="modal-footer">
+											<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+											<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" onclick="deleteChallenge('{{chall_ID}}')">Delete
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</li>
+						{% endfor %}
+					</ul>
+					{% else %}
+					<p>No team challenges created</p>
+					{% endif %}
+					
+					
+				</div>
+			</div>
+		</div>
+	</main>
+	{% include 'footer.html' %}
+</body>
+<script>
+	$(document).ready(() => {
+		$("#sortable-challenges").sortable({
+			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var item_list = $("#sortable-challenges").sortable("toArray");
+				var positions = []
+
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({type: 'challenge', positions: positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+		$("#sortable-topics").sortable({
+			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var item_list = $("#sortable-topics").sortable("toArray");
+				var positions = []
+
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({type: 'topic', positions: positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+		$(".sortable-challenges").sortable({
+			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			connectWith: ".sortable-challenges",
+			update: (event, ui) => {
+				var topic_id = $(event.target).data("topic-id");
+				var item_list = $(`.sortable-challenges[data-topic-id="${topic_id}"]`).sortable("toArray");
+				var positions = []
+
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({type: 'challenge', positions: positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			receive: (event, ui) => {
+				var topic_id = $(event.target).data("topic-id");
+				var challenge_id = ui.item[0].id;
+
+				$(`#${challenge_id}`).data("topic-id", topic_id);
+				
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({"type": 'challenge', "item-id": parseInt(challenge_id), "section-id": parseInt(topic_id)})
+				};
+				fetch("/oneUp/instructors/receiveItemInSection", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+	});
+</script>
+<script>
+	function deleteChallenge(challenge_id) {
+		function getCookie(name) {
+			var cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				var cookies = document.cookie.split(';');
+				for (var i = 0; i < cookies.length; i++) {
+					var cookie = jQuery.trim(cookies[i]);
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		}
+
+		var csrftoken = getCookie('csrftoken');
+		$.ajaxSetup({
+			beforeSend: function (xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			}
+		});
+		$.ajax({
+			type: "POST",
+			url: "/oneUp/instructors/deleteChallenge",
+			data: {
+				'challengeID': challenge_id // from form
+			},
+			success: function () {
+				console.log("Deleted");
+				location.reload();
+			}
+		});
+	}
+</script>
+
+</html>

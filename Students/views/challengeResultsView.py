@@ -34,7 +34,7 @@ from Students.models import (CalloutParticipants, CalloutStats, DuelChallenges,
                              Student, StudentAnswerHints,
                              StudentChallengeAnswers,
                              StudentChallengeQuestions, StudentChallenges,
-                             StudentCourseSkills)
+                             StudentCourseSkills, TeamChallenges, TeamStudents, TeamChallengeAnswers, TeamChallengeQuestions)
 from Students.views.calloutsView import evaluator
 from Students.views.challengeSetupView import (
     makeSerializableCopyOfDjangoObjectDictionary,
@@ -121,33 +121,80 @@ def ChallengeResults(request):
                 if StudentChallenges.objects.filter(challengeID=challengeId, studentID=studentId, startTimestamp=startTime).count() > 0:
                     return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
 
-                # save initial student-challenge information pair (no score)to db
-                studentChallenge = StudentChallenges()
-                studentChallenge.studentID = studentId
-                studentChallenge.courseID = course
-                studentChallenge.challengeID = challenge
-                studentChallenge.startTimestamp = startTime
-                studentChallenge.endTimestamp = endTime
-                # initially its zero and updated after calculation at the end
-                studentChallenge.testScore = 0
-                #studentChallenge.instructorFeedback = instructorFeedback
-                studentChallenge.save()
-
-                #print(studentChallenge.endTimestamp - studentChallenge.startTimestamp)
-
                 sessionDict = request.session[attemptId]
                 if not sessionDict:
-                    context_dict['errorName'] = "Challenge not begun"
-                    context_dict['errorMessage'] = "An attempt to submit challenge "+challenge.challengeName+" has occurred, but this system has " + \
+                    error = {
+                        'name': "Challenge not begun",
+                        'message' : f"An attempt to submit challenge {challenge.challengeName} has occurred, but this system has " + \
                         "no record of that challenge begin taken."
-                    return render(request, "Students/ChallengeError.html", context_dict)
-                    print("challenge result requested for challenge not begun.")
+                        
+                    }
+
+                    return showErrors(error, context_dict, request)   
+                
+                if 'teamLeader' in sessionDict:
+                   
+                    context_dict['isTeamChallenge'] = True
+                    if not TeamStudents.objects.filter(studentID=studentId, activeMember = True).exists():
+                        error = {
+                        'name': "Failed to submit team challenge.",
+                        'message' : "You must belong to an active team",
+                        'context' : {'isTeamChallenge' : True}
+                        }
+
+                        return showErrors(error, context_dict, request)
+                    
+                    if TeamChallenges.objects.filter(challengeID=challengeId, 
+                    teamID=TeamStudents.objects.filter(studentID=studentId, activeMember = True).first().teamID, startTimestamp=startTime).count() > 0:
+                        return redirect('/oneUp/students/ChallengeDescription?challengeID=' + challengeId)
+
+                    team_challenge = TeamChallenges()
+                    team_challenge.teamID = TeamStudents.objects.filter(studentID=studentId, activeMember = True).first().teamID
+                    team_challenge.courseID = course
+                    team_challenge.challengeID = challenge
+                    team_challenge.startTimestamp = startTime
+                    team_challenge.endTimestamp = endTime
+                    # initially its zero and updated after calculation at the end
+                    team_challenge.testScore = 0
+                    team_challenge.save()
+
+                else:
+                    # save initial student-challenge information pair (no score)to db
+                    studentChallenge = StudentChallenges()
+                    studentChallenge.studentID = studentId
+                    studentChallenge.courseID = course
+                    studentChallenge.challengeID = challenge
+                    studentChallenge.startTimestamp = startTime
+                    studentChallenge.endTimestamp = endTime
+                    # initially its zero and updated after calculation at the end
+                    studentChallenge.testScore = 0
+                    #studentChallenge.instructorFeedback = instructorFeedback
+                    studentChallenge.save()
+
+                    #print(studentChallenge.endTimestamp - studentChallenge.startTimestamp)
+
+               
 
                 # We add a one minute fudge factor to account for things like network delays
                 if (endTime - startTime).total_seconds() > (challenge.timeLimit+1) * 60:
-                    context_dict['errorName'] = "Time Expired"
-                    context_dict['errorMessage'] = "Time expired prior to the submission of this challenge."
-                    return render(request, "Students/ChallengeError.html", context_dict)
+                    error = {
+                        'name': "Time Expired",
+                        'message' : "Time expired prior to the submission of this challenge."
+                        
+                    }
+
+                    return rors(error, context_dict, request)
+                   
+                print(sessionDict)
+                if 'teamLeader' in sessionDict and sessionDict['teamLeader']==False:
+                    error = {
+                        'name': "Failed to submit team challenge.",
+                        'message' : "Only the team leader may submit a team challenge.",
+                        'context' : {'isTeamChallenge' : True}
+                    }
+
+                    return showErrors(error, context_dict, request)
+                    
 
                 questions = sessionDict['questions']
                 context_dict["questionCount"] = len(questions)
@@ -164,17 +211,27 @@ def ChallengeResults(request):
                     totalStudentScore += question['user_points']
                     totalPossibleScore += question['total_points']
 
-                    studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question)
+                    if 'teamLeader' in sessionDict:
+                        studentChallengeQuestion = saveChallengeQuestion(team_challenge, question, isTeamChallenge=True)
+                    else:
+                        studentChallengeQuestion = saveChallengeQuestion(studentChallenge, question)
 
                     # Award skills if the answer was correct.
-                    if question['user_points'] == question['total_points']:
-                        saveSkillPoints(question['id'], currentCourse, studentId, studentChallengeQuestion)
+                    if not 'teamLeader' in sessionDict:
+                        if question['user_points'] == question['total_points']:
+                            saveSkillPoints(question['id'], currentCourse, studentId, studentChallengeQuestion)
 
                     for studentAnswer in studentAnswerList:
-                        studentChallengeAnswers = StudentChallengeAnswers()
-                        studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
-                        studentChallengeAnswers.studentAnswer = studentAnswer
-                        studentChallengeAnswers.save()
+                        if 'teamLeader' in sessionDict:
+                            teamChallengeAnswers = TeamChallengeAnswers()
+                            teamChallengeAnswers.teamChallengeQuestionID = studentChallengeQuestion
+                            teamChallengeAnswers.teamAnswer = studentAnswer
+                            teamChallengeAnswers.save()
+                        else:
+                            studentChallengeAnswers = StudentChallengeAnswers()
+                            studentChallengeAnswers.studentChallengeQuestionID = studentChallengeQuestion
+                            studentChallengeAnswers.studentAnswer = studentAnswer
+                            studentChallengeAnswers.save()
 
                 # The sort on the next line should be unnecessary, but better safe than sorry
                 context_dict['questions'] = sorted(
@@ -182,8 +239,12 @@ def ChallengeResults(request):
                 context_dict['total_user_points'] = totalStudentScore
                 context_dict['total_possible_points'] = totalPossibleScore
 
-                studentChallenge.testScore = totalStudentScore
-                studentChallenge.save()
+                if 'teamLeader' in sessionDict:
+                    team_challenge.testScore = totalStudentScore
+                    team_challenge.save()
+                else:
+                    studentChallenge.testScore = totalStudentScore
+                    studentChallenge.save()
 
                 # In case things have been changed since the last time it was taken or this is first time anyone has taken
                 if challenge.totalScore != totalPossibleScore:
@@ -196,9 +257,7 @@ def ChallengeResults(request):
                                request, studentId, challengeId)
 #                updateLeaderboard(course)
 #                ^^^^^ removed for the moment due to being terribly slow.  Should be off-lined or eliminated.
-
-                print("studentChallege ", studentChallenge)
-                print("studentId ", studentId)
+               
 
                 if is_duel:
                     context_dict = duel_challenge_evaluate(
@@ -245,8 +304,9 @@ def ChallengeResults(request):
             elif 'calloutPartID' in request.GET:
                 context_dict['isCallout'] = True
                 context_dict['calloutPartID'] = request.POST['calloutPartID']
-
-            if 'studentChallengeID' in request.GET:
+            if 'teamChallengeID' in request.GET:
+                studentChallengeId = request.GET['teamChallengeID']
+            elif 'studentChallengeID' in request.GET:
                 studentChallengeId = request.GET['studentChallengeID']
                 context_dict['studentChallengeID'] = request.GET['studentChallengeID']
             else:
@@ -255,8 +315,14 @@ def ChallengeResults(request):
                     pk=int(request.GET['challengeID']))
                 studentChallengeId = StudentChallenges.objects.filter(
                     studentID=student, courseID=currentCourse, challengeID=challenge.challengeID).first().studentChallengeID
-            
-            student_challenge = StudentChallenges.objects.get(pk=int(studentChallengeId))
+
+            isTeamChallenge = False
+            if TeamChallenges.objects.filter(pk=int(studentChallengeId)).exists():
+                isTeamChallenge = True
+                context_dict['isTeamChallenge'] = isTeamChallenge
+                student_challenge = TeamChallenges.objects.get(pk=int(studentChallengeId))
+            else:
+                student_challenge = StudentChallenges.objects.get(pk=int(studentChallengeId))
 
             challengeId = request.GET['challengeID']
             challenge = Challenges.objects.get(pk=int(challengeId))
@@ -265,7 +331,9 @@ def ChallengeResults(request):
 
             # Get all the questions for this challenge (AH)
             challengeQuestions = []
+    
             challenge_questions = ChallengesQuestions.objects.filter(challengeID=student_challenge.challengeID)
+
             for challenge_question in challenge_questions:
                 challengeQuestions.append(challenge_question)
 
@@ -282,16 +350,25 @@ def ChallengeResults(request):
             questions = []
             for i in range(0, len(challengeQuestions)):
                 challenge_question = challengeQuestions[i]
+                if isTeamChallenge:
+                    team = TeamStudents.objects.filter(studentID=context_dict['student'], teamID__teamID=request.GET['teamID']).first().teamID
+                    studentChallengeQuestion = TeamChallengeQuestions.objects.get(challengeQuestionID=challenge_question, teamChallengeID=student_challenge ,teamChallengeID__teamID=team, teamChallengeID__courseID=currentCourse)
 
-                studentChallengeQuestion = StudentChallengeQuestions.objects.get(challengeQuestionID=challenge_question, studentChallengeID=student_challenge ,studentChallengeID__studentID=context_dict['student'], studentChallengeID__courseID=currentCourse)
+                else:
+                    studentChallengeQuestion = StudentChallengeQuestions.objects.get(challengeQuestionID=challenge_question, studentChallengeID=student_challenge ,studentChallengeID__studentID=context_dict['student'], studentChallengeID__courseID=currentCourse)
                 questDict = questionTypeFunctions[challenge_question.questionID.type]["makeqdict"](
                     challenge_question.questionID, i, challengeId, challenge_question, studentChallengeQuestion)
                 questDict['total_points'] = studentChallengeQuestion.questionTotal
-
-                studentAnswers = StudentChallengeAnswers.objects.filter(
-                    studentChallengeQuestionID=studentChallengeQuestion)
-                questDict = questionTypeFunctions[challenge_question.questionID.type]["studentAnswersAndGrades"](
-                    questDict, [sa.studentAnswer for sa in studentAnswers])
+                if isTeamChallenge:
+                    studentAnswers = TeamChallengeAnswers.objects.filter(
+                        teamChallengeQuestionID=studentChallengeQuestion)
+                    questDict = questionTypeFunctions[challenge_question.questionID.type]["studentAnswersAndGrades"](
+                    questDict, [sa.teamAnswer for sa in studentAnswers])
+                else:
+                    studentAnswers = StudentChallengeAnswers.objects.filter(
+                        studentChallengeQuestionID=studentChallengeQuestion)
+                    questDict = questionTypeFunctions[challenge_question.questionID.type]["studentAnswersAndGrades"](
+                        questDict, [sa.studentAnswer for sa in studentAnswers])
                 questions.append(questDict)
 
             context_dict["questionCount"] = len(questions)
@@ -327,24 +404,35 @@ def saveSkillPoints(questionId, course, studentId, studentChallengeQuestion):
 
     return
 
-def saveChallengeQuestion(student_challenge, question):
+def saveChallengeQuestion(student_challenge, question, isTeamChallenge=False):
     if 'seed' in question:
         seed = question['seed']
     else:
         seed = 0
 
-    studentChallengeQuestion = StudentChallengeQuestions()
-    studentChallengeQuestion.studentChallengeID = student_challenge
-    studentChallengeQuestion.questionID = Questions(question['questionID'])
-    studentChallengeQuestion.challengeQuestionID = ChallengesQuestions(question['challenge_question_id'])
-    studentChallengeQuestion.questionScore = question['user_points']
-    studentChallengeQuestion.questionTotal = question['total_points']
-    studentChallengeQuestion.usedHint = "False"
-    studentChallengeQuestion.seed = seed
-    studentChallengeQuestion.save()
+    if isTeamChallenge == False:
+        studentChallengeQuestion = StudentChallengeQuestions()
+        studentChallengeQuestion.studentChallengeID = student_challenge
+        studentChallengeQuestion.questionID = Questions(question['questionID'])
+        studentChallengeQuestion.challengeQuestionID = ChallengesQuestions(question['challenge_question_id'])
+        studentChallengeQuestion.questionScore = question['user_points']
+        studentChallengeQuestion.questionTotal = question['total_points']
+        studentChallengeQuestion.usedHint = "False"
+        studentChallengeQuestion.seed = seed
+        studentChallengeQuestion.save()
 
-    if 'hintID' in question:
-        attachStudentHintToStudentChallenge(student_challenge.studentID, question, studentChallengeQuestion)
+        if 'hintID' in question:
+            attachStudentHintToStudentChallenge(student_challenge.studentID, question, studentChallengeQuestion)
+    else:
+        studentChallengeQuestion = TeamChallengeQuestions()
+        studentChallengeQuestion.teamChallengeID = student_challenge
+        studentChallengeQuestion.questionID = Questions(question['questionID'])
+        studentChallengeQuestion.challengeQuestionID = ChallengesQuestions(question['challenge_question_id'])
+        studentChallengeQuestion.questionScore = question['user_points']
+        studentChallengeQuestion.questionTotal = question['total_points']
+        studentChallengeQuestion.seed = seed
+        studentChallengeQuestion.save()
+
     return studentChallengeQuestion
 
 #we have to attach student hints to the Challenge
@@ -370,3 +458,10 @@ def placeHintIDIntoQuestionDict(questions, request):
             question['hintID'] = hintID
         i += 1
     return questions
+
+def showErrors(options, context_dict,request):
+    context_dict['errorName'] = options.get('name','')
+    context_dict['errorMessage'] = options.get('message', '')
+    context_dict.update(options.get('context',{}))
+
+    return render(request, "Students/ChallengeError.html", context_dict)
