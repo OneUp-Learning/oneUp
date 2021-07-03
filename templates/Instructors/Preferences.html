@@ -55,92 +55,7 @@
             <input type="hidden" name="xpLeaderboardID" value="{{xpLeaderboardID}}">
             <div class="row" style="margin-bottom: 0;">
                 <div class="col s12 cards-container" style="height: 100%;">
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="margin-top: 0; transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Course Leaderboard Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Leaderboard
-                                            {% if leaderboardUsed %}
-                                            <input name="leaderboardUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="leaderboardUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Progress Bar Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Progress Bar
-                                            {% if progressBarUsed %}
-                                            <input name="progressBarUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="progressBarUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Total points on the Progress Bar</p>
-                                        <input value="{{progressBarTotalPoints}}" name="progressBarTotalPoints"
-                                            id="progressBarTotalPoints" maxlength="3" type="number" min="0"
-                                            max="999999">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Set Group Progress Bar
-                                            {% if progressBarGroupUsed %}
-                                            <input name="progressBarGroupUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="progressBarGroupUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>Set Group Progress Bar Calculation</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <p>
-                                            <input class="with-gap" name="progressBarGroupAverage" type="radio"
-                                                id="progressBarGroupAverage" value="True"
-                                                {% if progressBarGroupAverage == True %} checked {%endif%} />
-                                            <label for="progressBarGroupAverage">Calculate as Average</label>
-                                        </p>
-                                        <p>
-                                            <input class="with-gap" name="progressBarGroupAverage" type="radio"
-                                                value="False" id="progressBarGroupTotal"
-                                                {% if progressBarGroupAverage == False %} checked {%endif%} />
-                                            <label for="progressBarGroupTotal">Calculate as Total</label>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -165,14 +80,66 @@
                             </div>
                         </div>
                     </div>
-
-                    
-
                     <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="margin-top: 0; transform: translateZ(0);">
+                            <div class="card-content">
+                                <span class="card-title">Leaderboards Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Leaderboard
+                                            {% if leaderboardUsed %}
+                                            <input name="leaderboardUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="leaderboardUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable XP Leaderboard
+                                            {% if xpLeaderboardUsed %}
+                                            <input name="xpLeaderboardUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="xpLeaderboardUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row"> 
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Number of Students Shown</p>
+                                        <input id="studentsShown" value="{{numStudentsDisplayed}}"
+                                            name="numStudentsDisplayed" type="number" min="0">
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+					<div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
-                                <span class="card-title">Calculating Total Experience Points (XP) </span>
+                                <span class="card-title"> Experience Points </span>
+                                  <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable XP 
+                                            {% if xpDisplayUsed%}
+                                            <input name="xpDisplayUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="xpDisplayUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>                         
                                 <div class="row">
                                     <div class="input-field col s10">
                                         <p style="font-size: 0.8rem;">Percentage of <i>serious challenge points to be added to XP</i>
@@ -249,7 +216,71 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
+                                <span class="card-title">Progress Bar Configuration</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Progress Bar
+                                            {% if progressBarUsed %}
+                                            <input name="progressBarUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="progressBarUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Total points on the Progress Bar</p>
+                                        <input value="{{progressBarTotalPoints}}" name="progressBarTotalPoints"
+                                            id="progressBarTotalPoints" maxlength="3" type="number" min="0"
+                                            max="999999">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Set Group Progress Bar
+                                            {% if progressBarGroupUsed %}
+                                            <input name="progressBarGroupUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="progressBarGroupUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Set Group Progress Bar Calculation</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="progressBarGroupAverage" type="radio"
+                                                id="progressBarGroupAverage" value="True"
+                                                {% if progressBarGroupAverage == True %} checked {%endif%} />
+                                            <label for="progressBarGroupAverage">Calculate as Average</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="progressBarGroupAverage" type="radio"
+                                                value="False" id="progressBarGroupTotal"
+                                                {% if progressBarGroupAverage == False %} checked {%endif%} />
+                                            <label for="progressBarGroupTotal">Calculate as Total</label>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+             
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -381,22 +412,6 @@
                     </div>
 
                     <!-- <div class="col s12" style="height: 5px;"><br /></div> -->
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">XP Leaderboard</span>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Number of Students Shown</p>
-                                        <input id="studentsShown" value="{{numStudentsDisplayed}}"
-                                            name="numStudentsDisplayed" type="number" min="0">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">

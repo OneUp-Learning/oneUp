@@ -2226,13 +2226,18 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
                         if not mapped_topic_id:
                             messages.append({'type': 'warn', 'message': 'Unable to find topic id in mapped ids dictionary for challenge. Challenges will not include this topic'})
                             continue
-
+                        
                         # We can go straight to Topics instead of Course Topics since we have mapped it
                         # to Topics
                         topic = Topics.objects.get(topicID=mapped_topic_id)
                         if not topic:
                             messages.append({'type': 'warn', 'message': 'New topic object was not created. Challenges will not include this topic'})
                             continue
+                        
+                        # We have a weird special case for the unspecified topic where there's a different one for each course (unlike any other topic)
+                        # So we have to find the one for this course.  Later, this code may go away.
+                        if topic.topicName == unspecified_topic_name:
+                            topic = CoursesTopics.objects.get(courseID=current_course, topicID__topicName=unspecified_topic_name).topicID
 
                         challenge_topic_fields_to_save = {'topicID': topic, 'challengeID': challenge}         
                         challenge_topic = create_model_instance(ChallengesTopics, None, custom_fields_to_save=challenge_topic_fields_to_save)

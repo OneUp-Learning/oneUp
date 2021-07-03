@@ -104,7 +104,9 @@ def preferencesView(request):
             leaderboard.displayOnCourseHomePage = True
             leaderboard.courseID = currentCourse
             leaderboard.save()
-
+            
+        ccparams.xpLeaderboardUsed = "xpLeaderboardUsed" in request.POST 
+        
         # XP
         ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
         ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
@@ -114,7 +116,8 @@ def preferencesView(request):
             'xpCalculateSeriousByMaxScore')
         ccparams.xpCalculateWarmupByMaxScore = request.POST.get(
             'xpCalculateWarmupByMaxScore')
-
+        ccparams.xpDisplayUsed = "xpDisplayUsed" in request.POST 
+        
         # Skills
         ccparams.classSkillsDisplayed = "classSkillsDisplayed" in request.POST
         if ccparams.classSkillsDisplayed == True:
@@ -221,7 +224,8 @@ def preferencesView(request):
                 context_dict['leaderboardDescription'] = xpLeaderboard.leaderboardDescription
                 # context_dict["numStudentsDisplayed"]= xpLeaderboard.numStudentsDisplayed
             context_dict["numStudentsDisplayed"] = ccparams.numStudentsDisplayed
-
+            context_dict["xpLeaderboardUsed"] = ccparams.xpLeaderboardUsed
+          
             # XP
             context_dict["xpWeightSChallenge"] = ccparams.xpWeightSChallenge
             context_dict["xpWeightWChallenge"] = ccparams.xpWeightWChallenge
@@ -229,7 +233,8 @@ def preferencesView(request):
             context_dict["xpWeightAPoints"] = ccparams.xpWeightAPoints
             context_dict["xpCalculateSeriousByMaxScore"] = ccparams.xpCalculateSeriousByMaxScore
             context_dict["xpCalculateWarmupByMaxScore"] = ccparams.xpCalculateWarmupByMaxScore
-
+            context_dict["xpDisplayUsed"] = ccparams.xpDisplayUsed
+            
             # Skills
             context_dict["classSkillsDisplayed"] = ccparams.classSkillsDisplayed
             context_dict["skillLeaderboardDisplayed"] = ccparams.skillLeaderboardDisplayed
