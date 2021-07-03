@@ -360,10 +360,12 @@ class CourseConfigParams(models.Model):
     xpWeightWChallenge = models.IntegerField(default=0)               ## XP Weights for Warm up Challenges
     xpWeightAPoints    = models.IntegerField(default=0)               ## XP Weights for Activity Points
 
-    xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by 
-                                                                      ## max score of scores or by the first attempt score
+    xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by max score of scores or by the first attempt score
     xpCalculateWarmupByMaxScore = models.BooleanField(default=True)  ## Same as preivous but for warmup challenges
-
+    
+    xpDisplayUsed = models.BooleanField(default=False)               ## XP Point display on/off setting      
+    xpLeaderboardUsed = models.BooleanField(default=False)           ## XP Leaderboard enable/disable
+    
     ## Levels of Difficulties for the course
     thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium
     thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
@@ -394,6 +396,10 @@ class CourseConfigParams(models.Model):
     maxNumberOfTeamStudents = models.IntegerField(default=3)   ##maximum number of team students allowed per team
     teamsEnabled = models.BooleanField(default = False) ##teams enabled for the course
     selfAssignment = models.BooleanField(default = True, verbose_name='Students can auto-assign themselves to teams') ##allow student self-assignment to teams
+    
+    #Player-Types
+    adaptationUsed = models.BooleanField(default = False)
+    ## xp settings
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
@@ -443,8 +449,11 @@ class CourseConfigParams(models.Model):
         +str(self.teamsLockInDeadline)+","\
         +str(self.maxNumberOfTeamStudents)+","\
         +str(self.teamsEnabled)+","\
-        +str(self.selfAssignment)
- 
+        +str(self.adaptationUsed)+","\
+        +str(self.selfAssignment)+","\
+        +str(self.xpDisplayUsed)+","\
+        +str(self.xpLeaderboardUsed)
+        
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
     challenge = models.ForeignKey(Challenges,verbose_name="the challenge included in the set",db_index=True,on_delete=models.CASCADE)
@@ -489,7 +498,9 @@ class ProgressiveUnlocking(models.Model):
     ruleID = models.ForeignKey(Rules,  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="the related rule", db_index=True)
     objectID = models.IntegerField(default=-1,verbose_name="index into the appropriate table") #ID of challenge,activity,etc. associated with a unlocking rule
     objectType = models.IntegerField(verbose_name="which type of object is involved, for example, challenge, individual question, or other activity.  Should be a reference to an objectType Enum", db_index=True,default=1301) # Defaulted to Challenges
-
+    def __str__(self):
+        return str(self.courseID) +", "+str(self.name)+", "+str(self.description) +", "+str(self.ruleID)+", "+str(self.objectID) +", "+str(self.objectType)
+    
 class AttendanceStreakConfiguration(models.Model):
     streakConfigurationID = models.AutoField(primary_key=True)
     courseID = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True,verbose_name="the related course", db_index=True) 
@@ -528,3 +539,46 @@ class CeleryTestResult(models.Model):
     sequence = models.IntegerField()
     def __str__(self):
         return "Test "+self.sequence+":"+self.uniqid
+    
+class PlayerType(models.Model):
+    name = models.CharField(max_length=300, verbose_name="The name of the type of player", db_index=True)
+    course = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True, verbose_name="the related course", db_index=True)
+    
+    badgesUsed = models.BooleanField(default=False)                   ## 
+    levelingUsed = models.BooleanField(default=False)                 ##
+    
+    # Duels related
+    classmatesChallenges = models.BooleanField(default=False)         ## This is used for duels and call-outs
+    betVC = models.BooleanField(default=False)                        ## Allow the bet of virtual currency in duels
+
+    # Progress bar
+    progressBarUsed = models.BooleanField(default=False)               ## This is the progress bar in the student achievements page and student course home page
+
+    displayStudentStartPageSummary = models.BooleanField(default=False) ## This toggles the view on the student course home page to show class achievements or student achievements summary
+
+    displayAchievementPage = models.BooleanField(default=False)       ## This toggles the view on the student achievement page in the nav bars
+
+    leaderboardUsed = models.BooleanField(default=False)              ##
+        
+    ## Other fields for rule based configurations
+    virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
+    
+    ## Student Goal Setting
+    goalsUsed = models.BooleanField(default=False)                    ## Enables the use of goal setting for students
+    
+    ##for XP settings
+    xpDisplayUsed = models.BooleanField(default=False)   
+        
+    xpLeaderboardUsed = models.BooleanField(default=False)     
+      
+    def __str__(self):
+        return "name:"+str(self.name)+", course:"+str(self.course) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
+        +"levling:"+str(self.levelingUsed) +"," \
+        +"duels/callouts:"+str(self.classmatesChallenges) +"," \
+        +"progressBar"+str(self.progressBarUsed) +"," \
+        +"leaderboard:"+str(self.leaderboardUsed) +"," \
+        +"vc:"+str(self.virtualCurrencyUsed) +"," \
+        +"betting:"+str(self.betVC) +"," \
+        +"goals:"+str(self.goalsUsed) +"," \
+        +"xp display:" + str(self.xpDisplayUsed) +"," \
+        +"xp leaderboardused:" + str(self.xpLeaderboardUsed)

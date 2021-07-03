@@ -55,11 +55,36 @@
             <input type="hidden" name="xpLeaderboardID" value="{{xpLeaderboardID}}">
             <div class="row" style="margin-bottom: 0;">
                 <div class="col s12 cards-container" style="height: 100%;">
+                
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
+                                <span class="card-title">Student Course Home Page</span>
+                                <div class="row">
+                                    <p>
+                                        <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
+                                            id="displayStudentStartPageClass" value="False"
+                                            {% if displayStudentStartPageSummary == False %} checked {%endif%} />
+                                        <label for="displayStudentStartPageClass">Display only class/group
+                                            achievements</label>
+                                    </p>
+                                    <p>
+                                        <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
+                                            value="True" id="displayStudentStartPageSummary"
+                                            {% if displayStudentStartPageSummary == True %} checked {%endif%} />
+                                        <label for="displayStudentStartPageSummary">Display summary of student
+                                            achievements</label>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="margin-top: 0; transform: translateZ(0);">
                             <div class="card-content">
-                                <span class="card-title">Course Leaderboard Configuration</span>
+                                <span class="card-title">Leaderboards Configuration</span>
                                 <div class="row">
                                     <div class="switch col s12">
                                         <label>
@@ -73,10 +98,124 @@
                                         </label>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable XP Leaderboard
+                                            {% if xpLeaderboardUsed %}
+                                            <input name="xpLeaderboardUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="xpLeaderboardUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row"> 
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Number of Students Shown</p>
+                                        <input id="studentsShown" value="{{numStudentsDisplayed}}"
+                                            name="numStudentsDisplayed" type="number" min="0">
+                                    </div>
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
+					<div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
+                                <span class="card-title"> Experience Points </span>
+                                  <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable XP 
+                                            {% if xpDisplayUsed%}
+                                            <input name="xpDisplayUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="xpDisplayUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>                         
+                                <div class="row">
+                                    <div class="input-field col s10">
+                                        <p style="font-size: 0.8rem;">Percentage of <i>serious challenge points to be added to XP</i>
+                                        </p>
+                                        <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge"
+                                            id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
 
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Percentage of <i>warmup challenge points to be added to XP</i>
+                                        </p>
+                                        <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge"
+                                            id="w_challenge_weight" maxlength="3" type="number" min="0" max="100">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Percentage of <i>skill points to be added to XP</i></p>
+                                        <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight"
+                                            maxlength="3" type="number" class="validate" min="0" max="100">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <p style="font-size: 0.8rem;">Percentage of <i>activity points to be added to XP</i></p>
+                                        <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight"
+                                            maxlength="3" type="number" min="0" max="100">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Serious Challenges</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
+                                                id="xpSeriousMaxScore" value="True"
+                                                {% if xpCalculateSeriousByMaxScore == True %} checked {%endif%} />
+                                            <label for="xpSeriousMaxScore">Calculate XP by max score</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
+                                                value="False" id="xpSeriousFirstAttempt"
+                                                {% if xpCalculateSeriousByMaxScore == False %} checked {%endif%} />
+                                            <label for="xpSeriousFirstAttempt">Calculate XP by first attempt</label>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col s12">
+                                            <p>Warmup Challenges</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
+                                                id="xpWarmupMaxScore" value="True"
+                                                {% if xpCalculateWarmupByMaxScore == True %} checked {%endif%} />
+                                            <label for="xpWarmupMaxScore">Calculate XP by max score</label>
+                                        </p>
+                                        <p>
+                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
+                                                value="False" id="xpWarmupFirstAttempt"
+                                                {% if xpCalculateWarmupByMaxScore == False %} checked {%endif%} />
+                                            <label for="xpWarmupFirstAttempt">Calculate XP by first attempt</label>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -141,165 +280,7 @@
                         </div>
                     </div>
 
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Student Course Home Page</span>
-                                <div class="row">
-                                    <p>
-                                        <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
-                                            id="displayStudentStartPageClass" value="False"
-                                            {% if displayStudentStartPageSummary == False %} checked {%endif%} />
-                                        <label for="displayStudentStartPageClass">Display only class/group
-                                            achievements</label>
-                                    </p>
-                                    <p>
-                                        <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
-                                            value="True" id="displayStudentStartPageSummary"
-                                            {% if displayStudentStartPageSummary == True %} checked {%endif%} />
-                                        <label for="displayStudentStartPageSummary">Display summary of student
-                                            achievements</label>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Calculating Total Experience Points (XP) </span>
-                                <div class="row">
-                                    <div class="input-field col s10">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>serious challenge points to be
-                                                added to XP</i>
-                                        </p>
-                                        <input value="{{xpWeightSChallenge}}" name="xpWeightSChallenge"
-                                            id="s_challenge_weight" maxlength="3" type="number" min="0" max="100">
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>warmup challenge points to be
-                                                added to XP</i>
-                                        </p>
-                                        <input value="{{xpWeightWChallenge}}" name="xpWeightWChallenge"
-                                            id="w_challenge_weight" maxlength="3" type="number" min="0" max="100">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>skill points to be added to
-                                                XP</i></p>
-                                        <input value="{{xpWeightSP}}" name="xpWeightSP" id="s_points_weight"
-                                            maxlength="3" type="number" class="validate" min="0" max="100">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Percentage of <i>activity points to be added to
-                                                XP</i></p>
-                                        <input value="{{xpWeightAPoints}}" name="xpWeightAPoints" id="a_points_weight"
-                                            maxlength="3" type="number" min="0" max="100">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>Serious Challenges</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <p>
-                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
-                                                id="xpSeriousMaxScore" value="True"
-                                                {% if xpCalculateSeriousByMaxScore == True %} checked {%endif%} />
-                                            <label for="xpSeriousMaxScore">Calculate XP by max score</label>
-                                        </p>
-                                        <p>
-                                            <input class="with-gap" name="xpCalculateSeriousByMaxScore" type="radio"
-                                                value="False" id="xpSeriousFirstAttempt"
-                                                {% if xpCalculateSeriousByMaxScore == False %} checked {%endif%} />
-                                            <label for="xpSeriousFirstAttempt">Calculate XP by first attempt</label>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>Warmup Challenges</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <p>
-                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
-                                                id="xpWarmupMaxScore" value="True"
-                                                {% if xpCalculateWarmupByMaxScore == True %} checked {%endif%} />
-                                            <label for="xpWarmupMaxScore">Calculate XP by max score</label>
-                                        </p>
-                                        <p>
-                                            <input class="with-gap" name="xpCalculateWarmupByMaxScore" type="radio"
-                                                value="False" id="xpWarmupFirstAttempt"
-                                                {% if xpCalculateWarmupByMaxScore == False %} checked {%endif%} />
-                                            <label for="xpWarmupFirstAttempt">Calculate XP by first attempt</label>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                        {% if ccparams.teamsEnabled %}
-                        <div class="col s12"
-                            style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                            <div class="card" style="transform: translateZ(0);">
-                                <div class="card-content">
-                                    <span class="card-title">Teams</span>
-
-                                    <div class="row">
-                                        <div class="switch col s12">
-                                            <label>
-                                                Allow Student Self-Assignment
-                                                {% if selfAssignment %}
-                                                <input name="selfAssignment" type="checkbox" checked>
-                                                {% else %}
-                                                <input name="selfAssignment" type="checkbox">
-                                                {% endif %}
-                                                <span class="lever secondary-content"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="input-field col s10">
-                                            <p style="font-size: 0.8rem;">Max Number of Students Per Team
-                                            </p>
-                                            <input value="{{maxNumberOfTeamStudents}}"name="maxNumberOfTeamStudents"
-                                                id="maxNumberOfTeamStudents" maxlength="3" type="number" min="0"
-                                                max="100">
-
-                                        </div>
-                                    </div>
-                                   {% if selfAssignment %}
-                                    <div class="row">
-                                        <div class="input-field col s12">
-
-                                            <label for="lockInDate">Cutoff date for students joining teams:</label>
-                                            <input type="text" class="datepicker-from" name="lockInDate"
-                                                value="{{lockInDate}}" id="lockInDate"
-                                                required{%if view%}readonly{%endif%}>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    
-
+             
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -436,22 +417,6 @@
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
-                                <span class="card-title">XP Leaderboard</span>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Number of Students Shown</p>
-                                        <input id="studentsShown" value="{{numStudentsDisplayed}}"
-                                            name="numStudentsDisplayed" type="number" min="0">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
                                 <span class="card-title">Leveling</span>
                                 <div class="row">
                                     <div class="switch col s12">
@@ -466,11 +431,12 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Amount of XP to level 1</p>
-                                        <input value={{levelTo1XP}} name="levelTo1XP" id="levelTo1XP" maxlength="3"
-                                            type="number" min="0" required>
+                                 <div class="row">
+                                        <div class="input-field col s12">
+                                            <p style="font-size: 0.8rem;">Amount of XP to level 1</p>
+                                            <input value={{levelTo1XP}} name="levelTo1XP" id="levelTo1XP" maxlength="3"
+                                                type="number" min="0" required>
+                                        </div>
                                     </div>
                                  <div class="row">
                                         <div class="input-field col s12">
@@ -479,7 +445,6 @@
                                                 type="number" min="0" max="100" required>
                                         </div>
                                     </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -502,7 +467,7 @@
                                         </label>
                                     </div>
                                     <div class="input-field col s12">
-                                        <p style="font-size: 0.8rem;">Number of recent badges to be displayed on
+                                        <p style="font-size: 0.8rem;">Number of recent badges to be displayed on 
                                             course home pages</p>
                                         <input value="{{numBadgesDisplayed}}" name="numBadgesDisplayed"
                                             id="badges_recent" maxlength="3" type="number" min="0" max="100" required>
@@ -734,7 +699,29 @@
                             </div>
                         </div>
                     </div>
-
+                    
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
+                                <span class="card-title">Adaptation</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Adaptation
+                                            {% if adaptationUsed %}
+                                            <input name="adaptationUsed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="adaptationUsed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -800,17 +787,6 @@
                     }
                 }
             }
-
-
-            $(document).ready(function () {
-                $
-
-                var startDate = $('#lockInDate').bootstrapMaterialDatePicker({
-                    weekStart: 0,
-                    format: 'MM/DD/YYYY hh:mm A',
-                    shortTime: true
-                })
-            });
         </script>
     </main>
     {% include 'footer.html' %}

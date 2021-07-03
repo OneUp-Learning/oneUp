@@ -22,7 +22,6 @@ def preferencesView(request):
 
         if len(c_ccparams) > 0:
             ccparams = c_ccparams[0]
-            print('ccparams', ccparams)
             context_dict['studCanChangeBadgeVis'] = ccparams.studCanChangeBadgeVis
             context_dict['studCanChangeLeaderboardVis'] = ccparams.studCanChangeLeaderboardVis
             context_dict['studCanChangeClassSkillsVis'] = ccparams.studCanChangeClassSkillsVis
@@ -73,11 +72,12 @@ def preferencesView(request):
     #  get request
     #  For the fields that are not visbile because the instructor did not choose to be used for the course. you can pass false so null exceptions are not created
     else:
-
+        ccparams = CourseConfigParams.objects.filter(courseID=currentCourse)
+    
         scparamsList = StudentConfigParams.objects.filter(
             courseID=currentCourse, studentID=student)
-
-        if len(scparamsList) > 0:
+            
+        if (len(scparamsList) > 0):
             scparams = scparamsList[0]
             context_dict['scpID'] = scparams.scpID
             context_dict["displayBadges"] = scparams.displayBadges

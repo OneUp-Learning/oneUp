@@ -493,6 +493,8 @@ def getPercentageOfCorrectAnswersPerChallengePerStudent(course,student, challeng
 def getPercentageOfActivityScore(course, student , activity):
     ''' This will return the percentage of the student's activity 
         score out of the max possible activity score'''
+    
+    print(activity.points)
 
     totalScore = activity.points
     if totalScore != 0:
@@ -594,7 +596,7 @@ def activityScoreDifferenceFromPreviousAveragedScoresByCategory(course, student,
     if studentActivites.exists():
         latestAttempt = studentActivites.first()
         # Calculate the total of the earlier activities by percentage
-        total = sum(int(getPercentageOfActivityScore(course, student, act)) for act in studentActivites[1:])
+        total = sum(int(getPercentageOfActivityScore(course, student, act)) for act in activitiesWithCategory[1:])
         count = studentActivites.count()-1
         if count <= 0:
             print("Total: " + str(total))
@@ -1374,6 +1376,21 @@ def getTotalOfCompletedFlashcards(course, student):
     from Students.models import StudentEventLog
     totalCards = len(StudentEventLog.objects.filter(course_id=course, student_id=student, event=Event.submitFlashCard))
     return totalCards
+#percentage of activities in category submitted (percentage of activities which allow submission).
+
+def getPercentOfActivitiesSubmittedInCategory(course, student, category):
+    ''' Return the percentage of submitted activities for a particular category'''
+    from Students.models import StudentActivities
+    from Instructors.models import Activities
+    availableActivities = Activities.objects.filter(courseID=course, category=category, isAvailable=True)
+    numOfActivitiesAvailable = availableActivities.count()
+    StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category)
+    numSubmitted = StudActivities.count()
+
+    print('Available:', numOfActivitiesAvailable)
+    print('Submitted:', numSubmitted)
+    print('PCT:', int(numSubmitted/numOfActivitiesAvailable*100))
+    return int(numSubmitted/numOfActivitiesAvailable*100)
 
 def skillPoints(course, student, skill):
     from Students.models import StudentCourseSkills
@@ -1392,6 +1409,41 @@ def maxSkillPoints(course, student, skill):
         return 0
     else:
         return result
+def getTopicChallengesCompleted60Percent(course, student, topic):
+    ''' This will return the percentage of challenges in a topic a student has completed 
+    at >= 60% correctness
+    '''
+    return getCompletedChallengePercentageForTopic(course, student, 60.0, topic)       
+def getTopicChallengesCompleted85Percent(course, student, topic):
+    ''' This will return the percentage of challenges in a topic a student has completed 
+    at >= 85% correctness
+    '''        
+    return getCompletedChallengePercentageForTopic(course, student, 85.0, topic)     
+def getCompletedChallengePercentageForTopic(course, student, percentage, topic):
+    ''' This will return the percentage of challenges a student has completed in a given topic 
+    at a given percentage of correctness
+    '''        
+    from Instructors.models import ChallengesTopics, Challenges
+    from Students.models import StudentChallenges 
+    topicChallenges = ChallengesTopics.objects.filter(topicID=topic,challengeID__courseID=course)
+    totalChallengesInTopic = topicChallenges.count()
+    completed = 0.0
+    for tchall in topicChallenges:
+        studentChallenges = StudentChallenges.objects.filter(studentID = student, challengeID = tchall.challengeID)
+        totalScore = tchall.challengeID.totalScore
+        for schall in studentChallenges:
+            if schall.testScore/totalScore*100 >= percentage:
+                completed += 1
+                break
+    
+    if completed > 0:
+        studentPercentage = completed/totalChallengesInTopic*100
+    else:
+        studentPercentage = 0
+    return studentPercentage
+
+
+    
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
@@ -1455,6 +1507,7 @@ class SystemVariable():
     totalEarndVC = 968 # Total amount of vc earned by a student
     totalSpentVC = 969 # Total amount of vc spent by a student
     sumOfScoreOfEveryStudentActivity = 970
+    percentageOfActivitiesSubmittedInCategory = 971
 #    sumOfScoreOfAllStudentActivitiesCategory = 971  Deprecated.  Folded into the score variable
 #    minScoreOfStudentsActivitiesCategory = 972 Deprecated.  Folded into MinScore
 #    maxScoreOfStudentsActivitiesCategory = 973 Deprecated.  Folded into MaxScore
@@ -1478,11 +1531,15 @@ class SystemVariable():
     calloutParticipationWonPerTopic = 992
     calloutParticipationLostPerTopic = 993
     calloutRequestedPerTopic = 994
+    
     percentageWarmupChallengesGreaterThan70PercentTopic = 995 # Percentage of warmup challenges related to a topic with a score percentage greater than 70%
     percentageWarmupChallengesGreaterThan75PercentTopic = 996 # Percentage of warmup challenges related to a topic with a score percentage greater than 75%
     percentageWarmupChallengesGreaterThan85PercentTopic = 997 # Percentage of warmup challenges related to a topic with a score percentage greater than 85%
     percentageWarmupChallengesGreaterThan90PercentTopic = 998 # Percentage of warmup challenges related to a topic with a score percentage greater than 90%
-
+    topicChallengesCompleted60Percent = 999 # Percentage of topic challenges completed at >= 60%
+    
+    #Starting new enumeration at 9000 since we have enough variables to overflow the 900s
+    topicChallengesCompleted85Percent = 9000 # Percentage of topic chalenges completed at >= 85% TODO: redo numbering?
     systemVariables = {
         score:{
             'index': score,
@@ -2674,7 +2731,49 @@ class SystemVariable():
                 ObjectTypes.none: getTotalOfCompletedFlashcards
             },
             'studentGoal': True,
-        }
+        },
+        topicChallengesCompleted60Percent:{
+            'index': topicChallengesCompleted60Percent,
+            'name':'topicChallengesCompleted60Percent',
+            'displayName':'Percent of Challenges Completed Per Topic (>= 60%)',
+            'description':'This will return the percentage of challenges in a topic a student has completed at >= 60% correctness',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.topic:getTopicChallengesCompleted60Percent
+            },
+            'studentGoal': False,
+        },
+        topicChallengesCompleted85Percent:{
+            'index': topicChallengesCompleted85Percent,
+            'name':'topicChallengesCompleted85Percent',
+            'displayName':'Percent of Challenges Completed Per Topic (>= 85%)',
+            'description':'The percentage of challenges in a topic a student has completed at >= 85% correctness',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge],
+            },
+            'type':'boolean',
+            'functions':{
+                ObjectTypes.topic:getTopicChallengesCompleted85Percent
+            },
+            'studentGoal': False,
+        },
+        percentageOfActivitiesSubmittedInCategory:{
+            'index':percentageOfActivitiesSubmittedInCategory,
+            'name':'percentageOfActivitiesSubmittedInCategory',
+            'displayName':'Percentage of Category Activities Submitted',
+            'description':'The percentage of activities submitted by the student per category',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted]
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getPercentOfActivitiesSubmittedInCategory
+            },
+            'studentGoal': False,
+        },
                                                                             
     }
 

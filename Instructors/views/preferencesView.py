@@ -5,11 +5,11 @@ Created on Sep 15, 2016
 '''
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
-from django.utils.timezone import now
+
 from Badges.models import CourseConfigParams, LeaderboardsConfig
 from Badges.tasks import refresh_xp, recalculate_student_virtual_currency_total_offline
 from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
-from Instructors.views.utils import initialContextDict, current_localtime, str_datetime_to_local, datetime_to_selected
+from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 
@@ -104,7 +104,9 @@ def preferencesView(request):
             leaderboard.displayOnCourseHomePage = True
             leaderboard.courseID = currentCourse
             leaderboard.save()
-
+            
+        ccparams.xpLeaderboardUsed = "xpLeaderboardUsed" in request.POST 
+        
         # XP
         ccparams.xpWeightSChallenge = request.POST.get('xpWeightSChallenge')
         ccparams.xpWeightWChallenge = request.POST.get('xpWeightWChallenge')
@@ -114,7 +116,8 @@ def preferencesView(request):
             'xpCalculateSeriousByMaxScore')
         ccparams.xpCalculateWarmupByMaxScore = request.POST.get(
             'xpCalculateWarmupByMaxScore')
-
+        ccparams.xpDisplayUsed = "xpDisplayUsed" in request.POST 
+        
         # Skills
         ccparams.classSkillsDisplayed = "classSkillsDisplayed" in request.POST
         if ccparams.classSkillsDisplayed == True:
@@ -164,11 +167,9 @@ def preferencesView(request):
         ccparams.goalsUsed = "goalsUsed" in request.POST
         ccparams.studCanChangeGoal = "studCanChangeGoal" in request.POST
 
-        #Teams
-        if 'lockInDate' in request.POST:
-            ccparams.teamsLockInDeadline = str_datetime_to_local(request.POST['lockInDate'])
-        ccparams.maxNumberOfTeamStudents = request.POST['maxNumberOfTeamStudents']
-        ccparams.selfAssignment = 'selfAssignment' in request.POST
+        # Adaptation
+        ccparams.adaptationUsed = "adaptationUsed" in request.POST
+
        # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()
@@ -223,7 +224,8 @@ def preferencesView(request):
                 context_dict['leaderboardDescription'] = xpLeaderboard.leaderboardDescription
                 # context_dict["numStudentsDisplayed"]= xpLeaderboard.numStudentsDisplayed
             context_dict["numStudentsDisplayed"] = ccparams.numStudentsDisplayed
-
+            context_dict["xpLeaderboardUsed"] = ccparams.xpLeaderboardUsed
+          
             # XP
             context_dict["xpWeightSChallenge"] = ccparams.xpWeightSChallenge
             context_dict["xpWeightWChallenge"] = ccparams.xpWeightWChallenge
@@ -231,7 +233,8 @@ def preferencesView(request):
             context_dict["xpWeightAPoints"] = ccparams.xpWeightAPoints
             context_dict["xpCalculateSeriousByMaxScore"] = ccparams.xpCalculateSeriousByMaxScore
             context_dict["xpCalculateWarmupByMaxScore"] = ccparams.xpCalculateWarmupByMaxScore
-
+            context_dict["xpDisplayUsed"] = ccparams.xpDisplayUsed
+            
             # Skills
             context_dict["classSkillsDisplayed"] = ccparams.classSkillsDisplayed
             context_dict["skillLeaderboardDisplayed"] = ccparams.skillLeaderboardDisplayed
@@ -272,16 +275,10 @@ def preferencesView(request):
             context_dict['goalsUsed'] = ccparams.goalsUsed
             context_dict['studCanChangeGoal'] = ccparams.studCanChangeGoal
 
-            #Teams
-            context_dict['teamsEnabled'] = ccparams.teamsEnabled
-            context_dict['lockInDate'] = datetime_to_selected(ccparams.teamsLockInDeadline)
-            context_dict['maxNumberOfTeamStudents'] = ccparams.maxNumberOfTeamStudents
-            #students can join teams on their own
-            context_dict['selfAssignment'] = ccparams.selfAssignment
+            #Player-Types (Adaptation)
+            context_dict['adaptationUsed'] = ccparams.adaptationUsed
+
             
-            # Streaks
-            # moved to course config
-            #context_dict["streaksUsed"] = ccparams.streaksUsed
 
         return render(request, 'Instructors/Preferences.html', context_dict)
 

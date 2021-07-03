@@ -135,11 +135,6 @@ urlpatterns = [
     url(r'^checkAvatar', checkAvatar, name='checkAvatar'),
     url(r'^teamsList', teamList, name='teamList'),
     url(r'^teamJoin', studentTeamJoin, name='studentTeamJoin'),
-<<<<<<< HEAD
     url(r'^teamChallengeResults', teamChallengeResults, name='teamChallengeResults'),
-    
-=======
-
->>>>>>> parent of ea2b4212... Revert "Merge branch 'devdeploy' of ssh://oneup.wssu.edu/var/gitrepos/oneUp into teams_working_branch"
-
+    url(r'^checkAvatar', checkAvatar, name='checkAvatar'),
 ]

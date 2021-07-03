@@ -930,7 +930,10 @@ def duel_challenge_create(request):
             #s_t_hh_mm = request.POST['startTime']
 
             # Convert input time into integer
-            start_time = int(request.POST['startTime'])
+            local_time_compare = (abs(datetime_to_local(random_challenge.endTimestamp) - current_localtime()).total_seconds()/60.0) - 0.01 # this should be slightly less than the max for comparisons.
+            
+            start_time = min(local_time_compare, int(request.POST['startTime']))
+            
             duel_challenge.startTime = start_time
             custom_message +=" The duel will start in "+str(start_time)+" minute(s) after acceptance, and"
         else:
@@ -940,7 +943,11 @@ def duel_challenge_create(request):
         if 'timeLimit' in request.POST:
             # Convert input time into integer
             #t_l_hh_mm = request.POST['timeLimit']
-            time_limit = int(request.POST['timeLimit'])
+            
+            local_time_compare = abs(datetime_to_local(random_challenge.endTimestamp) - current_localtime()).total_seconds()/60.0
+            
+            time_limit = min(local_time_compare, int(request.POST['timeLimit']))
+            
             duel_challenge.timeLimit = time_limit
             custom_message +=" will last for "+str(time_limit)+" minute(s)."
         else:

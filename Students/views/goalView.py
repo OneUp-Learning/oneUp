@@ -49,6 +49,14 @@ def goal_view(request):
                                     
     if request.method == 'POST':
 
+        if 'goal_target' in request.POST:
+            student_duplicate_goal = StudentGoalSetting.objects.filter(completed=False, courseID=current_course, studentID=context_dict['student'], goalVariable=int(request.POST['goal_variable']))
+            
+            print('duplicated goal')
+            
+            if student_duplicate_goal.exists():
+                return redirect('goalslist')
+
         if 'goal_id' in request.POST:
             goal = StudentGoalSetting.objects.get(pk=int(request.POST['goal_id']))
             delete_goal_rule(goal)

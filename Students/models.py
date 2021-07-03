@@ -12,7 +12,7 @@ from Badges.enums import Action, Event, OperandTypes
 from Badges.models import (Badges, BadgesInfo, LeaderboardsConfig,
                            ProgressiveUnlocking, Rules,
                            VirtualCurrencyCustomRuleInfo,
-                           VirtualCurrencyRuleInfo)
+                           VirtualCurrencyRuleInfo, PlayerType)
 from Badges.systemVariables import SystemVariable
 from Instructors.models import (Activities, Challenges, ChallengesQuestions,
                                 Courses, FlashCards, Questions, Skills,
@@ -538,14 +538,6 @@ class TeamChallengeQuestions(models.Model):
     def __str__(self):
         return "{} : {} : {} : {}".format(self.teamChallengeQuestionID, self.teamChallengeID, self.questionID, self.challengeQuestionID)
 
-# This table has each question's answer that is answered by teams for all the above table's questions    
-
-class TeamChallengeAnswers(models.Model):
-    teamChallengeQuestionID = models.ForeignKey(TeamChallengeQuestions, on_delete=models.CASCADE, verbose_name="the related team_challenge_question", db_index=True)
-    teamAnswer = models.CharField(max_length=10000)
-    def __str__(self):              
-        return str(self.teamChallengeQuestionID) +","+str(self.teamAnswer)
-
 class TeamActivities(models.Model):
     teamActivityID = models.AutoField(primary_key=True)
     teamID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related team", db_index=True)
@@ -564,3 +556,12 @@ class TeamActivities(models.Model):
     comment = models.CharField(max_length=500, default="") #Comment submitted by the team
     def __str__(self):              
         return "{} : {} : {} : {}".format(self.teamActivityID, self.teamID, self.activityID, self.courseID)
+    
+# This model should logically go in Badges, but putting it there creates circular dependencies
+class StudentPlayerType(models.Model):
+    course = models.ForeignKey(Courses, on_delete=models.SET_NULL, null=True, verbose_name="the related course", db_index=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
+    playerType = models.ForeignKey(PlayerType, on_delete=models.CASCADE, verbose_name="the player type", db_index=True)
+    def __str__(self):
+        return "Student "+str(self.student.user.username)+" has player type "+str(self.playerType.name)
+

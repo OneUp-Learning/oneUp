@@ -25,7 +25,7 @@ from Instructors.views.challengeAdjusmentView import (adjustmentList,
 from Instructors.views.challengeCreateView import challengeCreateView
 
 from Instructors.views.challengeListView import (challengesList,
-                                                 warmUpChallengeList, teamChallengesList)
+                                                 warmUpChallengeList)
 from Instructors.views.challengeQuestionsListView import (
     challengeQuestionsListView, deleteProblemsButFilterTakenByStudent)
 from Instructors.views.challengeSaveSelectedQuestionsView import \
@@ -57,7 +57,9 @@ from Instructors.views.deleteView import (deleteActivity, deleteAnnouncement,
                                           deleteQuestion,
                                           deleteQuestionFromChallenge,
                                           deleteSkill, deleteStudent,
-                                          deleteTopic, deleteUser, deleteFlashCard, deleteGroup, deleteTeam)
+                                          deleteTopic, deleteUser, 
+                                          deleteFlashCard, deleteGroup,
+                                          deletePlayerType)
 from Instructors.views.DuelReportView import duel_challenge_report, duel_report
 from Instructors.views.dynamicLeaderboardView import dynamicLeaderboardView
 # Dynamic Questions Stuff
@@ -86,8 +88,7 @@ from Instructors.views.reorderChallengeSaveQuestions import \
     reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 from Instructors.views.reorderViews import (receive_item_in_section,
-                                            reorder_list, moveTeamStudents,
-                                            updateTeamLeader)
+                                            reorder_list)
 from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
@@ -136,12 +137,9 @@ from Instructors.views.flashCardGroupListView import groupListView, validateFlas
 from Instructors.views.flashCardGroupCreateView import groupCreateView
 from Instructors.views.flashCardCreateView import CreateFlashCards
 
-#Teams
-from Instructors.views.teamListView import teamListView, autoAssign
-from Instructors.views.teamCreateView import teamCreateView
-from Instructors.views.teamCreateNView import CreateNTeams
-from Instructors.views.teamsDeactivateView import deactivateTeams
-from Instructors.views.teamsPastTeamsView import pastTeams
+#Adaptation
+from Instructors.views.createPlayerType import createPlayerTypeView
+from Instructors.views.playerTypeList import playerTypeListView
 
 from Instructors.views.reorderViews import reorderGroups
 admin.autodiscover()
@@ -208,7 +206,8 @@ urlpatterns = [
     url(r'^deleteStudent', deleteStudent, name='deleteStudent'),
     url(r'^deleteGroup', deleteGroup, name='deleteGroup'),
     url(r'^deleteFlashCard', deleteFlashCard, name='deleteFlashCard'),
-
+    url(r'^deletePlayerType', deletePlayerType, name='deletePlayerType'),
+    #    url(r'^deleteUser', deleteUser, name='deleteUser'),
     url(r'^$', index, name='home'),
    
     url(r'^forms/MatchingForm', matchingForm, name='newEssayForm'),
@@ -297,18 +296,7 @@ urlpatterns = [
     url(r'^groupCreate', groupCreateView, name='groupCreateView'),
     url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
     url(r'^ReorderGroups', reorderGroups, name='reorderGroups'),
-    #Teams
-    url(r'^teamList',teamListView, name='teamListView'),
-    url(r'^teamCreateN', CreateNTeams, name='teamCreateNView'),
-    url(r'^teamCreate', teamCreateView, name='teamCreateView'),
-    url(r'^deleteTeam', deleteTeam, name='deleteTeam'),
-    url(r'^teamAutoAssign',autoAssign, name='autoAssign'),
-    url(r'^moveTeamStudents', moveTeamStudents, name='moveTeamStudents'),
-    url(r'^updateTeamLeader', updateTeamLeader, name='updateTeamLeader'),
-    url(r'^deactivateTeams', deactivateTeams, name='deactivateTeamsView'),
-    url(r'^pastTeams', pastTeams, name='teamsPastTeamsView'),
-    url(r'^teamChallengesList', teamChallengesList, name='teamChallengesList'),
-
-
+    url(r'^CreatePlayerType', createPlayerTypeView, name='createPlayerType'),
+    url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList')
 ]
 

@@ -52,7 +52,6 @@
     					
                   if(todaysDate.setHours(0,0,0,0) > startDateValue.setHours(0,0,0,0)) { // compare the current date to the date entered into the form
                 	  field.val(todayDateString); // set the field to today's date
-                    console.log(todayDateString)
                   }
                })
             }
@@ -165,16 +164,12 @@
                {% if challengeID %}
                {% if warmUp %}
                <h3>View Warm Up Challenge</h3>
-               {% elif team %}
-               <h3>View Team Challenge</h3>
                {% else %}
                <h3>View Serious Challenge</h3>
                {% endif %}
                {% else %}
                {% if warmUp %}
                <h3>Create Warm Up Challenge</h3>
-               {% elif team %}
-               <h3>Create Team Challenge</h3>
                {% else %}
                <h3>Create Serious Challenge</h3>
                {% endif %}
@@ -188,9 +183,6 @@
                   {% csrf_token %}
                   <input type="hidden" name="numAnswers" id="numAnswers" value="{{num_answers}}">
                   <input type="hidden" name="challengeID" id="challengeID" value="{{challengeID}}">
-                  {% if teamsEnabled and team %}
-                        <input type="hidden" name="isTeamChallenge" id="isTeamChallenge" value="true">
-                  {% endif %}
                   {% if not warmUp %}
                   <input type="hidden" name ="isGraded" value="true">
                   {% endif %}
@@ -314,14 +306,12 @@
                                 <label for="curve_id"><h6>Curve</h6</label>
                              </div>
                         </div>
-                        {% if not team %}
                         <div class="row">
                            <div class="col s12">
                               <label for="topics"><h6>Topics</h6></label>
                               <div id="topics" {%if view == False%}class="chips chips-topics-autocomplete"{%endif%}></div>
                            </div>
                         </div>
-                        {% endif %}
                         <div class="row">
                            <div class="col s12">
                               <label for="tags"><h6>Tags</h6><label style="position:relative; bottom:0.5em;">(you must press enter after each tag)</label></label>

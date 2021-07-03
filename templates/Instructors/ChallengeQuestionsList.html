@@ -106,35 +106,35 @@
 									<ul id='dropdown-{{i}}' class='dropdown-content'>
 										{% csrf_token %}
 										{% if q_type_name == 'multipleChoice' %}
-										<li><a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+										<li class="not-sortable"><a href="/oneUp/instructors/forms/MultipleChoiceForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
 										</li>
 										{% endif %}
 										{% if q_type_name == 'multipleAnswers' %}
-										<li><a href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+										<li class="not-sortable"><a href="/oneUp/instructors/forms/MultipleAnswersForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
 										</li>
 										{% endif %}
 										{% if q_type_name == 'matching' %}
-										<li><a href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+										<li class="not-sortable"><a href="/oneUp/instructors/forms/MatchingForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
 										</li>
 										{% endif %}
 										{% if q_type_name == 'trueFalse' %}
-										<li><a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+										<li class="not-sortable"><a href="/oneUp/instructors/forms/TrueFalseForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
 										</li>
 										{% endif %}
 										{% if q_type_name == 'parsons' %}
-										<li><a href="/oneUp/instructors/forms/ParsonsForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+										<li class="not-sortable"><a href="/oneUp/instructors/forms/ParsonsForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
 										</li>
 										{% endif %}
 										{% if q_type_name == 'dynamic' %}
-										<li><a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+										<li class="not-sortable"><a href="/oneUp/instructors/forms/DynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
 										</li>
 										{% endif %}
 										{% if q_type_name == 'templatedynamic' %}
-										<li><a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
+										<li class="not-sortable"><a href="/oneUp/instructors/forms/TemplateDynamicQuestionForm?questionId={{q_ID}}&challengeID={{challengeID}}&challengeQuestionID={{challenge_question_id}}">Edit</a>
 										</li>
 										{% endif %}
-										<li class="divider"></li>
-										<li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
+										<li class="divider not-sortable"></li>
+										<li class="not-sortable"><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
 									</ul>
 									<div id="modal_delete-{{i}}" class="modal no-padding">
 										<div class="modal-content">
@@ -188,10 +188,7 @@
 							</div>
 						</div>
 						{% endif %}
-						{% if teamChallenge %}
-						<a class="waves-effect waves-light btn" href="/oneUp/instructors/teamChallengesList">
-							<i class="material-icons left">navigate_before</i>Back</a>
-						{% elif warmUp %}
+						{% if warmUp %}
 						<a class="waves-effect waves-light btn" href="/oneUp/instructors/warmUpChallengeList">
 							<i class="material-icons left">navigate_before</i>Back</a>
 						{% elif serious %}

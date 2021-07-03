@@ -91,13 +91,10 @@ def makeContextDictForChallengeList(context_dict, courseId, indGraded, teamChall
         UnassignID = challID.challengeID   
         
     if indGraded:    
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=True, isTeamChallenge=False)
-    elif teamChallenge:
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=True)
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=True)
     else:
-        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False, isTeamChallenge=False)
-
- 
+        challenges = Challenges.objects.filter(courseID=courseId, isGraded=False)
+    
     for item in challenges:
         if item.challengeID != UnassignID:
             chall_ID.append(item.challengeID) #pk
@@ -158,11 +155,11 @@ def challengesList(request):
 
     
     if warmUp == 1:
-        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False, False)
+        context_dict = makeContextDictForChallengeList(context_dict, currentCourse, False)
         #print(context_dict)
     else:
         if not context_dict['ccparams'].seriousChallengesGrouped:
-            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True, False)
+            context_dict = makeContextDictForChallengeList(context_dict, currentCourse, True)
         else:
             topic_ID = []      
             topic_Name = [] 
@@ -269,7 +266,7 @@ def challengesForTopic(topic, currentCourse, isGraded=False):
         challenge_topics = ChallengesTopics.objects.filter(topicID=topic)
         if challenge_topics:           
             for challt in challenge_topics:
-                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=isGraded, isTeamChallenge=False, courseID=currentCourse):
+                if Challenges.objects.filter(challengeID=challt.challengeID.challengeID, isGraded=isGraded, courseID=currentCourse):
                     chall_ID.append(challt.challengeID.challengeID)
                     chall_Name.append(challt.challengeID.challengeName)
                     #chall_Difficulty.append(challt.challengeID.challengeDifficulty)
