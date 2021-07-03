@@ -1,5 +1,5 @@
 from Instructors.views.utils import initialContextDict
-from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
+from Students.models import Student, StudentRegisteredCourses, StudentConfigParams, StudentPlayerType
 from django.contrib.auth.models import User
 import glob
 
@@ -24,7 +24,24 @@ def studentInitialContextDict(request):
         
     studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
     context_dict['scparams'] = studentConfigParams
-        
+    
+    ###If adapation used for the student, update gamification settings to use PlayerType profiles
+    if context_dict['ccparams'].adaptationUsed:
+        studentPlayerType = StudentPlayerType.objects.filter(course=currentCourse, student=student).first()
+        #If an adapation profile exists for the student, update gamification configuration
+        if studentPlayerType:
+            playerType = studentPlayerType.playerType
+            context_dict['ccparams'].badgesUsed = playerType.badgesUsed
+            context_dict['ccparams'].levelingUsed = playerType.levelingUsed
+            context_dict['ccparams'].classmatesChallenges = playerType.classmatesChallenges
+            context_dict['ccparams'].betVC = playerType.betVC
+            context_dict['ccparams'].progressBarUsed= playerType.progressBarUsed
+            context_dict['ccparams'].displayStudentStartPageSummary = playerType.displayStudentStartPageSummary
+            context_dict['ccparams'].displayAchievementPage = playerType.displayAchievementPage
+            context_dict['ccparams'].leaderboardUsed = playerType.leaderboardUsed
+            context_dict['ccparams'].virtualCurrencyUsed = playerType.virtualCurrencyUsed
+            context_dict['ccparams'].goalsUsed = playerType.goalsUsed
+            
     return context_dict,currentCourse
 
 def studentInstructorInitialContextDict(request):

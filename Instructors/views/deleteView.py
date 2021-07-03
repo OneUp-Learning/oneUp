@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Instructors.models import (Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, ChallengesTopics, CoursesTopics,
                                 Announcements, Activities, FlashCardGroup, FlashCardToGroup, FlashCards, FlashCardGroupCourse)
-from Badges.models import VirtualCurrencyCustomRuleInfo
+from Badges.models import VirtualCurrencyCustomRuleInfo, PlayerType
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (Activities, Announcements, Challenges,
                                 ChallengesQuestions, Courses, Questions,
@@ -395,8 +395,30 @@ def deleteFlashCard(request):
                 card.delete()
         except FlashCards.DoesNotExist:
             
-            message = f"There was a problem deleting flash card #{group.groupID} {group.groupName}"
+            message = f"There was a problem deleting flash card #{card.flashID} {card.flashName}"
             
         context_dict['message'] = message  
     return redirect('/oneUp/instructors/groupList', context_dict)
+
+@login_required
+@user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
+def deletePlayerType(request):
+
+    context_dict, currentCourse = initialContextDict(request)
+    if request.POST:
+
+
+        try:
+            if request.POST['playerTypeID']:
+                print("Here")
+                pt = PlayerType.objects.get(pk=int(request.POST['playerTypeID']))           
+                message = f"Flash Card #{pt.id} {pt.name} successfully deleted"
+                pt.delete()
+        except PlayerType.DoesNotExist:
+            
+            message = f"There was a problem deleting the player type #{pt.id} {pt.name}"
+            
+        context_dict['message'] = message  
+    return redirect('/oneUp/instructors/PlayerTypeList', context_dict)
+
     

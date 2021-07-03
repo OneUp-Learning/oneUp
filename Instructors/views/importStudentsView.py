@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.http import JsonResponse
 
 from Instructors.views.utils import initialContextDict, sendEmail
-from Instructors.models import UploadedFiles
+from Instructors.models import UploadedFiles, UniversityCourses, Universities
 from Instructors.constants import anonymous_avatar
 from Instructors.views.preferencesView import createSCVforInstructorGrant
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
@@ -158,11 +158,16 @@ def importStudents(request):
             print("file number", file_type_number)
             students = process_file(upfile.uploadedFile.name, file_type_number)
 
-            if 'email_domain_name' in request.POST:
-                email_domain = request.POST['email_domain_name']
-                #this strips out leading at sign,because its predicted someone somewhere will enter @email domain
-                email_domain = email_domain.replace('@', '')
-
+            # if 'email_domain_name' in request.POST:
+            #     email_domain = request.POST['email_domain_name']
+            #     #this strips out leading at sign,because its predicted someone somewhere will enter @email domain
+            #     email_domain = email_domain.replace('@', '')
+            
+            #get university email postfix from database
+            university_course = UniversityCourses.objects.get(courseID=currentCourse)
+            university = university_course.universityID
+            postfix = university.universityPostfix
+            print('Postfix:', postfix)
             if file_type_number == 0:
                 index = -1
                 for student_data in students:
@@ -185,8 +190,8 @@ def importStudents(request):
             if file_type_number == 1:
                 index = -1
                 for student_data in students:
-                    username = student_data[2] + "@" + email_domain# The sutdnt username without @email domain
-                    email = student_data[2] + "@" +email_domain
+                    username = student_data[2] + "@" + postfix# The sutdnt username without @email domain
+                    email = student_data[2] + "@" +postfix
                     password = generate_secure_password()
                     print("psswd", username, email, password, student_data, currentCourse, ccparams)
 
