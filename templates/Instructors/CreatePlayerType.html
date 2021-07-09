@@ -93,6 +93,25 @@
                     </div>
                     <div class="card" style="transform: translateZ(0);">
                         <div class="card-content">
+                            <span class="card-title">Experience Points</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable XP 
+                                        {% if xpDisplayUsed%}
+                                        <input name="xpDisplayUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="xpDisplayUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>  
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
                             <span class="card-title">Virtual Currency</span>
                             <div class="row">
                                 <div class="switch col s12">
@@ -120,10 +139,10 @@
                                 <div class="switch col s12">
                                     <label>
                                         Enable the use of Duels and Callouts
-                                        {% if classmateChallenges %}
-                                        <input name="classmateChallenges" type="checkbox" checked>
+                                        {% if classmatesChallenges %}
+                                        <input name="classmatesChallenges" type="checkbox" checked>
                                         {% else %}
-                                        <input name="classmateChallenges" type="checkbox">
+                                        <input name="classmatesChallenges" type="checkbox">
                                         {% endif %}
                                         <span class="lever secondary-content"></span>
                                     </label>
@@ -199,6 +218,19 @@
                                     </label>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable XP Leaderboard
+                                        {% if xpLeaderboardUsed %}
+                                        <input name="xpLeaderboardUsed" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="xpLeaderboardUsed" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card" style="transform: translateZ(0);">
@@ -220,6 +252,8 @@
                         </div>
                     </div>
                     
+                   
+                  
                    
                     
                 </div>

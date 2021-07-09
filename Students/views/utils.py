@@ -41,6 +41,8 @@ def studentInitialContextDict(request):
             context_dict['ccparams'].leaderboardUsed = playerType.leaderboardUsed
             context_dict['ccparams'].virtualCurrencyUsed = playerType.virtualCurrencyUsed
             context_dict['ccparams'].goalsUsed = playerType.goalsUsed
+            context_dict['ccparams'].xpDisplayUsed = playerType.xpDisplayUsed
+            context_dict['ccparams'].xpLeaderboardUsed = playerType.xpLeaderboardUsed
             
     return context_dict,currentCourse
 

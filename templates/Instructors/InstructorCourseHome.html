@@ -117,6 +117,8 @@
                       
                     </div>
                   {% for leaderboardNames, leaderboardDescriptions, leaderboardRankings in leaderboard_range %} 
+                  {% if leaderboardNames == "XP Leaderboard" and not ccparams.xpLeaderboardUsed %}
+                  {% else %}
                   <div class="col s12">
                   <div class="card-panel">
                   <table>
@@ -138,6 +140,7 @@
                   </table>
                   </div>
                   </div>
+                  {% endif %}
                   {% endfor %}
                    <div class="col s12 m6"></div>
                   </div>
