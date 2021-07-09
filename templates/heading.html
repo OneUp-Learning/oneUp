@@ -538,6 +538,9 @@
 		            {% endif %}
 		    
                     <li><a class="waves-effect " href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
+                    {% if ccparams.adaptationUsed %}
+                    <li><a class="waves-effect" href="/oneUp/instructors/PlayerTypeList">Adaptation</a></li>
+                    {% endif %}
                 </ul>
             </li>
             {% endif %}
@@ -699,6 +702,9 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/debugSysVars">Debug System Variables</a></li>
 				                {% endif %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
+                                {% if ccparams.adaptationUsed %}
+                                <li><a class="waves-effect" href="/oneUp/instructors/PlayerTypeList">Adaptation</a></li>
+                                {% endif %}
                             </ul>
                         </div>
                     </li>

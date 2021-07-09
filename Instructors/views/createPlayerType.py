@@ -21,12 +21,9 @@ def createPlayerTypeView(request):
 
     if request.POST:
         if request.POST['playerTypeID']:
-            print("--> POST Edit Mode")
             playerType = PlayerType.objects.filter(pk=int(request.POST['playerTypeID']),course=currentCourse).first()
-            print("POST Edit Mode",playerType)
         else:
             # Create new player type
-            print('NEW')
             playerType = PlayerType()
             playerType.course = currentCourse
         playerType.name = request.POST['name']
@@ -36,10 +33,14 @@ def createPlayerTypeView(request):
         playerType.goalsUsed = "goalsUsed" in request.POST
         playerType.virtualCurrencyUsed = "virtualCurrencyUsed" in request.POST
         playerType.leaderboardUsed = "leaderboardUsed" in request.POST
-        playerType.classmateChallenges = "classmateChallenges" in request.POST
+        playerType.classmatesChallenges = "classmatesChallenges" in request.POST
+        playerType.betVC = "betVC" in request.POST
         playerType.displayAchievementPage= "displayAchievementPage" in request.POST
-        playerType.displayStudentStartPageSummary = 'displayStartPageSummary' in request.POST
-        
+        playerType.xpLeaderboardUsed = "xpLeaderboardUsed" in request.POST 
+        playerType.xpDisplayUsed = "xpDisplayUsed" in request.POST
+        # Student Starting Page
+        playerType.displayStudentStartPageSummary = request.POST.get(
+            'displayStudentStartPageSummary') 
 
 
         
@@ -54,14 +55,15 @@ def createPlayerTypeView(request):
             context_dict['playerTypeID'] = playerType.pk
             context_dict['badgesUsed'] = playerType.badgesUsed
             context_dict['levelingUsed'] = playerType.levelingUsed
-            context_dict['classmateChallenges'] = playerType.classmatesChallenges
+            context_dict['classmatesChallenges'] = playerType.classmatesChallenges
+            context_dict['betVC'] = playerType.betVC
             context_dict['progressBarUsed'] = playerType.progressBarUsed
-            
             context_dict['displayAchievementPage'] = playerType.displayAchievementPage
             context_dict['virtualCurrencyUsed'] = playerType.virtualCurrencyUsed
             context_dict['leaderboardUsed'] = playerType.leaderboardUsed
             context_dict['goalsUsed'] = playerType.goalsUsed
-            context_dict['displayStartPageSummary'] = playerType.displayStudentStartPageSummary
-           
+            context_dict['displayStudentStartPageSummary'] = playerType.displayStudentStartPageSummary
+            context_dict["xpDisplayUsed"] = playerType.xpDisplayUsed
+            context_dict["xpLeaderboardUsed"] = playerType.xpLeaderboardUsed
  
         return render(request,'Instructors/CreatePlayerType.html', context_dict)
