@@ -2,6 +2,21 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+       <style>
+      .itemconfiguration{
+       	
+			float:left;
+			position:relative;
+			height:440px;
+			overflow-y: scroll;
+		}
+		.left_contentlist{
+			
+			padding:0 0 0 10px;
+			position:relative;
+			float:left;
+		}
+		</style>
    </head>
    <body>
       {% include 'heading.html' %}
@@ -45,15 +60,20 @@
                            <div class="col s12">
                               <h5><span class= "red-text">*</span> Badge Image</h5>
                               <p>Choose an image for the badge</p>
-                           </div>
-                           {% for i, image in imagePaths %}
-                           <div class="col s12 m3">
-                           <!-- GGM added required to the input so we require a badge image selection -->
-                              <input name="badgeImage" type="radio" id="Badge{{i}}" value="{{image}}" required {% if badge.badgeImage == image %}checked{% endif %}/>
-                              <label for="Badge{{i}}"><img alt="Badge Image" width="85px" height="85px" src="/{{image}}"></label>
-                           </div>
-                           {% endfor %}
-                        </div>
+                              <div class="left_contentlist">
+							   	<form action="filter" method="post">
+							      <div class="itemconfiguration" style="padding-left: 30px;">
+							    	<input type="hidden" value="2" name="hiddenconfig" />					                              
+			                           {% for i, image in imagePaths %}
+			                           <div class="col s12 m3">
+			                           <!-- GGM added required to the input so we require a badge image selection -->
+			                              <input name="badgeImage" type="radio" id="Badge{{i}}" value="{{image}}" required {% if badge.badgeImage == image %}checked{% endif %}/>
+			                              <label for="Badge{{i}}"><img alt="Badge Image" width="85px" height="85px" src="/{{image}}"></label>
+			                           </div>
+			                           {% endfor %} 
+                        		</div>
+                       		 <div>
+                       		 
                         <!-- if we want a custom badge for manual, we need to remove the conditional box GMM -->
                         {% if not isManualBadge %}
 	                        <div class="row">
@@ -64,6 +84,7 @@
                         	{% include "Badges/conditionInterface.html" %}
                         {% endif %}
                      </div>
+                     <div class="col s12">
                      <div class="card-action right-align">
                      <!-- name will be changed depending on what this is GMM, either custom or edit GGM -->
                      	<button id="button" class="btn waves-effect waves-light" type="submit" {% if edit %}name="edit">Save{% else %}name="create">Create{% endif %}<i class="material-icons right">send</i>
