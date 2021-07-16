@@ -777,11 +777,21 @@
                                 // Have to deep copy settings since highcharts uses references
                                 var copied_settings = JSON.parse(JSON.stringify(chart_settings));
                                 copied_settings.chart.renderTo = indicatorsFound[i].id;
+                                var progress_data = indicatorsFound[i].dataset.goalprogress;
+                                
+                                if (progress_data <= 100){
+                                    progress_data = parseInt(progress_data);
+                                }
+                                else {
+                                    progress_data = 100;
+                                }
+				progress_data_length = progress_data.toString().length;
+
                                 if(indicatorsFound[i].id.endsWith("mobile")){
                                     copied_settings.tooltip.positioner = function (labelWidth) {
                                         return {
-                                            x: (this.chart.chartWidth - 55) / 2,
-                                            y: (this.chart.plotHeight / 2) + 14
+                                            x: this.chart.chartWidth / 2 * (1-(1+progress_data_length)/10),
+                                            y: (this.chart.plotHeight / 2)
                                         };
                                     };
                                 } else {
@@ -797,14 +807,6 @@
                                 copied_settings.pane.background[0].backgroundColor = background_colors[status];
 
                                 var chart = new Highcharts.Chart(copied_settings);
-                                var progress_data = indicatorsFound[i].dataset.goalprogress;
-                                
-                                if (progress_data <= 100){
-                                    progress_data = parseInt(progress_data);
-                                }
-                                else {
-                                    progress_data = 100;
-                                }
                                 
                                 chart.series[0].points[0].color = colors[status];
                                 chart.series[0].points[0].update(progress_data);
