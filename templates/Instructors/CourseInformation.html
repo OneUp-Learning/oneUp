@@ -2,6 +2,8 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+    	<script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+		<script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
    </head>
    <body>
       {% include 'heading.html' %}
@@ -12,16 +14,23 @@
             </div>
          </div>
          <div class="row">
-            <div class="col s12 m10 offset-m1">
+            <div class="col s12 m8 offset-m2">
                <form name="coursedescr" action="/oneUp/instructors/courseInformation" method="POST">
                   {% csrf_token %}
                   <div class="card">
                      <div class="card-content">
                         <div class="row">
-                           <div class="input-field col s12">
-								<i class="material-icons prefix">mode_edit</i>
-                              <textarea name="courseDescr" id="courseDescr" class="materialize-textarea">{{course_Description}}</textarea>
-                              <label for="courseDescr">Course Description</label>
+                  
+                          <i class="material-icons prefix">mode_edit</i>
+                      
+                          <label for="courseDescr">Course Description</label>  
+                                                 
+                           <div class="django-ckeditor-widget" data-field-id="0">
+                              <textarea name="courseDescr" id="courseDescr" rows="2" cols="70"
+                                 {%if view%}readonly{%else%}required{%endif%} data-processed="0"
+                                 data-config="{{ ckeditor.config }}"
+                                 data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}"
+                                 data-id="courseDescr" data-type="ckeditortype">{{ course_Description }}</textarea>
                            </div>
                         </div>
                      </div>

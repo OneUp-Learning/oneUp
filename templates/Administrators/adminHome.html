@@ -18,45 +18,61 @@
                                  <th>Courses</th>
                               </thead>
                               <tbody>
-                                 {% for i, id, course in courses %}
-                                 <tr>
-                                    <td>{{course}}</td>
-                                    <td>
-                                       <form action="/oneUp/administrators/deleteItem" method="POST">
-                                          {% csrf_token %}
-                                          <input type="hidden" name="courseToDelete" value="{{id}}"> 
-                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_course{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                          <ul id='dropdown_course{{i}}' class='dropdown-content'>
-                                             <li><a href="/oneUp/administrators/createCourse?courseID={{id}}">Edit</a></li>
-                                             <li class="divider"></li>
-                                             <li><a class="modal-trigger" href="#modal_delete_course{{i}}">Delete</a></li>
-                                          </ul>
-                                          <div id="modal_delete_course{{i}}" class="modal">
-                                             <div class="modal-content">
-                                                <h5>Are you sure you want to delete?</h5>
-                                             </div>
-                                             <div class="modal-footer">
-                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
-                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
-                                                </button>                                        
-                                             </div>
-                                          </div>
-                                       </form>
-                                    </td>
-                                 </tr>
-                                 {% empty %}
-                                 <tr>
-                                    <td class="center-align" colspan="2"><i>No courses created.</i></td>
-                                 </tr>
-                                 {% endfor %}
+                                {% for university in universityList %}
+                                
+                                    <td><b>{{university}}</b></td>
+                  							
+		                                 {% for i, id, curseUni, course in courses %}
+			                                   <tr>		
+			                                 
+			                                 {% if curseUni == university %}             
+			                                    <td>{{course}} <td>
+			                                    <td> 
+			                                       <form action="/oneUp/administrators/deleteItem" method="POST">
+			                                          {% csrf_token %}
+			                                          <input type="hidden" name="courseToDelete" value="{{id}}"> 
+			                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_course{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+			                                          <ul id='dropdown_course{{i}}' class='dropdown-content'>
+			                                             <li><a href="/oneUp/administrators/createCourse?courseID={{id}}">Edit</a></li>
+			                                             <li class="divider"></li>
+			                                             <li><a class="modal-trigger" href="#modal_delete_course{{i}}">Delete</a></li>
+			                                          </ul>
+			                                          <div id="modal_delete_course{{i}}" class="modal">
+			                                             <div class="modal-content">
+			                                                <h5>Are you sure you want to delete?</h5>
+			                                             </div>
+			                                             <div class="modal-footer">
+			                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+			                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+			                                                </button>                                        
+			                                             </div>
+			                                          </div>
+			                                       
+			                                       </form>
+			                                    </td>
+			                                 </tr>
+		                               	{% endif %}
+		                           	 {% empty %}
+		                             <tr>
+		                                 <td class="center-align" colspan="2"><i>No courses created.</i></td>
+		                             </tr>
+		                            {% endfor %} 
+		                          		
+		                        {% empty %}
+		                        <tr>
+		                           <td class="center-align" colspan="2"><i>No universites created</i></td>
+		                        </tr>
+		                        {% endfor %}
                               </tbody>
                            </table>
                         </div>
+                      
                         <div class="card-action right-align">
                            <a class="waves-effect waves-light btn" href="/oneUp/administrators/createCourse"><i class="material-icons right">navigate_next</i>Create</a>
                         </div>
                      </div>
                   </div>
+                   
                   <div class="col s10 m3">
                      <div class="card">
                         <div class="card-content">
@@ -188,7 +204,7 @@
                   </div>
                </div>
             </div>
-         </div>
+         </div> 
       </main>
       {% include 'footer.html' %}
    </body>
