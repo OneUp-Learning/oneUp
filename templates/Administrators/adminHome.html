@@ -18,7 +18,7 @@
                                  <th>Courses</th>
                               </thead>
                               <tbody>
-                                {% for university in universityList %}
+                                {% for university in courseUniversityList %}
                                 
                                     <td><b>{{university}}</b></td>
                   							
@@ -129,38 +129,49 @@
                                  <th><i class="tooltipped material-icons secondary-content primary-surface-colored-text" data-position="top" data-tooltip="instructor">person</i></th>
                               </thead>
                               <tbody>
-                                 {% for instructor, isAdmin in instructors %}
-                                 <tr>
-                                    <td>{{instructor}} &nbsp;<i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="instructor">person</i>{% if isAdmin %} <i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="administrator">vpn_key</i>{% endif %}</td>
-                                    <td>
-                                       <form action="/oneUp/administrators/deleteItem" method="POST">
-                                          {% csrf_token %}
-                                          <input type="hidden" name="instructorToDelete" value="{{instructor.username}}"> 
-                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_instructor{{instructor}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
-                                          <ul id='dropdown_instructor{{instructor}}' class='dropdown-content'>
-                                             <li><a href="/oneUp/administrators/createTeacher?instructorID={{instructor}}">Edit</a></li>
-                                             <li class="divider"></li>
-                                             <li><a class="modal-trigger" href="#modal_delete_instructor{{instructor}}">Delete</a></li>
-                                          </ul>
-                                          <div id="modal_delete_instructor{{instructor}}" class="modal">
-                                             <div class="modal-content">
-                                                <h5>Are you sure you want to delete?</h5>
-                                             </div>
-                                             <div class="modal-footer">
-                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
-                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
-                                                </button>                                        
-                                             </div>
-                                          </div>
-                                       </form>
-                                    </td>
-                                 </tr>
-                                 {% empty %}
-                                 <tr>
-                                    <td class="center-align" colspan="2"><i>No instructors created.</i></td>
-                                 </tr>
-                                 {% endfor %}
+                               {% for university in instructUniversityList %}
+                               
+                          		     <td><b>{{university}}</b></td>
+                          		     
+	                                 {% for instructor, instructList, isAdmin in instructors %}
+	                                 <tr>
+	                                	 {% if instructList == university %}   
+		                                    <td>{{instructor}} &nbsp;<i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="instructor">person</i>{% if isAdmin %} <i style="vertical-align:bottom;" class="material-icons" data-position="top" data-tooltip="administrator">vpn_key</i>{% endif %}</td>
+		                                    <td>
+		                                       <form action="/oneUp/administrators/deleteItem" method="POST">
+		                                          {% csrf_token %}
+		                                          <input type="hidden" name="instructorToDelete" value="{{instructor.username}}"> 
+		                                          <a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates='dropdown_instructor{{instructor}}' data-position="right" data-delay="50" data-tooltip="Options"><i class="material-icons">more_vert</i></a>                                
+		                                          <ul id='dropdown_instructor{{instructor}}' class='dropdown-content'>
+		                                             <li><a href="/oneUp/administrators/createTeacher?instructorID={{instructor}}">Edit</a></li>
+		                                             <li class="divider"></li>
+		                                             <li><a class="modal-trigger" href="#modal_delete_instructor{{instructor}}">Delete</a></li>
+		                                          </ul>
+		                                          <div id="modal_delete_instructor{{instructor}}" class="modal">
+		                                             <div class="modal-content">
+		                                                <h5>Are you sure you want to delete?</h5>
+		                                             </div>
+		                                             <div class="modal-footer">
+		                                                <a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+		                                                <button class="modal-action modal-close waves-effect waves-light btn-flat"  type="submit" name="submit" value="Delete">Delete
+		                                                </button>                                        
+		                                             </div>
+		                                          </div>
+		                                       </form>
+		                                    </td>
+		                                 </tr>
+		                                {% endif %}
+	                                 {% empty %}
+	                                 <tr>
+	                                    <td class="center-align" colspan="2"><i>No instructors created.</i></td>
+	                                 </tr>
+	                                 {% endfor %}
                               </tbody>
+                           {% empty %}
+		                      <tr>
+		                        <td class="center-align" colspan="2"><i>No universites created</i></td>
+		                      </tr>
+		                   {% endfor %}
                            </table>
                         </div>
                         <div class="card-action right-align">
