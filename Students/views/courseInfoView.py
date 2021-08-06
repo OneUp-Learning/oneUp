@@ -9,6 +9,7 @@ from Students.models import Student, StudentRegisteredCourses
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
 from Badges.models import CourseConfigParams
+from oneUp.ckeditorUtil import config_ck_editor
 
 @login_required
 def CourseInformation(request):
@@ -30,5 +31,6 @@ def CourseInformation(request):
             skill_Name.append(s.skillName)
                     
     context_dict['skill_range'] = zip(range(1,cskills.count()+1),skill_ID,skill_Name)
+    context_dict['ckeditor'] = config_ck_editor()
         
     return render(request,'Students/CourseInformation.html', context_dict)

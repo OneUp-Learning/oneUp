@@ -2,6 +2,10 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <style>
+         #Weights { width: 500px; }
+         .grow { width: 100%; }​
+      </style>
    </head>
    <body>
       {% include 'stheading.html' %}
@@ -24,7 +28,27 @@
                            {% for leaderboard_name,leaderboard_description in leaderboard_range %}
                            <tr>
                               <td>{{leaderboard_name}}</td>
+                              {% if leaderboard_name == 'XP Leaderboard' %}
+                              <td><table class="responsive-table", id="Weights">
+                                 <thead>
+                                    {% for value, name in weights%}
+                                    {% if value > 0 %}
+                                       <th>{{name}} Points</th>
+                                    {%endif%}
+                                    {%endfor%}
+                                 </thead>
+                                 <tr>
+                                    {% for value, name in weights%}
+                                    {% if value > 0 %}
+                                       <td>{{value}}%</td>
+                                    {%endif%}
+                                    {%endfor%}
+                                 </tr>
+                                 <br> {{leaderboard_description}}
+                              </table></td>
+                              {% else %}
                               <td>{{leaderboard_description}}</td>
+                              {%endif%}
                            </tr>
                            {% empty %}
                            <tr>

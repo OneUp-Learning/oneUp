@@ -664,13 +664,13 @@ def earliest_challenge_submission_in_class(course, student, challenge):
     print("[DATE] {}".format(earliest_submission.date()))
     return earliest_submission.date()
 
-def sc_reached_due_date(course, student, serious_challenge):
-    ''' This will return True/False if the serious challenge due date has been reached
+def sc_reached_due_date(course, student, challenge):
+    ''' This will return True/False if the challenge due date has been reached
         or the due date has a default date (not set)
     '''
-    if not serious_challenge.isGraded:
+    if not challenge.isGraded:
         return False
-    return not serious_challenge.hasDueDate or (serious_challenge.hasDueDate and current_utctime().replace(microsecond=0) >= serious_challenge.dueDate.replace(microsecond=0))
+    return not challenge.hasDueDate or (challenge.hasDueDate and current_utctime().replace(microsecond=0) >= challenge.dueDate.replace(microsecond=0))
 
 def isWarmUpChallenge(course,student,challenge):
     ''' This will return True/False if the a particular challenge is a warmup challenge'''
@@ -1480,7 +1480,7 @@ class SystemVariable():
     activityScoreDifferenceByCategory = 941
     totalScoreForSeriousChallenges = 942
     totalScoreForWarmupChallenges = 943    
-    seriousChallengeReachedDueDate = 944 
+    challengeReachedDueDate = 944 
     uniqueWarmupChallengesGreaterThan90Percent = 945 
     uniqueSeriousChallengesGreaterThan90Percent = 946 # Number of serious challenges with a score percentage equal or greater than 90%
     earliestChallengeSubmissionInClass = 947 # Returns the date of the earliest challenge submission
@@ -1831,11 +1831,11 @@ class SystemVariable():
             },
             'studentGoal': False,
         },
-        seriousChallengeReachedDueDate:{
-            'index': seriousChallengeReachedDueDate,
-            'name': 'seriousChallengeReachedDueDate',
-            'displayName': 'Serious Challenge Has Reached Due Date',
-            'description': 'True if the serious challenge due date has been reached, otherwise false',
+        challengeReachedDueDate:{
+            'index': challengeReachedDueDate,
+            'name': 'challengeReachedDueDate',
+            'displayName': 'Challenge Has Reached Due Date',
+            'description': 'True if the challenge due date has been reached, otherwise false',
             'eventsWhichCanChangeThis': {
                 ObjectTypes.challenge: [Event.challengeExpiration],
             },

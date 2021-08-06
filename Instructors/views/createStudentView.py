@@ -147,12 +147,12 @@ def createStudentViewUnchecked(request):
     
 OneUp Admin"""
             )
-                
-                new_player_type = StudentPlayerType()
-                new_player_type.student = student
-                new_player_type.course = currentCourse
-                new_player_type.playerType = playertype
-                new_player_type.save()
+                if playertype:
+                    new_player_type = StudentPlayerType()
+                    new_player_type.student = student
+                    new_player_type.course = currentCourse
+                    new_player_type.playerType = playertype
+                    new_player_type.save()
                 
                 print("New Student Created")        
                         

@@ -172,14 +172,14 @@ def dynamicLeaderboardView(request):
             leaderboard.periodicVariable = int(periodicVariableSelected[index])    
             index= index + 1
         
-        createPeriodicTasksForObjects(leaderboardObjects, oldPeriodicVariableForLeaderboard)        
+        createPeriodicTasksForObjects(leaderboardObjects, oldPeriodicVariableForLeaderboard, request)        
         updateCustomLeaderboardsCourseConfigBool(currentCourse)
         return redirect('/oneUp/instructors/dynamicLeaderboard')
     
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")    
 ## we must delete and recreate the periodic event or it will break
-def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboard):
+def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboard, request=None):
     leaderboardToOldPeriodicVariableDict = dict(zip(leaderboards, oldPeriodicVariableForLeaderboard))
     boolNoOldVariable = False
 
@@ -195,7 +195,7 @@ def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboar
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
             else:
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboardToOldPeriodicVariableDict[leaderboard], award_type="leaderboard", course=leaderboard.courseID)
-            leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
+            leaderboard.periodicTask = setup_periodic_leaderboard(request=request, leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
             leaderboard.lastModified = current_localtime()
             leaderboard.save()
 

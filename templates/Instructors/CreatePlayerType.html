@@ -188,7 +188,7 @@
                                 <p>
                                     <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
                                         id="displayStudentStartPageClass" value="False"
-                                        {% if displayStudentStartPageSummary == False %} checked {%endif%} />
+                                        {% if displayStudentStartPageSummary == False or displayStudentStartPageSummary == Null %} checked {%endif%} />
                                     <label for="displayStudentStartPageClass">Display only class/group
                                         achievements</label>
                                 </p>
