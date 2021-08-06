@@ -400,6 +400,13 @@ class CourseConfigParams(models.Model):
     #Player-Types
     adaptationUsed = models.BooleanField(default = False)
     ## xp settings
+    
+    def GenerateConfigEnumList(self, *args, **kwargs):
+        EnumList = []
+        
+            
+        return EnumList
+
     def __str__(self):
         return "id:"+str(self.ccpID)  +", course:"+str(self.courseID) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +str(self.studCanChangeBadgeVis) +"," \
