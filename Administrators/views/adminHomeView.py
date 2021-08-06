@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from Instructors.models import Courses, Universities, InstructorToUniversities, UniversityCourses
 from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import adminsCheck
-from oneupsdk import get_course_term, get_course_name
 
 @login_required
 @user_passes_test(adminsCheck, login_url='/oneUp/home', redirect_field_name='')
