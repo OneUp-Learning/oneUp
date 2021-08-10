@@ -118,11 +118,12 @@ def createStudentViewUnchecked(request):
                 
                 logger.debug('[POST] Created New Student With VC Amount: ' + str(studentRegisteredCourses.virtualCurrencyAmount))
                 
-                new_player_type = StudentPlayerType()
-                new_player_type.student = student
-                new_player_type.course = currentCourse
-                new_player_type.playerType = playertype
-                new_player_type.save()
+                if playertype:
+                    new_player_type = StudentPlayerType()
+                    new_player_type.student = student
+                    new_player_type.course = currentCourse
+                    new_player_type.playerType = playertype
+                    new_player_type.save()
                 
                 # Create new Config Parameters
                 scparams = StudentConfigParams()
