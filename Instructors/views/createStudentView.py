@@ -81,15 +81,19 @@ def createStudentViewUnchecked(request):
             
             student_playertype = StudentPlayerType.objects.filter(course=currentCourse, student=student_object)
             
-            if playertype:
+            if playertype: # If the playertype was sent as something other than "None"
                 if student_playertype.exists():
-                    student_playertype.update(playerType=playertype)
+                    student_playertype[0].playerType=playertype
+                    student_playertype[0].save()
                 else:
                     new_player_type = StudentPlayerType()
                     new_player_type.student = student_object
                     new_player_type.course = currentCourse
                     new_player_type.playerType = playertype
                     new_player_type.save()
+            else: # If the playertype was sent as "None", write "None" to the database entry for the player
+                if student_playertype.exists():
+                    student_playertype[0].delete()
             
             if not pword.startswith('bcrypt'):
                 student.set_password(pword)
@@ -193,7 +197,6 @@ OneUp Admin"""
             
             if ccparams.adaptationUsed:
                 player_type = StudentPlayerType.objects.filter(course=currentCourse, student=student_object).first()
-                
                 if player_type:
                     context_dict['currentplayertype'] = player_type.playerType
                 else:
