@@ -20,19 +20,19 @@ objectTypeToObjectClass = {
     
 ## Setting flags are handled here (BadgesUsed, StudentGoal, etc.)
 SettingFlags = {
-    'settingsKey':{
-        ## Attribute
-        'studentGoal', ## If the goal will be shown to students as a student goal
-        
-        ## Course Config
-        'badgesUsed', ## If the goal relies on badges being enabled for availability
-        'teamsEnabled', ## Teams 
-        'adaptationUsed', ## Adaptation
-        'warmupsUsed', ## Warm Ups
-        'flashcardsUsed', ## Flash cards
-        'activitiesUsed', ## Activities
-        'skillsUsed', ## Skills
-        'levelingUsed', ## Leveling Enabled
+        'settingsKey':{
+            ## Attribute
+            'studentGoal', ## If the goal will be shown to students as a student goal
+            
+            ## Course Config
+            'badgesUsed', ## If the goal relies on badges being enabled for availability
+            'teamsEnabled', ## Teams 
+            'adaptationUsed', ## Adaptation
+            'warmupsUsed', ## Warm Ups
+            'flashcardsUsed', ## Flash cards
+            'activitiesUsed', ## Activities
+            'skillsUsed', ## Skills
+            'levelingUsed', ## Leveling Enabled
         },
     
         ## Reliant system variables are listed in the dictionary below, with their setting flags in the value.
@@ -108,7 +108,6 @@ SettingFlags = {
         'totalFlashcardsCompleted':{
             'studentGoal': True,
         },
-        
     }
 
 # This is where we evaluate the system variables in their appropriate
@@ -2787,7 +2786,7 @@ class SystemVariable():
 if __debug__:
     # Check for mistakes in the systemVariables enum, such as duplicate
     # id numbers or mismatches between eventsWhichCanChangeThis and functions
-    expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions', 'studentGoal']
+    expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions']
     
     sysVarNames = [sv for sv in SystemVariable.__dict__ if sv[:1] != '_' and sv != 'systemVariables']
     sysVarNumSet = set()
@@ -2806,6 +2805,6 @@ if __debug__:
         assert len([obj for obj in functionsList if obj not in eventsList]) == 0, "System variable structure has a functions entry for an object type for which it has no events entry. %s " % sysVarName
         if ObjectTypes.none in eventsList:
             assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the global scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
-        assert type(dictEntry['studentGoal']) == bool, "System variable field studentGoal is not of type boolean. %s" % (sysVarName)
-
+        ## assert type(dictEntry['studentGoal']) == bool, "System variable field studentGoal is not of type boolean. %s" % (sysVarName)
+        ## disable legacy studentgoal test
     assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."
