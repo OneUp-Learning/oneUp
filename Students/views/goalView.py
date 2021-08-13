@@ -25,27 +25,78 @@ from Students.views.utils import studentInitialContextDict
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+## Goal Flags
+    ## Attribute
+    # * studentGoal - If the goal will be shown to students as a student goal
+    
+    ## Course Config
+    # * badgesUsed - If the goal relies on badges being enabled for availability
+    # * teamsEnabled - Teams
+    # * adaptationUsed - Adaptation
+    # * warmupsUsed - Warm Ups
+    # * flashcardsUsed - Flash cards
+    # * activitiesUsed - Activities
+    # * skillsUsed - Skills
+    # * levelingUsed - Leveling Enabled
+    
+def is_student_goal(sysvar):
+    return 'goal_flags' in sysvar and 'studentGoal' in sysvar['goal_flags'] 
+    
+def fetch_goal_list(ccparams):
+    #If structure checks course config to see what combination of VC and duels/callouts 
+    # are available, if any, to display goals appropriately
+    
+    if not ccparams.virtualCurrencyUsed and not ccparams.classmatesChallenges:
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if is_student_goal(sysvar) and sysvar['index'] != 978 and sysvar['index'] != 968 and sysvar['index'] != 960 and sysvar['index'] != 957 and sysvar['index'] != 956 and sysvar['index'] != 953]
+
+    elif not ccparams.virtualCurrencyUsed and ccparams.classmatesChallenges:
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if is_student_goal(sysvar) and sysvar['index'] != 978 and sysvar['index'] != 968]
+
+    elif ccparams.virtualCurrencyUsed and not ccparams.classmatesChallenges:
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if is_student_goal(sysvar) and sysvar['index'] != 960 and sysvar['index'] != 957 and sysvar['index'] != 956 and sysvar['index'] != 953]
+    else:
+        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if is_student_goal(sysvar)]
+        
+    ccparam_filters = {
+        'badgesUsed':ccparams.badgesUsed,
+        'teamsEnabled':ccparams.teamsEnabled,
+        'adaptationUsed':ccparams.adaptationUsed,
+        'warmupsUsed':ccparams.warmupsUsed,
+        'flashcardsUsed':ccparams.flashcardsUsed,
+        'activitiesUsed':ccparams.activitiesUsed,
+        'skillsUsed':ccparams.skillsUsed,
+        'levelingUsed':ccparams.levelingUsed,
+        'studentGoal':True
+        }
+    
+    filtered_list = []
+    
+    for current_goal in goal_list:
+        goal_can_be_used = True # debounce to flag bad matches
+        
+        print('current goal' + current_goal['name'])
+        for flag in current_goal['goal_flags']: # all student goals have flags
+            print('determining flag ' + flag)
+            if flag in ccparam_filters and ccparam_filters[flag] == False:
+                print('failed check for ' + flag)
+                goal_can_be_used = False
+            else:
+                print('flag '+flag+' passed check as '+str(ccparam_filters[flag]))
+                
+        if goal_can_be_used == True:
+            filtered_list.append(current_goal)
+                
+    print(filtered_list)
+    
+    return filtered_list
+
 @login_required
 def goal_view(request):
     
     context_dict, current_course = studentInitialContextDict(request)
     ccparams=CourseConfigParams.objects.get(courseID=current_course)
     
-    #If structure checks course config to see what combination of VC and duels/callouts 
-    # are available, if any, to display goals appropriately
-    if not ccparams.virtualCurrencyUsed and not ccparams.classmatesChallenges:
-        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True and sysvar['index'] != 978 and sysvar['index'] != 968 and sysvar['index'] != 960 and sysvar['index'] != 957 and sysvar['index'] != 956 and sysvar['index'] != 953]
-
-    elif not ccparams.virtualCurrencyUsed and ccparams.classmatesChallenges:
-        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True and sysvar['index'] != 978 and sysvar['index'] != 968]
-
-    elif ccparams.virtualCurrencyUsed and not ccparams.classmatesChallenges:
-        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True and sysvar['index'] != 960 and sysvar['index'] != 957 and sysvar['index'] != 956 and sysvar['index'] != 953]
-
-    else:        
-        goal_list=[sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True]
-
-    context_dict['goal_variables'] = goal_list
+    context_dict['goal_variables'] = fetch_goal_list(ccparams)
                                     
     if request.method == 'POST':
 
@@ -111,8 +162,8 @@ def process_goal(course, student, var):
     return result
 
 def goal_type_to_name(goal_type):
-    goal_variables = [sysvar for i, sysvar in SystemVariable.systemVariables.items() if sysvar['studentGoal'] == True]
-    
+    goal_variables = [sysvar for i, sysvar in SystemVariable.systemVariables.items()]
+        
     goal_var = [var['displayName'] for var in goal_variables if var['index'] == goal_type]
 
     return goal_var[0] if len(goal_var) == 1 else "invalid"
