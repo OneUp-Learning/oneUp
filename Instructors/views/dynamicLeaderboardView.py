@@ -19,6 +19,7 @@ from Badges.periodicVariables import (PeriodicVariables, TimePeriods,
                                       get_periodic_variable_results,
                                       setup_periodic_leaderboard)
 from Instructors.models import Courses
+from Instructors.constants import anonymous_avatar
 from Instructors.views.utils import (CoursesSkills, Skills, current_localtime,
                                      initialContextDict)
 from Students.models import (PeriodicallyUpdatedleaderboards, Student,
@@ -172,14 +173,14 @@ def dynamicLeaderboardView(request):
             leaderboard.periodicVariable = int(periodicVariableSelected[index])    
             index= index + 1
         
-        createPeriodicTasksForObjects(leaderboardObjects, oldPeriodicVariableForLeaderboard)        
+        createPeriodicTasksForObjects(leaderboardObjects, oldPeriodicVariableForLeaderboard, request)        
         updateCustomLeaderboardsCourseConfigBool(currentCourse)
         return redirect('/oneUp/instructors/dynamicLeaderboard')
     
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")    
 ## we must delete and recreate the periodic event or it will break
-def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboard):
+def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboard, request=None):
     leaderboardToOldPeriodicVariableDict = dict(zip(leaderboards, oldPeriodicVariableForLeaderboard))
     boolNoOldVariable = False
 
@@ -195,7 +196,7 @@ def createPeriodicTasksForObjects(leaderboards, oldPeriodicVariableForLeaderboar
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, award_type="leaderboard", course=leaderboard.courseID)
             else:
                 delete_periodic_task(unique_id=leaderboard.leaderboardID, variable_index=leaderboardToOldPeriodicVariableDict[leaderboard], award_type="leaderboard", course=leaderboard.courseID)
-            leaderboard.periodicTask = setup_periodic_leaderboard(leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
+            leaderboard.periodicTask = setup_periodic_leaderboard(request=request, leaderboard_id=leaderboard.leaderboardID, variable_index=leaderboard.periodicVariable, course=leaderboard.courseID, period_index=leaderboard.timePeriodUpdateInterval,  number_of_top_students=leaderboard.numStudentsDisplayed, threshold=1, operator_type='>', is_random=None)
             leaderboard.lastModified = current_localtime()
             leaderboard.save()
 
@@ -283,8 +284,7 @@ def generateLeaderboards(currentCourse, displayHomePage):
     else:
         leaderboardsConfigs = LeaderboardsConfig.objects.filter(courseID=currentCourse, displayOnCourseHomePage=False)
         
-        
-    ccparams= CourseConfigParams.objects.filter(courseID=currentCourse)
+    ccparams= CourseConfigParams.objects.get(courseID=currentCourse)
     leaderboardNames = []
     leaderboardDescriptions = []
     leaderboardRankings = []
@@ -296,8 +296,9 @@ def generateLeaderboards(currentCourse, displayHomePage):
         avatarImages = []
         hasRecords = False
         
-        
+        print('going going going')
         if leaderboard.isContinous:
+            print('continuous')
             results = getContinousLeaderboardData(leaderboard.periodicVariable, leaderboard.howFarBack, leaderboard.numStudentsDisplayed, currentCourse)
             if results:
                 hasRecords = True
@@ -306,19 +307,24 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 studentFirstNameLastName.append(result[0].user.first_name +" " + result[0].user.last_name)
                 studentRegisteredCourses = StudentRegisteredCourses.objects.get(studentID=result[0],courseID=currentCourse)
                 
-                studentPlayerType = StudentPlayerType.objects.filter(student=result[0])
-                
+                studentPlayerType = StudentPlayerType.objects.filter(student=result[0],course=currentCourse) 
+                ## indexed player
                 if studentPlayerType.exists() and ccparams.adaptationUsed:
                     playerType = studentPlayerType[0].playerType
+                    ## playertype exists
                     if playerType.leaderboardUsed:
+                        ## leaderboard used
                         avatarImages.append(studentRegisteredCourses.avatarImage)
                     else:
-                        avatarImages.append('')
+                        ## anonymous
+                        avatarImages.append(anonymous_avatar)
                 else:
-                    avatarImages.append('')
+                    # fallback, no playertype
+                    avatarImages.append(studentRegisteredCourses.avatarImage)
                 
             
         else:#if its not continuous we must get the data from the database
+            print('not continuous')
             leaderboardRecordObjects = PeriodicallyUpdatedleaderboards.objects.filter(leaderboardID=leaderboard).order_by('studentPosition')
             leaderboardRecordObjects = leaderboardRecordObjects[:leaderboard.numStudentsDisplayed+1]
             leaderboardRecords = []
@@ -333,16 +339,21 @@ def generateLeaderboards(currentCourse, displayHomePage):
                 points.append(leaderboardRecord.studentPoints)
                 studentFirstNameLastName.append(leaderboardRecord.studentID.user.first_name +" " + leaderboardRecord.studentID.user.last_name)
                 studentRegisteredCoursesObject = StudentRegisteredCourses.objects.get(studentID=leaderboardRecord.studentID, courseID=currentCourse)
-                studentPlayerType = StudentPlayerType.objects.filter(student=result[0], course=currentCourse)
                 
+                studentPlayerType = StudentPlayerType.objects.filter(student=result[0],course=currentCourse) 
+                ## indexed player
                 if studentPlayerType.exists() and ccparams.adaptationUsed:
                     playerType = studentPlayerType[0].playerType
+                    ## playertype exists
                     if playerType.leaderboardUsed:
+                        ## leaderboard used
                         avatarImages.append(studentRegisteredCourses.avatarImage)
                     else:
-                        avatarImages.append('')
+                        ## anonymous
+                        avatarImages.append(anonymous_avatar)
                 else:
-                    avatarImages.append('')
+                    # fallback, no playertype
+                    avatarImages.append(studentRegisteredCourses.avatarImage)
                     
         # if hasRecords:
         leaderboardRankings.append(zip(range(1,leaderboard.numStudentsDisplayed+1), avatarImages, points, studentFirstNameLastName))

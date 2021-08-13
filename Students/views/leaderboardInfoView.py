@@ -21,15 +21,19 @@ def leaderboardInfoView(request):
     ccparams.xpCalculateSeriousByMaxScore
     ccparams.xpCalculateWarmupByMaxScore
 
+    weight_values = [xpPercentage, xpSerious, xpWarmup, xpActivity]
+    weight_names = ["Skill", "Serious Challenge","WarmUp Challenge", "Activity" ]
+
+    context_dict['weights'] = list(zip(weight_values, weight_names))
     XpCalculationString = ""
     if(ccparams.xpCalculateWarmupByMaxScore):
-        xpCalculationString = " Warmup Challenges are calculated via Maximum score of each Challenge."
+        xpCalculationString = " WarmUp Challenges are calculated via maximum score of each challenge."
     else:
-        xpCalculationString = " Warmup Challenges are calculated via First attempt of each Challenge."
+        xpCalculationString = " WarmUp Challenges are calculated via first attempt of each challenge."
     if(ccparams.xpCalculateSeriousByMaxScore):
-        xpCalculationString += " Serious Challenges are calculated via Maxiumum score of each Challenge."
+        xpCalculationString += " Serious Challenges are calculated via maxiumum score of each challenge."
     else:
-        xpCalculationString += " Serious Challenges are calculated via First attempt of each Challenge."
+        xpCalculationString += " Serious Challenges are calculated via first attempt of each challenge."
     
     
     if request.method == 'GET':
@@ -40,8 +44,10 @@ def leaderboardInfoView(request):
         leaderboards = list(leaderboards)
         
         for leaderboard in leaderboards:
-            if(leaderboard.isXpLeaderboard):
-                leaderboard_range.append((leaderboard.leaderboardName, "The ranking in this leaderboard is based on the experience points(XP). The XP score is composed of " + str(xpPercentage) +"% Skill points, "  + str(xpSerious) +"% Serious Challenge points, "+ str(xpWarmup) + "% Warmup Challenge points, " + str(xpActivity) + "% Activity points." + xpCalculationString))
+            if(leaderboard.isXpLeaderboard and ccparams.xpLeaderboardUsed):
+                leaderboard_range.append((leaderboard.leaderboardName, "The ranking in this leaderboard is based on the experience points(XP)."  + xpCalculationString + "\nThe XP score is composed of:"))
+            elif leaderboard.isXpLeaderboard:
+                pass
             else:
                 leaderboard_range.append((leaderboard.leaderboardName, leaderboard.leaderboardDescription))
             
