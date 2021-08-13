@@ -74,19 +74,12 @@ def fetch_goal_list(ccparams):
     for current_goal in goal_list:
         goal_can_be_used = True # debounce to flag bad matches
         
-        print('current goal' + current_goal['name'])
         for flag in current_goal['goal_flags']: # all student goals have flags
-            print('determining flag ' + flag)
             if flag in ccparam_filters and ccparam_filters[flag] == False:
-                print('failed check for ' + flag)
                 goal_can_be_used = False
-            else:
-                print('flag '+flag+' passed check as '+str(ccparam_filters[flag]))
                 
         if goal_can_be_used == True:
             filtered_list.append(current_goal)
-                
-    print(filtered_list)
     
     return filtered_list
 
