@@ -2781,6 +2781,7 @@ if __debug__:
     # Check for mistakes in the systemVariables enum, such as duplicate
     # id numbers or mismatches between eventsWhichCanChangeThis and functions
     expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions']
+    ccparamValidFilters = ['badgesUsed','teamsEnabled','adaptationUsed','warmupsUsed','flashcardsUsed','activitiesUsed','skillsUsed','levelingUsed','studentGoal']
     
     sysVarNames = [sv for sv in SystemVariable.__dict__ if sv[:1] != '_' and sv != 'systemVariables']
     sysVarNumSet = set()
@@ -2801,4 +2802,8 @@ if __debug__:
             assert len(eventsList) == 1, "System Variable structure has an object which attempts to be in both the global scope (ObjectTypes.none) and one or more specific object scope.  This is not allowed. %s " % sysVarName 
         ## assert type(dictEntry['studentGoal']) == bool, "System variable field studentGoal is not of type boolean. %s" % (sysVarName)
         ## disable legacy studentgoal test
+        if 'goal_flags' in dictEntry:
+            for field in dictEntry['goal_flags']:
+                assert field in ccparamValidFilters, "Invalid system variable goal flag %s entered for variable %s. Refer to the course configuration parameter list for a valid entry." % (field,sysVarName)
+                
     assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."
