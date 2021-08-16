@@ -62,7 +62,7 @@ class CourseConfigMiddleware:
             '/oneUp/students/achievements': 
                 {
                     'displayAchievementPage': True, 
-                    'gamificationUsed': True,
+                   
                 },
             '/oneUp/students/avatar': 
                 {
