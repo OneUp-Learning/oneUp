@@ -936,6 +936,9 @@ def exportCourse(request):
                     for path in root_json['code-paths']:
                         zip_directory(os.path.join(LUA_PROBLEMS_ROOT, path), zip_file)
 
+                #if 'lib-paths' in root_json:
+                    #for path in 
+
                 # print(zip_file.printdir())
 
             response = HttpResponse(open(file_name, 'rb'), content_type='application/zip')
@@ -1621,6 +1624,14 @@ def challenge_questions_to_json(challenge_questions, current_course, post_reques
                     for question_library in question_libraries:     
                         question_library_details = create_item_node(question_library.library) # LuaLibrary model
                         question_libraries_jsons.append(question_library_details)
+                        
+                        # Store the location of this library so we can add it to the zip when exporting
+                        if not 'lib-paths' in root_json:
+                            root_json['lib-paths'] = []
+                            
+                        root_json['lib-paths'].append({'name':question_library.library.name,
+                                                        'path':question_library.library.libFile.path,
+                                                        'hash':calc_file_hash(question_library.library.libFile.path)})
 
                     # Add question libraries to dynamic question details
                     dynamic_question_details['question-libraries'] = question_libraries_jsons
@@ -2034,6 +2045,8 @@ def initialize_id_map(root_json):
         id_map['warmup-challenges'] = {}
     if 'code-paths' in root_json:
         id_map['code-paths'] = {}
+    if 'lib-paths' in root_json:
+        id_map['lib-paths'] = {}
 
     return id_map
 
@@ -2333,7 +2346,9 @@ def import_challenge_questions_from_json(challenge_question_jsons, challenge, cu
                 if 'question-libraries' in dynamic_question_json:
 
                     for question_library_json in dynamic_question_json['question-libraries']:
-                        # Get the lua library and link it to the question
+                        # Check to see if the appropriate LuaLibrary object exists.
+                        candidate_lua_libaries = LuaLibrary.objects.filter(libraryName=question_library_json['libraryName'])
+                        #for candidate_lua_libraries in 
                         lua_library = LuaLibrary.objects.get(libraryName=question_library_json['libraryName'])
 
                         question_library_fields_to_save = {'question': question, 'library': lua_library}
@@ -3007,3 +3022,15 @@ def import_streaks_from_json(streaks_jsons, current_course, id_map=None, message
             streaks_fields_to_save = {'courseID': current_course}
             streak = create_model_instance(AttendanceStreakConfiguration, streak_json, custom_fields_to_save=streaks_fields_to_save)
             streak.save()
+
+def calc_file_hash(filename):
+    ''' Takes in a filename, calculates the hash of that file.  Returns it as a hex string '''
+    import hashlib
+    BLOCKSIZE = 65536
+    hasher = hashlib.md5()
+    with open('anotherfile.txt', 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    return hasher.hexdigest()

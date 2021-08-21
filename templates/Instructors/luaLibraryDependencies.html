@@ -31,8 +31,8 @@
 		<div class="input-field col s12">
 				<select onchange="selectLibrary(this);this.selectedIndex=0;">
 					<option value="">Choose library</option>
-					{%for lib in luaLibraries%}
-						<option value="{{lib}}">{{lib}}</option>
+					{%for lib in lib_range%}
+						<option value="{{lib.ID}}">{{lib.name}} (from: {{lib.creator}} )</option>
 					{%endfor%}
 				</select>
 		</div>
@@ -61,14 +61,14 @@
 	}
 
 	// Note: this function does not ensure that name is not already selected
-	function selectLibraryByName(name) {
+	function selectLibraryById(id,desc) {
 		var li = document.createElement('li');
 		var input = document.createElement('input');
-		var text = document.createTextNode(name);
+		var text = document.createTextNode(desc);
 		
 		input.type = 'hidden';
 		input.name = 'dependentLuaLibraries[]';
-		input.value = name;
+		input.value = id;
 		
 		li.appendChild(input);
 		li.appendChild(text);
@@ -96,23 +96,24 @@
 	}
 	function selectLibrary(select) {
 		
-		var option_name = select.options[select.selectedIndex].value;
+		var option_id = select.options[select.selectedIndex].value;
+		var option_desc = select.options[select.selectedIndex].text;
 		
-		if (option_name == "") {
+		if (option_id == "") {
 			return
 		}
 		
 		var choices = lua_lib_ul().getElementsByTagName('input');
 		var i = 0;
 		for (i = 0; i < choices.length; i++) {
-			if (choices[i].value == option_name) {
+			if (choices[i].value == option_id) {
 				// Already selected.  Nothing more to be done.
 				return
 			}
 		}
 		
-		selectLibraryByName(option_name);
-		lua_lib_selected.push(option_name);
+		selectLibraryById(option_id,option_desc);
+		lua_lib_selected.push(option_id);
 	}
 	function getLibsEncoded() {
 		var output = "";

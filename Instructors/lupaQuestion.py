@@ -75,7 +75,7 @@ else:
     
     # Safe functions as drawn from http://lua-users.org/wiki/SandBoxes
     # Coroutine functions are left out because they should probably not
-    # be necessary  and used wrongly couldreally bog down the processor
+    # be necessary  and used wrongly could really bog down the processor
     toplevel_functions = {"assert","error","ipairs","next","pairs","pcall","select",
                  "tonumber","tostring","type","unpack","_VERSION","xpcall","print"}
     modules = { "string":{"byte","char","find","format","gmatch","gsub",

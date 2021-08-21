@@ -97,28 +97,28 @@ def libList(context_dict, user):
         libDict['description'] = lib.libDescription
         libDict['ID']= lib.libID
         libDict['myLib'] = lib.libCreator == user
+        libDict['creator'] = lib.libCreator
         libDict['hasDependents'] = DependentLibrary.objects.filter(mainLibrary=lib).exists() or QuestionLibrary.objects.filter(library=lib).exists()
         libList.append(libDict)
                 
     context_dict['lib_range'] = libList
-    context_dict['luaLibraries'] = [lib.libraryName for lib in libs]
             
     return context_dict
 
-def makeDependencies(library,listOfDependNames):
+def makeDependencies(library,listOfDependIds):
     existingDeps = DependentLibrary.objects.filter(dependent=library)
-    existingDepNames = [dep.dependent.libraryName for dep in existingDeps]
-    existingWithoutNew = [val for val in existingDepNames if val not in listOfDependNames]
-    newWithoutExisting = [val for val in listOfDependNames if val not in existingDepNames]
+    existingDepIds = [dep.dependent.libID for dep in existingDeps]
+    existingWithoutNew = [val for val in existingDepIds if val not in listOfDependIds]
+    newWithoutExisting = [val for val in listOfDependIds if val not in existingDepIds]
 
-    for name in newWithoutExisting:
-        dependent = LuaLibrary.objects.get(libraryName= name)
+    for id in newWithoutExisting:
+        dependent = LuaLibrary.objects.get(libID=id)
         depend = DependentLibrary()
         depend.mainLibrary = library
         depend.dependent = dependent
         depend.save()
-    for name in existingWithoutNew:
-        DependentLibrary.objects.filter(mainLibrary=name,dependent__libraryName=library).delete()
+    for id in existingWithoutNew:
+        DependentLibrary.objects.filter(mainLibrary=id,dependent__libraryName=library).delete()
         
 def getDependencyLibraryNames(library):
     names = []

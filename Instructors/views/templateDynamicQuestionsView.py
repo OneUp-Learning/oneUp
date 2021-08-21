@@ -156,7 +156,7 @@ def templateDynamicQuestionForm(request):
     elif request.method == 'GET':
         if 'view' in request.GET:
             context_dict['view'] = request.GET['view']
-        context_dict['luaLibraries'] = getAllLuaLibraryNames()
+        context_dict['lib_range'] = getAllLuaLibraryNames()
         context_dict["initalTemplateTextPart"] = "What is [|r1|] + [|r2|]? [{make_answer('ans1','number',5,exact_equality(r1+r2),10,r1+r2)}]"
         context_dict['checkInitalTemplateTextPart'] = True
 
@@ -399,7 +399,7 @@ part_'''+str(count)+'''_text = function ()
 
 
 def getAllLuaLibraryNames():
-    return [ll.libraryName for ll in LuaLibrary.objects.all()]
+    return [{'name':ll.libraryName,'creator':ll.libCreator,'id':ll.libID} for ll in LuaLibrary.objects.all()]
 
 
 def getLibrariesForQuestion(question):

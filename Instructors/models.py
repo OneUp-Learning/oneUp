@@ -392,7 +392,7 @@ def luaLibraryUploadLocation(instance,filename):
 class LuaLibrary(models.Model):
     libID = models.AutoField(primary_key=True)
     libFile = models.FileField(max_length=5000, upload_to= luaLibraryUploadLocation )
-    libraryName = models.CharField(max_length=100, db_index=True, unique=True)
+    libraryName = models.CharField(max_length=100, db_index=True, unique=False)
     libDescription = models.CharField(max_length=200, default='')
     libCreator = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Creator", db_index=True)
     def __str__(self):              
