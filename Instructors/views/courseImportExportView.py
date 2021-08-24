@@ -855,7 +855,15 @@ def create_model_instance(model, fields_data, custom_fields_to_save=None, modify
 
         # Cast the value if the field requires some casting
         if cast_specifier is not None:
-            value = cast_specifier(value)
+            try:
+                value = cast_specifier(value)
+            except ValueError:
+                if value == 'True' or value == True:
+                    value = 1
+                elif value == 'False' or value == False:
+                    value = 0
+                else:
+                    value = None
         
         # Set the model field value
         setattr(model_instance, field_name, value)
@@ -1943,58 +1951,76 @@ def importCourse(request):
                         #messages.append({'type': 'info', 'message': 'Challenges Display From, Display To, and Due Date was set to Course Start Date, Course End Date, and Course End Date respectively'})
                     
                     if 'topics' in root_json:
+                        print("topics")
                         import_topics_from_json(root_json['topics'], current_course, id_map=id_map, messages=messages)
                     
                     if 'flashcards' in root_json:
+                        print("flashcards")
                         import_flashcards_from_json(root_json['flashcards'], current_course, id_map=id_map, messages=messages)
 
                     if 'activities-categories' in root_json:
+                        print("act cats")
                         import_activities_categories_from_json(root_json['activities-categories'], current_course, id_map=id_map, messages=messages)
                         
                     if 'skills' in root_json:
+                        print("skills")
                         import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map, messages=messages)
 
                     if 'activities' in root_json:
+                        print("activities")
                         import_activities_from_json(root_json['activities'], current_course, id_map=id_map, messages=messages)
                     
                     if 'serious-challenges' in root_json:
+                        print("serious challenges")
                         import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
                     
                     if 'warmup-challenges' in root_json:
+                        print("warmup-challenges")
                         import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
                     
                     if 'unassigned-problems' in root_json:
+                        print("unassigned problems")
                         unassigned_challenge = Challenges.objects.get(courseID=current_course, challengeName=unassigned_problems_challenge_name)
                         import_challenge_questions_from_json(root_json['unassigned-problems'], unassigned_challenge, current_course, context_dict=context_dict, id_map=id_map, messages=messages)
                     
                     if 'automatic-badges' in root_json:
+                        print("auto badges")
                         import_badges_from_json(request,root_json['automatic-badges'], 'automatic', current_course, id_map=id_map, messages=messages)
                 
                     if 'manual-badges' in root_json:
+                        print("manual badges")
                         import_badges_from_json(request,root_json['manual-badges'], 'manual', current_course, id_map=id_map, messages=messages)
                     
                     if 'periodic-badges' in root_json:
+                        print("periodic badges")
                         import_badges_from_json(request,root_json['periodic-badges'], 'periodic', current_course, id_map=id_map, messages=messages)
                     
                     if 'automatic-vc-rules' in root_json:
+                        print("auto vc rules")
                         import_vc_rules_from_json(root_json['automatic-vc-rules'], 'automatic', current_course, id_map=id_map, messages=messages)
                     
                     if 'manual-vc-rules' in root_json:
+                        print("manual vc rules")
                         import_vc_rules_from_json(root_json['manual-vc-rules'], 'manual', current_course, id_map=id_map, messages=messages)
                     
                     if 'periodic-vc-rules' in root_json:
+                        print("periodic vc rules")
                         import_vc_rules_from_json(root_json['periodic-vc-rules'], 'periodic', current_course, id_map=id_map, messages=messages)
                     
                     if 'spending-vc-rules' in root_json:
+                        print("spending vc rules")
                         import_vc_rules_from_json(root_json['spending-vc-rules'], 'spending', current_course, id_map=id_map, messages=messages)
 
                     if 'leaderboards' in root_json:
+                        print("leaderboards")
                         import_leaderboards_from_json(root_json['leaderboards'], current_course, id_map=id_map, messages=messages)
 
                     if 'content-unlocking' in root_json:
+                        print("content unlocking")
                         import_content_unlocking_rules_from_json(root_json['content-unlocking'], current_course, id_map=id_map, messages=messages)
 
                     if 'streaks' in root_json:
+                        print("streaks")
                         import_streaks_from_json(root_json['streaks'], current_course, id_map=id_map, messages=messages)                    
                     
                 else:
