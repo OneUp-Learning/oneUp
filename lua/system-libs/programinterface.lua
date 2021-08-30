@@ -94,7 +94,6 @@ end
 programinterface.program_checker =
 function (rootdir,filename,compile_cmd,total_max_pts,tests)
   return function (text,pts) 
-    if rootdir 
     local workingDirName = '/home/oneUpUserCodeSandbox/'..getRandomDirName()
     makeWorkingDir(rootdir,"model",workingDirName)
     concatFile(rootdir,filename,text,workingDirName)
