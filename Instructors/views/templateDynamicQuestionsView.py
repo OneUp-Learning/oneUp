@@ -465,9 +465,11 @@ def saveFiles(courseID, question, files, user, isModifying):
                 rF.delete()
 
         try:
-            # This lineremoved.  See previous comment.  If previously covered next three lines.
+            # This line removed.  See previous comment.  If previously covered next three lines.
             #if not ".zip" in fileName:
-            copyfile(fileName,completeDirName)
+            theFile = open(completeDirName, "wb")
+            theFile.write(f.read())
+            theFile.close()
             testFile = QuestionProgrammingFiles()
             testFile.questionID = question
             testFile.programmingFileName = fileName
