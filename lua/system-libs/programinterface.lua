@@ -94,6 +94,7 @@ end
 programinterface.program_checker =
 function (rootdir,filename,compile_cmd,total_max_pts,tests)
   return function (text,pts) 
+    if rootdir 
     local workingDirName = '/home/oneUpUserCodeSandbox/'..getRandomDirName()
     makeWorkingDir(rootdir,"model",workingDirName)
     concatFile(rootdir,filename,text,workingDirName)
@@ -161,7 +162,7 @@ programinterface.code_checker = function (filename,compile_cmd,total_max_pts,tes
     makeWorkingDirWithUnzip(problem_dir,"model.zip",workingDirName)
     baseWorkingDirName = workingDirName
     if exists(workingDirName..pathsep..'model' ) then
-      workingDirName = workingDirName..'model'
+      workingDirName = workingDirName..pathsep..'model'
     end
     concatFile(problem_dir,filename,text,workingDirName)
 

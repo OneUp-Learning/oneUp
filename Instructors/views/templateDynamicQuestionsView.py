@@ -445,10 +445,13 @@ def saveFiles(courseID, question, files, user, isModifying):
     for f in files:
         fileName = f.name
         print("filename", fileName)
-        if ".zip" in fileName:
-            print("for zip file", fileName)
-            with zipfile.ZipFile(f, 'r') as zipf:
-                zipf.extractall(FILE_UPLOAD_DIR)
+        # Someone put this in.  This is a terrible idea as our programming answer checker depends on the model directory being zipped.
+        # It also means that file deletion likely doesn't work properly for .zip files.
+        # We should not unzip uploaded .zip files.
+        #if ".zip" in fileName:
+        #    print("for zip file", fileName)
+        #    with zipfile.ZipFile(f, 'r') as zipf:
+        #        zipf.extractall(FILE_UPLOAD_DIR)
 
         completeDirName = os.path.join(FILE_UPLOAD_DIR, fileName)
 
@@ -461,10 +464,11 @@ def saveFiles(courseID, question, files, user, isModifying):
                 rF.delete()
 
         try:
-            if not ".zip" in fileName:
-                theFile = open(completeDirName, "w")
-                theFile.write(str(f.read(), 'utf-8'))
-                theFile.close()
+            # This lineremoved.  See previous comment.  If previously covered next three lines.
+            #if not ".zip" in fileName:
+            theFile = open(completeDirName, "w")
+            theFile.write(str(f.read(), 'utf-8'))
+            theFile.close()
             testFile = QuestionProgrammingFiles()
             testFile.questionID = question
             testFile.programmingFileName = fileName
