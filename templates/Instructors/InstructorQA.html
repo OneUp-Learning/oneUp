@@ -641,10 +641,11 @@
                       A piece of code that must be included at least in the problem is the <b>make_answer</b> function
                       which is used to create answer blanks. If this is omitted, students will not be able to answer the
                       generated question. More than one answer blank can be included in a single problem.
-                      The make_answer function takes five arguments: The name of the answer blank (displayed to students
+                      The make_answer function takes six arguments: The name of the answer blank (displayed to students
                       when describing their results),
                       the type of answer blank, the size, the answer checking function to be used (several of which are
-                      provided), and the maximum amount of points the student can receive for the answer blank. A
+                      provided), and the maximum amount of points the student can receive for the answer blank, and an optional 
+                      sixth argument that allows instructors to show an example answer to the question part to the student. A
                       simple example make_answer is provided when creating a Template problem in the Template section.
                     </p>
                     <p style="text-indent:40px">Instructors can create multi-part problems, where the next part is
