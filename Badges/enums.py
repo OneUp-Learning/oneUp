@@ -777,3 +777,18 @@ class AwardFrequency:
             'objectTypeName': 'category',
         },
     }
+    
+class GoalFlag():
+    isStudentGoal = 'studentGoal'
+    requireBadgesEnabled = 'badgesUsed'
+    requireTeamsEEnabled = 'teamsEnabled'
+    requireAdaptationUEnabled = 'adaptationUsed'
+    requireWarmupsEnabled = 'warmupsUsed'
+    requireFlashcardsEnabled = 'flashcardsUsed'
+    requireActivitiesEnabled = 'activitiesUsed'
+    requireSkillsEnabled = 'skillsUsed',
+    requireLevelingEnabled = 'levelingUsed'
+    
+    def values(self):
+        return ['studentGoal', 'badgesUsed', 'teamsEnabled', 'adaptationUsed', 'warmupsUsed', 'flashcardsUsed', 'activitiesUsed', 'skillsUsed', 'levelingUsed']
+

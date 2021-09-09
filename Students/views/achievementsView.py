@@ -19,6 +19,7 @@ from Students.models import (StudentActivities, StudentBadges,
                              StudentChallenges, StudentConfigParams,
                              StudentCourseSkills, StudentEventLog,
                              StudentRegisteredCourses, StudentStreaks)
+from Students.views.utils import getLevelFromXP
 from Students.views import classResults
 from Students.views.studentCourseHomeView import progress_bar_data
 from Students.views.utils import studentInitialContextDict
@@ -38,14 +39,16 @@ def achievements(request):
     st_crs = context_dict['student_registered_course']
     recalculate_student_virtual_currency_total(st_crs.studentID,currentCourse)
     context_dict['course_Bucks'] = str(st_crs.virtualCurrencyAmount)
-    context_dict['level'] = str(st_crs.level)
-
     # PROGRESS BAR
     progress_data = progress_bar_data(
         currentCourse, context_dict['ccparams'], class_scores=False, for_student=student)
 
     # this is the max points that the student can earn in this course
     progressBarTotalPoints = progress_data['progressBarTotalPoints']
+    
+    # Compute student level
+    context_dict['level'] = getLevelFromXP(context_dict['ccparams'].levelTo1XP, progress_data['xp'],context_dict['ccparams'].nextLevelPercent)
+
 
     context_dict['currentEarnedPoints'] = progress_data['currentEarnedPoints']
     context_dict['missedPoints'] = progress_data['missedPoints']
