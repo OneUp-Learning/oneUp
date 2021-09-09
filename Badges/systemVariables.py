@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from Badges.enums import Event, ObjectTypes
+from Badges.enums import Event, ObjectTypes, GoalFlag
 from Instructors.constants import unlimited_constant
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
                                 ChallengesTopics, Questions, Topics, Skills)
@@ -1953,7 +1953,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none: getConsecutiveDaysLoggedIn
@@ -2051,8 +2051,8 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
-                'badgesUsed'
+                GoalFlag.isStudentGoal,
+                GoalFlag.requireBadgesEnabled
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfBadgesEarned
@@ -2094,7 +2094,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesAttempted
@@ -2110,7 +2110,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan60Percent
@@ -2126,7 +2126,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75Percent
@@ -2142,7 +2142,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan80Percent
@@ -2158,7 +2158,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan90Percent
@@ -2174,7 +2174,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan30Percent
@@ -2190,7 +2190,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan75Percent
@@ -2206,7 +2206,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueSeriousChallengesGreaterThan90Percent
@@ -2222,7 +2222,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic
@@ -2238,7 +2238,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfUniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt
@@ -2385,7 +2385,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getEarnedVCTotal
@@ -2440,7 +2440,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsWon
@@ -2482,7 +2482,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.topic:getNumberOfDuelsWon
@@ -2498,7 +2498,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfDuelsParticipated
@@ -2540,7 +2540,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutParticipate
@@ -2555,7 +2555,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none:getNumberOfCalloutParticipationWon
@@ -2610,7 +2610,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.topic:getNumberOfCalloutParticipate
@@ -2626,7 +2626,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.topic:getNumberOfCalloutParticipationWon
@@ -2668,7 +2668,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none: getStudentXP
@@ -2684,7 +2684,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none: getStudentVC
@@ -2700,7 +2700,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal,
                 },
             'functions':{
                 ObjectTypes.none: getTotalMinutesSpentOnFlashcards
@@ -2716,7 +2716,7 @@ class SystemVariable():
             },
             'type':'int',
             'goal_flags':{
-                'studentGoal',
+                GoalFlag.isStudentGoal
                 },
             'functions':{
                 ObjectTypes.none: getTotalOfCompletedFlashcards
@@ -2762,27 +2762,12 @@ class SystemVariable():
             },
         },                                                                
     }
-    
-## Goal Flags
-    ## Attribute
-    # * studentGoal - If the goal will be shown to students as a student goal
-    
-    ## Course Config
-    # * badgesUsed - If the goal relies on badges being enabled for availability
-    # * teamsEnabled - Teams
-    # * adaptationUsed - Adaptation
-    # * warmupsUsed - Warm Ups
-    # * flashcardsUsed - Flash cards
-    # * activitiesUsed - Activities
-    # * skillsUsed - Skills
-    # * levelingUsed - Leveling Enabled
+
 
 if __debug__:
     # Check for mistakes in the systemVariables enum, such as duplicate
     # id numbers or mismatches between eventsWhichCanChangeThis and functions
     expectedFieldsInSysVarStruct = ['index','name','displayName','description','eventsWhichCanChangeThis','type','functions']
-    ccparamValidFilters = ['badgesUsed','teamsEnabled','adaptationUsed','warmupsUsed','flashcardsUsed','activitiesUsed','skillsUsed','levelingUsed','studentGoal']
-    
     sysVarNames = [sv for sv in SystemVariable.__dict__ if sv[:1] != '_' and sv != 'systemVariables']
     sysVarNumSet = set()
     for sysVarName in sysVarNames:
@@ -2804,6 +2789,6 @@ if __debug__:
         ## disable legacy studentgoal test
         if 'goal_flags' in dictEntry:
             for field in dictEntry['goal_flags']:
-                assert field in ccparamValidFilters, "Invalid system variable goal flag %s entered for variable %s. Refer to the course configuration parameter list for a valid entry." % (field,sysVarName)
+                assert field in GoalFlag().values(), "Invalid system variable goal flag %s entered for variable %s. Refer to the course configuration parameter list for a valid entry." % (field,sysVarName)
                 
     assert len(sysVarNames) == len(sysVarNumSet), "Two system variables have the same number."
