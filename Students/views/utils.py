@@ -72,14 +72,35 @@ def checkIfAvatarExist(student):
     
     return defaultAvatar 
 
-def getLevelFromXP(level1_xp, n, leveling_percentage):
-    r = 1+(leveling_percentage/100);
+def getLevelFromXP(levelTo1XP, xp, nextLevelPercent):
+    import decimal
     
-    if(leveling_percentage==0):
-        return level1_xp * n
+    level = 0
+    print("level")
+    print(level)
+    levelxp = decimal.Decimal(xp)
+    if levelxp >= levelTo1XP:
+        levelxp -= levelTo1XP
+        level = 1
+        toNextLevel = levelTo1XP + level * levelTo1XP * \
+        (nextLevelPercent/100)
+        while levelxp >= toNextLevel:
+            level += 1
+            levelxp -= toNextLevel
+            toNextLevel = levelTo1XP + level * levelTo1XP * \
+                (nextLevelPercent/100)
+    return level
+
+    #import decimal 
+    #n = decimal.Decimal(n)
     
-    total = (level1_xp * (1 - pow(r, n ))) / (1-r)
-    return total
+    #r = 1+(leveling_percentage/100);
+    
+    #if(leveling_percentage==0):
+    #    return level1_xp * n
+    
+    #total = (level1_xp * (1 - pow(r, n))) / (1-r)
+    #return total
 
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")

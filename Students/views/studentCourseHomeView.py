@@ -24,7 +24,7 @@ from Students.models import (Student, StudentBadges, StudentConfigParams,
                              StudentEventLog, StudentRegisteredCourses)
 from Students.views.avatarView import checkIfAvatarExist
 from Students.views.goalsListView import createContextForGoalsList
-from Students.views.utils import studentInitialContextDict
+from Students.views.utils import studentInitialContextDict, getLevelFromXP
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -45,8 +45,6 @@ def StudentCourseHome(request):
     recalculate_student_virtual_currency_total(context_dict['student_registered_course'].studentID,currentCourse)
     context_dict['course_Bucks'] = str(
         context_dict['student_registered_course'].virtualCurrencyAmount)
-    context_dict['level'] = str(
-        context_dict['student_registered_course'].level)
 
     context_dict = createContextForAnnouncementList(
         currentCourse, context_dict, True)
@@ -90,6 +88,9 @@ def StudentCourseHome(request):
     context_dict['leaderboardRange'] = generateLeaderboards(
         currentCourse, True)
     generateSkillTable(currentCourse, context_dict)
+
+    context_dict['level'] = getLevelFromXP(context_dict['ccparams'].levelTo1XP, progress_data['data']['xp'],context_dict['ccparams'].nextLevelPercent)
+
 
     # Trigger Student login event here so that it can be associated with a particular Course
     register_event(Event.userLogin, request, None, None)
@@ -152,7 +153,6 @@ def progress_bar_data(current_course, ccparams, class_scores=None, metric_averag
         # Get class data
         data = studentScore(None, current_course, 0, result_only=True,
                             gradeWarmup=False, gradeSkills=False, for_class=True)
-
         currentEarnedPoints = data['earnedSeriousChallengePoints'] + \
             data['earnedActivityPoints']
         currentTotalPoints = data['totalPointsSeriousChallenges'] + \

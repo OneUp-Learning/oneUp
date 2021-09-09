@@ -3,6 +3,7 @@ from django.conf import settings
 import Badges.datamine_tasks
 from Badges.celeryApp import app
 from Badges.models import CeleryTestResult
+from Students.views.utils import getLevelFromXP
 
 
 @app.task
@@ -106,33 +107,20 @@ def celery_calculate_xp(student_reg_course_id):
     student_reg_course.xp = xp
     if ccP.levelingUsed:
         # if student_reg_course.level == 0:
-        level = 0
-        print("level")
-        print(level)
-        levelxp = decimal.Decimal(xp)
-        if levelxp >= ccP.levelTo1XP:
-            levelxp -= ccP.levelTo1XP
-            level = 1
-            toNextLevel = ccP.levelTo1XP + level * ccP.levelTo1XP * \
-                (ccP.nextLevelPercent/100)
-            while levelxp >= toNextLevel:
-                level += 1
-                levelxp -= toNextLevel
-                toNextLevel = ccP.levelTo1XP + level * ccP.levelTo1XP * \
-                    (ccP.nextLevelPercent/100)
-            if level > student_reg_course.level:
-                student_reg_course.level = level
-                notify.send(None, recipient=student_reg_course.studentID.user, actor=student_reg_course.studentID.user, verb=f'You have leveled up to level ' + str(level), nf_type='level', extra=json.dumps(
-                    {"course": str(student_reg_course.courseID.courseID), "name": str(student_reg_course.courseID.courseName), "related_link": '/oneUp/students/StudentCourseHome'}))
-                # for event
-                mini_req = {
-                    'currentCourseID': student_reg_course.cgitourseID.courseID,
-                    'user': student_reg_course.studentID.user.username,
-                    'timezone': None,
-                }
-                # register event
-                # register_event_simple(
-                #    Event.levelUp, mini_req, student_reg_course.studentID, level)
+        level = getLevelFromXP(xp)
+        if level > student_reg_course.level:
+            student_reg_course.level = level
+            notify.send(None, recipient=student_reg_course.studentID.user, actor=student_reg_course.studentID.user, verb=f'You have leveled up to level ' + str(level), nf_type='level', extra=json.dumps(
+                   {"course": str(student_reg_course.courseID.courseID), "name": str(student_reg_course.courseID.courseName), "related_link": '/oneUp/students/StudentCourseHome'}))
+            # for event
+            mini_req = {
+                'currentCourseID': student_reg_course.cgitourseID.courseID,
+                'user': student_reg_course.studentID.user.username,
+                'timezone': None,
+            }
+            # register event
+            # register_event_simple(
+            #    Event.levelUp, mini_req, student_reg_course.studentID, level)
 
     student_reg_course.save()
 
