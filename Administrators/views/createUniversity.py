@@ -65,7 +65,9 @@ def courseUniversityView(request):
                  {"value": "America/Los_Angeles", "name": "Pacific (PST)"},
                  {"value": "CET", "name": "Central European Time (CET)"},
                  {"value": "Brazil/East", "name": "Brasilia Time (BRT)"},
-                 {"value": "Brazil/West", "name": "Amazon Time (AMT)"},]
+                 {"value": "Brazil/West", "name": "Amazon Time (AMT)"},
+                 {"value": "Asia/Almaty", "name": "Kyrgyzstand Time"},
+    ]
     context_dict['supported_timezones'] = timezones
 
     if 'universityID' in request.GET:
