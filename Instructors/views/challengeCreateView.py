@@ -351,7 +351,7 @@ def challengeCreateView(request):
 
         
             
-       #     ccp = CourseConfigParams.objects.get(courseID=currentCourse)
+            ccp = CourseConfigParams.objects.get(courseID=currentCourse)
        #     if ccp.hasCourseStartDate and ccp.courseStartDate <= current_localtime().date():
        #        context_dict['startTimestamp'] = datetime_to_selected(ccp.courseStartDate) 
        #     if ccp.hasCourseEndDate and ccp.courseEndDate > current_localtime().date(): 

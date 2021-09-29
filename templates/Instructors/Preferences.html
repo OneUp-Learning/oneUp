@@ -550,6 +550,7 @@
                                             <input name="virtualCurrencyUsed" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
+                                            
                                         </label>
                                     </div>
                                     <div class="row">
@@ -559,6 +560,25 @@
                                                 ($$)</p>
                                             <input value="0" name="virtualCurrencyAdded" id="vc_added" maxlength="3"
                                                 type="number" min="0" max="100" required>
+                                        </div>
+                                    </div>
+                                     <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Class Fund
+                                            {% if classFundEnabled %}
+                                            <input name="classFundEnabled" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="classFundEnabled" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                            
+                                        </label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <p style="font-size: 0.8rem;"> Change class fund amount</p>
+                                            <input value="{{classFund}}" name="classFundChange" id="classFundid" type="number" min="0" max="10000" required>
                                         </div>
                                     </div>
                                 </div>

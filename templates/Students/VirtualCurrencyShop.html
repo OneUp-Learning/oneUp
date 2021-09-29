@@ -35,7 +35,8 @@
                                  <th>Cost</th>
                               </tr>
                            </thead>
-                           <tbody>
+                           
+                           <thead>
                               {% for buyOpt in buyOptions %}
                               <tr>
                                  <td>{{buyOpt.displayName}}</td>
@@ -60,16 +61,31 @@
                                  <td class="center-align" colspan="6"><i>No Items in Shop</i></td>
                               </tr>
                               {% endfor %}
-                              </tbody>
-                              <tbody class="hide-on-large-only mobile-table-padding"></tbody>
+                              </thead>
+                              <tbody class="hide-on-large-only mobile-table-padding"></tbody>                              
                         </table>
-                        <table>
-                           <thead>
+                        {% if classFundEnabled %}
+       					<table >
+       					<thead>
+       						<tr>
+	                      		<td> Donate to class fund </td>	                        	
+		                    	<td style="padding-bottom: 0; padding-top: 0;"><input name="donate" id="donateID" type="number" min="0" max="{{studentVirtualCurrency}}" value="0"></td>
+                  		   		<td width = 75% > </td>	 
+		                  
+		                    </tr>
+		                    <tr>
+		                	    <td colspan = "5"> Current class fund total: {{donations}}</td>
+		                    </tr>
+		                </thead>            
+       					</table>
+       					{% endif %}
+                        <table>	                  
+                          <thead>	                                               
                               <tr>
                               <th>Your current balance: {{studentVirtualCurrency}}</th>
                               <th style="display: flex; justify-content: flex-end;"><span id="total">Total: 0</span></th>
                               </tr>
-                           </thead>
+                          </thead>
                            <tbody>
                               <tr>
                                  <td></td>
@@ -99,17 +115,23 @@
          var indexes = [{% for buyOpt in buyOptions %} {{buyOpt.id}}, {% endfor %}];
          function updatePrices() {
          	var len = prices.length;
-         	var total = 0;
+         	var total = 0;         	
          	for (var i = 0; i < len; i++) {
          		if (document.getElementById("buyOptionQuantity"+indexes[i]).value.length > 3){
          			document.getElementById("buyOptionQuantity"+indexes[i]).value = document.getElementById("buyOptionQuantity"+indexes[i]).value.slice(0, 3);
          		}
          		var quantity = document.getElementById("buyOptionQuantity"+indexes[i]).value;
          		var price = quantity*prices[i];
+         		if(price < 0) price = 0;
          		total += price;
-         		document.getElementById("priceFor"+indexes[i]).innerHTML = price;
          		
+         		document.getElementById("priceFor"+indexes[i]).innerHTML = price;
          	}
+         	if( document.getElementById("donateID") != null ){
+	         	var d = 1*document.getElementById("donateID").value;
+	        	total += d;         	
+         	}
+         	if(total < 0) total = 0;
          	document.getElementById("total").innerHTML =  "Total: " +  total;
          	//GGM checkTotal();
          }
@@ -133,10 +155,13 @@
          	}
          	return true;	//GGM
          }
-         
-         for (var i=0; i < {{numBuyOptions}}; i++) {
-         	document.getElementById("buyOptionQuantity"+indexes[i]).addEventListener('change',updatePrices);
+         if( document.getElementById("donateID") != null ){ 
+        	 document.getElementById("donateID").addEventListener('change',updatePrices);
          }
+         for (var i=0; i < {{numBuyOptions}}; i++) {
+         	document.getElementById("buyOptionQuantity"+indexes[i]).addEventListener('change',updatePrices);         	
+         }
+       
       </script>
    </body>
 </html>
