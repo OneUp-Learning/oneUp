@@ -709,7 +709,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
 #                 try:
 #                     with transaction.atomic():
 #                         student = StudentRegisteredCourses.objects.get(studentID = studentID, courseID = courseID)
-            if student.virtualCurrencyAmount >= vcRuleAmount:
+            if student.virtualCurrencyAmount - student.donationAmount >= vcRuleAmount:
 #                             student.virtualCurrencyAmount -= vcRuleAmount 
 #                             instructorCourse = InstructorRegisteredCourses.objects.filter(courseID=courseID).first()
 #                             instructor = instructorCourse.instructorID
@@ -992,6 +992,7 @@ def recalculate_student_virtual_currency_total(student,course):
             total -= st_svct.amount
     
     studentRegCourse = StudentRegisteredCourses.objects.get(courseID=course,studentID = student)
+    total -= studentRegCourse.donationAmount;
     studentRegCourse.virtualCurrencyAmount = total
     print("[VCRecalculate] Total: "+str(total))
     studentRegCourse.save()

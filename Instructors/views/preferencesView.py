@@ -10,6 +10,7 @@ from Badges.models import CourseConfigParams, LeaderboardsConfig
 from Badges.tasks import refresh_xp, recalculate_student_virtual_currency_total_offline
 from Instructors.views.dynamicLeaderboardView import createXPLeaderboard
 from Instructors.views.utils import initialContextDict
+from Instructors.models import InstructorRegisteredCourses
 from oneUp.decorators import instructorsCheck
 from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 
@@ -19,7 +20,9 @@ from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 def preferencesView(request):
 
     context_dict, currentCourse = initialContextDict(request)
-
+    
+    ins_cou = InstructorRegisteredCourses.objects.get(
+        courseID=currentCourse) 
     if request.POST:
 
         if request.POST['ccpID']:
@@ -131,7 +134,11 @@ def preferencesView(request):
         # Virtual Currency
         ccparams.virtualCurrencyUsed = "virtualCurrencyUsed" in request.POST
         vcaddedString = request.POST.get('virtualCurrencyAdded')
-
+        
+        ccparams.classFundEnabled = "classFundEnabled" in request.POST
+      
+        ins_cou.Donations = request.POST.get("classFundChange")
+        ins_cou.save()
         if vcaddedString:
             
             vcaddedInt = int(vcaddedString)
@@ -244,6 +251,9 @@ def preferencesView(request):
             # Virtual Currency
             context_dict["virtualCurrencyUsed"] = ccparams.virtualCurrencyUsed
             context_dict["virtualCurrencyAdded"] = ccparams.virtualCurrencyAdded
+            
+            context_dict["classFundEnabled"] = ccparams.classFundEnabled
+            context_dict["classFund"] = ins_cou.Donations 
             # Displaying the menu items of content unlocking and debug system variables
             context_dict['contentUnlockingDisplayed'] = ccparams.contentUnlockingDisplayed
             context_dict['debugSystemVariablesDisplayed'] = ccparams.debugSystemVariablesDisplayed

@@ -70,6 +70,7 @@ class StudentRegisteredCourses(models.Model):
     # It is calculated using recalculate_student_virtual_currency_total
     # from Badges/event.py/
     virtualCurrencyAmount = models.IntegerField(default=0)
+    donationAmount = models.IntegerField(default=0)
     attendanceStreakStartDate = models.DateTimeField(default=custom_now)
     # This is a cache of the XP amount, used because calculating it live
     # all the time is too slow.
