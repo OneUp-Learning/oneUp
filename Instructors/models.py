@@ -41,7 +41,7 @@ class Courses(models.Model):
     courseID = models.AutoField(primary_key=True)
     courseName = models.CharField(max_length=75)
     courseDescription = models.CharField(max_length=2000, default="")
-
+     
     def __str__(self):              
         return self.courseName
 
@@ -71,8 +71,9 @@ class UniversityCourses(models.Model):
 class InstructorRegisteredCourses(models.Model):
     instructorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Instructor ID", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
+    Donations = models.IntegerField(default = 0)
     def __str__(self):
-        return str(self.instructorID) + "," + str(self.courseID)
+        return str(self.instructorID) + "," + str(self.courseID) + "," + str(self.Donations)
 
 class Questions(models.Model):
     questionID = models.AutoField(primary_key=True)

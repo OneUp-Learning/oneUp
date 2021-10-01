@@ -5,7 +5,7 @@ Last Updated Sep 14, 2017
 '''
 from django.shortcuts import render
 from Instructors.models import Challenges
-from Instructors.models import Skills, CoursesSkills, Activities
+from Instructors.models import Skills, CoursesSkills, Activities, InstructorRegisteredCourses
 from Badges.models import CourseConfigParams
 from Students.models import StudentBadges, StudentChallenges, StudentCourseSkills, StudentRegisteredCourses, StudentActivities
 from Instructors.views.announcementListView import createContextForAnnouncementList
@@ -42,7 +42,9 @@ def courseLeaderboard(currentCourse, context_dict):
                 context_dict["numStudentsDisplayed"] = ccparams.numStudentsDisplayed
                 context_dict["numStudentBestSkillsDisplayed"] = ccparams.numStudentBestSkillsDisplayed
                 context_dict["numBadgesDisplayed"] = ccparams.numBadgesDisplayed
-
+                context_dict["virtualCurrencyUsed"] = ccparams.virtualCurrencyUsed
+                context_dict["classFundEnabled"] = ccparams.classFundEnabled
+                
             badgeId = []
             studentBadgeID = []
             studentID = []
@@ -86,7 +88,11 @@ def courseLeaderboard(currentCourse, context_dict):
             context_dict['leaderboard_range'] = generateLeaderboards(
                 currentCourse, True)
             generateSkillTable(currentCourse, context_dict)
-
+            ##class donations
+            ins_cou = InstructorRegisteredCourses.objects.get(
+            courseID=currentCourse)        
+          
+            context_dict["classFund"] = ins_cou.Donations
         else:
             context_dict['course_Name'] = 'Not Selected'
 

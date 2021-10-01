@@ -401,6 +401,9 @@ class CourseConfigParams(models.Model):
     adaptationUsed = models.BooleanField(default = False)
     ## xp settings
     
+    ##Class Donation system
+    classFundEnabled = models.BooleanField(default = False)
+    
     def GenerateConfigEnumList(self, *args, **kwargs):
         EnumList = []
         
@@ -459,7 +462,8 @@ class CourseConfigParams(models.Model):
         +str(self.adaptationUsed)+","\
         +str(self.selfAssignment)+","\
         +str(self.xpDisplayUsed)+","\
-        +str(self.xpLeaderboardUsed)
+        +str(self.xpLeaderboardUsed)+","\
+        +str(self.classFundEnabled)
         
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)

@@ -31,6 +31,7 @@ def virtualCurrencyShopView(request):
     # Redirects students from VC page if VC not enabled
     config = CourseConfigParams.objects.get(courseID=currentCourse)
     vcEnabled = config.virtualCurrencyUsed
+    fundEnabled = config.classFundEnabled
     if not vcEnabled:
         return redirect('/oneUp/students/StudentCourseHome')
     if 'currentCourseID' in request.session:
@@ -38,8 +39,12 @@ def virtualCurrencyShopView(request):
         student = context_dict['student']
         st_crs = StudentRegisteredCourses.objects.get(
             studentID=student, courseID=currentCourse)
+        ins_cou = InstructorRegisteredCourses.objects.get(
+            courseID=currentCourse)
+        
         recalculate_student_virtual_currency_total(st_crs.studentID,currentCourse)
         currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount
+        classfund = ins_cou.Donations
         # RULE BASED VC NOT USED
 
         def getRulesForEvent(event):
@@ -209,13 +214,19 @@ def virtualCurrencyShopView(request):
                 {'id': buyOption['id']} for buyOption in finalBuyOptions]
             context_dict['numBuyOptions'] = len(buyOptions)
             context_dict['studentVirtualCurrency'] = currentStudentCurrencyAmmount
-
+            context_dict['classFundEnabled'] = fundEnabled
+             
+            context_dict['donations'] = classfund
             return render(request, "Students/VirtualCurrencyShop.html", context_dict)
 
         elif request.method == "POST":
             # Go through the buy options and complete the transactions
             enabledBuyOptions = request.session['buyoptions']
             total = 0
+            if( fundEnabled ):
+                donate = int(request.POST['donate'])
+                total += donate
+            
             for buyOption in enabledBuyOptions:
                 quantity = int(request.POST['buyOptionQuantity' +
                                         str(buyOption['id'])])
@@ -276,6 +287,12 @@ def virtualCurrencyShopView(request):
             notify.send(None, recipient=instructor, actor=student.user, verb=student.user.first_name + ' '+student.user.last_name + ' spent ' +
                         str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/badges/VirtualCurrencyTransactions'}))
 
+            
             st_crs.virtualCurrencyAmount -= total
+            if( fundEnabled ):
+                st_crs.donationAmount +=donate
+                ins_cou.Donations += donate
+                
             st_crs.save()
+            ins_cou.save()
             return redirect("/oneUp/students/Transactions.html", {"test": "testif"})

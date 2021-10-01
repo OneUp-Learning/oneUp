@@ -14,7 +14,7 @@ from Badges.enums import Event
 from Badges.events import register_event, recalculate_student_virtual_currency_total
 from Badges.models import CourseConfigParams
 from Badges.periodicVariables import TimePeriods, studentScore
-from Instructors.models import Courses
+from Instructors.models import Courses, InstructorRegisteredCourses
 from Instructors.views.announcementListView import \
     createContextForAnnouncementList
 from Instructors.views.dynamicLeaderboardView import generateLeaderboards, generateSkillTable
@@ -35,7 +35,9 @@ def StudentCourseHome(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
     student = context_dict['student']
-
+ 
+    
+        
     if context_dict['is_test_student']:
         context_dict["username"] = "Test Student"
 
@@ -45,7 +47,12 @@ def StudentCourseHome(request):
     recalculate_student_virtual_currency_total(context_dict['student_registered_course'].studentID,currentCourse)
     context_dict['course_Bucks'] = str(
         context_dict['student_registered_course'].virtualCurrencyAmount)
-
+    
+    ins_cou = InstructorRegisteredCourses.objects.get(
+        courseID=currentCourse)        
+      
+    context_dict["classFund"] = ins_cou.Donations
+    
     context_dict = createContextForAnnouncementList(
         currentCourse, context_dict, True)
     context_dict = createContextForUpcommingChallengesList(
