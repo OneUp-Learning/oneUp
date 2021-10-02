@@ -68,7 +68,27 @@
                   </div>
                </div>
             {% endif %}
+            {% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed and ccparams.classFundEnabled %}
+                <div class="col s12 m12">
+                <div class="row" style="display: flex;">
+                <div class="col s12 m6"style="
+                     width: 200px;
+                     height: 75px;"></div>
                
+                <div class="col s12">
+                    <div class="card-panel">
+                    <table>
+                    <caption><h5>Current Class Fund Total: {{classFund}} $</h5></caption>
+            			
+                    </table>
+                    </div>
+                  </div>
+                  <div class="col s12 m6" style="
+                     width: 200px;
+                     height: 75px;"></div>
+                </div>
+              </div>
+            {% endif %}       
             {% if scparams.displayBadges and ccparams.gamificationUsed and ccparams.badgesUsed %}                            
             <div class="row">
                 <div class="col s12">
@@ -318,27 +338,7 @@
               </div>
                   {% endif %}     
      
-               {% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed and ccparams.classFundEnabled %}
-                <div class="col s12 m12">
-                <div class="row" style="display: flex;">
-                <div class="col s12 m6"style="
-                     width: 200px;
-                     height: 200px;"></div>
-               
-                <div class="col s12">
-                    <div class="card-panel">
-                    <table>
-                    <caption><h5>Current Class Fund Total: {{classFund}} $</h5></caption>
-            			
-                    </table>
-                    </div>
-                  </div>
-                  <div class="col s12 m6" style="
-                     width: 200px;
-                     height: 200px;"></div>
-                </div>
-              </div>
-                  {% endif %}                
+                           
             </div>  
             </div>
          </div>
