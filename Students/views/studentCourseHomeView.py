@@ -48,13 +48,13 @@ def StudentCourseHome(request):
     context_dict['course_Bucks'] = str(
         context_dict['student_registered_course'].virtualCurrencyAmount)
     
-<<<<<<< HEAD
+
     ins_cou = InstructorRegisteredCourses.objects.filter(
             courseID=currentCourse).first()             
-=======
+
 #    ins_cou = InstructorRegisteredCourses.objects.get(
 #        courseID=currentCourse)        
->>>>>>> branch 'devdeploy' of /var/gitrepos/oneUp
+
       
 #    context_dict["classFund"] = ins_cou.Donations
     context_dict["classFund"] = 0

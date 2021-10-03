@@ -89,14 +89,13 @@ def courseLeaderboard(currentCourse, context_dict):
             context_dict['leaderboard_range'] = generateLeaderboards(
                 currentCourse, True)
             generateSkillTable(currentCourse, context_dict)
-<<<<<<< HEAD
+
             # #class donations
             ins_cou = InstructorRegisteredCourses.objects.filter(
             courseID=currentCourse).first()        
           
             context_dict["classFund"] = ins_cou.Donations
-=======
->>>>>>> branch 'devdeploy' of /var/gitrepos/oneUp
+
         else:
             context_dict['course_Name'] = 'Not Selected'
 
