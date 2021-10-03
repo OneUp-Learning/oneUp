@@ -73,7 +73,7 @@ class InstructorRegisteredCourses(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
     Donations = models.IntegerField(default = 0)
     def __str__(self):
-        return str(self.instructorID) + "," + str(self.courseID) + "," + str(self.Donations)
+        return str(self.instructorID) + "," + str(self.courseID) 
 
 class Questions(models.Model):
     questionID = models.AutoField(primary_key=True)

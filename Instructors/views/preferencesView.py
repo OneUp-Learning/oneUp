@@ -21,8 +21,13 @@ def preferencesView(request):
 
     context_dict, currentCourse = initialContextDict(request)
     
+<<<<<<< HEAD
     ins_cou = InstructorRegisteredCourses.objects.filter(
             courseID=currentCourse).first()       
+=======
+    ins_cou = InstructorRegisteredCourses.objects.get(
+        courseID=currentCourse,instructorID=request.user) 
+>>>>>>> branch 'devdeploy' of /var/gitrepos/oneUp
     if request.POST:
 
         if request.POST['ccpID']:
