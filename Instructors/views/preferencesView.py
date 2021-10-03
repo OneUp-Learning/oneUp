@@ -20,6 +20,7 @@ from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 def preferencesView(request):
 
     context_dict, currentCourse = initialContextDict(request)
+<<<<<<< HEAD
     
 
     ins_cou = InstructorRegisteredCourses.objects.filter(
@@ -28,6 +29,9 @@ def preferencesView(request):
     ins_cou = InstructorRegisteredCourses.objects.get(
         courseID=currentCourse,instructorID=request.user) 
 
+=======
+         
+>>>>>>> refs/heads/virtual_currency
     if request.POST:
 
         if request.POST['ccpID']:
@@ -142,8 +146,8 @@ def preferencesView(request):
         
         ccparams.classFundEnabled = "classFundEnabled" in request.POST
       
-        ins_cou.Donations = request.POST.get("classFundChange")
-        ins_cou.save()
+        currentCourse.Donations = request.POST.get("classFundChange")
+        currentCourse.save()
         if vcaddedString:
             
             vcaddedInt = int(vcaddedString)
@@ -258,7 +262,7 @@ def preferencesView(request):
             context_dict["virtualCurrencyAdded"] = ccparams.virtualCurrencyAdded
             
             context_dict["classFundEnabled"] = ccparams.classFundEnabled
-            context_dict["classFund"] = ins_cou.Donations 
+            context_dict["classFund"] = currentCourse.Donations 
             # Displaying the menu items of content unlocking and debug system variables
             context_dict['contentUnlockingDisplayed'] = ccparams.contentUnlockingDisplayed
             context_dict['debugSystemVariablesDisplayed'] = ccparams.debugSystemVariablesDisplayed

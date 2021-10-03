@@ -48,6 +48,7 @@ def StudentCourseHome(request):
     context_dict['course_Bucks'] = str(
         context_dict['student_registered_course'].virtualCurrencyAmount)
     
+<<<<<<< HEAD
 
     ins_cou = InstructorRegisteredCourses.objects.filter(
             courseID=currentCourse).first()             
@@ -55,9 +56,17 @@ def StudentCourseHome(request):
 #    ins_cou = InstructorRegisteredCourses.objects.get(
 #        courseID=currentCourse)        
 
+=======
+     
+>>>>>>> refs/heads/virtual_currency
       
+<<<<<<< HEAD
 #    context_dict["classFund"] = ins_cou.Donations
     context_dict["classFund"] =  ins_cou.Donations
+=======
+  
+    context_dict["classFund"] = currentCourse.Donations
+>>>>>>> refs/heads/virtual_currency
     
     context_dict = createContextForAnnouncementList(
         currentCourse, context_dict, True)

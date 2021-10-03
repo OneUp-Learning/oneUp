@@ -41,9 +41,9 @@ class Courses(models.Model):
     courseID = models.AutoField(primary_key=True)
     courseName = models.CharField(max_length=75)
     courseDescription = models.CharField(max_length=2000, default="")
-     
+    Donations = models.IntegerField(default = 40)
     def __str__(self):              
-        return self.courseName
+        return self.courseName 
 
 class Universities(models.Model):
     universityID = models.AutoField(primary_key=True)
@@ -71,9 +71,13 @@ class UniversityCourses(models.Model):
 class InstructorRegisteredCourses(models.Model):
     instructorID = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Instructor ID", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True)
-    Donations = models.IntegerField(default = 0)
+    
     def __str__(self):
+<<<<<<< HEAD
         return str(self.instructorID) + "," + str(self.courseID) 
+=======
+        return str(self.instructorID) + "," + str(self.courseID)
+>>>>>>> refs/heads/virtual_currency
 
 class Questions(models.Model):
     questionID = models.AutoField(primary_key=True)
