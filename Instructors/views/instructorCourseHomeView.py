@@ -118,7 +118,7 @@ def instructorCourseHome(request):
     context_dict = courseLeaderboard(currentCourse, context_dict)
     
     ##class donations
-    ins_cou = InstructorRegisteredCourses.objects.get(courseID=currentCourse,instructorID=request.user)
+    ins_cou = InstructorRegisteredCourses.objects.filter(courseID=currentCourse,instructorID=request.user).first()     
     context_dict["classFund"] = ins_cou.Donations
 
     return render(request, 'Instructors/InstructorCourseHome.html', context_dict)

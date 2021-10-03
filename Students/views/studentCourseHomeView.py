@@ -57,7 +57,7 @@ def StudentCourseHome(request):
 
       
 #    context_dict["classFund"] = ins_cou.Donations
-    context_dict["classFund"] = 0
+    context_dict["classFund"] =  ins_cou.Donations
     
     context_dict = createContextForAnnouncementList(
         currentCourse, context_dict, True)
