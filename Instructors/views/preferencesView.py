@@ -22,7 +22,7 @@ def preferencesView(request):
     context_dict, currentCourse = initialContextDict(request)
     
     ins_cou = InstructorRegisteredCourses.objects.get(
-        courseID=currentCourse) 
+        courseID=currentCourse,instructorID=request.user) 
     if request.POST:
 
         if request.POST['ccpID']:
