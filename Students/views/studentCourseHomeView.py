@@ -48,10 +48,10 @@ def StudentCourseHome(request):
     context_dict['course_Bucks'] = str(
         context_dict['student_registered_course'].virtualCurrencyAmount)
     
-    ins_cou = InstructorRegisteredCourses.objects.filter(
-            courseID=currentCourse).first()             
+     
       
-    context_dict["classFund"] = ins_cou.Donations
+  
+    context_dict["classFund"] = currentCourse.Donations
     
     context_dict = createContextForAnnouncementList(
         currentCourse, context_dict, True)
