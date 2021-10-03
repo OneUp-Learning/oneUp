@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.decorators import instructorsCheck
 import inspect
 
+
 def lineno():
     """Returns the current line number in our program."""
     return inspect.currentframe().f_back.f_lineno
@@ -79,7 +80,7 @@ def courseLeaderboard(currentCourse, context_dict):
                             studentUser.append(
                                 student.user.first_name + " " + student.user.last_name)
 
-            context_dict['badgesInfo'] = zip(range(1, ccparams.numBadgesDisplayed+1), studentBadgeID,
+            context_dict['badgesInfo'] = zip(range(1, ccparams.numBadgesDisplayed + 1), studentBadgeID,
                                              studentID, badgeID, badgeName, badgeImage, avatarImage, studentUser)
 
             # user range here is comprised of zip(leaderboardNames, leaderboardDescriptions, leaderboardRankings)
@@ -88,9 +89,9 @@ def courseLeaderboard(currentCourse, context_dict):
             context_dict['leaderboard_range'] = generateLeaderboards(
                 currentCourse, True)
             generateSkillTable(currentCourse, context_dict)
-            ##class donations
-            ins_cou = InstructorRegisteredCourses.objects.get(
-            courseID=currentCourse)        
+            # #class donations
+            ins_cou = InstructorRegisteredCourses.objects.filter(
+            courseID=currentCourse).first()        
           
             context_dict["classFund"] = ins_cou.Donations
         else:

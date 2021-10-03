@@ -39,8 +39,8 @@ def virtualCurrencyShopView(request):
         student = context_dict['student']
         st_crs = StudentRegisteredCourses.objects.get(
             studentID=student, courseID=currentCourse)
-        ins_cou = InstructorRegisteredCourses.objects.get(
-            courseID=currentCourse)
+        ins_cou = InstructorRegisteredCourses.objects.filter(
+            courseID=currentCourse).first()       
         
         recalculate_student_virtual_currency_total(st_crs.studentID,currentCourse)
         currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount

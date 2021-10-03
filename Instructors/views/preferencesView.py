@@ -21,8 +21,8 @@ def preferencesView(request):
 
     context_dict, currentCourse = initialContextDict(request)
     
-    ins_cou = InstructorRegisteredCourses.objects.get(
-        courseID=currentCourse) 
+    ins_cou = InstructorRegisteredCourses.objects.filter(
+            courseID=currentCourse).first()       
     if request.POST:
 
         if request.POST['ccpID']:
