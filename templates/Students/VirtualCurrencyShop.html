@@ -68,14 +68,13 @@
        					<table >
        					<thead>
        						<tr>
-	                      		<td> Donate to class fund </td>	                        	
-		                    	<td style="padding-bottom: 0; padding-top: 0;"><input name="donate" id="donateID" type="number" min="0" max="{{studentVirtualCurrency}}" value="0"></td>
-                  		   		<td width = 75% > </td>	 
+       							<td width = 17% > </td>	 
+	                      		<td width = 17% > Donate to class fund </td>	
+	                      		<td width = 24% > </td>	                         	
+		                    	<td width = 5% style="padding-bottom: 0; padding-top: 0;"><input name="donate" id="donateID" type="number" min="0" max="{{studentVirtualCurrency}}" value="0"></td>
+                  		   		<td width = 36% > </td>	 
 		                  
-		                    </tr>
-		                    <tr>
-		                	    <td colspan = "5"> Current class fund total: {{donations}}</td>
-		                    </tr>
+		                    </tr>		                    
 		                </thead>            
        					</table>
        					{% endif %}
@@ -85,6 +84,11 @@
                               <th>Your current balance: {{studentVirtualCurrency}}</th>
                               <th style="display: flex; justify-content: flex-end;"><span id="total">Total: 0</span></th>
                               </tr>
+                               {% if classFundEnabled %}
+	                              <tr>
+			                	    <th > Current class fund total: {{donations}}</th>
+			                  	  </tr>
+		                  	   {% endif %}
                           </thead>
                            <tbody>
                               <tr>

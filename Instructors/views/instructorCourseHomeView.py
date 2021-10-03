@@ -89,8 +89,7 @@ def courseLeaderboard(currentCourse, context_dict):
                 currentCourse, True)
             generateSkillTable(currentCourse, context_dict)
             ##class donations
-            ins_cou = InstructorRegisteredCourses.objects.get(
-            courseID=currentCourse)        
+            ins_cou = InstructorRegisteredCourses.objects.get(courseID=currentCourse,instructorID=request.user)
           
             context_dict["classFund"] = ins_cou.Donations
         else:
