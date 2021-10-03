@@ -88,10 +88,6 @@ def courseLeaderboard(currentCourse, context_dict):
             context_dict['leaderboard_range'] = generateLeaderboards(
                 currentCourse, True)
             generateSkillTable(currentCourse, context_dict)
-            ##class donations
-            ins_cou = InstructorRegisteredCourses.objects.get(courseID=currentCourse,instructorID=request.user)
-          
-            context_dict["classFund"] = ins_cou.Donations
         else:
             context_dict['course_Name'] = 'Not Selected'
 
@@ -112,4 +108,9 @@ def instructorCourseHome(request):
     context_dict['course_id'] = currentCourse.courseID
 
     context_dict = courseLeaderboard(currentCourse, context_dict)
+    
+    ##class donations
+    ins_cou = InstructorRegisteredCourses.objects.get(courseID=currentCourse,instructorID=request.user)
+    context_dict["classFund"] = ins_cou.Donations
+
     return render(request, 'Instructors/InstructorCourseHome.html', context_dict)
