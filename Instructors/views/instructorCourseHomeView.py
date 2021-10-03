@@ -91,16 +91,9 @@ def courseLeaderboard(currentCourse, context_dict):
             generateSkillTable(currentCourse, context_dict)
 
             # #class donations
-<<<<<<< HEAD
-            ins_cou = InstructorRegisteredCourses.objects.filter(
-            courseID=currentCourse).first()        
-          
-            context_dict["classFund"] = ins_cou.Donations
 
-=======
-        
             context_dict["classFund"] = currentCourse.Donations
->>>>>>> refs/heads/virtual_currency
+
         else:
             context_dict['course_Name'] = 'Not Selected'
 
@@ -123,7 +116,6 @@ def instructorCourseHome(request):
     context_dict = courseLeaderboard(currentCourse, context_dict)
     
     ##class donations
-    ins_cou = InstructorRegisteredCourses.objects.filter(courseID=currentCourse,instructorID=request.user).first()     
-    context_dict["classFund"] = ins_cou.Donations
+    context_dict["classFund"] = currentCourse.Donations
 
     return render(request, 'Instructors/InstructorCourseHome.html', context_dict)

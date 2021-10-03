@@ -20,18 +20,8 @@ from Students.models import StudentRegisteredCourses, StudentVirtualCurrency
 def preferencesView(request):
 
     context_dict, currentCourse = initialContextDict(request)
-<<<<<<< HEAD
-    
 
-    ins_cou = InstructorRegisteredCourses.objects.filter(
-            courseID=currentCourse).first()       
 
-    ins_cou = InstructorRegisteredCourses.objects.get(
-        courseID=currentCourse,instructorID=request.user) 
-
-=======
-         
->>>>>>> refs/heads/virtual_currency
     if request.POST:
 
         if request.POST['ccpID']:
