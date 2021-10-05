@@ -39,12 +39,16 @@ def virtualCurrencyShopView(request):
         student = context_dict['student']
         st_crs = StudentRegisteredCourses.objects.get(
             studentID=student, courseID=currentCourse)
+
 #        ins_cou = InstructorRegisteredCourses.objects.get(
-#            courseID=currentCourse)
-        
+
         recalculate_student_virtual_currency_total(st_crs.studentID,currentCourse)
         currentStudentCurrencyAmmount = st_crs.virtualCurrencyAmount
+
+        classfund = currentCourse.Donations
+
 #        classfund = ins_cou.Donations
+
         # RULE BASED VC NOT USED
 
         def getRulesForEvent(event):
@@ -291,8 +295,16 @@ def virtualCurrencyShopView(request):
             st_crs.virtualCurrencyAmount -= total
             if( fundEnabled ):
                 st_crs.donationAmount +=donate
+
+                currentCourse.Donations += donate
+
 #                ins_cou.Donations += donate
+
                 
             st_crs.save()
+
+            currentCourse.save()
+
 #            ins_cou.save()
+
             return redirect("/oneUp/students/Transactions.html", {"test": "testif"})

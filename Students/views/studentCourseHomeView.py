@@ -47,12 +47,10 @@ def StudentCourseHome(request):
     recalculate_student_virtual_currency_total(context_dict['student_registered_course'].studentID,currentCourse)
     context_dict['course_Bucks'] = str(
         context_dict['student_registered_course'].virtualCurrencyAmount)
-    
-#    ins_cou = InstructorRegisteredCourses.objects.get(
-#        courseID=currentCourse)        
-      
-#    context_dict["classFund"] = ins_cou.Donations
-    context_dict["classFund"] = 0
+
+
+    context_dict["classFund"] = currentCourse.Donations
+
     
     context_dict = createContextForAnnouncementList(
         currentCourse, context_dict, True)
