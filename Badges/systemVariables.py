@@ -1415,6 +1415,14 @@ def getPercentOfActivitiesSubmittedInCategory(course, student, category):
     print('PCT:', int(numSubmitted/numOfActivitiesAvailable*100))
     return int(numSubmitted/numOfActivitiesAvailable*100)
 
+def getActivitiesCompletedInOneActivityCategory(course, student, category):
+    ''' Return the percentage of submitted activities for a particular category'''
+    from Students.models import StudentActivities, StudentEventLog
+    from Instructors.models import Activities
+    StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category).count
+
+    return (StudActivities)
+
 def skillPoints(course, student, skill):
     from Students.models import StudentCourseSkills
     scs =  StudentCourseSkills.objects.filter(studentChallengeQuestionID__studentChallengeID__courseID = course, studentChallengeQuestionID__studentChallengeID__studentID = student, skillID = skill)
@@ -1531,6 +1539,7 @@ class SystemVariable():
     totalSpentVC = 969 # Total amount of vc spent by a student
     sumOfScoreOfEveryStudentActivity = 970
     percentageOfActivitiesSubmittedInCategory = 971
+    activitiesCompletedInOneActivityCategory = 972
 #    sumOfScoreOfAllStudentActivitiesCategory = 971  Deprecated.  Folded into the score variable
 #    minScoreOfStudentsActivitiesCategory = 972 Deprecated.  Folded into MinScore
 #    maxScoreOfStudentsActivitiesCategory = 973 Deprecated.  Folded into MaxScore
@@ -2782,7 +2791,20 @@ class SystemVariable():
             'functions':{
                 ObjectTypes.activityCategory: getPercentOfActivitiesSubmittedInCategory
             },
-        },                                                                
+        },       
+        activitiesCompletedInOneActivityCategory:{
+            'index':activitiesCompletedInOneActivityCategory,
+            'name':'activitiesCompletedInOneActivityCategory',
+            'displayName':'Activities Completed In One Activity Category',
+            'description':'The number of activities submitted by the student per category',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.activityCategory: [Event.participationNoted]
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.activityCategory: getActivitiesCompletedInOneActivityCategory
+            },
+        },                                                           
     }
 
 
