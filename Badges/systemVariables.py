@@ -1419,7 +1419,7 @@ def getActivitiesCompletedInOneActivityCategory(course, student, category):
     ''' Return the percentage of submitted activities for a particular category'''
     from Students.models import StudentActivities, StudentEventLog
     from Instructors.models import Activities
-    StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category).count
+    StudActivities = StudentActivities.objects.filter(courseID=course, studentID=student, activityID__category=category).count()
 
     return (StudActivities)
 
