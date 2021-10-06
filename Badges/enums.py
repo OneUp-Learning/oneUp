@@ -774,7 +774,7 @@ class AwardFrequency:
             'index':perActivityCategory,
             'name': 'Once per Category',
             'objectType': ObjectTypes.activityCategory,
-            'objectTypeName': 'category',
+            'objectTypeName': 'activityCategory',
         },
     }
     
