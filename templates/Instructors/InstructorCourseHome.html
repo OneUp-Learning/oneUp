@@ -93,11 +93,13 @@
               </div>
             {% endif %}   
  		 {% if not ccparams.announcementsUsed and not ccparams.seriousChallengesUsed %}
- 		   <div class="row center-align">
-                <div class="col s12">
-                   <h3>Welcome!</h3>
-                </div>
-             </div>
+ 		 	{% if not gamificationUsed or not virtualCurrencyUsed or not classFundEnabled %}
+	 		   <div class="row center-align">
+	                <div class="col s12">
+	                   <h3>Welcome!</h3>
+	                </div>
+	             </div>
+              {% endif %}   
          {% endif %}   
          </div> 
                                        

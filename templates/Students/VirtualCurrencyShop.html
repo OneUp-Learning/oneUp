@@ -57,27 +57,29 @@
                                  <td id="priceFor{{buyOpt.id}}">0</td>
                               </tr>
                               {% empty %}
-                              <tr>
-                                 <td class="center-align" colspan="6"><i>No Items in Shop</i></td>
-                              </tr>
+	                              {% if not classFundEnabled %}
+	                              <tr>
+	                                 <td class="center-align" colspan="6"><i>No Items in Shop</i></td>
+	                              </tr>
+	                              {% endif %}
                               {% endfor %}
                               </thead>
                               <tbody class="hide-on-large-only mobile-table-padding"></tbody>                              
-                        </table>
-                        {% if classFundEnabled %}
-       					<table >
+                        
+                        {% if classFundEnabled %}       				
        					<thead>
        						<tr>
-       							<td width = 17% > </td>	 
-	                      		<td width = 17% > Donate to class fund </td>	
-	                      		<td width = 24% > </td>	                         	
-		                    	<td width = 5% style="padding-bottom: 0; padding-top: 0;"><input name="donate" id="donateID" type="number" min="0" max="{{studentVirtualCurrency}}" value="0"></td>
-                  		   		<td width = 36% > </td>	 
-		                  
+       							<th></th> 
+	                      		<td> Donate to class fund </td>		                      		                      	
+		                    	<td style="padding-bottom: 0; padding-top: 0;"><input name="donate" id="donateID" type="number" min="0" max="{{studentVirtualCurrency}}" value="0"></td>
+                  		   		<th></th>
+                  		   		<th></th>
+                                <th></th>
+                                <th></th>		                  
 		                    </tr>		                    
 		                </thead>            
-       					</table>
        					{% endif %}
+       					</table>
                         <table>	                  
                           <thead>	                                               
                               <tr>

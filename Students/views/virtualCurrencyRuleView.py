@@ -18,11 +18,12 @@ from django.contrib.auth.decorators import login_required
 def VirtualCurrencyDisplay(request):
 
     context_dict,currentCourse = studentInitialContextDict(request)
-    
-      
+   
+       
     #Redirects students from VC page if VC not enabled
     config=CourseConfigParams.objects.get(courseID=currentCourse)
     vcEnabled=config.virtualCurrencyUsed
+    fundEnabled = config.classFundEnabled
     if not vcEnabled:
         return redirect('/oneUp/students/StudentCourseHome')
     studentId = context_dict['student']
@@ -43,7 +44,7 @@ def VirtualCurrencyDisplay(request):
     #Displaying the list of rules from database
     #vcRules = VirtualCurrencyRuleInfo.objects.filter(courseID=currentCourse)
     vcRules = VirtualCurrencyCustomRuleInfo.objects.filter(courseID=currentCourse).order_by('vcRulePosition')  # 01/18/18 DD
-   
+
     # Little hack to sort rules by automatic then periodic. 
     x = [r for r in list(vcRules) if hasattr(r, 'virtualcurrencyruleinfo') and not hasattr(r, 'virtualcurrencyperiodicrule')]
     x.extend([r for r in list(vcRules) if not hasattr(r, 'virtualcurrencyruleinfo') and  hasattr(r, 'virtualcurrencyperiodicrule')])
@@ -91,5 +92,6 @@ def VirtualCurrencyDisplay(request):
         # The range part is the index numbers.
     context_dict['vcEarningRuleInfo'] = zip(range(1,countEarningRules+1),vcEarningRuleID,vcEarningRuleName, vcEarningRuleDescription, vcEarningRuleAmount)
     context_dict['vcSpendingRuleInfo'] = zip(range(1,countSpendingRules+1),vcSpendingRuleID,vcSpendingRuleName, vcSpendingRuleDescription, vcSpendingRuleAmount, vcSpendingRuleLimit)
-
+    context_dict['classFundEnabled'] = fundEnabled
+    
     return render(request,'Students/VirtualCurrencyRules.html', context_dict)
