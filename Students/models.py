@@ -212,6 +212,8 @@ class StudentActivities(models.Model):
     bonusPointsAwarded = models.DecimalField(decimal_places=2, max_digits=6, default=0)  # Bonus points purchased by the student
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
+    
+    richTextSubmission = models.CharField(max_length=20000, null=True, blank=True)
     comment = models.CharField(max_length=500, default="") #Comment submitted by student
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
@@ -562,6 +564,8 @@ class TeamActivities(models.Model):
     instructorFeedback = models.CharField(max_length=200, default="")
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
+    
+    richTextSubmission = models.CharField(max_length=20000, null=True, blank=True)
     comment = models.CharField(max_length=500, default="") #Comment submitted by the team
     def __str__(self):              
         return "{} : {} : {} : {}".format(self.teamActivityID, self.teamID, self.activityID, self.courseID)

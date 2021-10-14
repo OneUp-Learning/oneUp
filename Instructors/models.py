@@ -280,6 +280,8 @@ class Activities(models.Model):
     hasStartTimestamp = models.BooleanField(default=False) # Flags used to determine if the timestamp should be used or not
     hasEndTimestamp = models.BooleanField(default=False)
     hasDeadline = models.BooleanField(default=False)
+    
+    allowRichTextSubmission = models.BooleanField(default=False) # Whether or not rich text submission is used
 
     category = models.ForeignKey(ActivitiesCategory,on_delete=models.CASCADE, verbose_name = "Activities Category", db_index=True, default = 1)
     activityPosition = models.IntegerField(default = 0)
