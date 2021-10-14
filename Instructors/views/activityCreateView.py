@@ -19,6 +19,7 @@ from Instructors.models import (Activities, ActivitiesCategory,
 from Instructors.views.utils import (current_localtime, datetime_to_selected,
                                      initialContextDict, str_datetime_to_local)
 from oneUp.decorators import instructorsCheck
+from oneUp.ckeditorUtil import config_ck_editor
 
 
 @login_required
@@ -137,7 +138,7 @@ def activityCreateView(request):
     ######################################
     # request.GET
     else:
-
+        context_dict['ckeditor'] = config_ck_editor()
         # If questionId is specified then we load for editing.
         if 'activityID' in request.GET:
             activity = Activities.objects.get(
