@@ -992,7 +992,6 @@ def recalculate_student_virtual_currency_total(student,course):
             total -= st_svct.amount
     
     studentRegCourse = StudentRegisteredCourses.objects.get(courseID=course,studentID = student)
-    total -= studentRegCourse.donationAmount;
-    studentRegCourse.virtualCurrencyAmount = total
+    studentRegCourse.virtualCurrencyAmount = total - studentRegCourse.donationAmount
     print("[VCRecalculate] Total: "+str(total))
     studentRegCourse.save()
