@@ -261,7 +261,7 @@ class Activities(models.Model):
     courseID = models.ForeignKey(Courses,on_delete=models.CASCADE, verbose_name = "Course Name", db_index=True) 
 
     activityName = models.CharField(max_length=75)
-    description = models.CharField(max_length=2000, default="")
+    description = models.CharField(max_length=20000, default="")
 
     points =  models.DecimalField(decimal_places=3, max_digits=6, default=0)
 

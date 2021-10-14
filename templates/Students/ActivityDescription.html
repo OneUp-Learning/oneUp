@@ -2,6 +2,9 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+      <link href="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/styles/default.css" rel="stylesheet">
+      <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+	  <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
       <script>
         $(document).ready(function(){
           $('.add_more').click(function(e){
@@ -36,7 +39,7 @@
                         {% if activity.description %}
                         <div>
                            <h5>Description</h5>
-                           <p>{{activity.description}}</p>
+                           <p>{{activity.description | safe}}</p>
                         </div>
                         {% endif %}
                         <div>
