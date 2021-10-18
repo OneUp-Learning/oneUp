@@ -56,10 +56,13 @@
                         {% if isVCUsed %}
                         <th class="heading-pad">VC</th>
                         {% endif %}
+                        {% if flashcardsUsed %}
+                        <th class="heading-pad">Viewed flashcards</th>
+                        {% endif %}
                         <th class="heading-pad">Last Action</th>
                      </thead>
                      <tbody>
-                        {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_Action in user_range %}
+                        {% for i,userID,first_Name,last_Name,user_Avatar, sc_totalStudentScore, sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore, wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_flashCards,user_Action in user_range %}
                         <tr>
                            <td style="padding-top: 4px; padding-left: 0; padding-right: 0; padding-bottom: 0;"><img class="circle" style="vertical-align: baseline" alt="Avatar Image" width="28" height="28" 
                                  src="{{user_Avatar}}"></td>
@@ -77,6 +80,9 @@
                            <td>{{user_XP}}</td>
                            {% if isVCUsed %}
                            <td>{{user_VC}}</td>
+                           {% endif %}
+                           {% if flashcardsUsed %}
+                           <td>{{user_flashCards}}</td>
                            {% endif %}
                            <td>{{user_Action}}</td>
                         </tr>
