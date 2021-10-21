@@ -2,6 +2,11 @@
 <html lang="en">
    <head>
       {% include 'scripts.html' %}
+       <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+		<script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
+      <link href="/static/ThirdParty/ckeditor/ckeditor/plugins/codesnippet/lib/highlight/styles/default.css" rel="stylesheet">
+      <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+	  <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
       <script>
         $(document).ready(function(){
           $('.add_more').click(function(e){
@@ -36,7 +41,7 @@
                         {% if activity.description %}
                         <div>
                            <h5>Description</h5>
-                           <p>{{activity.description}}</p>
+                           <p>{{activity.description | safe}}</p>
                         </div>
                         {% endif %}
                         <div>
@@ -72,7 +77,15 @@
                               {% endif %}
                            </ul>
                         </div>
-                       
+                        {% if allowRichTextSubmission %}
+	                        <div class="django-ckeditor-widget" data-field-id="0">
+	                              <textarea name="textSubmiss" id="textSubmiss" rows="2" cols="70"
+	                                 {%if view%}readonly{%else%}required{%endif%} data-processed="0"
+	                                 data-config="{{ ckeditor.config }}"
+	                                 data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}"
+	                                 data-id="textSubmiss" data-type="ckeditortype">{{ textSubmission }}</textarea>
+	                        </div>
+                        {% endif %}
                         {% if feedback %}
                         <div class="section">
                            <h5>Feedback</h5> 
@@ -125,7 +138,7 @@
                      </div>
                      <div class="card-action">
                         <div class="row right-align">
-                        {% if canUpload %}
+                        {% if canUpload or allowRichTextSubmission %}
                             {% if isSubmitted %}
                            <button class="btn waves-effect waves-light" type="submit" name="Upload">Resubmit
                            <i class="material-icons right">send</i></button>
