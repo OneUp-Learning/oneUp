@@ -19,6 +19,7 @@ from Instructors.models import (Activities, ActivitiesCategory,
 from Instructors.views.utils import (current_localtime, datetime_to_selected,
                                      initialContextDict, str_datetime_to_local)
 from oneUp.decorators import instructorsCheck
+from oneUp.ckeditorUtil import config_ck_editor
 
 
 @login_required
@@ -78,7 +79,12 @@ def activityCreateView(request):
             activity.isAvailable = True
         else:
             activity.isAvailable = False
-
+            
+        if 'hasTextSubmission' in request.POST:
+            activity.allowRichTextSubmission = True
+        else:
+            activity.allowRichTextSubmission = False
+            
         if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
         else:
@@ -137,7 +143,7 @@ def activityCreateView(request):
     ######################################
     # request.GET
     else:
-
+        context_dict['ckeditor'] = config_ck_editor()
         # If questionId is specified then we load for editing.
         if 'activityID' in request.GET:
             activity = Activities.objects.get(
@@ -177,8 +183,12 @@ def activityCreateView(request):
                 context_dict['deadLineTimestamp'] = datetime_to_selected(activity.deadLine)
             else:
                 context_dict['deadLineTimestamp'] = ""
-
-
+                
+            if activity.allowRichTextSubmission:
+                context_dict['hasTextSubmission'] = True
+            else:
+                context_dict['hasTextSubmission'] = False
+                
             activityFiles = UploadedActivityFiles.objects.filter(
                 activity=activity, latest=True)
             if(activityFiles):
