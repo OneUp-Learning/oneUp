@@ -18,7 +18,7 @@ from Instructors.models import Activities, Challenges, CoursesSkills, Skills
 from Students.models import (StudentActivities, StudentBadges,
                              StudentChallenges, StudentConfigParams,
                              StudentCourseSkills, StudentEventLog,
-                             StudentRegisteredCourses, StudentStreaks)
+                             StudentRegisteredCourses, studentFlashCards,StudentStreaks)
 from Students.views.utils import getLevelFromXP
 from Students.views import classResults
 from Students.views.studentCourseHomeView import progress_bar_data
@@ -90,7 +90,8 @@ def achievements(request):
         student=student, course=currentCourse, event=878).count()
     context_dict["numOfCalloutLost"] = StudentEventLog.objects.filter(
         student=student, course=currentCourse, event=879).count()
-
+    ##flash cards
+    context_dict["flashcardNumber"] =  studentFlashCards.objects.filter( studentID =student ).count()
     # Extract Badges data for the current student
     badgeId = []
     badgeName = []
