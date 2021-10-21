@@ -79,7 +79,12 @@ def activityCreateView(request):
             activity.isAvailable = True
         else:
             activity.isAvailable = False
-
+            
+        if 'hasTextSubmission' in request.POST:
+            activity.allowRichTextSubmission = True
+        else:
+            activity.allowRichTextSubmission = False
+            
         if 'fileUpload' in request.POST:
             activity.isFileAllowed = True
         else:
@@ -178,8 +183,12 @@ def activityCreateView(request):
                 context_dict['deadLineTimestamp'] = datetime_to_selected(activity.deadLine)
             else:
                 context_dict['deadLineTimestamp'] = ""
-
-
+                
+            if activity.allowRichTextSubmission:
+                context_dict['hasTextSubmission'] = True
+            else:
+                context_dict['hasTextSubmission'] = False
+                
             activityFiles = UploadedActivityFiles.objects.filter(
                 activity=activity, latest=True)
             if(activityFiles):

@@ -152,6 +152,7 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     student_Points = []
     student_Bonus = []
     student_Feedback = []
+    student_TextSubmission = []
     File_Name = []
 
     studentCourse = StudentRegisteredCourses.objects.filter(
@@ -179,6 +180,11 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
                 student_Points.append("")
             else:
                 student_Points.append(stud_act.activityScore)
+                
+            if not stud_act.richTextSubmission:
+                student_TextSubmission.append(False)
+            else:
+                student_TextSubmission.append(stud_act.richTextSubmission)
 
             student_Bonus.append(stud_act.bonusPointsAwarded)
 
@@ -186,7 +192,7 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
 
             studentFile = StudentFile.objects.filter(
                 activity=stud_act, studentID=student, latest=True).first()
-            print(studentFile)
+                
             if studentFile:
                 fName = studentFile.fileName
                 File_Name.append(fName)
@@ -200,6 +206,7 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
             student_Points.append("")
             student_Bonus.append("")
             student_Feedback.append("")
+            student_TextSubmission.append(False)
             File_Name.append(False)
 
     context_dict['isVcUsed'] = CourseConfigParams.objects.get(
@@ -207,9 +214,8 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     context_dict['activityID'] = request.GET['activityID']
     context_dict['activity'] = Activities.objects.get(
         activityID=request.GET['activityID'])
-
     student_list = list(zip(range(1, len(student_ID)+1), student_ID, student_Name, student_Graded,student_Submission,
-                                   student_Points, student_Bonus, student_Feedback, File_Name))
+                                   student_TextSubmission, student_Points, student_Bonus, student_Feedback, File_Name))
     
     student_list = moveTestStudentObjToBottom(student_list)
 
