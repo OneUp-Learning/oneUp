@@ -57,7 +57,7 @@ def studentSummary(request):
 
     studentEvents = [Event.startChallenge, Event.endChallenge, Event.userLogin, Event.studentUpload, Event.spendingVirtualCurrency,
                      Event.visitedDashboard, Event.visitedEarnedVCpage, Event.visitedBadgesInfoPage, Event.visitedSpendedVCpage,
-                     Event.visitedVCRulesInfoPage]
+                     Event.visitedVCRulesInfoPage, Event.submitFlashCard, Event.viewFlashCard]
 
     for cs in courseStudents:
         s = cs.studentID

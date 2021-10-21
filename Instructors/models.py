@@ -77,14 +77,14 @@ class InstructorRegisteredCourses(models.Model):
 
 class Questions(models.Model):
     questionID = models.AutoField(primary_key=True)
-    preview = models.CharField(max_length=200)
-    instructorNotes = models.CharField(max_length=300)
+    preview = models.CharField(max_length=500)
+    instructorNotes = models.CharField(max_length=3000)
     type = models.IntegerField(default=0)
     difficulty = models.CharField(max_length=50, default="")
-    author = models.CharField(max_length=100, default="")
+    author = models.CharField(max_length=200, default="")
     isHintUsed = models.BooleanField(default=False)
-    basicHint = models.CharField(max_length=100, default="") 
-    strongHint = models.CharField(max_length=100, default="")
+    basicHint = models.CharField(max_length=5000, default="") 
+    strongHint = models.CharField(max_length=5000, default="")
 #     courseID = models.ForeignKey(Courses, verbose_name="the related course", db_index=True)
     def __str__(self):              
         return f"{self.questionID} - {self.preview}"
