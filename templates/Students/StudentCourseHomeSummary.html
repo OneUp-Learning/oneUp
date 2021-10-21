@@ -276,12 +276,15 @@
                    <h3>Welcome!</h3>
                 </div>
             </div>
+           
             <div class="hide-on-large-only">
                 <div class="row">
                     <div class="col s12 m10 offset-m1">
                         <div class="card-panel">
                             <table class="responsive-table">
+                            
                                 <thead>
+                             		
                                 	{% if ccparams.xpDisplayUsed %}                                	
                                     <th style="font-size: 1.64rem;font-weight: 400;">Experience Points</th>                                    
                                     {% if ccparams.warmupsUsed %}
@@ -315,11 +318,22 @@
                     </div>
                 </div>
             </div>
+         	{% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed and ccparams.classFundEnabled  %}
+            <div class="row">
+                <div class="col s12 m10 offset-m1">
+                    <div class="card">
+                        <div class="card-content">                        
+                            <span class="card-title"> Class Fund Total:  {{classFund}} $</span>
+                     </div>
+                </div>
+             </div>
+             {% endif %}
             {% if ccparams.progressBarUsed and ccparams.gamificationUsed %}
             <div class="row">
                 <div class="col s12 m10 offset-m1">
                     <div class="card">
                         <div class="card-content">
+                        	
                             {% if ccparams.progressBarGroupUsed %}
                             <span class="card-title">Group Progress</span>
                             {% else %}

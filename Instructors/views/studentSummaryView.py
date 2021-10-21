@@ -14,7 +14,7 @@ from Instructors.models import Activities, Challenges
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import (StudentActivities, StudentChallenges,
-                             StudentEventLog, StudentRegisteredCourses)
+                             StudentEventLog, StudentRegisteredCourses,studentFlashCards)
 from Students.views.avatarView import checkIfAvatarExist
 
 
@@ -41,11 +41,12 @@ def studentSummary(request):
 
     user_XP = []
     user_VC = []
+    user_flashCards = []
     context_dict['isVCUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).virtualCurrencyUsed
     context_dict['warmupsUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).warmupsUsed
     context_dict['seriousUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).seriousChallengesUsed
     context_dict['activitiesUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).activitiesUsed
-    
+    context_dict['flashcardsUsed'] = CourseConfigParams.objects.get(courseID=currentCourse).flashcardsUsed
     
     courseStudents = StudentRegisteredCourses.objects.filter(
         courseID=currentCourse).exclude(studentID__isTestStudent=True)
@@ -121,10 +122,12 @@ def studentSummary(request):
         xp = result['xp']
         user_XP.append(xp)
         user_VC.append(cs.virtualCurrencyAmount)
+        
+        user_flashCards.append( studentFlashCards.objects.filter( studentID =s ).count())
 
     # The range part is the index numbers.
     context_dict['user_range'] = sorted(list(zip(range(1, courseStudents.count()+1), userID, first_Name, last_Name, user_Avatar, sc_totalStudentScore,
                                                  sc_totalStudentPossibleScore, act_totalStudentScore, act_totalStudentPossibleScore,
-                                                 wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_Action)), key=lambda tup: tup[3])
+                                                 wc_totalStudentUniqueTaken, wc_totalStudentAttempts, user_XP, user_VC, user_flashCards, user_Action)), key=lambda tup: tup[3])
 
     return render(request, 'Instructors/StudentSummary.html', context_dict)

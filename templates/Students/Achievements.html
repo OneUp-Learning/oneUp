@@ -814,6 +814,9 @@
                             {% if ccparams.levelingUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Your Level</th>
                             {% endif %}
+                             {% if ccparams.flashcardsUsed %}
+                            <th style="font-size: 1.64rem;font-weight: 400;">Viewed Flashcards</th>
+                            {% endif %}
                         </thead>
                         <tbody>
                             <tr>
@@ -826,6 +829,9 @@
                                 {% endif %}
                                 {% if ccparams.levelingUsed %}
                                 <td style="font-size:26px" class="primary-colored-text">{{level}}</td>
+                                {% endif %}
+                                {% if ccparams.flashcardsUsed %}
+                                <td style="font-size:26px" class="primary-colored-text">{{flashcardNumber}}</td>
                                 {% endif %}
                             </tr>
                         </tbody>
