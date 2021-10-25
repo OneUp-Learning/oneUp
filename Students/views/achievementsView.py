@@ -14,11 +14,11 @@ from Badges.events import register_event, recalculate_student_virtual_currency_t
 from Badges.models import (CourseConfigParams, PeriodicBadges,
                            VirtualCurrencyPeriodicRule)
 from Badges.periodicVariables import TimePeriods, studentScore
-from Instructors.models import Activities, Challenges, CoursesSkills, Skills
+from Instructors.models import FlashCardGroupCourse,FlashCardGroup, FlashCardToGroup, FlashCards, Activities, Challenges, CoursesSkills, Skills
 from Students.models import (StudentActivities, StudentBadges,
                              StudentChallenges, StudentConfigParams,
                              StudentCourseSkills, StudentEventLog,
-                             StudentRegisteredCourses, studentFlashCards,StudentStreaks)
+                             StudentRegisteredCourses, studentFlashCards, StudentStreaks)
 from Students.views.utils import getLevelFromXP
 from Students.views import classResults
 from Students.views.studentCourseHomeView import progress_bar_data
@@ -90,8 +90,16 @@ def achievements(request):
         student=student, course=currentCourse, event=878).count()
     context_dict["numOfCalloutLost"] = StudentEventLog.objects.filter(
         student=student, course=currentCourse, event=879).count()
-    ##flash cards
-    context_dict["flashcardNumber"] =  studentFlashCards.objects.filter( studentID =student ).count()
+    ##flash cards annoyed that i had to do these conversions
+    number = 0;
+    studentCards = studentFlashCards.objects.filter( studentID =student )
+    for cards in studentCards:
+        group = FlashCardToGroup.objects.filter( flashID =cards.flashID ).first()
+        Gcourse= FlashCardGroupCourse.objects.filter( groupID= group.groupID, courseID = currentCourse )
+        if(Gcourse.count() > 0):
+            number+=1
+    
+    context_dict["flashcardNumber"] =  number
     # Extract Badges data for the current student
     badgeId = []
     badgeName = []
