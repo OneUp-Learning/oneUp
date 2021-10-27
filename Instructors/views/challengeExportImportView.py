@@ -23,6 +23,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from oneUp.settings import MEDIA_ROOT
 from oneUp.decorators import instructorsCheck  
 from datetime import date
+from django.utils.decorators import available_attrs
 LUA_PROBLEMS_ROOT = os.path.join(settings.BASE_DIR, 'lua/problems/')
 VERSION = "1.0"
 
@@ -151,20 +152,26 @@ def validateChallengeExport(request):
 @user_passes_test(instructorsCheck,login_url='/oneUp/students/StudentHome',redirect_field_name='')     
 def importChallenge(request):
     context_dict, current_course = initialContextDict(request)
-       
+   
+        
     if request.method == 'GET':
         return render(request,'Instructors/ChallengeImport.html', context_dict)
+       
     
     if request.method == 'POST':
+        
         if 'challenges' in request.FILES:
             response = {}
 
             # Holds the messages to display for the user in the frontend
             messages = []
-
+            
+            avial =  "available" in request.POST
+            
+            
             challenge_json = request.FILES['challenges']
             root_json = {}
-            
+             
             uploaded_file = UploadedFiles() 
             uploaded_file.uploadedFile = challenge_json     
             uploaded_file.uploadedFileName = challenge_json.name
@@ -201,10 +208,10 @@ def importChallenge(request):
                     if 'skills' in root_json:
                         import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map, messages=messages)
                     if 'serious-challenges' in root_json:
-                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available = avial)
                     
                     if 'warmup-challenges' in root_json:
-                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available = avial)
                     
                 else:
                     messages.append({'type': 'error', 'message': 'File: {} is empty or cannot be read'.format(uploaded_file.uploadedFile.name)})
