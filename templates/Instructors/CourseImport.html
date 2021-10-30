@@ -93,11 +93,17 @@
                               <div class="btn">
                                  <span>Select File</span>
                                  <input name="course" type="file" accept=".zip" required>
-                              </div>
+                                 
+                              </div>                           
                               <div class="file-path-wrapper">
                                  <input class="file-path validate" type="text" placeholder="Select File to Upload">
-                              </div>
+                              </div>                               
                            </div>
+                           <div>
+                       			
+		                          <input name= "available" class="filled-in" type = "checkbox" id = "availableID">
+		                          <label for ="availableID"> All Challenges will be available </label>
+	                        </div>
 						</div>
 						<div class="card-action right-align">
 							<button class="btn waves-effect waves-light" type="button" name="submit" onclick="importCourse()" >Upload<i class="material-icons right">file_upload</i></button>

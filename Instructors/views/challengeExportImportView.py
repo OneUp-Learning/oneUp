@@ -166,7 +166,7 @@ def importChallenge(request):
             # Holds the messages to display for the user in the frontend
             messages = []
             
-            avial =  "available" in request.POST
+            avail =  "available" in request.POST
             
             
             challenge_json = request.FILES['challenges']
@@ -208,10 +208,10 @@ def importChallenge(request):
                     if 'skills' in root_json:
                         import_course_skills_from_json(root_json['skills'], current_course, id_map=id_map, messages=messages)
                     if 'serious-challenges' in root_json:
-                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available = avial)
+                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available = avail)
                     
                     if 'warmup-challenges' in root_json:
-                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available = avial)
+                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available = avail)
                     
                 else:
                     messages.append({'type': 'error', 'message': 'File: {} is empty or cannot be read'.format(uploaded_file.uploadedFile.name)})
