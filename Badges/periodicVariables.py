@@ -526,9 +526,11 @@ def calculate_student_earnings(info, result_only=False):
         elif award_type == 'leaderboard':
             periodic_leaderboard =  LeaderboardsConfig.objects.get(leaderboardID=unique_id, courseID=course)
             earnings = earnings.filter(timestamp__gte=periodic_leaderboard.lastModified)
+
+    from Badges.events import earning_transaction_total
     
     # Get the total earnings only if they have earned more than 0
-    total = sum([int(earn.value) for earn in earnings if earn.value > 0])
+    total = earning_transaction_total(earnings)
    
     print("Course: {}".format(course))
     print("Student: {}".format(student))

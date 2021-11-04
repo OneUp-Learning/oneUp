@@ -36,6 +36,7 @@ media/images/uploadedAvatarImages/*
 media/lua/uploadedLuaLibs/*
 media/textfiles/xmlfiles/*
 media/textfiles/course/*
+media/textfiles/challenges/*
 media/Instructors/instructorActivityFiles/*
 lua/problems/*
 media/ckeditor/uploads/*

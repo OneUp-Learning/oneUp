@@ -1303,32 +1303,11 @@ def getAveragePercentageOfWarmupsForTopic(course, student, topic):
 def getEarnedVCTotal(course, student):
     '''This will return the amount of vc a student has earned in total'''
 
-    from Students.models import StudentVirtualCurrency
-    from Badges.models import ActionArguments, VirtualCurrencyRuleInfo
+    from Badges.events import earning_transaction_total;
 
-    total = 0
-    earningTransations = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
-    for et_svc in earningTransations:
-        if hasattr(et_svc, 'studentvirtualcurrencyrulebased'):
-            vcrule = et_svc.studentvirtualcurrencyrulebased.vcRuleID
-            if not vcrule:
-                # This shouldn't occur, but just in case there are broken entries, we'll skip them
-                continue
-            if vcrule.vcRuleAmount != -1:
-                total += et_svc.value
-            else:
-                avcr = VirtualCurrencyRuleInfo.objects.filter(vcRuleID=vcrule.vcRuleID).first()
-                if avcr:
-                    if (ActionArguments.objects.filter(ruleID=avcr.ruleID).exists()):
-                        total += int(ActionArguments.objects.get(ruleID=avcr.ruleID).argumentValue)
-                else:
-                    # This means it is a custom manual rule, I think.  Honestly, I'm a little lost about some of this
-                    # and that irritates me, but I don't want to rewrite the whole thing myself
-                    total += et_svc.value
-        else:
-            total += et_svc.value
-
-    return total
+    earningTransactions = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
+    return earning_transaction_total(earningTransactions)
+ 
 
 def getSpentVCTotal(course, student):
     '''This will return the amount of vc a student has spent in total'''

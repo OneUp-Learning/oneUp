@@ -10,7 +10,7 @@ from django.shortcuts import render
 from Badges.enums import Event
 from Badges.models import CourseConfigParams
 from Badges.periodicVariables import studentScore
-from Instructors.models import Activities, Challenges
+from Instructors.models import Activities, Challenges, FlashCardGroupCourse, FlashCardGroup, FlashCardToGroup, FlashCards
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 from Students.models import (StudentActivities, StudentChallenges,
@@ -122,8 +122,14 @@ def studentSummary(request):
         xp = result['xp']
         user_XP.append(xp)
         user_VC.append(cs.virtualCurrencyAmount)
-        
-        user_flashCards.append( studentFlashCards.objects.filter( studentID =s ).count())
+        number = 0;
+        studentCards = studentFlashCards.objects.filter( studentID =s )
+        for cards in studentCards:
+            group = FlashCardToGroup.objects.filter( flashID =cards.flashID ).first()
+            Gcourse= FlashCardGroupCourse.objects.filter( groupID= group.groupID, courseID = currentCourse )
+            if(Gcourse.count() > 0):
+                number+=1
+        user_flashCards.append( number)
 
     # The range part is the index numbers.
     context_dict['user_range'] = sorted(list(zip(range(1, courseStudents.count()+1), userID, first_Name, last_Name, user_Avatar, sc_totalStudentScore,

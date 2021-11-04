@@ -1918,13 +1918,13 @@ def importCourse(request):
     if request.method == 'POST':
         if 'course' in request.FILES:
             response = {}
-
+            
             # Holds the messages to display for the user in the frontend
             messages = []
-
+            avail =  "available" in request.POST
             course_json = request.FILES['course']
             root_json = {}
-            
+          
             uploaded_file = UploadedFiles() 
             uploaded_file.uploadedFile = course_json     
             uploaded_file.uploadedFileName = course_json.name
@@ -1972,11 +1972,11 @@ def importCourse(request):
                     
                     if 'serious-challenges' in root_json:
                         print("serious challenges")
-                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                        import_challenges_from_json(root_json['serious-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available=avail)
                     
                     if 'warmup-challenges' in root_json:
                         print("warmup-challenges")
-                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages)
+                        import_challenges_from_json(root_json['warmup-challenges'], current_course, context_dict=context_dict, id_map=id_map, messages=messages, available=avail)
                     
                     if 'unassigned-problems' in root_json:
                         print("unassigned problems")
@@ -2195,7 +2195,7 @@ def import_activities_from_json(activities_jsons, current_course, context_dict=N
             if id_map:
                 id_map['activities'][activity_json['activityID']] = activity.activityID
 
-def import_challenges_from_json(challenges_jsons, current_course, context_dict=None, id_map=None, messages=[]):
+def import_challenges_from_json(challenges_jsons, current_course, context_dict=None, id_map=None, messages=[], available = False):
     ''' Converts challenge jsons to model '''
 
     if challenges_jsons:
@@ -2203,18 +2203,20 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
             # Use course config params to set the challenge
             # start, end, and due date to course start date,
             # course end date, and course end date respectively
-            course_config_params_list_should_contain_just_one = CourseConfigParams.objects.filter(courseID=current_course)        
+            course_config_params_list_should_contain_just_one = CourseConfigParams.objects.filter(courseID=current_course).first()       
             
             challenge_fields_to_save = {
                 'hasStartTimestamp': False,
                 'hasEndTimestamp': False,
                 'hasDueDate': False,
                 'courseID': current_course,
-                'isVisible': False,
+                'isVisible': available,
+               
             }
                 
                 
             challenge = create_model_instance(Challenges, challenge_json, custom_fields_to_save=challenge_fields_to_save)
+        
             challenge.save()
 
             # Create the challenge tags if any
@@ -2267,6 +2269,7 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
 
                         challenge_topic_fields_to_save = {'topicID': topic, 'challengeID': challenge}         
                         challenge_topic = create_model_instance(ChallengesTopics, None, custom_fields_to_save=challenge_topic_fields_to_save)
+                        
                         challenge_topic.save()                
                 else:
                     messages.append({'type': 'error', 'message': 'Unable to add topics to challenges. id map not providied'})
@@ -2280,6 +2283,7 @@ def import_challenges_from_json(challenges_jsons, current_course, context_dict=N
 
                 challenge_topic_fields_to_save = {'topicID': course_topic.topicID, 'challengeID': challenge}       
                 challenge_topic = create_model_instance(ChallengesTopics, None, custom_fields_to_save=challenge_topic_fields_to_save)
+            
                 challenge_topic.save()
 
 def import_challenge_questions_from_json(challenge_question_jsons, challenge, current_course, context_dict=None, id_map=None, messages=[]):
