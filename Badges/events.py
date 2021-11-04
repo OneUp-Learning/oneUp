@@ -962,11 +962,10 @@ class ChosenObjectSpecifier:
             if rule['op'] == 'in':
                 objects = chosenObjectSpecifierFields[self.objectType][rule['specifier']]['filter'](objects,rule['value'])
         return [obj.pk for obj in objects]
-    
-def recalculate_student_virtual_currency_total(student,course):
+
+def earning_transaction_total(earningTransactions):
     total = 0
-    earningTransations = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
-    for et_svc in earningTransations:
+    for et_svc in earningTransactions:
         if hasattr(et_svc, 'studentvirtualcurrencyrulebased'):
             vcrule = et_svc.studentvirtualcurrencyrulebased.vcRuleID
             if not vcrule:
@@ -985,6 +984,12 @@ def recalculate_student_virtual_currency_total(student,course):
                     total += et_svc.value
         else:
             total += et_svc.value
+    return total
+    
+def recalculate_student_virtual_currency_total(student,course):
+    total = 0
+    earningTransactions = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
+    total += earning_transaction_total(earningTransactions)
       
     spendingTransactions = StudentVirtualCurrencyTransactions.objects.filter(student=student, course=course).filter(studentEvent__event=Event.spendingVirtualCurrency)
     for st_svct in spendingTransactions:
