@@ -32,7 +32,7 @@ def LeaderboardInstructorsView(request):
         currentCourse = Courses.objects.get(pk=int(request.session['currentCourseID']))
         context_dict['course_Name'] = currentCourse.courseName
                       
-        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, False)
+        context_dict['leaderboardRange'] = generateLeaderboards(currentCourse, True)
         print("leaderboards stuff" ,context_dict['leaderboardRange'])
 
         context_dict['ccparams'] = CourseConfigParams.objects.get(courseID=currentCourse)
