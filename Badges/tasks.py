@@ -102,13 +102,12 @@ def celery_calculate_xp(student_reg_course_id):
 
     student_reg_course = StudentRegisteredCourses.objects.get(
         pk=int(student_reg_course_id))
-    print("recalculatingXP for "+student_reg_course.user.username+" in "+student_reg_course.courseID.courseName)
     xp = calculate_xp(student_reg_course)
     ccP = CourseConfigParams.objects.get(courseID=student_reg_course.courseID)
     student_reg_course.xp = xp
     if ccP.levelingUsed:
         # if student_reg_course.level == 0:
-        level = getLevelFromXP(xp)
+        level = getLevelFromXP(ccP. xp)
         if level > student_reg_course.level:
             student_reg_course.level = level
             notify.send(None, recipient=student_reg_course.studentID.user, actor=student_reg_course.studentID.user, verb=f'You have leveled up to level ' + str(level), nf_type='level', extra=json.dumps(
