@@ -804,12 +804,14 @@
                 <div class="card-panel">
                     <table class="responsive-table">
                         <thead>
-                            <th style="font-size: 1.64rem;font-weight: 400;">Experience Points</th>
+                       		{% if ccparams.xpDisplayUsed %}                        
+                            <th style="font-size: 1.64rem;font-weight: 400;"> Experience Points</th>
+                            {% endif %}
                             {% if ccparams.warmupsUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Practice Points</th>
                             {% endif %}
                             {% if ccparams.virtualCurrencyUsed %}
-                            <th style="font-size: 1.64rem;font-weight: 400;">Your Course Bucks</th>
+                            <th style="font-size: 1.64rem;font-weight: 400;">Course Bucks</th>
                             {% endif %}
                             {% if ccparams.levelingUsed %}
                             <th style="font-size: 1.64rem;font-weight: 400;">Your Level</th>
@@ -820,7 +822,9 @@
                         </thead>
                         <tbody>
                             <tr>
+                        	    {% if ccparams.xpDisplayUsed %}     
                                 <td style="font-size:26px" class="primary-colored-text">{{studentXP_range | floatformat:"0"}}</td>
+                                {% endif %}
                                 {% if ccparams.warmupsUsed %}
                                 <td style="font-size:26px"><span class="primary-colored-text">{{totalWCEarnedPoints|floatformat:"0"}}</span> / <span class="primary-colored-text">{{totalWCPossiblePoints|floatformat}}</span></td>
                                 {% endif %}
