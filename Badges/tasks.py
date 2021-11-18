@@ -102,6 +102,7 @@ def celery_calculate_xp(student_reg_course_id):
 
     student_reg_course = StudentRegisteredCourses.objects.get(
         pk=int(student_reg_course_id))
+    print("recalculatingXP for "+student_reg_course.user.username+" in "+student_reg_course.courseID.courseName)
     xp = calculate_xp(student_reg_course)
     ccP = CourseConfigParams.objects.get(courseID=student_reg_course.courseID)
     student_reg_course.xp = xp
