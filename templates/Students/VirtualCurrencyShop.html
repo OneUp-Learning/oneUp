@@ -165,7 +165,9 @@
         	 document.getElementById("donateID").addEventListener('change',updatePrices);
          }
          for (var i=0; i < {{numBuyOptions}}; i++) {
-         	document.getElementById("buyOptionQuantity"+indexes[i]).addEventListener('change',updatePrices);         	
+         	 var quan = document.getElementById("buyOptionQuantity"+indexes[i]);
+         	 if(quan != null)
+         		addEventListener('change',updatePrices);         	
          }
        
       </script>
