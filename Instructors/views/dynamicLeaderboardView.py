@@ -235,6 +235,8 @@ def getContinousLeaderboardData(periodicVariable, timePeriodBack, studentsDispla
         Returns list of tuples: [(student, value), (student, value),...]'''
     print(periodicVariable)
     results = get_periodic_variable_results(periodicVariable, timePeriodBack, courseID.courseID, timezone.get_current_timezone())
+    for name,score in results:
+        print("contleaderboarddata: name: "+str(name)+" score: "+str(score))
     results.sort(key=lambda tup: tup[1], reverse=True)
     results = results[:studentsDisplayedNum]
     results = [(name, score) for name, score in results if score != 0.0 or score != 0]
