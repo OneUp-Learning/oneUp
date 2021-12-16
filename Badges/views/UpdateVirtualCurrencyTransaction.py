@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from Instructors.views.utils import initialContextDict
 from Students.models import StudentVirtualCurrencyTransactions, StudentRegisteredCourses
 from Badges.models import ActionArguments, Action, Rules, VirtualCurrencyRuleInfo, VirtualCurrencyCustomRuleInfo
+from Badges.tasks import refresh_xp, recalculate_student_virtual_currency_total_offline
 from Badges.enums import Event, ObjectTypes
 from Instructors.models import Challenges, Activities
 from notify.signals import notify
@@ -105,14 +106,15 @@ def updateVirtualCurrencyTransaction(request):
             if 'transactionID' in request.POST:
                 transaction = StudentVirtualCurrencyTransactions.objects.get(
                     pk=int(request.POST['transactionID']))
-                if request.POST['updateStatus'] == 'Reverted' and transaction.status != 'Reverted':
-                    student = StudentRegisteredCourses.objects.get(
+                student = StudentRegisteredCourses.objects.get(
                         courseID=course, studentID=transaction.student)
+                if request.POST['updateStatus'] == 'Reverted' and transaction.status != 'Reverted':
+                    
                     rule = VirtualCurrencyCustomRuleInfo.objects.filter(
                         vcRuleType=False, courseID=course, vcRuleID=transaction.studentEvent.objectID).first()
                     student.virtualCurrencyAmount += rule.vcRuleAmount
-                    student.save()
-
+                    student.save()                   
+                    
                 if transaction.status != request.POST['updateStatus']:
                     notify.send(None, recipient=transaction.student.user, actor=request.user, verb=f'{transaction.name} VC transaction status has been updated', nf_type='VC Transaction', extra=json.dumps(
                         {"course": str(course.courseID), "name": str(course.courseName), "related_link": '/oneUp/students/Transactions'}))
@@ -122,5 +124,6 @@ def updateVirtualCurrencyTransaction(request):
                 transaction.instructorNote = request.POST['instructorNotes']
                 transaction.noteForStudent = request.POST['studentNotes']
                 transaction.save()
-
+                
+                recalculate_student_virtual_currency_total_offline(student.studentID.pk,course.pk)
             return redirect('VirtualCurrencyTransactions.html')
