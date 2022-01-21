@@ -576,5 +576,31 @@ class StudentPlayerType(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the student", db_index=True)
     playerType = models.ForeignKey(PlayerType, on_delete=models.CASCADE, verbose_name="the player type", db_index=True)
     def __str__(self):
-        return "Student "+str(self.student.user.username)+" has player type "+str(self.playerType.name)
-
+        return "Student "+str(self.studen135pxt.user.username)+" has player type "+str(self.playerType.name)
+# holds the customly made avatar
+class StudentCustomAvatar(models.Model):
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+  
+    faceIndex       = models.IntegerField(default=1)
+    noseIndex       = models.IntegerField(default=1)
+    mouthIndex      = models.IntegerField(default=1)
+    eyeIndex        = models.IntegerField(default=1)
+    eyebrowIndex    = models.IntegerField(default=1)
+    eyewearIndex    = models.IntegerField(default=0)
+    hairIndex       = models.IntegerField(default=1)
+    fahairIndex     = models.IntegerField(default=0)
+    clothesIndex    = models.IntegerField(default=1)
+    backgroundIndex = models.IntegerField(default=1)
+    
+    faceColorIndex       = models.IntegerField(default=1)
+    eyeColorIndex        = models.IntegerField(default=1)
+    eyebrowColorIndex    = models.IntegerField(default=1)
+    eyewearColorIndex    = models.IntegerField(default=1)
+    hairColorIndex       = models.IntegerField(default=1)
+    fahairColorIndex     = models.IntegerField(default=1)
+    clothesColorIndex    = models.IntegerField(default=1)
+    backgroundColorIndex = models.IntegerField(default=1)
+    image= models.CharField(max_length=200, default='')
+    def __str__(self):
+        return str(self.studentID) 
+    

@@ -990,7 +990,7 @@ def recalculate_student_virtual_currency_total(student,course):
     total = 0
     earningTransactions = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
     total += earning_transaction_total(earningTransactions)
-      
+    
     spendingTransactions = StudentVirtualCurrencyTransactions.objects.filter(student=student, course=course).filter(studentEvent__event=Event.spendingVirtualCurrency)
     for st_svct in spendingTransactions:
         if st_svct.status in ['In Progress', 'Requested','Complete']:

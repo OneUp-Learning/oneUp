@@ -93,11 +93,16 @@ class CourseConfigMiddleware:
                     'classmatesChallenges': True, 
                     'gamificationUsed': True,
                 },
+             '/oneUp/students/AvatarEditor':
+                {
+                 #   'gamificationUsed': True,
+                },
             # TODO: Add links for instructors?
             '/oneUp/instructors/preferences':
                 {
                     'gamificationUsed': True,
                 }
+           
         }
         self.reset_course_paths = ['/oneUp/students/StudentHome', '/oneUp/instructors/instructorHome']
 

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+   <head>
+      {% include 'scripts.html' %}
+        
+      <title> Avatar Maker </title>
+      <style>
+        html,body{
+            height: 115%;
+            width: 100%;          
+        }
+        #accordian{            
+            height: 68px;
+            overflow: auto;
+            white-space: nowrap;
+            border: 2px solid black;
+            
+        }
+        #accordian section{
+            display:inline-block;    
+            text-align: center;
+            margin: 2px;
+            width: 135px;
+            height: 35px;
+            background-color: rgb(158, 158, 158);
+            border: 2px solid black;
+            
+        }
+        #accordian section a{         
+            position: relative;  
+            top: -75%;
+            
+            text-decoration: none;
+            color: black;                        
+        }
+        #accordian section a:hover{
+            text-decoration: underline;
+          
+        }
+        #accordian :target a {
+            color: blue;
+          
+        }
+        #accordian section div{
+            display: none;
+            
+        }
+       
+        #accordian :target div{           
+            overflow: auto;
+            white-space: nowrap;
+            display: block;
+            position: absolute;
+            left: 3%;
+            top: 75px;
+            width: 97%;
+            height: 77%;
+            text-align: left;
+     
+        }
+        canvas{
+            padding: 0;
+            margin: auto;
+            display: block;
+            border: 5px solid #979797;
+            
+        }
+        button{
+          
+            font-size : 20px; 
+            
+            border: 2px solid black;
+        }
+        .donebtn{
+            left: 80%;
+            top:  -30%;
+            width: 90px;
+            height: 40px;
+           
+            position:  relative;
+        }
+        .ran{
+            top: 1%;
+            margin-right: 9px;
+            left: .5%;
+            width: 145px;
+            height: 55px;
+            background-color: rgb(192, 182, 46);
+            float: left;
+        }
+        .input{
+            
+            position: relative;
+            left: 25%;
+            height: 40%;
+            width: 50%;
+            border: 3px solid black;
+            background-color: rgb(214, 214, 213);
+        }
+        input{
+        	display: none;
+        }
+        table{            
+            display: inline-block;
+            vertical-align:top;
+            width: 200px;
+            float: left;
+         }
+      	
+        img{
+            background-color: rgb(236, 236, 236);
+        }
+      	h2{
+      		font-size : 24px;    
+      	}
+      </style>
+   </head>
+   <body>
+	{% include 'stheading.html' %}
+	  <script>
+		var source = "/static/images/customAvatarParts/";
+      
+        var backgroundColors = [];//name , start, end, selected   
+        var items = [ [source+"faces/col1_face"            , 1,  4, {{faceSel}}],
+                      [source+"noses/col1_nose"            , 1, 11, {{noseSel}}],
+                      [source+"mouths/col1_mouth"          , 1, 15, {{mouthSel}}],
+                      [source+"eyes/col1_eye"              , 1, 12, {{eyeSel}}],
+                      [source+"eyebrows/col1_eyebrows"     , 0,  7, {{eyebrowSel}}],
+                      [source+"eyewear/col1_eyewear"       , 0,  6, {{eyewearSel}}],
+                      [source+"hair/col1_hair"             , 0, 14, {{hairSel}}],
+                      [source+"facial_hair/col1_facialhair", 0,  7, {{facialSel}}],
+                      [source+"clothes/col1_clothe"        , 1,  9, {{clothesSel}}],
+                      [source+"backgrounds/col1_background", 0, 12, {{backgroundSel}}]];
+        var itemColors = [[ rgb(217,180,145), rgb(222,190,166), rgb(207,166,128), rgb(138, 91, 62), rgb(110, 66, 49) ],
+                          [ rgb( 19, 51,157), rgb( 71, 40,  6), rgb( 27,166, 36), rgb(194, 12, 24), rgb(214,235, 28)],                          
+                          [ rgb( 61, 54, 44), rgb( 36, 31, 26), rgb(217,181, 66), rgb( 94, 64, 25), rgb(135, 55, 35), rgb(158,117, 46), rgb(125,111, 92) ],
+                          [ rgb(  0,  0,  0), rgb(191,174, 19), rgb(  4, 10, 84), rgb( 31,185,219), rgb(150, 15,126), rgb(187, 26,  2) ],
+                          [ rgb( 61, 54, 44), rgb( 36, 31, 26), rgb(217,181, 66), rgb( 94, 64, 25), rgb(135, 55, 35), rgb(158,117, 46), rgb(125,111, 92)],
+                          [ rgb( 61, 54, 44), rgb( 36, 31, 26), rgb(217,181, 66), rgb( 94, 64, 25), rgb(135, 55, 35), rgb(158,117, 46), rgb(125,111, 92)],
+                          [ rgb(212,212,212), rgb( 49, 34,204), rgb( 32,186, 37), rgb(187, 21,218), rgb( 12,117,133), rgb(176, 25,  5), rgb(224,227,  7), rgb( 40, 41, 48)],
+                          [ rgb( 31, 32,196), rgb( 10,153, 35), rgb(207, 31,166), rgb(204,  8, 11), rgb(234,245, 29), rgb( 24,241,241), rgb(232,137, 12)]  ];
+                          //face, eye, eyebrow, eyewear, hair, facial hair,  clothes, background
+        var selectedColor = [{{faceCol}}, {{eyeCol}}, {{eyebrowCol}}, {{eyewearCol}}, {{hairCol}}, {{facialCol}}, {{clothesCol}}, {{backgroundCol}}];
+  
+        var face = new Image();     
+        var nose = new Image();
+        var mouth = new Image();     
+        var eye = new Image();
+        var eyebrow = new Image();
+        var eyewear = new Image();     
+        var hair = new Image();  
+        var hairb = new Image();       
+        var fachair = new Image();
+        var clothes = new Image();  
+        var background = new Image();
+		
+        updatePicture();
+        function editPicture( part, index){
+            items[part-1][3] = index;     
+            var ite = document.getElementsByName("iteSelect"+part);
+            if(ite.length >0 )
+            	ite[0].value = index;
+            updatePicture();
+        }
+        function editColor( part, index){
+            selectedColor[part-1] = index;     
+            var col = document.getElementsByName("colSelect"+part);
+            if(col.length >0 )
+           		col[0].value = index;
+            updatePicture();
+        }
+        function randomizePicture(){
+            for(var i = 0; i< itemColors.length; i++){
+            	var index = Math.floor( Math.random() * itemColors[i].length )+1; 
+                selectedColor[i] = index;
+                var col = document.getElementsByName("colSelect"+(i+1));
+                if(col.length >0 )
+               		col[0].value = index;
+                
+            }            
+            
+            for(var i = 0; i<items.length; i++){
+                var addition = 0;
+                if(items[i][2] == 0) addition = 1;
+                var index = Math.floor( Math.random() * (items[i][2] +addition) ) + items[0][1];
+                items[i][3] = index;
+                var ite = document.getElementsByName("iteSelect"+(i+1));
+                if(ite.length >0 )
+                	ite[0].value = index;
+
+            }
+            updatePicture();
+        }
+            
+        function updatePicture()
+        {                         
+            face.src = source+"faces/col"  +selectedColor[0] + "_face" + items[0][3] + ".png";       
+            nose.src = source+"noses/col"  +selectedColor[0] + "_nose" + items[1][3] + ".png";
+            mouth.src= source+"mouths/col"+selectedColor[0] + "_mouth" + items[2][3] + ".png";
+            eye.src  = source+"eyes/col" +selectedColor[1] + "_eye" + items[3][3] + ".png";
+            clothes.src= source+"clothes/col"  +selectedColor[6] + "_clothe" + items[8][3] + ".png";
+            
+            if(items[4][3] == 0){
+                eyebrow.src = source+"blank.png";}
+                else{
+                eyebrow.src = source+"eyebrows/col" + selectedColor[2] + "_eyebrows" + items[4][3] + ".png";
+            }           
+            if(items[5][3] == 0){
+                eyewear.src = source+"blank.png";}
+                else{
+                eyewear.src = source+"eyewear/col" + selectedColor[3] + "_eyewear" + items[5][3] + ".png";
+            }            
+            if(items[6][3] == 0){
+                hair.src = source+"blank.png";}
+                else{
+                hair.src = source+"hair/col" + selectedColor[4] + "_hair" + items[6][3] + ".png";
+            }
+            //back hair                    
+            if(items[6][3] == 0){
+                hairb.src = source+"blank.png";}
+                else{
+                hairb.src = source+"hair/col" + selectedColor[4] + "_hairb" + items[6][3] + ".png";
+            }
+            if(items[7][3] == 0){
+                fachair.src = source+"blank.png";}
+                else{
+                fachair.src = source+"facial_hair/col" + selectedColor[5] + "_facialhair" + items[7][3] + ".png";
+            }
+            if(items[9][3] == 0){
+                background.src = source+"blank.png";}
+                else{
+                background.src = source+"backgrounds/col" + selectedColor[7] + "_background" + items[9][3] + ".png";
+            }
+            background.onload = function () {
+                drawPicture();
+            }
+            hairb.onload = function () {
+                drawPicture();
+            }
+            face.onload = function () {
+                drawPicture();
+            }     
+            nose.onload = function () {
+                drawPicture();
+            }        
+            mouth.onload = function () {
+                drawPicture();
+            }    
+            eye.onload = function () {
+                drawPicture();
+            }
+            eyebrow.onload = function () {
+                drawPicture();
+            }
+            eyewear.onload = function () {
+                drawPicture();
+            }
+            hair.onload = function () {
+                drawPicture();
+            }
+            fachair.onload = function () {
+                drawPicture();
+            }
+            clothes.onload = function () {
+                drawPicture();
+            }
+            
+        }
+            // This is the function that displays all images
+        function drawPicture()
+        {
+            
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            canvas.width = 384;
+            canvas.height = 384;   
+            var width = canvas.width;
+            
+            ctx.drawImage(background, ((width-background.width)/2), 0);
+            ctx.drawImage(hairb, ((width-face.width)/2), 19);
+            ctx.drawImage(face, ((width-face.width)/2), 64);
+            ctx.drawImage(nose, ((width-nose.width)/2), 19);
+            ctx.drawImage(mouth, ((width-mouth.width)/2), 19);
+            ctx.drawImage(eye, ((width-eye.width)/2), 19);            
+            ctx.drawImage(eyebrow, ((width-eyebrow.width)/2), 19);            
+            ctx.drawImage(eyewear, ((width-eyewear.width)/2), 19);
+            ctx.drawImage(clothes, ((width-clothes.width)/2), 64);         
+            ctx.drawImage(hair, ((width-hair.width)/2), 19);
+            ctx.drawImage(fachair, ((width-fachair.width)/2), 19);
+        }
+        function rgb(r, g, b){
+            return "rgb("+r+","+g+","+b+")";
+        }
+    </script>
+	 <div>
+        <br><br>
+        
+        <canvas id="canvas" ></canvas>
+	    </div>
+	        <br>	        
+	        	
+		            
+	        <br>
+	        <form id="done" name="done" action="#" onsubmit="" method="post" class="input">   
+	        	{% csrf_token %} 
+	        	   
+	            <button onmouseover="butHover(this)" 
+	                    onmouseout="butNotHover(this)" type="button"
+	                    class= "ran" onClick="randomizePicture();highselect();">randomize</button> 
+	            <main id = "accordian"  >
+	                <section id = "item1"  >
+	                    <a href = "#item1" id = "a1"> <h2>face</h2></a>	                    
+	                    <div>
+	                    	<input name= "colSelect1" type="number" value = "{{faceCol}}">    
+	                    	<input name= "iteSelect1" type="number" value = "{{faceSel}}"> 
+	                        <table class = "c1" > </table>
+	                         
+	                        <table id = "i1" > </table>
+	                      
+	                    </div>                    
+	                </section>
+	                <section id = "item2">
+	                    <a href = "#item2" id = "a2"> <h2>nose</h2></a>
+	                    <div>
+	                    	<input name= "iteSelect2" type="number" value = "{{noseSel}}"> 
+	                        <table class = "c1" >  </table>  
+	                        <table id = "i2"></table>
+	                    </div>                    
+	                </section>
+	                <section id = "item3">
+	                    <a href = "#item3" id = "a3"> <h2>mouth</h2></a>
+	                    <div>
+	                    	<input name= "iteSelect3" type="number" value = "{{mouthSel}}"> 
+	                        <table class = "c1" >  </table>                        
+	                        <table id = "i3"></table>       
+	                    </div> 
+	                </section>
+	                <section id = "item4">
+	                    <a href = "#item4" id = "a4"> <h2>eyes</h2></a>
+	                    <div>
+	                    	<input name= "colSelect2" type="number" value = "{{eyeCol}}">    
+	                    	<input name= "iteSelect4" type="number" value = "{{eyeSel}}"> 
+	                        <table class = "c2" >  </table>
+	                        <table id = "i4">      </table>
+	                    </div>
+	                   
+	                </section>              
+	                <section id = "item5">
+	                    <a href = "#item5" id = "a5"> <h2>eyebrows</h2></a>
+	                    <div>
+	                    	<input name= "colSelect3" type="number" value = "{{eyebrowCol}}">    
+	                    	<input name= "iteSelect5" type="number" value = "{{eyebrowSel}}">
+	                        <table class = "c3" >  </table>  
+	                        <table id = "i5"></table>
+	                    </div>                    
+	                </section>
+	                <section id = "item6">
+	                    <a href = "#item6" id = "a6"> <h2>eyewear</h2></a>
+	                    <div>
+	                    	<input name= "colSelect4" type="number" value = "{{eyewearCol}}">    
+	                    	<input name= "iteSelect6" type="number" value = "{{eyewearSel}}">
+	                        <table class = "c4"></table>
+	                        <table id = "i6"></table>
+	                    </div>                    
+	                </section>
+	                <section id = "item7">
+	                    <a href = "#item7" id = "a7"> <h2>hair</h2></a>
+	                    <div>
+	                    	<input name= "colSelect5" type="number" value = "{{hairCol}}">    
+	                    	<input name= "iteSelect7" type="number" value = "{{hairSel}}">
+	                        <table class = "c5" >  </table> 
+	                        <table id = "i7"></table>
+	                    </div>                    
+	                </section>
+	                <section id = "item8">
+	                    <a href = "#item8" id = "a8"> <h2>facial hair</h2></a>
+	                    <div>
+	                   		<input name= "colSelect6" type="number" value = "{{facialCol}}">    
+	                    	<input name= "iteSelect8" type="number" value = "{{facialSel}}">
+	                        <table class = "c6" >  </table> 
+	                        <table id = "i8"></table>
+	                    </div>
+	                </section>
+	                <section id = "item9">
+	                    <a href = "#item9" id = "a9"> <h2>clothes</h2></a>
+	                    <div>
+	                    	<input name= "colSelect7" type="number" value = "{{clothesCol}}">    
+	                    	<input name= "iteSelect9" type="number" value = "{{clothesSel}}">
+	                        <table class = "c7" >  </table> 
+	                        <table id = "i9"></table>
+	                    </div>
+	                </section>
+	                <section id = "item10">
+	                    <a href = "#item10" id = "a10"> <h2>background</h2></a>
+	                    <div> 
+	                    	<input name= "colSelect8" type="number" value = "{{backgroundCol}}">    
+	                    	<input name= "iteSelect10" type="number" value = "{{backgroundSel}}">
+	                        <table class = "c8" >  </table> 
+	                        <table id = "i10"></table>
+	                    </div>
+	                </section>
+	                
+	            </main>
+	            <div class= "donebtn">	  
+		        	<button  class="btn waves-effect waves-light" type="submit" name="button" value="done"> confirm   </button>
+		        </div>
+	        </form>
+	       
+        <script>
+        	
+        	document.getElementById('a1').click();
+            function butHover(x){
+                x.style.border = "5px solid Yellow";
+            }
+            function butNotHover(x){                
+                x.style.border = "2px solid black";
+            
+            }
+            function highselect(){                     
+                for(var u = 0; u< items.length; u++){
+                    for ( var i =items[u][1]; i <= items[u][2]; i++){ 
+                        var ind = "img"+(u+1).toString()+i; 
+                        var img = document.getElementById(ind);                        
+                        if( items[u][3] == i ){
+                            img.style.border = "5px solid lime";
+                        }else{
+                            img.style.border ="4px solid black";}
+                    }
+                }
+                for(var u =1; u<=itemColors.length; u++){    
+                    var eleColors = document.getElementsByClassName( "c"+u );               
+                    for(var y = 0; y< eleColors.length; y++){
+                        var rows = eleColors[y].rows; 
+                        var count = 0;
+                        for(var r = 0; r < rows.length; r++){
+                            var cells = rows[r].cells;
+                            for(var c = 0; c < cells.length; c++){
+                                
+                                if( selectedColor[u-1]-1 == count){
+                                    cells[c].style.border ="5px solid lime";
+                                }else{
+                                    cells[c].style.border ="4px solid black";
+                                }
+                                count++;
+                            }
+                        }
+                       
+                    }
+                }        
+            }
+            const rowlength = 4;
+            //color setup
+            for(var u =1; u<=itemColors.length; u++){
+                var eleColors = document.getElementsByClassName( "c"+u );
+                for(var y = 0; y< eleColors.length; y++){ 
+                    var r = 0;         
+                    var c = 0;  
+                    for ( var i =0; i < itemColors[u-1].length; i++){                     
+                        if( i % 2 == 0){
+                            var row = eleColors[y].insertRow(r);
+                            r++;
+                            c=0;
+                        }                                   
+                        var cell = row.insertCell(c); 
+                        cell.style.background = itemColors[u-1][i];      
+                        cell.style.width = "65px";
+                        cell.style.height = "65px";
+                       
+                        cell.ind = i+1;      
+                        cell.item = u;                
+                        cell.onclick= function() {editColor(this.item, this.ind); highselect();};    
+                        c++;         
+                    }  
+                }
+            }
+            //select stuff and things
+            for(var u =1; u<=items.length; u++){
+                var it = document.getElementById( "i"+ u );
+                var count = 0;
+                var r = 0;   
+                var row = it.insertRow(r);
+                
+                for ( var i =items[u-1][1]; i <= items[u-1][2]; i++){ 
+                    
+                    if( count >= rowlength) {                    
+                        r++;
+                        row = it.insertRow(r);
+                        count = 0;
+                    }
+                    var img = items[u-1][0] + i + ".png"
+                    if(i == 0) img = source+"blank.png";
+                    
+                    row.insertCell(count).innerHTML = "<img src = " + img + " alt ="+u.toString()+i + " id = img"+u.toString()+i +"  height = 164 width = 164 onclick= editPicture("+ u+"," +i+");highselect();>"; 
+                    count++;
+                }
+            }
+            highselect(); 
+        </script>
+	{% include 'footer.html' %}
+</body>
+
+</html>

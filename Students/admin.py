@@ -4,7 +4,7 @@ from django.contrib import admin
 from Students.models import Student, StudentRegisteredCourses, StudentChallenges, StudentChallengeQuestions, StudentBadges, DuelChallenges, Winners, StudentGoalSetting
 from Students.models import StudentChallengeAnswers, MatchShuffledAnswers, StudentCourseSkills, StudentVirtualCurrency, StudentVirtualCurrencyRuleBased, StudentProgressiveUnlocking, StudentActions, StudentActionsLoop
 from Students.models import StudentEventLog,StudentConfigParams,StudentLeaderboardHistory, StudentActivities, StudentFile, StudentVirtualCurrencyTransactions, UploadedAvatarImage, StudentAttendance, StudentStreaks, PeriodicallyUpdatedleaderboards, Callouts
-from Students.models import TeamActivities, TeamChallengeQuestions, TeamChallenges, Teams, TeamStudents, StudentPlayerType
+from Students.models import TeamActivities, TeamChallengeQuestions, TeamChallenges, Teams, TeamStudents, StudentPlayerType,StudentCustomAvatar
 
 admin.site.register(Student)
 admin.site.register(StudentActivities)
@@ -39,3 +39,4 @@ admin.site.register(TeamChallenges)
 admin.site.register(TeamChallengeQuestions)
 admin.site.register(TeamActivities)
 admin.site.register(StudentPlayerType)
+admin.site.register(StudentCustomAvatar)
