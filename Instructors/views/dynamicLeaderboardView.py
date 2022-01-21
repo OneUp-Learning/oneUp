@@ -142,6 +142,8 @@ def dynamicLeaderboardView(request):
             leaderboard.numStudentsDisplayed = int(studentsShown[index])
             leaderboard.displayOnCourseHomePage = str2bool(home[index])
             
+            if len(howFarBackTimePeriodSelected) < index:
+                howFarBackTimePeriodSelected[index] = 0000 
             
             if timePeriodSelected[index] == '0':
                 leaderboard.isContinous = True
