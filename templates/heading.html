@@ -359,6 +359,9 @@
         {% if ccparams.warmupsUsed %}
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges</a></li>
         {% endif %}
+        {% if ccparams.warmupsUsed %}
+        <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?warmUp">Warm-Up Challenges</a></li>
+        {% endif %}
         {% if ccparams.skillsUsed %}
         {% if ccparams.warmupsUsed or ccparams.seriousChallengesUsed %}
         <li><a class="waves-effect" href="/oneUp/instructors/classAchievementsViz?skills">Skills</a></li>  
@@ -477,6 +480,9 @@
                     {% if ccparams.seriousChallengesUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/challengesList">Serious Challenges</a></li>
                     {% endif %}
+			      	{% if ccparams.triviaEnabled %}
+			        <li><a class="waves-effect" href="/oneUp/instructors/TriviaDashboard">Trivia</a></li>
+			      	{% endif %}
                     {% if ccparams.warmupsUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/warmUpChallengeList">Warm-Up Challenges</a></li>		
                     {% endif %}

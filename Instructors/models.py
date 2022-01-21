@@ -443,3 +443,19 @@ class FlashCardGroupCourse(models.Model):
     groupPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.groupID)+","+str(self.courseID)+","+str(self.availabilityDate)
+    
+class Trivia(models.Model):
+    triviaID = models.AutoField(primary_key=True)
+    triviaName = models.CharField(max_length=500)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Registered Course", db_index=True)
+    maximumPointsPerQuestion = models.IntegerField(default=0)
+    maximumVCPossible = models.IntegerField(default=0)
+    def __str__(self):
+        return str(self.triviaID)
+    
+class TriviaQuestion(models.Model):
+    questionID = models.AutoField(primary_key=True)
+    triviaID = models.ForeignKey(Trivia, on_delete=models.CASCADE, verbose_name = "Linked Trivia Session", db_index=True)
+    challengeQuestion = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name = "Linked Trivia Question", db_index=True)
+    def __str__(self):
+        return str(self.quesionID+", "+self.triviaID+", "+self.maximumVCPossible+", "+self.maximumPointsPossible)

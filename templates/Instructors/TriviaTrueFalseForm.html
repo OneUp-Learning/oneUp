@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   {% include 'scripts.html' %}
+   <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
+   <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+   <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
+   <script>
+      $(document).ready(function () {
+         {% if view %}
+         var tags = JSON.parse('{{ tags | escapejs }}')
+         //var topics = JSON.parse('{{ topics | escapejs }}')
+         for (var i = 0; i < tags.length; i++) {
+            var tag = tags[i];
+            var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
+            $('#tags').append($(tagDOM));
+         }
+         {% else %}
+         $('.chips').material_chip();
+         $('.chips-tags').material_chip({
+            data: JSON.parse('{{ tags | escapejs }}'),
+            placeholder: 'Enter a tag',
+         });
+         $('#form').submit(function () {
+            var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+
+            $('#form').append($(tags));
+            console.log($('.chips-tags').material_chip('data'));
+         });
+         {% endif %}
+      });
+   </script>
+   <style>
+      #hover {
+         left: 300px !important;
+         top: 0 !important
+      }
+   </style>
+
+</head>
+
+<body>
+   {% include 'heading.html' %}
+  <main>
+	  <div class="row center-align">
+		<div class="col s12 m10 offset-m1">
+		  <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Trivia Session Name</h3>
+		  <h4>Create / Edit Trivia Question</h4>
+			<p><span class="red-text">*</span> Denotes Required Fields.</p>
+		  </div>
+	  </div>
+	 <div class="row">
+		<div class="col s12 m10 offset-m1">
+			<form id="form" name="question" action="triviaURL" method="POST">
+                  {% csrf_token %}
+				<input type="hidden" name="numAnswers" id="numAnswers" value="1">
+				
+				<div class="card">
+					<div class="card-content">
+						<div class="row">
+					   <div class="col s12">
+						   <h5>Question Info</h5>
+					   </div>
+					   <div class="input-field col s12">
+							<i class="material-icons prefix">mode_edit</i>
+							<input value="Preview" name="preview" id="preview" type="text" class="validate" pattern=".*\S+.*" required>
+						   <label for="preview"><span class="red-text">*</span> Question Preview</label>
+					   </div>
+					   <div class="row">
+						<div class="col s12">
+						   <label for="question_text"><span class="red-text">*</span> Question Description</label>
+							<textarea name="questionText" id="question_text" rows="2" cols="70"
+									  required data-processed="0"
+																  data-config="{&quot;skin&quot;: &quot;moono-lisa&quot;, &quot;toolbar_Basic&quot;: [[&quot;Source&quot;, &quot;-&quot;, &quot;Bold&quot;, &quot;Italic&quot;]], &quot;toolbar_Full&quot;: [[&quot;Styles&quot;, &quot;Format&quot;, &quot;Bold&quot;, &quot;Italic&quot;, &quot;Underline&quot;, &quot;Strike&quot;, &quot;SpellChecker&quot;, &quot;Undo&quot;, &quot;Redo&quot;], [&quot;Link&quot;, &quot;Unlink&quot;, &quot;Anchor&quot;], [&quot;Image&quot;, &quot;Flash&quot;, &quot;Table&quot;, &quot;HorizontalRule&quot;], [&quot;TextColor&quot;, &quot;BGColor&quot;], [&quot;Smiley&quot;, &quot;SpecialChar&quot;], [&quot;Source&quot;]], &quot;toolbar&quot;: &quot;Custom&quot;, &quot;height&quot;: 291, &quot;width&quot;: &quot;100%&quot;, &quot;filebrowserWindowWidth&quot;: 940, &quot;filebrowserWindowHeight&quot;: 725, &quot;toolbar_Custom&quot;: [{&quot;name&quot;: &quot;document&quot;, &quot;items&quot;: [&quot;Source&quot;, &quot;-&quot;, &quot;Preview&quot;, &quot;Print&quot;, &quot;-&quot;, &quot;Templates&quot;]}, {&quot;name&quot;: &quot;clipboard&quot;, &quot;items&quot;: [&quot;Cut&quot;, &quot;Copy&quot;, &quot;Paste&quot;, &quot;PasteText&quot;, &quot;-&quot;, &quot;Undo&quot;, &quot;Redo&quot;]}, {&quot;name&quot;: &quot;editing&quot;, &quot;items&quot;: [&quot;Find&quot;, &quot;Replace&quot;, &quot;SelectAll&quot;]}, &quot;/&quot;, {&quot;name&quot;: &quot;basicstyles&quot;, &quot;items&quot;: [&quot;Bold&quot;, &quot;Italic&quot;, &quot;Underline&quot;, &quot;Strike&quot;, &quot;Subscript&quot;, &quot;Superscript&quot;, &quot;-&quot;, &quot;RemoveFormat&quot;]}, {&quot;name&quot;: &quot;paragraph&quot;, &quot;items&quot;: [&quot;NumberedList&quot;, &quot;BulletedList&quot;, &quot;-&quot;, &quot;Outdent&quot;, &quot;Indent&quot;, &quot;-&quot;, &quot;Blockquote&quot;, &quot;-&quot;, &quot;JustifyLeft&quot;, &quot;JustifyCenter&quot;, &quot;JustifyRight&quot;, &quot;JustifyBlock&quot;, &quot;-&quot;, &quot;BidiLtr&quot;, &quot;BidiRtl&quot;, &quot;Language&quot;]}, {&quot;name&quot;: &quot;links&quot;, &quot;items&quot;: [&quot;Link&quot;, &quot;Unlink&quot;]}, {&quot;name&quot;: &quot;insert&quot;, &quot;items&quot;: [&quot;Image&quot;, &quot;Table&quot;, &quot;HorizontalRule&quot;, &quot;Smiley&quot;, &quot;EqnEditor&quot;, &quot;CodeSnippet&quot;, &quot;Markdown&quot;]}, &quot;/&quot;, {&quot;name&quot;: &quot;styles&quot;, &quot;items&quot;: [&quot;Styles&quot;, &quot;Format&quot;, &quot;Font&quot;, &quot;FontSize&quot;]}, {&quot;name&quot;: &quot;colors&quot;, &quot;items&quot;: [&quot;TextColor&quot;, &quot;BGColor&quot;]}, {&quot;name&quot;: &quot;about&quot;, &quot;items&quot;: [&quot;About&quot;]}], &quot;format_tags&quot;: &quot;p;h1;h2;h3;pre&quot;, &quot;removeDialogTabs&quot;: &quot;image:advanced;link:advanced&quot;, &quot;line_height&quot;: &quot;0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em&quot;, &quot;autoParagraph&quot;: false, &quot;tabSpaces&quot;: 4, &quot;codeSnippet_theme&quot;: &quot;default&quot;, &quot;extraPlugins&quot;: &quot;uploadimage,uploadwidget,eqneditor,autolink,autoembed,embedsemantic,autogrow,pastecode,pastefromword,widget,lineutils,clipboard,dialog,dialogui,elementspath,smiley,codesnippet,markdown&quot;, &quot;filebrowserUploadUrl&quot;: &quot;/ckeditor/upload/&quot;, &quot;filebrowserBrowseUrl&quot;: &quot;/ckeditor/browse/&quot;, &quot;language&quot;: &quot;en-us&quot;}"
+							 data-external-plugin-resources="[]"
+							 data-id="question_text" data-type="ckeditortype">Question Text</textarea>
+						 </div>
+					   </div>
+				   </div>
+				   
+				   <div class="row">
+					   <div class="col s12">
+						   <h5>Question Answer</h5>
+					   </div>
+					   <div id="answers">
+						   <input type="hidden" name="ansPK1" value="1">
+						   <div id="ans1">
+							   <div class="row s12">
+									<div class="col s12 left">
+									   <input type="radio" name="correctAnswer" id="answer_1" value="1" required>
+									   <label for="answer_1">True</label>
+									</div>
+									<div class="col s12 left">
+									   <input type="radio" name="correctAnswer" id="answer_2" value="2" required>
+									   <label for="answer_2">False</label>
+									</div>
+							  </div>
+						   </div>
+					   </div>
+					</div>
+			   </div>
+			   <div class="card-action right-align">
+				   <a class="waves-effect waves-light btn" href="#!" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
+				   <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i></button>
+			   </div>
+		   </div>
+		</form>
+		</div>
+	</div>
+  </main>
+      {% include 'footer.html' %}
+</body>

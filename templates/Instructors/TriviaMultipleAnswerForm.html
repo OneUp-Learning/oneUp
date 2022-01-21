@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
+      <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+      <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
+      <script>
+         $( document ).ready(function(){
+        	 {% if view %}
+	        	var tags = JSON.parse('{{ tags | escapejs }}')
+				//var topics = JSON.parse('{{ topics | escapejs }}')
+				for(var i = 0; i < tags.length; i++){
+					var tag = tags[i];
+					var tagDOM = $("<div>").attr("class", "chip").append(tag['tag']);
+					$('#tags').append($(tagDOM));
+				}
+	        {% else %}
+            $('.chips').material_chip();
+             $('.chips-tags').material_chip({
+                 data: JSON.parse('{{ tags | escapejs }}'),
+                 placeholder: 'Enter a tag',
+             });
+             $('#form').submit(function(){
+                 var tags = $("<input>").attr("type", "hidden").attr("name", "tags").val(JSON.stringify($('.chips-tags').material_chip('data')));
+                 
+                 $('#form').append($(tags));
+                 console.log($('.chips-tags').material_chip('data'));
+             });
+             {% endif %}
+         });
+      </script>
+	   <script>
+         /* Should always hold the number of answers displayed. */
+         var numAnswers = 1;
+         var numberOfItems = 0;
+         var ckeditor_config = "{{ ckeditor.config }}"
+       	 var ckeditor_plugins_resources = "{{ ckeditor.external_plugin_resources }}";
+       	 
+         /* Adds a new blank answer */
+         function addAnswer() {
+         
+           /* If there are only two answers, we've hidden the remove button
+              now we're adding a new answer, so we show it again. */
+           if(numAnswers == 1) {
+             document.getElementById('removeAnswer').classList.remove('disabled');
+           }
+         
+           /* Increment the javascript variable */
+           numAnswers++;
+         
+           /* Update the number which will be returned to python */
+           document.question.elements['numAnswers'].value=numAnswers;
+         
+           /* Construct a new answer blank. */
+           
+           var id = "ans"+numAnswers;
+         var name = "answer"+numAnswers;
+           var newElement = "<div id='"+id+"'>\n"+
+              "<div class='row'> \n"+
+              "<div class='col s12'> \n"+
+              "<input type='radio' name='correctAnswer' id='answer_"+numAnswers+"' value='"+ numAnswers+"' required> \n"+
+              "<label for='answer_"+numAnswers+"'>Answer "+numAnswers+"</label> \n"+
+              "</div> \n"+
+              "</div> \n"+
+              "<div class='row'> \n"+
+              "<div class='col s12'> \n"+
+              "<div class='django-ckeditor-widget' data-field-id='"+name+"'> \n"+
+              "<textarea name='"+name+"' id='"+name+"' rows='2' cols='70' data-processed='0' data-config='"+ckeditor_config+"' data-external-plugin-resources='"+ckeditor_plugins_resources+"' data-id='"+name+"' data-type='ckeditortype'></textarea> \n"+
+              "</div>"+     
+              "</div> \n"+
+              "</div> \n"+
+              "<input type='hidden' name='answerPrimaryKey"+numAnswers+"' value=''/> \n"+
+              "</div>";
+                   
+           /* And put it in place. */
+           var node = document.createTextNode(newElement);
+           var previous = document.getElementById("ans"+(numAnswers-1));
+           previous.insertAdjacentHTML('afterEnd',newElement);
+         //   CKEDITOR.config.autoParagraph = false;
+         //   CKEDITOR.replace(name);
+            runInitialisers();
+         }
+         
+         /* Removes the bottom answer */
+         function removeAnswer() {
+           /* Remove last answer blank. */
+           var lastAnswer = document.getElementById("ans"+numAnswers);
+           lastAnswer.parentElement.removeChild(lastAnswer);
+         
+           /* Decrement js variable */
+           numAnswers--;
+         
+           /* Update the number which will be returned to python */ 
+           document.question.elements['numAnswers'].value = numAnswers;
+         
+           /* If we're down to just two answers, hide the button which
+              removes answers */
+           if (numAnswers == 2) {
+             document.getElementById('removeAnswer').classList.add('disabled');
+           }
+         }
+         
+      </script>
+   <style>
+      #hover {
+         left: 300px !important;
+         top: 0 !important
+      }
+   </style>
+   </head>
+  <body>
+	<main>
+	  <div class="row center-align">
+		<div class="col s12 m10 offset-m1">
+		  <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">Trivia Session Name</h3>
+		  <h4>Create / Edit Trivia Question</h4>
+			<p><span class="red-text">*</span> Denotes Required Fields.</p>
+		  </div>
+	  </div>
+	 <div class="row">
+		<div class="col s12 m10 offset-m1">
+			<form id="form" name="question" action="triviaURL" method="POST">
+                  {% csrf_token %}
+				<input type="hidden" name="numAnswers" id="numAnswers" value="{{num_answers}}">
+               <input type="hidden" name="triviaID" id="triviaID" value="triviaID">
+               <input type="hidden" name="triviaQuestionID" id="triviaQuestionID" value="triviaQuestionID">
+				
+				<div class="card">
+					<div class="card-content">
+						<div class="row">
+					   <div class="col s12">
+						   <h5>Question Info</h5>
+					   </div>
+					   <div class="input-field col s12">
+							<i class="material-icons prefix">mode_edit</i>
+							<input value="Preview" name="preview" id="preview" type="text" class="validate" pattern=".*\S+.*" required>
+						   <label for="preview"><span class="red-text">*</span> Question Preview</label>
+					   </div>
+					   <div class="row">
+						<div class="col s12">
+						   <label for="question_text"><span class="red-text">*</span> Question Description</label>
+							<textarea name="questionText" id="question_text" rows="2" cols="70"
+									  required data-processed="0"
+									  data-config="{{ ckeditor.config }}" 
+										data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" 
+										data-id="question_text" data-type="ckeditortype">Question Text</textarea>
+						 </div>
+					   </div>
+				   </div>
+				   
+				   <div class="row">
+					   <div class="col s12">
+						   <h5>Question Answer</h5>
+					   </div>
+					   <div id="answers">
+						   <input type="hidden" name="ansPK1" value="1">
+						   <div id="ans1">
+							   <div class="row">
+								   <div class="col s12">
+									   <input type="radio" name="correctAnswer" id="answer_1" value="1" required>
+									   <label for="answer_1">Answer i</label>
+							 </div>
+						  </div>
+						  <div class="row">
+							 <div class="col s12">
+								<div class="django-ckeditor-widget" data-field-id="answer1">
+								   <textarea name="answer" id="answer1" rows="2" cols="70" 
+										{%if view%}readonly{%else%}required{%endif%} data-processed="0" 
+										data-config="{{ ckeditor.config }}" 
+										data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}" 
+										data-id="question_text" data-type="ckeditortype">Answer Value</textarea>
+							   </div>        
+							 </div>
+						  </div>
+					   </div>
+							  <div class="row">
+								  <div class="col s12 m8">
+									  <a class="waves-effect waves-light btn" style="margin-bottom: 8px" id="addAnswer" onclick="addAnswer();"><i class="material-icons left">add</i>Add Answer</a>
+									  <a class="waves-effect waves-light btn" style="margin-bottom: 8px" id="removeAnswer" onclick="removeAnswer();"><i class="material-icons left">remove</i>Remove Last Answer</a>
+								  </div>
+							  </div>
+					   </div>
+				   </div>
+				   
+			   </div>
+			   <div class="card-action right-align">
+				   <a class="waves-effect waves-light btn" href="#!" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
+				   <button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i></button>
+			   </div>
+		   </div>
+		</form>
+		</div>
+	</div>
+	</main>
+      {% include 'footer.html' %}
+</body>
+</html>

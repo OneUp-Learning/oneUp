@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{% include 'scripts.html' %}
+	<style>
+		.btn-block{
+		width: 100%;
+		}
+		.right-button{
+		position: 	absolute;
+		top: 		82%;
+		right: 		3%;}
+	</style>
+</head>
+
+<body>
+	{% include 'heading.html' %}
+	<main>
+		<div class="row center-align">
+			<div class="col s12">
+				<h3>Trivia Creation</h3>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col s12 m10 offset-m2">
+				<!-- Main panel -->
+				<div class="card col s12 center-align container">
+				    <div class="col s12">
+                        <h5 class="left">New Trivia Session</h5>
+                    </div>
+					<form action="/oneUp/instructors/TriviaSessionSetup" method="POST">
+						{% csrf_token %}
+						<div class="row">
+							{% if triviaID %}
+							<input type="hidden" id="triviaID" name="triviaID" value="{{triviaID}}"> 
+							{% endif %}
+		                    <div class="input-field col s8">
+		                       <input value="{{triviaName}}" name="SessionName" id="session_name" maxlength="20" type="text" class="validate" placeholder="Trivia Name" required>
+		                       <label for="session_name"><span class="red-text">*</span> Trivia Session Name</label>
+		                    </div>
+		                    <div class="card-panel col s2 offset-s1">
+		                    	<h2 id="problem_count">0</h2>
+		                    	<label for="problem_count">Questions in Trivia Set</label>
+		                    </div>
+		                    <div class="col s5">
+		                       <input id="vc_earn_max" value="{{maxVC}}" name="maxPossibleVC" maxlength="4" type="number" class="validate" min="0" max="999" step="any" placeholder="Max Possible VC (total)" required>
+		                       <label for="vc_earn_max"><span class="red-text">*</span> Maximum Possible VC Earned</label>
+		                    </div>
+		                    <div class="col s5 offset-s1">
+		                       <input id="point_earn_max" value="{{maxPoints}}" name="maxPossiblePoints" maxlength="3" type="number" class="validate" min="0" max="99" step="any" placeholder="Max Possible Points Per Question" required> 
+		                       <label for="point_earn_max"><span class="red-text">*</span> Maximum Possible Points Per Question</label>
+		                    </div>
+		                </div>
+		                <div class='card-action right-align'>
+							<a class="btn waves-effect waves-light" onclick="window.history.back()"><i class="material-icons left">menu</i>Back</a>
+							<a class="btn waves-effect waves-light" href="/oneUp/instructors/TriviaQuestionList"><i class="material-icons left">menu</i>Questions</a>
+							<button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</main>
+	{% include 'footer.html' %}
+</body>
+</html>

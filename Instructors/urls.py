@@ -43,7 +43,7 @@ from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
-from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteActivity, deleteAnnouncement, deleteManualSpendRule
+from Instructors.views.deleteView import deleteTrivia, deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteActivity, deleteAnnouncement, deleteManualSpendRule
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
 
@@ -141,7 +141,13 @@ from Instructors.views.flashCardCreateView import CreateFlashCards
 from Instructors.views.createPlayerType import createPlayerTypeView
 from Instructors.views.playerTypeList import playerTypeListView
 
+# Trivia
 from Instructors.views.reorderViews import reorderGroups
+from Instructors.views.triviaDashboardView import createTriviaDashboard
+from Instructors.views.triviaSessionCreateView import triviaSessionCreateView
+from Instructors.views.triviaQuestionListView import createTriviaQuestionListView
+
+
 admin.autodiscover()
 urlpatterns = [
 
@@ -297,6 +303,11 @@ urlpatterns = [
     url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
     url(r'^ReorderGroups', reorderGroups, name='reorderGroups'),
     url(r'^CreatePlayerType', createPlayerTypeView, name='createPlayerType'),
-    url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList')
+    url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList'),
+    #Trivia
+    url(r'^TriviaDashboard', createTriviaDashboard, name='triviaDashboardView'),
+    url(r'^TriviaSessionSetup', triviaSessionCreateView, name='triviaSessionCreateView'),
+    url(r'^TriviaQuestionList', createTriviaQuestionListView, name='createTriviaQuestionListView'),
+    url(r'^deleteTrivia', deleteTrivia, name='deleteTrivia')
 ]
 

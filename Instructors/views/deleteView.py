@@ -11,7 +11,7 @@ from django.shortcuts import redirect
 
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams
 from Instructors.models import (Questions, Courses, Challenges, Skills, ChallengesQuestions, Topics, ChallengesTopics, CoursesTopics,
-                                Announcements, Activities, FlashCardGroup, FlashCardToGroup, FlashCards, FlashCardGroupCourse)
+                                Announcements, Activities, FlashCardGroup, FlashCardToGroup, FlashCards, FlashCardGroupCourse, Trivia)
 from Badges.models import VirtualCurrencyCustomRuleInfo, PlayerType
 from Instructors.constants import unassigned_problems_challenge_name
 from Instructors.models import (Activities, Announcements, Challenges,
@@ -313,6 +313,29 @@ def deleteActivity(request):
 
     return redirect('/oneUp/instructors/activitiesList', context_dict)
 
+@login_required
+@user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
+def deleteTrivia(request):
+
+    context_dict, currentCourse = initialContextDict(request)
+    if request.POST:
+        print("Deleting Trivia")
+        message = ""
+        try:
+            if request.POST['triviaID']:
+                trivia = Trivia.objects.get(
+                    pk=int(request.POST['triviaID']))
+                message = "Trivia #" + \
+                    str(trivia.triviaID) + ": " + \
+                    str(trivia.triviaID) + "was successfully deleted"
+                trivia.delete()
+        except Trivia.DoesNotExist:
+            message = "There was a problem deleting Trivia #" + \
+                str(trivia.triviaID)
+
+        context_dict['message'] = message
+
+    return redirect('/oneUp/instructors/TriviaDashboard', context_dict)
 
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
@@ -421,4 +444,3 @@ def deletePlayerType(request):
         context_dict['message'] = message  
     return redirect('/oneUp/instructors/PlayerTypeList', context_dict)
 
-    

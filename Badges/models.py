@@ -404,6 +404,9 @@ class CourseConfigParams(models.Model):
     ##Class Donation system
     classFundEnabled = models.BooleanField(default = False)
     
+    # Trivia Toggle
+    triviaEnabled = models.BooleanField(default = False)
+    
     def GenerateConfigEnumList(self, *args, **kwargs):
         EnumList = []
         
