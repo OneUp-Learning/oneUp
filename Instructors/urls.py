@@ -146,6 +146,7 @@ from Instructors.views.reorderViews import reorderGroups
 from Instructors.views.triviaDashboardView import createTriviaDashboard
 from Instructors.views.triviaSessionCreateView import triviaSessionCreateView
 from Instructors.views.triviaQuestionListView import createTriviaQuestionListView
+from Instructors.views.triviaReviewView import triviaSessionReviewView
 
 
 admin.autodiscover()
@@ -308,6 +309,7 @@ urlpatterns = [
     url(r'^TriviaDashboard', createTriviaDashboard, name='triviaDashboardView'),
     url(r'^TriviaSessionSetup', triviaSessionCreateView, name='triviaSessionCreateView'),
     url(r'^TriviaQuestionList', createTriviaQuestionListView, name='createTriviaQuestionListView'),
-    url(r'^deleteTrivia', deleteTrivia, name='deleteTrivia')
+    url(r'^deleteTrivia', deleteTrivia, name='deleteTrivia'),
+    url(r'^TriviaReview', triviaReview, name='triviaReview')
 ]
 

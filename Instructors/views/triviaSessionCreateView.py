@@ -52,6 +52,7 @@ def triviaSessionCreateView(request):
             new_trivia_object.save()
             
         return redirect('/oneUp/instructors//TriviaDashboard', context_dict)
+    
     else: # Requesting data about a session or modifying
         if 'triviaID' in request.GET:
             trivia = Trivia.objects.filter(courseID=currentCourse, triviaID=request.GET['triviaID'])
