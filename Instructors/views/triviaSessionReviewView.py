@@ -23,18 +23,18 @@ def generate_trivia_review_data(context_dict, currentCourse):
 
     x = [-2,0,4,6,7]
     y = [q**2-q+3 for q in x]
-    trace1 = go.Scatter(x=x, y=y, marker={'color': 'red', 'symbol': 104, 'size': "10"},
+    trace1 = go.Scatter(x=x, y=y, marker={'color': 'red', 'symbol': 104, 'size': 10},
                         mode="lines",  name='1st Trace')
 
     layout=go.Layout(title="Test Student (Test Student)", xaxis={'title':'x1'}, yaxis={'title':'x2'})
-    figure=go.Figure(data=['trace1'],layout=layout)
+    figure=go.Figure(data=trace1,layout=layout)
 
     context_dict['graph'] = figure.to_html()
     context_dict['trivia_sessions'] = zip(trivia_sessions)
 
 @login_required
 @user_passes_test(instructorsCheck, login_url='/oneUp/students/StudentHome', redirect_field_name='')
-def triviaSessionCreateView(request):
+def triviaSessionReviewView(request):
 
     context_dict, currentCourse = initialContextDict(request)
             
