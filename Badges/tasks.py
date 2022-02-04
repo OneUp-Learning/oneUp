@@ -114,7 +114,7 @@ def celery_calculate_xp(student_reg_course_id):
                    {"course": str(student_reg_course.courseID.courseID), "name": str(student_reg_course.courseID.courseName), "related_link": '/oneUp/students/StudentCourseHome'}))
             # for event
             mini_req = {
-                'currentCourseID': student_reg_course.cgitourseID.courseID,
+                'currentCourseID': student_reg_course.courseID.courseID,
                 'user': student_reg_course.studentID.user.username,
                 'timezone': None,
             }
