@@ -156,6 +156,7 @@ def preferencesView(request):
                     recalculate_student_virtual_currency_total_offline(st_c.studentID.pk,currentCourse.pk)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
+        ccparams.useCustomAvatar = "useCustomAvatar" in request.POST
         
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
 
@@ -259,7 +260,8 @@ def preferencesView(request):
 
             # Avatars
             context_dict["avatarUsed"] = ccparams.avatarUsed
-
+            context_dict["useCustomAvatar"] = ccparams.useCustomAvatar        
+                
             # Student Settings
             
             context_dict["studCanChangeclassAverageVis"] = ccparams.studCanChangeclassAverageVis

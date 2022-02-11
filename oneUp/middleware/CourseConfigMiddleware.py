@@ -68,6 +68,13 @@ class CourseConfigMiddleware:
                 {
                     'avatarUsed': True, 
                     'gamificationUsed': True,
+                    'useCustomAvatar': False,
+                },
+            '/oneUp/students/AvatarEditor': 
+                {
+                    'avatarUsed': True,                     
+                    'gamificationUsed': True,
+                    'useCustomAvatar': True,
                 },
             '/oneUp/students/goalslist': 
                 {
@@ -93,10 +100,7 @@ class CourseConfigMiddleware:
                     'classmatesChallenges': True, 
                     'gamificationUsed': True,
                 },
-             '/oneUp/students/AvatarEditor':
-                {
-                 #   'gamificationUsed': True,
-                },
+       
             # TODO: Add links for instructors?
             '/oneUp/instructors/preferences':
                 {

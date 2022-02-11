@@ -285,7 +285,9 @@
 </script>
 		<ul id="account" class="dropdown-content">
 			{% if ccparams.gamificationUsed and ccparams.avatarUsed %}
+			
 			<li class="nav-dropdown-link"><p class="center-align"><img class="circle" width="100" height="100" src="{{avatar}}"></p></li>
+		
 			{% endif %}
 			<li class="nav-dropdown-link"><p style="padding-left: 16px; padding-right: 8px">Welcome, {{username}}</p></li>            
 			<li class="nav-dropdown-link"><p style="padding-left: 16px; padding-right: 8px">Course: {{course_Name}}</p></li>
@@ -294,7 +296,7 @@
 			<li><a class="waves-effect " href="/oneUp/students/Logout">Logout</a></li>
 		</ul>
 		<ul id="virtualcurrency" class="dropdown-content">                               
-			<li><a href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>
+			<li><a href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>			
 			<li><a href="/oneUp/students/Transactions">VC Transactions</a></li>
 		</ul>
 		<nav>
@@ -303,11 +305,11 @@
 			<a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i></a>
 			<ul class="right hide-on-med-and-down" style="height: 100%;">
 				<li>
-					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course Info</a>
+					<a class="dropdown-button"  data-constrainwidth="false" data-beloworigin="true" data-activates="courseinfo">Course Info</a>
 					<ul id="courseinfo" class="dropdown-content">
 						<li><a class="waves-effect " href="/oneUp/students/StudentHome">Student's Home</a></li>
 						<li><a class="waves-effect " href="/oneUp/students/StudentCourseHome">Course Home</a></li>						
-						<li><a class="waves-effect " href="/oneUp/students/CourseInformation">Course Information</a></li>
+						<li><a class="waves-effect " href="/href='' oneUp/students/CourseInformation">Course Information</a></li>
 						{%if ccparams.announcementsUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/Announcements">Announcements</a></li>	
 						{% endif %}
@@ -347,12 +349,18 @@
 				
 				{% if ccparams.chatUsed or ccparams.avatarUsed and ccparams.gamificationUsed or ccparams.flashcardsUsed or ccparams.classmatesChallenges or ccparams.virtualCurrencyUsed or ccparams.studCanChangeclassAverageVis or ccparams.studCanChangeClassSkillsVis or ccparams.studCanChangeLeaderboardVis or ccparams.studCanChangeBadgeVis or  ccparams.goalsUsed or is_test_student is False %}
 				<li>
-					<a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
+					<a class="dropdown-button"  data-constrainwidth="false" data-beloworigin="true" data-activates="coursetools">Tools</a>
 					<ul id="coursetools" class="dropdown-content">
 						{% if ccparams.gamificationUsed %} 
 						{% if ccparams.avatarUsed %}
-						<li><a class="waves-effect " href="/oneUp/students/avatar">Avatar Selection</a></li>
+						{% if ccparams.useCustomAvatar %}
+						<li><a class="waves-effect" href="/oneUp/students/AvatarEditor">Avatar Editor</a></li>
+						{% else %}
+						<li><a class="waves-effect " href="/oneUp/students/avatar">Avatar Selection</a></li>						
 						{% endif %}
+						{% endif %}
+						
+						
 						{% if ccparams.goalsUsed %}
 						{% if ccparams.studCanChangeGoal and scparams.displayGoal or not ccparams.studCanChangeGoal %}
 						<li><a class="waves-effect" href="/oneUp/students/goalslist">Goals</a></li>
@@ -387,7 +395,7 @@
 					<a class="waves-effect" href="/oneUp/students/StudentQA">Help</a>
 				</li>
 				<li>
-					<a id='notification-count-desktop' class='dropdown-button mark-all' data-mark-action='read' href='#!' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
+					<a id='notification-count-desktop' class='dropdown-button mark-all' data-mark-action='read' data-constrainwidth ='false' data-beloworigin='true' data-activates='notifications' data-position="left" data-delay="50">
 						<i class='material-icons notification-icon'>notifications</i> <!-- This needs to be linked to an actual notification page -->
 						<small class="notification-badge hide"></small>
 					</a>
@@ -396,7 +404,7 @@
 						<div id="notifications-desktop" class="notification-box-list">
 						{% user_notifications for box %}
 						</div>
-						<li><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>
+						<li><a class="clearAll waves-effect" ><i class="material-icons">clear_all</i>Clear All</a></li>
 					</ul>
 				</li>
 				{% if is_test_student %}
@@ -407,7 +415,7 @@
 		            </li>
 	            {% endif %}
 				{% if logged_in %}            
-				<li><a class="dropdown-button" href="#!" data-constrainwidth="false" data-beloworigin="true" data-activates="account"><i class="material-icons">more_vert</i></a></li>
+				<li><a class="dropdown-button"  data-constrainwidth="false" data-beloworigin="true" data-activates="account"><i class="material-icons">more_vert</i></a></li>
 				{% endif %}
 			</ul>
 
@@ -522,7 +530,7 @@
 									{% user_notifications for box %}
 									</div>
 									<li id="mobile-viewall"><a class="waves-effect" href="/oneUp/students/NotificationPage"><i class="material-icons">pageview</i>View All</a></li>
-									<li id="mobile-clearall"><a class="clearAll waves-effect" href="#!"><i class="material-icons">clear_all</i>Clear All</a></li>					
+									<li id="mobile-clearall"><a class="clearAll waves-effect" href=""><i class="material-icons">clear_all</i>Clear All</a></li>					
 								</ul>
 							</div>
 						</li>

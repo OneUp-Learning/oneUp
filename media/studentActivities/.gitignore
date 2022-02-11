@@ -1,4 +1,4 @@
 # Ignore everything in this directory
-*
+*/static/images/generatedAvatarImages/
 # Except this file
 !.gitignore

@@ -339,7 +339,8 @@ class CourseConfigParams(models.Model):
     ## Other fields for rule based configurations
     virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
     virtualCurrencyAdded = models.IntegerField(default=0)             # Amount of course bucks given by the instructor to all students
-    avatarUsed = models.BooleanField(default=False)                   ## This is to allow the student to upload an avatar.
+    avatarUsed      = models.BooleanField(default=False)  
+    useCustomAvatar = models.BooleanField(default=False)                      ## This is to allow the student to upload an avatar.
     classAverageUsed = models.BooleanField(default=False)             ## ranga used this, in individual achievements
     studCanChangeclassAverageVis = models.BooleanField(default=False) ## The student can suppress visibility in the dashboard
 

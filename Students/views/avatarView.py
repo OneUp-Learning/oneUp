@@ -7,8 +7,8 @@ Created on Nov 14, 2016
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 import glob
-
-from Students.models import Student, StudentRegisteredCourses
+from Badges.models import CourseConfigParams
+from Students.models import Student, StudentRegisteredCourses,StudentCustomAvatar
 from Students.views.utils import studentInitialContextDict
 from django.contrib.auth.decorators import login_required
 from django.template.context_processors import request
@@ -60,18 +60,33 @@ def extractPaths(context_dict, currentCourse, sID): #function used to get the na
 	context_dict["avatarPaths"] = zip(range(1,len(avatarPath)+1), avatarPath)
 
 def checkIfAvatarExist(student):
+	c = student.courseID
+	useCustom = CourseConfigParams.objects.get(courseID = c).useCustomAvatar
+
 	avatars = glob.glob('static/images/avatars/*')
 	defaultAvatar = '/static/images/avatars/anonymous.png'
-	studentAvatarPath = student.avatarImage
-	studentAvatarPath = studentAvatarPath[1:]
-	if studentAvatarPath in avatars:
-		return student.avatarImage
+	if not useCustom:		
+		studentAvatarPath = student.avatarImage
+		studentAvatarPath = studentAvatarPath[1:]
+		if studentAvatarPath in avatars:
+			return student.avatarImage
+		else:
+			student.avatarImage = defaultAvatar #change the students avatar to the default
+			student.save()		
+		
 	else:
-		student.avatarImage = defaultAvatar #change the students avatar to the default
-		student.save()
-	
+		s = student.studentID
+		st_ava_list = StudentCustomAvatar.objects.filter(studentID = s)
+		if len(st_ava_list)==0:
+			st_ava = StudentCustomAvatar()
+			st_ava.studentID = s            
+			st_ava.save()
+		else:
+			st_ava = st_ava_list[0]   		    
+	                  
+		return st_ava.image         
 	return defaultAvatar 
-
+	
 def checkAvatar(request):
 	''' This view is called by an ajax function to check for avatar duplicates'''
 	print("Here***")

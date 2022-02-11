@@ -62,3 +62,6 @@ Pipfile*
 .vscode/*
 
 src/*
+# custom avatar stuff
+static/images/customAvatarParts/*
+static/images/generatedAvatarImages/*
