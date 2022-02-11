@@ -44,12 +44,12 @@
 									data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i
 										class="material-icons">more_vert</i></a>
 									<ul id='dropdown-{{i}}' class='dropdown-content'>
-										<li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view">View</a></li>
-										<li><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}">Edit</a></li>
-										<li><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
-										<li><a href="/oneUp/instructors/adjustmentList?challengeID={{chall_ID}}">Adjustment</a></li>
-										<li class="divider"></li>
-										<li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
+										<li class="not-sortable"><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}&view">View</a></li>
+										<li class="not-sortable"><a href="/oneUp/instructors/challengeCreate?challengeID={{chall_ID}}">Edit</a></li>
+										<li class="not-sortable"><a href="/oneUp/instructors/challengeQuestionsList?challengeID={{chall_ID}}">Problems</a></li>
+										<li class="not-sortable"><a href="/oneUp/instructors/adjustmentList?challengeID={{chall_ID}}">Adjustment</a></li>
+										<li class="divider not-sortable"></li>
+										<li class="not-sortable"><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
 									</ul>
 									<div id="modal_delete-{{i}}" class="modal">
 										<div class="modal-content">

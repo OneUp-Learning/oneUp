@@ -137,7 +137,6 @@ def courseCreateView(request):
                 uC = UniversityCourses.objects.filter(courseID = course).first()
                 #in case editing a course created before university requirement
                 if uC is not None:
-                    uC = UniversityCourses.objects.filter(courseID = course).first()
                     uC.universityID = university
                     uC.save()
                 else:
@@ -196,8 +195,14 @@ def courseCreateView(request):
                 course.courseDescription = description
                 course.save()
                 uC = UniversityCourses.objects.filter(courseID = course).first()
-                uC.universityID = university
-                uC.save()
+                if uC is not None:
+                    uC.universityID = university
+                    uC.save()
+                else:
+                    uC = UniversityCourses()
+                    uC.universityID = university
+                    uC.courseID = course
+                    uC.save()
 
                 if 'instructorName' in request.POST:
                     irc = InstructorRegisteredCourses.objects.filter(
