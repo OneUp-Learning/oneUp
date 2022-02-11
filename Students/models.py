@@ -62,6 +62,7 @@ class UploadedAvatarImage(models.Model):
 class StudentRegisteredCourses(models.Model):
     studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+   
     avatarImage= models.CharField(max_length=200, default='')
     # VirtualCurrenyAmount is essentially a cache for this value
     # The actual official total is dervied from transactions stored
@@ -600,7 +601,7 @@ class StudentCustomAvatar(models.Model):
     fahairColorIndex     = models.IntegerField(default=1)
     clothesColorIndex    = models.IntegerField(default=1)
     backgroundColorIndex = models.IntegerField(default=1)
-    image= models.CharField(max_length=200, default='')
+    image = models.CharField(max_length=200, default='/static/images/generatedAvatarImages/default_profilePicture.png')
     def __str__(self):
         return str(self.studentID) 
     

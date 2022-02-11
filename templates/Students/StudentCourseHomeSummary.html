@@ -24,7 +24,13 @@
                 </div>
                 <div style="display: flex; width:100%; flex-direction: column;">
                 {% if ccparams.gamificationUsed and ccparams.avatarUsed %}
-                <img src="{{avatar}}" style="width: 96px; height: 96px; margin-right: auto; margin-left: auto; border-radius: 50%;">
+                 {% if ccparams.useCustomAvatar %}
+                  <img src="{{customAvatar}}" style="width: 96px; height: 96px; margin-right: auto; margin-left: auto; border-radius: 50%;">
+                 {% else %}
+                  <img src="{{avatar}}" style="width: 96px; height: 96px; margin-right: auto; margin-left: auto; border-radius: 50%;">
+              	 {% endif %}
+                
+                 
                 {% endif %}
                 <div style="text-align: center; margin-top: 8px; color: #ecf9ff">
                     <!-- <div style="font-size: 1.6em;font-weight: 400;">Austin Hodge</div> -->
@@ -627,7 +633,7 @@
                         <div class="card-content">
                             <span class="card-title">Your Badges</span>
                             <div style="display: flex; flex-wrap: wrap;">
-                                {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in studentBadges %}
+                                {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage,customAvatarImage  in studentBadges %}
                                 <div style="height: 64px; width: fit-content; margin: 2px;">
                                 <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
                                     height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
@@ -646,12 +652,18 @@
                         <div class="card-content">
                             <span class="card-title">Latest Group Badges</span>
                             <div style="display: flex; flex-wrap: wrap;">
-                                {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %}
+                                {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage,customAvatarImage in badgesInfo %}
                                 <div style="height: 64px; width: fit-content; margin: 2px;">
                                 <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px"
                                     height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}" />
-                                <img alt="Avatar Image" width="30px" height="30px"
+                                  {% if ccparams.useCustomAvatar %}                                  
+                                   <img alt="Avatar Image" width="30px" height="30px"
+                                        src="{{customAvatarImage}}" data-position="top" data-delay="50">
+                                   {% else %}
+                                   <img alt="Avatar Image" width="30px" height="30px"
                                         src="{{avatarImage}}" data-position="top" data-delay="50">
+                                   {% endif %}
+                                
                                 </div>
                                 {% empty %}
                                 <div><i class="center-align" style="flex: 1;">No badges earned</i></div>
@@ -860,7 +872,12 @@
                                     <tbody>
                                         {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
                                         <tr>
-                                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+                                            <td>
+                                            {% if ccparams.useCustomAvatar %}
+		                                    <img alt="Avatar Image" width="30px" height="30px" src="{{customAvatarImage}}">
+		                                    {% else %}
+		                                    <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+		                                    {% endif %}
                                             </td>
                                             <td>{{points}}</td>
                                         </tr>
@@ -904,7 +921,12 @@
                              <td>
                                 {% for usi in skill.usersInfo %} 
                                 <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
-                                    <img src="{{usi.avatarImage}}">
+                                    {% if ccparams.useCustomAvatar %}
+                                     <img src="{{usi.customAvatarImage}}">
+                                    {% else %}
+                                     <img src="{{usi.avatarImage}}">
+                                    {% endif %}
+		                                   
                                     {{usi.skillPoints}}
                                     </div>
                                 {% endfor %}
