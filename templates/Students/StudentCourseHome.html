@@ -103,11 +103,8 @@
                                   {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %} 
                                   <div style="padding-right: 16px">                                                       
                                   <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px" height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
-                                  {% if ccparams.useCustomAvatar %}
-                                   <img alt="Avatar Image" width="30px" height="30px" src="{{customAvatarImage}}" data-position="top" data-delay="50">
-                                  {% else %}
-                                   <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50">
-                                  {% endif %}
+                                
+                                  <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50">
                                   
                                   </div>
                                   {% empty %}
@@ -282,11 +279,9 @@
                         {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
                         <tr>
                             <td>
-                            {% if ccparams.useCustomAvatar %}
-                             <img alt="Avatar Image" width="30px" height="30px" src="{{customAvatarImage}}">
-                            {% else %}
+                     
                              <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
-                            {% endif %}
+                      
                             </td>
                             <td>{{points}}</td>
                         </tr>
@@ -327,11 +322,9 @@
                              <td>
                                 {% for usi in skill.usersInfo %} 
                                 <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
-                                    {% if ccparams.useCustomAvatar %}
-                                    <img src="{{usi.customAvatarImage}}">
-                                    {% else %}
+                                   
                                     <img src="{{usi.avatarImage}}">
-                                    {% endif %}
+                                
                                     {{usi.skillPoints}}
                                     </div>
                                 {% endfor %}
