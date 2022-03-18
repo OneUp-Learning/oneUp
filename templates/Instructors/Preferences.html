@@ -526,8 +526,21 @@
                                             <input name="goalsUsed" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
-                                        </label>
+                                        </label>                                    
                                     </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                    <label>
+                                            Turn virtual applause on 
+                                            {% if applauseOn %}
+                                            <input name="applauseOn" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="applauseOn" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                     </div>
                                 </div>
                             </div>
                         </div>

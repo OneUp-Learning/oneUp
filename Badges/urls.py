@@ -32,6 +32,11 @@ from Badges.views.periodicBadgeView import PeriodicBadgeView
 from Badges.views.progressiveUnlocking import ProgressiveUnlockingRules, getObjs
 from Badges.views.periodicVirtualCurrencyEarnRuleList import periodicVirtualCurrencyEarnRuleList
 from Badges.views.celeryTestView import celeryTestView, celeryTestResultsView
+from Badges.views.createVirtualApplauseRuleView import CreateVARule
+from Badges.views.virtualApplauseEarnRuleList import virtualApplauseEarnRuleList
+from Badges.views.saveVirtualApplauseRule import SaveVirtualApplauseRule
+from Badges.views.editVirtualApplauseRuleView import EditVirtualApplauseRule
+
 admin.autodiscover()
 
 urlpatterns = [    
@@ -64,4 +69,8 @@ urlpatterns = [
     url(r'^getObjsForPunlocking',getObjs, name="Progressive Unlocking Obj getter"),
     url(r'^celeryTestView',celeryTestView, name="Celery Test"),
     url(r'^celeryTestResultsView',celeryTestResultsView, name="Celery Results Test"),
+    url(r'^VirtualApplauseEarnRuleList',virtualApplauseEarnRuleList, name='Instructor Virtual Applause Earn Rule List'),
+    url(r'^CreateVirtualApplauseRule',CreateVARule, name='Create Virtual Applause Rule'),
+    url(r'^SaveVirtualApplauseRule',SaveVirtualApplauseRule, name='Save Virtual Applause Rule'),
+    url(r'^EditVirtualApplauseRule',EditVirtualApplauseRule, name='Edit Virtual Applause Rule'),
 ]

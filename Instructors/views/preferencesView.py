@@ -137,6 +137,11 @@ def preferencesView(request):
         ccparams.classFundEnabled = "classFundEnabled" in request.POST
       
         currentCourse.Donations = request.POST.get("classFundChange")
+        
+        # Virtual Applause
+        ccparams.applauseOn = "applauseOn" in request.POST
+      
+        
         currentCourse.save()
         if vcaddedString:
             
@@ -288,7 +293,9 @@ def preferencesView(request):
 
             #Player-Types (Adaptation)
             context_dict['adaptationUsed'] = ccparams.adaptationUsed
-
+     
+            #Virtual applause
+            context_dict['applauseOn'] = ccparams.applauseOn
             
 
         return render(request, 'Instructors/Preferences.html', context_dict)

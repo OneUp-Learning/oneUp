@@ -101,7 +101,8 @@ class Action():
     decreaseVirtualCurrency = 711 # Decreases virtual currency (CourseBucks)
 
     completeGoal = 712 # Sends goal notification on completion
-
+    DoApplause = 713 #displays virtual fireworks or confetti to the user
+    
     actions = {
            giveBadge:{
                 'index': giveBadge,
@@ -163,7 +164,12 @@ class Action():
                 'displayName': 'Complete a Goal',
                 'description': 'Sends notification that goal is completed and sets the goal status to completed'
             },
-          
+            DoApplause:{
+                'index':DoApplause,
+                'name': 'DoApplause',
+                'displayName': 'do a applause',
+                'description': 'displays virtual fireworks or confetti to the user'
+            },
         }
 
 

@@ -5,7 +5,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-   
+    dependencies = [
+        ('Students', '0118_auto_20220201_2007'),
+    ]
+    
     operations = [
         migrations.AlterField(
             model_name='studentcustomavatar',

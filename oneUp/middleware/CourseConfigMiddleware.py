@@ -105,8 +105,17 @@ class CourseConfigMiddleware:
             '/oneUp/instructors/preferences':
                 {
                     'gamificationUsed': True,
-                }
-           
+                },
+            '/oneUp/badges/VirtualApplauseEarnRuleList':
+                {
+                    'gamificationUsed': True,
+                    'applauseOn': True,
+                },
+            '/oneUp/badges/CreateVirtualApplauseRule':
+                {
+                    'gamificationUsed': True,
+                    'applauseOn': True,
+                },
         }
         self.reset_course_paths = ['/oneUp/students/StudentHome', '/oneUp/instructors/instructorHome']
 
