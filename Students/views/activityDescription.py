@@ -21,7 +21,7 @@ from Badges.systemVariables import activityScore
 from Instructors.models import Activities, UploadedActivityFiles, UploadedFiles
 from Instructors.views.utils import current_localtime, datetime_to_local
 from oneUp.settings import MEDIA_ROOT
-from Students.models import Student, StudentActivities, StudentFile
+from Students.models import Student, StudentActivities, StudentFile, StudentActivitySubmission
 from Students.views.utils import studentInitialContextDict
 from oneUp.ckeditorUtil import config_ck_editor
 
@@ -79,23 +79,40 @@ def ActivityDetail(request):
 
                 studentFile = StudentFile.objects.filter(
                     studentID=studentId, activity=student_activity, latest=True)
-                context_dict['comment'] = student_activity.comment
-                context_dict['isSubmitted'] = student_activity.submitted
-                context_dict['submissionTime'] = student_activity.submissionTimestamp
-                context_dict['isGraded'] = activity.isGraded                
-                context_dict['textSubmission'] = student_activity.richTextSubmission
-                if student_activity.graded:
-                    context_dict['score'] = student_activity.activityScore
-                    context_dict['bonus'] = student_activity.bonusPointsAwarded
-                else:
-                    context_dict['score'] = "-"
-                    context_dict['bonus'] = "-"
-                context_dict['feedback'] = student_activity.instructorFeedback
                 
+                studentRecentSubmission = False
+                
+                if 'submissionID' in request.GET:    
+                    studentRecentSubmission = StudentActivitySubmission.objects.get(studentSubmissionID=request.GET['submissionID'], activity=student_activity, studentID=studentId)
+                    context_dict['valid_submission'] = False
+                    
+                    context_dict['comment'] = studentRecentSubmission.comment
+                    context_dict['isSubmitted'] = student_activity.submitted
+                    context_dict['submissionTime'] = student_activity.submissionTimestamp
+                    context_dict['isGraded'] = activity.isGraded    
+                    
+                    if student_activity.graded:
+                        context_dict['score'] = student_activity.activityScore
+                        context_dict['bonus'] = student_activity.bonusPointsAwarded
+                    else:
+                        context_dict['score'] = "-"
+                        context_dict['bonus'] = "-"
+                    context_dict['feedback'] = student_activity.instructorFeedback
+                    
+                    if activity.allowRichTextSubmission:
+                        context_dict['textSubmission'] = studentRecentSubmission.richTextSubmission
+                    else:
+                        context_dict['allowRichTextSubmission'] = False
+                    
+                else:
+                    context_dict['valid_submission'] = True
+                    studentRecentSubmission = StudentActivitySubmission.objects.filter(
+                        activity=student_activity, studentID=studentId, latest=True).first()
+                            
                 if activity.allowRichTextSubmission:
                     context_dict['allowRichTextSubmission'] = True
                     context_dict['ckeditor'] = config_ck_editor()
-                    context_dict['textSubmission'] = student_activity.richTextSubmission
+                    #context_dict['textSubmission'] = studentRecentSubmission.richTextSubmission
                 else:
                     context_dict['allowRichTextSubmission'] = False
                 
@@ -103,7 +120,8 @@ def ActivityDetail(request):
                     if activity.hasDeadline and datetime_to_local(student_activity.submissionTimestamp) > datetime_to_local(activity.deadLine):
                         context_dict['submit_status'] = "Late Submission"
                     else:
-                        context_dict['submit_status'] = "Submitted"
+                        if 'submissionID' in request.GET:
+                            context_dict['submit_status'] = "Submitted"
 
                 # we are allowed to upload files
                 if activity.isFileAllowed == True and (not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)) or not activity.hasEndTimestamp):
@@ -119,6 +137,7 @@ def ActivityDetail(request):
                 context_dict['fileName'] = fileName
 
             else: # Student has not yet made a submission
+                context_dict['valid_submission'] = True
                 if activity.isFileAllowed == True and (not isDisplayTimePassed(datetime_to_local(activity.endTimestamp)) or not activity.hasEndTimestamp):
                     context_dict['canUpload'] = True
                 else:
@@ -149,15 +168,17 @@ def ActivityDetail(request):
 
         activity = Activities.objects.get(
             activityID=request.POST['activityID'], courseID=currentCourse)
+        student_activity = []
+            
         #Modify the existing activity if one exists
         if StudentActivities.objects.filter(activityID=activity, studentID=studentId, courseID=currentCourse):
             student_activity = StudentActivities.objects.get(
                 activityID=activity, studentID=studentId, courseID=currentCourse)
                         
-            if 'comment' in request.POST:
-                student_activity.comment = request.POST['comment']
-            if activity.allowRichTextSubmission:
-                student_activity.richTextSubmission = request.POST['textSubmiss']
+            #if 'comment' in request.POST:
+                #student_activity.comment = request.POST['comment']
+            #if activity.allowRichTextSubmission:
+                #student_activity.richTextSubmission = request.POST['textSubmiss']
                 
             student_activity.submissionTimestamp = current_localtime()
             student_activity.submitted = True
@@ -175,10 +196,11 @@ def ActivityDetail(request):
             student_activity.activityScore = 0
             student_activity.submissionTimestamp = current_localtime()
             student_activity.submitted = True
-            if 'comment' in request.POST:
-                student_activity.comment = request.POST['comment']
-            if activity.allowRichTextSubmission:
-                student_activity.richTextSubmission = request.POST['textSubmiss']
+            
+            #if 'comment' in request.POST:
+                #student_activity.comment = request.POST['comment']
+            #if activity.allowRichTextSubmission:
+                #student_activity.richTextSubmission = request.POST['textSubmiss']
                 
             if files or ('textSubmiss' in request.POST):
                 student_activity.numOfUploads = 1
@@ -187,6 +209,25 @@ def ActivityDetail(request):
                 
             student_activity.save()
 
+        # The student already has previous
+        student_submissions = StudentActivitySubmission.objects.filter(activity=student_activity, studentID=studentId, courseID=currentCourse)
+        # Reset all old submissions to non-latest.
+        for f in student_submissions:
+            f.latest = False
+            f.save()
+                
+        studentSubmissionObject = StudentActivitySubmission()
+        studentSubmissionObject.studentID = studentId
+        studentSubmissionObject.courseID = currentCourse
+        studentSubmissionObject.activity = student_activity
+        
+        if 'comment' in request.POST:
+            studentSubmissionObject.comment = request.POST['comment']
+        if activity.allowRichTextSubmission:
+            studentSubmissionObject.richTextSubmission = request.POST['textSubmiss']
+                
+        studentSubmissionObject.save()
+        
         if files:
             fileName = makeFileObjects(
                 studentId, currentCourse, files, student_activity)

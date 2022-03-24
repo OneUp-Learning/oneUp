@@ -56,7 +56,7 @@
                            <table class="responsive-table">
                            
                            <tbody>
-                              {% for activity,point,activity_point, submit_status,activity_date_status,activity_due_date,isUnlocked,unlockDescript, graded_acitvity, activity_graded in category %}
+                              {% for activity,point,activity_point, submit_status,activity_date_status,activity_due_date,isUnlocked,unlockDescript, graded_acitvity, activity_graded, act_submission_ids in category %}
                         	
                            <tr>
                               <td style="max-width: 36vw; overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{activity.activityName}}</td>
@@ -81,7 +81,11 @@
                                  {% if is_teacher %}    
                                  <a class="waves-effect waves-light btn" href="/oneUp/students/ChallengesTaken?challengeID={{chall_ID}}&userID={{student}}"><i class="material-icons left">visibility</i>View</a>        
                                  {% else %}
-                                 <a class="waves-effect waves-light btn" href="/oneUp/students/ActivityDescription?activityID={{activity.activityID}}"><i class="material-icons left">visibility</i>View</a>
+                                 {% if act_submission_ids and act_submission_ids != -1 %}
+                                 	 <a class="waves-effect waves-light btn" href="/oneUp/students/ActivityDescription?activityID={{activity.activityID}}&submissionID={{act_submission_ids}}"><i class="material-icons left">visibility</i>View</a>
+	                             {% else %}
+	                                	 <a class="waves-effect waves-light btn" href="/oneUp/students/ActivityDescription?activityID={{activity.activityID}}"><i class="material-icons left">visibility</i>View</a>
+	                             {% endif %}
                                  {% endif %}
                               {% else %}
                                  <a class="waves-effect waves-light btn grey tooltipped" data-position="bottom" data-delay="50" data-tooltip="{{unlockDescript}}" href=""><i class="material-icons left">lock</i>View</a>

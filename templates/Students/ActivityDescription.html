@@ -18,6 +18,43 @@
           });
         });
       </script>
+      
+     {% if not valid_submission %}
+      <script>
+	      var validSubmissionIDs = [1,2,3,4,5,6,7,8,9];
+	      validSubmissionIDs.sort();
+	      
+	      function getCurrentPageIndex(){
+	    	  let windowSubmissionID = new URLSearchParams(window.location.search).get('submissionID');
+	    	  let currentSubmissionID = parseInt(windowSubmissionID);
+	    	  
+	    	  return validSubmissionIDs.indexOf(currentSubmissionID);
+	      }
+	      
+	      function initPageButtons(){
+	    	  let currentIndex = getCurrentPageIndex();
+	    	  let prevPageID = currentIndex-1;
+	    	  let nextPageID = currentIndex+1;
+	
+	    	  let prevButton = document.getElementById("btn_prev");
+	    	  let nextButton = document.getElementById("btn_next");
+
+	    	  if(validSubmissionIDs[prevPageID] != undefined) {
+		    	  prevButton.setAttribute("href", "/oneUp/students/ActivityDescription?activityID={{activity.activityID}}&submissionID="+validSubmissionIDs[prevPageID]);
+	    	  } else {
+	    		  prevButton.classList.add("disabled");
+	    	  }
+	    	  
+	    	  if(validSubmissionIDs[nextPageID] != undefined) {
+	    		  nextButton.setAttribute("href", "/oneUp/students/ActivityDescription?activityID={{activity.activityID}}&submissionID="+validSubmissionIDs[nextPageID]);
+	    	  } else {
+	    		  nextButton.classList.add("disabled");
+	    	  }
+	      }
+	      
+	      window.addEventListener("load", initPageButtons, false);
+      </script>
+      {% endif %}
    </head>
    <body>
       {% if is_teacher %}    
@@ -33,6 +70,13 @@
          </div> 
          <div class="row">
             <div class="col s12 m10 offset-m1">
+                  {% if not valid_submission %}
+               		<ul class="pagination">
+				    	<li class="waves-effect waves-light s2"><a class="btn waves-effect waves-light" id="btn_prev" href="#!">&lt Previous Submission</a></li>
+				    	<li class="waves-effect waves-light s2 offset-s3"><a class="btn waves-effect waves-light" id="re_submit" href="#!"> Re-Submit</a></li>
+				    	<li class="waves-effect waves-light right"><a class="btn waves-effect waves-light" id="btn_next" href="#!"> Next Submission &gt</a></li>
+				 	</ul>
+				 {% endif %}
                <div class="card">
                   <form id="uploadbanner" action="/oneUp/students/ActivityDescription" enctype="multipart/form-data" method="POST" >
                   {% csrf_token %}   
@@ -80,7 +124,7 @@
                         {% if allowRichTextSubmission %}
 	                        <div class="django-ckeditor-widget" data-field-id="0">
 	                              <textarea name="textSubmiss" id="textSubmiss" rows="2" cols="70"
-	                                 {%if view%}readonly{%else%}required{%endif%} data-processed="0"
+	                                 {%if view%}readonly{%else%}required{%endif%} {% if not valid_submission %} disabled {% endif %} data-processed="0"
 	                                 data-config="{{ ckeditor.config }}"
 	                                 data-external-plugin-resources="{{ ckeditor.external_plugin_resources }}"
 	                                 data-id="textSubmiss" data-type="ckeditortype">{{ textSubmission }}</textarea>
@@ -139,6 +183,8 @@
                      <div class="card-action">
                         <div class="row right-align">
                         {% if canUpload or allowRichTextSubmission %}
+                        
+     					{% if valid_submission %}
                             {% if isSubmitted %}
                            <button class="btn waves-effect waves-light" type="submit" name="Upload">Resubmit
                            <i class="material-icons right">send</i></button>
@@ -146,6 +192,7 @@
                            <button class="btn waves-effect waves-light" type="submit" name="Upload">Submit
                            <i class="material-icons right">send</i></button>
 	                        {% endif %}
+                         {% endif %}
                          {% endif %}
                            <a class="btn waves-effect waves-light" href="/oneUp/students/ActivityList"><i class="material-icons left">navigate_before</i>Back</a> 										  						
                         </div>

@@ -213,12 +213,24 @@ class StudentActivities(models.Model):
     graded = models.BooleanField(default=False)
     numOfUploads = models.IntegerField(default = 0)
     
-    richTextSubmission = models.CharField(max_length=20000, null=True, blank=True)
+    richTextSubmission = models.CharField(max_length=20000, null=True, blank=True) # Student rich text submission
     comment = models.CharField(max_length=500, default="") #Comment submitted by student
     def __str__(self):              
         return str(self.studentActivityID) +"," + str(self.studentID) 
     def getScoreWithBonus(self):
         return self.activityScore + self.bonusPointsAwarded
+    
+class StudentActivitySubmission(models.Model):
+    studentSubmissionID = models.AutoField(primary_key=True)
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    activity = models.ForeignKey(StudentActivities, on_delete=models.CASCADE, verbose_name= 'the related activity')
+    timestamp = models.DateTimeField(default=custom_now)
+    
+    richTextSubmission = models.CharField(max_length=20000, null=True, blank=True) # Student rich text submission
+    comment = models.CharField(max_length=500, default="") #Comment submitted by student
+    
+    latest = models.BooleanField(default = True)
 
 class StudentAttendance(models.Model):
     studentAttendanceID = models.AutoField(primary_key=True)

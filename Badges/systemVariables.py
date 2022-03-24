@@ -1302,7 +1302,7 @@ def getAveragePercentageOfWarmupsForTopic(course, student, topic):
 
 def getEarnedVCTotal(course, student):
     '''This will return the amount of vc a student has earned in total'''
-
+    from Students.models import (StudentVirtualCurrency)
     from Badges.events import earning_transaction_total;
 
     earningTransactions = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)

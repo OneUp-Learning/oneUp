@@ -16,9 +16,8 @@ from Badges.models import ProgressiveUnlocking
 from Badges.systemVariables import logger
 from Instructors.models import Activities, ActivitiesCategory
 from Instructors.views.utils import current_localtime, datetime_to_local
-from Students.models import StudentActivities, StudentProgressiveUnlocking
+from Students.models import StudentActivities, StudentProgressiveUnlocking, StudentActivitySubmission
 from Students.views.utils import studentInitialContextDict
-
 
 @login_required
 def ActivityList(request):
@@ -102,6 +101,7 @@ def category_activities(category, studentId, current_course):
     activity_due_date = []
     isUnlocked = []
     unlockDescript = []
+    act_submission_ids = []
 
     activity_objects = Activities.objects.filter(
         category=category, courseID=current_course).order_by('activityPosition')
@@ -143,11 +143,16 @@ def category_activities(category, studentId, current_course):
         if StudentActivities.objects.filter(studentID=studentId, activityID=act):
             student_act = StudentActivities.objects.get(
                 studentID=studentId, activityID=act)
+            
             if student_act.graded:
                 points.append(str(round(student_act.getScoreWithBonus())))
             else:
                 points.append("-")
             if student_act.submitted:
+                # Gather the student's submission via submission ID (in a way)
+                studentRecentSubmission = StudentActivitySubmission.objects.filter(
+                        activity=student_act, studentID=studentId, latest=True).first()
+                        
                 if act.hasDeadline and datetime_to_local(student_act.submissionTimestamp) > datetime_to_local(act.deadLine):
                     if student_act.graded:
                         submit_status.append("Graded (Late Submission)") 
@@ -158,6 +163,10 @@ def category_activities(category, studentId, current_course):
                         submit_status.append("Graded")
                     else:
                         submit_status.append("Submitted")
+                
+                act_submission_ids.append(studentRecentSubmission.studentSubmissionID)
+            else:
+                act_submission_ids.append(-1)
         else: # Student has not yet uploaded
             points.append("-")
             if act.isGraded or act.isFileAllowed: #if the activity will be graded or Upload is enabled
@@ -167,6 +176,8 @@ def category_activities(category, studentId, current_course):
                     submit_status.append("Not Yet Uploaded")
             else:
                 submit_status.append("")
+            
+            act_submission_ids.append(-1)
 
         # Progessive Unlocking
         try:
@@ -199,4 +210,4 @@ def category_activities(category, studentId, current_course):
             isUnlocked.append(True)
             unlockDescript.append('hi')
 
-    return list(zip(activites, points, activity_points, submit_status, activity_date_status, activity_due_date, isUnlocked, unlockDescript, graded_acitvities, act_graded))
+    return list(zip(activites, points, activity_points, submit_status, activity_date_status, activity_due_date, isUnlocked, unlockDescript, graded_acitvities, act_graded, act_submission_ids))

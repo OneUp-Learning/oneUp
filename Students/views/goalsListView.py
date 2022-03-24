@@ -120,6 +120,8 @@ def calculate_progress(goal):
     
     new_progression = process_goal(goal.courseID, goal.studentID, goal.goalVariable)
     
+    goal.targetedNumber = max(goal.targetedNumber, 1)
+    
     if goal.targetExact:
         percentage = ((new_progression) / (goal.targetedNumber)) * 100
     else:
