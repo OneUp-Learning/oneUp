@@ -1304,6 +1304,7 @@ def getEarnedVCTotal(course, student):
     '''This will return the amount of vc a student has earned in total'''
 
     from Badges.events import earning_transaction_total;
+    from Students.models import StudentVirtualCurrency;
 
     earningTransactions = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
     return earning_transaction_total(earningTransactions)
