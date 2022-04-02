@@ -72,11 +72,16 @@
 						<div class="card-panel">
 							<table>
 								<thead>
-									<th>Your Courses</th>
+									<tr>
+										<th>Your Courses</th>
+										<td>
+											<button onclick="showOldCourses()" class="btn waves-effect waves-light secondary-content">Show Older</button>
+										</td>
+									</tr>
 								</thead>
 								<tbody>
-									{% for i,course_ID,course_Name, course_university in course_range %}
-									<tr>
+									{% for i,course_ID,course_Name, course_university, course_end_date in course_range %}
+									<tr id="course{{course_ID}}" class="course" data-end-date="{{course_end_date}}" data-course-id="course{{course_ID}}">
 										<td>{{course_Name}} &nbsp ({{course_university}})</td>
 										<td style="padding:0;">
 											<form action="/oneUp/setCourse" method="POST">
@@ -102,6 +107,36 @@
 		</div>
 	</main>
 	{% include 'footer.html' %}
+	<script>
+		var courses = document.getElementsByClassName("course");
+		function hideOldCourses()
+		{	
+			for(var i = 0; i < courses.length; i += 1)
+			{
+				console.log(courses[i].dataset.endDate);
+				let currentDate = new Date();
+				let courseDate = new Date(courses[i].dataset.endDate + " 00:00:00");
+				let courseID = courses[i].dataset.courseId;
+				
+				if((currentDate.getTime() - courseDate.getTime()) > (2 * 31536000000))
+				{
+					// Attempt to hide row based on course ID, if that course is 2+ years from its start date.
+					document.getElementById(courseID).style.display = 'none';
+					console.log(courseID);
+				}
+			}
+		}
+		hideOldCourses();
+		
+		function showOldCourses()
+		{
+			for(var i = 0; i < courses.length; i += 1)
+				{
+					let courseID = courses[i].dataset.courseId;
+					document.getElementById(courseID).style.display = '';
+				}
+		}
+	</script>
 </body>
 
 </html>
