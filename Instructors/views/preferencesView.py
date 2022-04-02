@@ -162,11 +162,6 @@ def preferencesView(request):
         ccparams.contentUnlockingDisplayed = "contentUnlockingDisplayed" in request.POST
         ccparams.debugSystemVariablesDisplayed = "debugSystemVariablesDisplayed" in request.POST
 
-        ccparams.thresholdToLevelMedium = request.POST.get(
-            'thresholdToLevelMedium')
-        ccparams.thresholdToLevelDifficulty = request.POST.get(
-            'thresholdToLevelDifficulty')
-
 
 
         # Goals
@@ -263,10 +258,6 @@ def preferencesView(request):
             # Student Settings
             
             context_dict["studCanChangeclassAverageVis"] = ccparams.studCanChangeclassAverageVis
-
-            # Challenge Difficulty
-            context_dict["thresholdToLevelMedium"] = ccparams.thresholdToLevelMedium
-            context_dict["thresholdToLevelDifficulty"] = ccparams.thresholdToLevelDifficulty
 
             # Duels & callout
             context_dict["classmatesChallenges"] = ccparams.classmatesChallenges
