@@ -10,7 +10,7 @@ from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges, Activities
 from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualApplauseRuleInfo, VirtualApplauseCustomRuleInfo
-from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list,    AwardFrequency
+from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list,    AwardFrequency, ApplauseOption
 from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import get_events_for_condition, stringAndPostDictToCondition
 
@@ -47,6 +47,7 @@ def SaveVirtualApplauseRule(request):
     
     if request.POST: 
         isRuleCustom = request.POST['isRuleCustom'] in ['true', 'True']
+        
         # Check if creating a new badge or edit an existing one
         # If editing an existent one, we need to delete it first before saving the updated information in the database            
         if 'edit' in request.POST:   #edit or delete badge 
@@ -55,7 +56,7 @@ def SaveVirtualApplauseRule(request):
                 vaRuleInfo = VirtualApplauseCustomRuleInfo.objects.get(pk=int(request.POST['vaRuleID']))
             else:
                 vaRuleInfo = VirtualApplauseRuleInfo.objects.get(pk=int(request.POST['vaRuleID']))
-       
+         
             if 'delete' in request.POST:
                 DeleteVirtualApplauseRule(request.POST['vaRuleID'], isRuleCustom)
                 return redirect("/oneUp/badges/VirtualApplauseEarnRuleList?isRuleCustom="+str(isRuleCustom))
@@ -65,10 +66,11 @@ def SaveVirtualApplauseRule(request):
             else:
                 vaRuleInfo = VirtualApplauseRuleInfo()  # create new va RuleInfo
             
-                        
+                  
         if 'create' in request.POST or 'edit' in request.POST:
             # Get va rule info
             vaRuleName = request.POST['ruleName'] # The entered Rule Name
+         
             print("rule name: "+str(vaRuleName))
            
             # The custom earning rule amounts are not being used since 
@@ -78,11 +80,13 @@ def SaveVirtualApplauseRule(request):
             #vaRuleAmount = 0
          
               #  print(context_dict['vaAmount'])
+            vaOption = request.POST["vaOption"]
+            
             if isRuleCustom == True:                    
                 # Save rule information to the VirtualapplauseRuleInfo Table
                 vaRuleInfo.courseID =    currentCourse
                 vaRuleInfo.vaRuleName = vaRuleName
-                              
+                vaRuleInfo.ApplauseOption = vaOption     
                 vaRuleInfo.save()
             else:
                 if 'edit' in request.POST:
@@ -116,7 +120,8 @@ def SaveVirtualApplauseRule(request):
                 vaRuleInfo.ruleID = gameRule            
                 vaRuleInfo.courseID = currentCourse
                 vaRuleInfo.vaRuleName = vaRuleName
-               
+                vaRuleInfo.ApplauseOption = vaOption 
+                
                 vaRuleInfo.awardFrequency = int(request.POST['awardFrequency'])
                 vaRuleInfo.save()
 

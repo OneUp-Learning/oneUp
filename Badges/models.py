@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.timezone import now
 from django_celery_beat.models import PeriodicTask
 
-from Badges.enums import Action, AwardFrequency, Event, OperandTypes
+from Badges.enums import Action, AwardFrequency, Event, OperandTypes, ApplauseOption
 from Badges.systemVariables import SystemVariable
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
                                 Courses, Skills, Topics)
@@ -98,6 +98,7 @@ class Rules(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="Course the rule belongs to", db_index=True)
     objectSpecifier = models.CharField(max_length=2000, default="[]",verbose_name="A json-serialized object of the type ChosenObjectSpecifier (see events.py)")
     awardFrequency = models.IntegerField(default=AwardFrequency.justOnce) # See enums.py for award frequency options.
+   
     def __str__(self):
         if self.actionID in Action.actions:
             return "[Rule#:"+str(int(self.ruleID))+" When:"+str(self.conditionID)+" Do:"+Action.actions[self.actionID]['name']+']'
@@ -602,7 +603,7 @@ class VirtualApplauseCustomRuleInfo(models.Model):
     vaRuleName = models.CharField(max_length=300) # e.g. test score, number of attempts 
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id 
     vaRulePosition = models.IntegerField(default=0) 
-       
+    ApplauseOption = models.IntegerField(default=ApplauseOption.random) 
     def __str__(self):
         return "VirtualApplauseCustomRuleInfo#"+str(self.vaRuleID)+":"+str(self.vaRuleName)
 

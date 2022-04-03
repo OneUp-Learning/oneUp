@@ -784,6 +784,40 @@ class AwardFrequency:
         },
     }
     
+class ApplauseOption:
+    random = 1200
+    fireworks = 1201
+    confetti = 1202
+    
+    applauseOption = {
+        random:{
+            'index': random,
+            'name': 'Random',
+            'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
+            "jslaunchCode":"""var ind = Math.floor( Math.random() * 2 );                         
+                            switch(ind){
+                                case 0:{ doFireworks() } break;
+                                case 1:{ doConfetti()  } break;
+                            }"""
+        },
+        fireworks:{
+            'index': fireworks,
+            'name': 'Fireworks',
+            'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
+            "jslaunchCode": "doFireworks(); "
+        },
+        confetti:{
+            'index': confetti,
+            'name': 'Confetti',
+            'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
+            "jslaunchCode": "doConfetti(); "
+
+        },
+    }
+  
 class GoalFlag():
     isStudentGoal = 'studentGoal'
     requireBadgesEnabled = 'badgesUsed'

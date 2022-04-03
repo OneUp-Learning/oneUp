@@ -314,6 +314,7 @@
             countNotifications();
         });
     </script>
+    {% include "playApplause.html" %}
     <form action="/oneUp/instructors/resetTestStudent" method="POST">
         {% csrf_token %}
         <input type=hidden  name="courseID" value={{courseId}}>

@@ -19,7 +19,7 @@ from Badges.conditions_util import (chosenObjectSpecifierFields,
                                     operand_types_to_char,
                                     stringAndPostDictToCondition)
 from Badges.enums import (Action, AwardFrequency, Event, ObjectTypes,
-                          OperandTypes)
+                          OperandTypes, ApplauseOption)
 from Badges.models import (ActionArguments, ActivityCategorySet, ActivitySet,
                            AttendanceStreakConfiguration, Badges, BadgesInfo,
                            ChallengeSet, Conditions, ConditionSet,
