@@ -10,7 +10,6 @@ from Badges.systemVariables import SystemVariable
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
                                 Courses, Skills, Topics)
 
-
 def custom_now():
     return now().replace(microsecond=0)
 
@@ -365,7 +364,7 @@ class CourseConfigParams(models.Model):
     xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by max score of scores or by the first attempt score
     xpCalculateWarmupByMaxScore = models.BooleanField(default=True)  ## Same as preivous but for warmup challenges
     
-    xpDisplayUsed = models.BooleanField(default=False)               ## XP Point display on/off setting      
+    xpDisplayUsed = models.BooleanField(default=False)               ## XP Point display on/off setting      Student
     xpLeaderboardUsed = models.BooleanField(default=False)           ## XP Leaderboard enable/disable
     
     ## Levels of Difficulties for the course
@@ -612,4 +611,6 @@ class VirtualApplauseRuleInfo(VirtualApplauseCustomRuleInfo):
     ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)
     def __str__(self):              
         return "VirtualApplauseRule#"+str(self.vaRuleID)+":"+str(self.vaRuleName)
-        
+
+
+           

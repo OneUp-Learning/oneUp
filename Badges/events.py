@@ -13,7 +13,7 @@ from Badges.models import (ActionArguments, Activities, ActivityCategorySet,
                            ChallengeSet, Conditions, ConditionSet, Dates,
                            FloatConstants, ProgressiveUnlocking, RuleEvents,
                            Rules, StringConstants, TopicSet,
-                           VirtualCurrencyRuleInfo)
+                           VirtualCurrencyRuleInfo,VirtualApplauseRuleInfo)
 from Badges.systemVariables import (calculate_system_variable,
                                     objectTypeToObjectClass)
 from Badges.tasks import process_event_offline
@@ -27,7 +27,7 @@ from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Students.models import (Courses, Student, StudentBadges, StudentEventLog,
                              StudentGoalSetting, StudentProgressiveUnlocking,
                              StudentRegisteredCourses, StudentVirtualCurrency,
-                             StudentVirtualCurrencyRuleBased, StudentVirtualCurrencyTransactions)
+                             StudentVirtualCurrencyRuleBased, StudentVirtualCurrencyTransactions, PendingVirtualApplause)
 from Students.views.goalView import mark_goal_complete
 
 postgres_enabled = False
@@ -231,6 +231,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
         eventEntry.objectType = ObjectTypes.flashcard
         eventEntry.objectID = objectId
         
+   
 #     if(eventID == Event.seeClassAverage):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId
@@ -249,7 +250,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
 #     if(eventID == Event.chooseBackgroundForYourName):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId  
-    
+ 
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
 
@@ -489,7 +490,9 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
     args = ActionArguments.objects.filter(ruleID = rule)
 
     current_time = current_localtime(tz=timezone)
-
+    
+    print("uih"+actionID )
+    
     if (actionID == Action.giveBadge):
         #Give a student a badge.
         badgeIdArg = args.get(sequenceNumber=1)
@@ -551,6 +554,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
         notify.send(None, recipient=studentID.user, actor=studentID.user, verb='You won the '+badge.badgeName+'badge', nf_type='Badge', extra=json.dumps({"course": str(courseID.courseID), "name": str(courseID.courseName), "related_link": '/oneUp/students/StudentCourseHome'}))
         
         return
+    
     
     if(actionID == Action.unlockedProgressive):
         print(args)
@@ -727,6 +731,14 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
 #                 else:
 #                     break
             return
+        if actionID == Action.DoApplause:
+            virApp = VirtualApplauseRuleInfo.objects.get(vaRuleID = rule, courseID = courseID)
+            pend = PendingVirtualApplause.object.get(studentID = studentID)
+            pend.ApplauseOption = virApp.ApplauseOption
+            pend.save()
+            print("asdfsadf"+pend.ApplauseOption);
+            return    
+            
 
 def getSkillsForChallenge(chall):
     questionSet = {cq.questionID for cq in chall.challengesquestions_set.all()}

@@ -604,4 +604,7 @@ class StudentCustomAvatar(models.Model):
     image = models.CharField(max_length=200, default='/static/images/generatedAvatarImages/default_profilePicture.png')
     def __str__(self):
         return str(self.studentID) 
-    
+class PendingVirtualApplause(models.Model): 
+ 
+    studentID = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="the related student", db_index=True)
+    ApplauseOption = models.IntegerField(default=0)    

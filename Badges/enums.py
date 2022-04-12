@@ -168,7 +168,7 @@ class Action():
                 'index':DoApplause,
                 'name': 'DoApplause',
                 'displayName': 'do a applause',
-                'description': 'displays virtual fireworks or confetti to the user'
+                'description': 'displays virtual an Applause to the user'
             },
         }
 
@@ -272,8 +272,9 @@ class Event():
     #flashcard
     viewFlashCard = 883
     submitFlashCard = 884
-
-
+    
+    doVirtualApplause = 885
+    
 
 
     events = {
@@ -623,6 +624,7 @@ class Event():
                         'description':'Event triggered when a student finishes flash card',
                         'isVirtualCurrencySpendRule':False
                         },
+       
 #               seeClassAverage: {
 #                         'index': seeClassAverage,
 #                         'name':'seeClassAverage',
