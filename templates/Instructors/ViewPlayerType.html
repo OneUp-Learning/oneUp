@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include 'scripts.html' %}
+    <style>
+        .card{
+            margin-top:25px!important;
+            padding-top:0px!important;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'heading.html' %}
+    <main>
+        <div class="row center-align" style="margin-bottom: 0;">
+            <div class="col s12">
+                <h3>Adaptation Configuration</h3>
+            </div>
+        </div>
+        <form name="AdapationConfiguration" action="/oneUp/instructors/ViewPlayerType" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="playerTypeID" id="playerTypeID" value="{{playerTypeID}}">
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col s6">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Name</span>
+                            <div class="row">
+                                <div class="col s12">
+                                    <label for="name">Adapation Profile Name</label>
+                                    <input type="text" name="name"
+                                        value="{{name}}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Badges</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Badges
+                                        {% if badgesUsed %}
+                                        <input name="badgesUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="badgesUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Progress Bar</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Progress Bar
+                                        {% if progressBarUsed %}
+                                        <input name="progressBarUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="progressBarUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card"  style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Achievements Configuration</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Achievement Page
+                                        {% if displayAchievementPage %}
+                                        <input name="displayAchievementPage" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="displayAchievementPage" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Experience Points</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable XP 
+                                        {% if xpDisplayUsed%}
+                                        <input name="xpDisplayUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="xpDisplayUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>  
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Virtual Currency</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Virtual Currency
+                                        {% if virtualCurrencyUsed %}
+                                        <input name="virtualCurrencyUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="virtualCurrencyUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                               
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col s6">
+                    <div class="card"  style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Classmate Challenges</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable the use of Duels and Callouts
+                                        {% if classmatesChallenges %}
+                                        <input name="classmatesChallenges" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="classmatesChallenges" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Allow students to bet virtual currency in duels
+                                        {% if betVC%}
+                                        <input name="betVC" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="betVC" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Leveling</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Leveling
+                                        {% if levelingUsed %}
+                                        <input name="levelingUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="levelingUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Student Course Home Page</span>
+                            <div class="row">
+                                <p>
+                                    <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
+                                        id="displayStudentStartPageClass" value="False"
+                                        {% if displayStudentStartPageSummary == False or displayStudentStartPageSummary == Null %} checked {%endif%} disabled/>
+                                    <label for="displayStudentStartPageClass">Display only class/group
+                                        achievements</label>
+                                </p>
+                                <p>
+                                    <input class="with-gap" name="displayStudentStartPageSummary" type="radio"
+                                        value="True" id="displayStudentStartPageSummary"
+                                        {% if displayStudentStartPageSummary == True %} checked {%endif%} disabled/>
+                                    <label for="displayStudentStartPageSummary">Display summary of student
+                                        achievements</label>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">Leaderboard</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable Leaderboard
+                                        {% if leaderboardUsed %}
+                                        <input name="leaderboardUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="leaderboardUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable XP Leaderboard
+                                        {% if xpLeaderboardUsed %}
+                                        <input name="xpLeaderboardUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="xpLeaderboardUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Student Goals</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Enable the use of goal setting for students
+                                        {% if goalsUsed %}
+                                        <input name="goalsUsed" type="checkbox" checked disabled>
+                                        {% else %}
+                                        <input name="goalsUsed" type="checkbox" disabled>
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                   
+                  
+                   
+                    
+                </div>
+                
+                </div>
+            </div>
+
+
+
+
+
+            <div class="row">
+                <div class="col s12 m4 offset-m8">
+                	<a class="waves-effect waves-light btn" href="/oneUp/instructors/instructorCourseHome"><i
+                            class="material-icons right">close</i>Close</a>
+                    
+                </div>
+            </div>
+        </form>
+    </main>
+    {% include 'footer.html' %}
+</body>
+
+</html>
