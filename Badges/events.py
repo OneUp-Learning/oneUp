@@ -13,7 +13,7 @@ from Badges.models import (ActionArguments, Activities, ActivityCategorySet,
                            ChallengeSet, Conditions, ConditionSet, Dates,
                            FloatConstants, ProgressiveUnlocking, RuleEvents,
                            Rules, StringConstants, TopicSet,
-                           VirtualCurrencyRuleInfo,VirtualApplauseRuleInfo)
+                           VirtualCurrencyRuleInfo,VirtualApplauseRuleInfoo)
 from Badges.systemVariables import (calculate_system_variable,
                                     objectTypeToObjectClass)
 from Badges.tasks import process_event_offline
@@ -490,9 +490,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
     args = ActionArguments.objects.filter(ruleID = rule)
 
     current_time = current_localtime(tz=timezone)
-    
-    print("uih"+actionID )
-    
+
     if (actionID == Action.giveBadge):
         #Give a student a badge.
         badgeIdArg = args.get(sequenceNumber=1)
@@ -731,14 +729,22 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
 #                 else:
 #                     break
             return
-        if actionID == Action.DoApplause:
-            virApp = VirtualApplauseRuleInfo.objects.get(vaRuleID = rule, courseID = courseID)
-            pend = PendingVirtualApplause.object.get(studentID = studentID)
-            pend.ApplauseOption = virApp.ApplauseOption
+    if actionID == Action.DoApplause:
+        virApp = VirtualApplauseRuleInfoo.objects.filter(ruleID = rule, courseID = courseID).first()
+        pend_list = PendingVirtualApplause.objects.filter(studentID = studentID)
+        if len(pend_list)==0:
+            pend = PendingVirtualApplause()
+            pend.studentID = studentID            
             pend.save()
-            print("asdfsadf"+pend.ApplauseOption);
-            return    
+        else:
+            pend = pend_list[0]
             
+        pend.ApplauseOption = virApp.ApplauseOption
+        pend.save()
+
+        print("pending applause " + str(pend.ApplauseOption));
+        return    
+        
 
 def getSkillsForChallenge(chall):
     questionSet = {cq.questionID for cq in chall.challengesquestions_set.all()}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+   
+    <body>
+   	
+    	{% include "playApplause.html" %}
+    	<script>
+    	    		
+	    	var xhttp = new XMLHttpRequest();
+			function checkApp(){
+		 		//window.location.href="/oneUp/badges/checkVirtualApplauseRule"
+		 		
+		 		xhttp.onreadystatechange = function(){
+		 			if(xhttp.responseText != "-1" && xhttp.responseText != "" ){
+		 				doApplause(xhttp.responseText);
+		 				console.log(xhttp.responseText);
+		 			}
+		 				
+		 		}
+		 		
+		 		xhttp.open("GET", "/oneUp/badges/checkVirtualApplauseRule.py", true);
+		 		xhttp.send();
+		 		//setTimeout(checkApp, 6000);
+				
+			}
+			checkApp();
+			
+    	</script>
+    </body>
+</html>	
+   

@@ -36,7 +36,7 @@ from Badges.views.createVirtualApplauseRuleView import CreateVARule
 from Badges.views.virtualApplauseEarnRuleList import virtualApplauseEarnRuleList
 from Badges.views.saveVirtualApplauseRule import SaveVirtualApplauseRule
 from Badges.views.editVirtualApplauseRuleView import EditVirtualApplauseRule
-
+from Badges.views.checkVirtualApplauseRuleView import checkVirtualApplauseRule
 admin.autodiscover()
 
 urlpatterns = [    
@@ -73,4 +73,5 @@ urlpatterns = [
     url(r'^CreateVirtualApplauseRule',CreateVARule, name='Create Virtual Applause Rule'),
     url(r'^SaveVirtualApplauseRule',SaveVirtualApplauseRule, name='Save Virtual Applause Rule'),
     url(r'^EditVirtualApplauseRule',EditVirtualApplauseRule, name='Edit Virtual Applause Rule'),
+    url(r'^checkVirtualApplauseRule',checkVirtualApplauseRule, name='Edit check Applause Rule'),
 ]

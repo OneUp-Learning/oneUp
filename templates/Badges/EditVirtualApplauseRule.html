@@ -35,9 +35,9 @@
 </script>
    
    <body>
-   
+   	
       {% include 'heading.html' %}
-      
+      {% include "playApplause.html" %}
       <main>
          <div class="row center-align">
             <div class="col s12">
@@ -51,6 +51,7 @@
                {% csrf_token %}
                <input type="hidden" name="vaRuleID" id="vaRuleID" value="{{vaRule.vaRuleID}}">
                <input type="hidden" name="isRuleCustom" id="isRuleCustom" value="{{isRuleCustom}}">
+               
                <input type="hidden" name="vaOption" id="vaOption" value="{{vaRule.ApplauseOption}}">
                <div class="card">
                   <div class="card-content">
@@ -104,8 +105,6 @@
     	   var aSelect = document.getElementById( "id"+'{{vaRule.ApplauseOption}}');
     	   aSelect.selected = true;
        }
-	   
-	 	
 	   function changeAppaulse(){
 		   var a = document.getElementById('applauseOptionSelect').selectedIndex;
 		   var va = document.getElementById("vaOption");
@@ -116,8 +115,11 @@
 		   var a = document.getElementById('applauseOptionSelect').selectedIndex;
 		   var va = document.getElementById("vaOption");
 		   va.value = document.getElementsByTagName("option")[a].value;
+		  
 		   doApplause(va.value);
+		   console.log(va.value);
 	   }
+	   
    </script>
       {% include 'footer.html' %}
    </body>

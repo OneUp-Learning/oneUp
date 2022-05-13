@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 
 from Badges.enums import OperandTypes
 from Badges.models import (ActionArguments, Conditions, FloatConstants,
-                           StringConstants,  VirtualApplauseRuleInfo, VirtualApplauseCustomRuleInfo)
+                           StringConstants,  VirtualApplauseRuleInfoo)
 from Badges.systemVariables import SystemVariable
 from Instructors.constants import unspecified_vc_manual_rule_name
 from Instructors.views.utils import initialContextDict
@@ -41,7 +41,7 @@ def virtualApplauseEarnRuleList(request):
         isRuleCustom = request.GET['isRuleCustom'] in ['true', 'True']
         
         if isRuleCustom == True:
-            vaRulesCustom = VirtualApplauseCustomRuleInfo.objects.filter(vaRuleType=True, courseID=currentCourse).order_by('vaRulePosition')
+            vaRulesCustom = VirtualApplauseRuleInfoo.objects.filter(vaRuleType=True, courseID=currentCourse).order_by('vaRulePosition')
             vaRules = [r for r in acRulesCustom if not hasattr(r, 'virtualapplauseruleinfo') and not hasattr(r, 'virtualapplauseperiodicrule')]
             
             for rule in vaRules:
@@ -57,7 +57,7 @@ def virtualApplauseEarnRuleList(request):
                 
             context_dict['vaRuleInfo'] = zip(range(1,len(vaRuleID)+1),vaRuleID,vaRuleName, position)
         else:
-            vaRules = VirtualApplauseRuleInfo.objects.filter(courseID=currentCourse).order_by('vaRulePosition')
+            vaRules = VirtualApplauseRuleInfoo.objects.filter(courseID=currentCourse).order_by('vaRulePosition')
         
             for rule in vaRules:
                 if rule.vaRuleName == unspecified_vc_manual_rule_name :
@@ -83,7 +83,7 @@ def reorderVirtualApplauseEarnRules(request):
     context_dict,currentCourse = initialContextDict(request);
 
     if request.POST['isRuleCustom'] == 'true':
-        vaRulesCustom = VirtualApplauseCustomRuleInfo.objects.filter(vaRuleType=True, courseID=currentCourse).order_by('vaRulePosition')
+        vaRulesCustom = VirtualApplauseRuleInfoo.objects.filter(vaRuleType=True, courseID=currentCourse).order_by('vaRulePosition')
         for rule in vaRulesCustom:
             if rule.vaRuleName == unspecified_vc_manual_rule_name:
                 continue
@@ -93,7 +93,7 @@ def reorderVirtualApplauseEarnRules(request):
         
         return redirect('/oneUp/badges/VirtualApplauseEarnRuleList?isRuleCustom=true')
     else:
-        vaRules = VirtualApplauseRuleInfo.objects.filter(vaRuleType=True, courseID=currentCourse).order_by('vaRulePosition')
+        vaRules = VirtualApplauseRuleInfoo.objects.filter(vaRuleType=True, courseID=currentCourse).order_by('vaRulePosition')
         for rule in vaRules:
             if rule.vaRuleName == unspecified_vc_manual_rule_name :
                 continue

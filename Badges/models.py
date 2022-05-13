@@ -597,20 +597,13 @@ class PlayerType(models.Model):
         +"goals:"+str(self.goalsUsed) +"," \
         +"xp display:" + str(self.xpDisplayUsed) +"," \
         +"xp leaderboardused:" + str(self.xpLeaderboardUsed)
-class VirtualApplauseCustomRuleInfo(models.Model):
+
+class VirtualApplauseRuleInfoo(models.Model):
+    ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)
     vaRuleID = models.AutoField(primary_key=True)
     vaRuleName = models.CharField(max_length=300) # e.g. test score, number of attempts 
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id 
     vaRulePosition = models.IntegerField(default=0) 
     ApplauseOption = models.IntegerField(default=ApplauseOption.random) 
-    def __str__(self):
-        return "VirtualApplauseCustomRuleInfo#"+str(self.vaRuleID)+":"+str(self.vaRuleName)
-
-# Virtual Currency Table for the automatically handled VC rules
-class VirtualApplauseRuleInfo(VirtualApplauseCustomRuleInfo):
-    ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)
     def __str__(self):              
-        return "VirtualApplauseRule#"+str(self.vaRuleID)+":"+str(self.vaRuleName)
-
-
-           
+        return "VirtualApplauseRule#"+str(self.vaRuleID)+":"+str(self.vaRuleName)           

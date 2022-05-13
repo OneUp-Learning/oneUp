@@ -5,7 +5,7 @@ Last modified 09/02/2016
 '''
 from django.shortcuts import render
 
-from Badges.models import VirtualApplauseRuleInfo,VirtualApplauseCustomRuleInfo, ActionArguments
+from Badges.models import VirtualApplauseRuleInfoo, ActionArguments
 from Badges.enums import ApplauseOption
 from django.contrib.auth.decorators import login_required
 from Badges.conditions_util import setUpContextDictForConditions, databaseConditionToJSONString
@@ -17,7 +17,7 @@ from lib2to3.fixes.fix_input import context
 def EditVirtualApplauseRule(request):
     ## most of this page is repurposed code from editVirtualCurrencyEarnRuleView
     context_dict,currentCourse = initialContextDict(request);
-  
+   
       
     if request.GET:
 
@@ -27,14 +27,15 @@ def EditVirtualApplauseRule(request):
             
             isRuleCustom = request.GET['isRuleCustom'] in ['true', 'True']
             logger.debug("[GET] isRuleCustom " + str(isRuleCustom))
+           
             if isRuleCustom == True:
                
-                rule = VirtualApplauseCustomRuleInfo.objects.get(vaRuleID=vaRuleID, courseID=currentCourse)
-                                    
+                rule = VirtualApplauseRuleInfoo.objects.get(vaRuleID=vaRuleID, courseID=currentCourse)
+                         
                 context_dict = setUpContextDictForConditions(context_dict,currentCourse,None)
                
             else:
-                rule = VirtualApplauseRuleInfo.objects.get(vaRuleID=vaRuleID, courseID=currentCourse)
+                rule = VirtualApplauseRuleInfoo.objects.get(vaRuleID=vaRuleID, courseID=currentCourse)
                 
                 context_dict = setUpContextDictForConditions(context_dict,currentCourse,rule.ruleID)
                     

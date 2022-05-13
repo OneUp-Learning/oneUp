@@ -2,6 +2,7 @@ from Instructors.views.utils import initialContextDict
 from Students.models import Student, StudentRegisteredCourses, StudentConfigParams, StudentPlayerType, StudentCustomAvatar
 from django.contrib.auth.models import User
 from Badges.models import CourseConfigParams
+from Badges.enums import ApplauseOption
 import glob
 
 def studentInitialContextDict(request):    
@@ -26,6 +27,12 @@ def studentInitialContextDict(request):
     
     studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
     context_dict['scparams'] = studentConfigParams
+    
+    applausArr = []    
+    for x in ApplauseOption.applauseOption :         
+        applausArr.append( ApplauseOption.applauseOption.setdefault(x))
+     
+    context_dict['applauseOptionStruct'] = applausArr
     
     ###If adapation used for the student, update gamification settings to use PlayerType profiles
     if context_dict['ccparams'].adaptationUsed:

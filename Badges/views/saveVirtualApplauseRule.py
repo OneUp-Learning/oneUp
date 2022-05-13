@@ -9,23 +9,24 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 
 from Instructors.models import Courses, Challenges, Activities
-from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualApplauseRuleInfo, VirtualApplauseCustomRuleInfo
+from Badges.models import ActionArguments, Conditions, Rules, RuleEvents, VirtualApplauseRuleInfoo
 from Badges.enums import Action, OperandTypes, dict_dict_to_zipped_list,    AwardFrequency, ApplauseOption
 from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import get_events_for_condition, stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
+from curses.ascii import isdigit
 
 def DeleteVirtualApplauseRule(vaRuleID, isRuleCustom):
     ## most of this page is repurposed code from saveVirtualCurrencyRule
     print("delete")
     if isRuleCustom == True:
         # Delete the Virtual applause Rule 
-        deleteVa = VirtualApplausCustomeRuleInfo.objects.filter(vaRuleID=vaRuleID)
+        deleteVa = VirtualApplauseRuleInfoo.objects.filter(vaRuleID=vaRuleID)
         for deleteVa in deleteVa:
             deleteVa.delete()
     else:
-        deleteVa = VirtualApplauseRuleInfo.objects.filter(vaRuleID=vaRuleID)
+        deleteVa = VirtualApplauseRuleInfoo.objects.filter(vaRuleID=vaRuleID)
        
         for deleteVa in deleteVa:
                         
@@ -53,18 +54,18 @@ def SaveVirtualApplauseRule(request):
         if 'edit' in request.POST:   #edit or delete badge 
             print("Virtual Applause to Edit/Delete Id: "+str(request.POST['vaRuleID']))
             if isRuleCustom == True:
-                vaRuleInfo = VirtualApplauseCustomRuleInfo.objects.get(pk=int(request.POST['vaRuleID']))
+                vaRuleInfo = VirtualApplauseRuleInfoo.objects.get(pk=int(request.POST['vaRuleID']))
             else:
-                vaRuleInfo = VirtualApplauseRuleInfo.objects.get(pk=int(request.POST['vaRuleID']))
+                vaRuleInfo = VirtualApplauseRuleInfoo.objects.get(pk=int(request.POST['vaRuleID']))
          
             if 'delete' in request.POST:
                 DeleteVirtualApplauseRule(request.POST['vaRuleID'], isRuleCustom)
                 return redirect("/oneUp/badges/VirtualApplauseEarnRuleList?isRuleCustom="+str(isRuleCustom))
         else:
             if isRuleCustom == True:
-                vaRuleInfo = VirtualApplauseCustomRuleInfo() 
+                vaRuleInfo = VirtualApplauseRuleInfoo() 
             else:
-                vaRuleInfo = VirtualApplauseRuleInfo()  # create new va RuleInfo
+                vaRuleInfo = VirtualApplauseRuleInfoo()  # create new va RuleInfo
             
                   
         if 'create' in request.POST or 'edit' in request.POST:
@@ -91,6 +92,7 @@ def SaveVirtualApplauseRule(request):
             else:
                 if 'edit' in request.POST:
                     oldRuleToDelete = vaRuleInfo.ruleID
+                    
 
                 ruleCondition = stringAndPostDictToCondition(request.POST['cond-cond-string'],request.POST,currentCourse)
                     
@@ -120,6 +122,8 @@ def SaveVirtualApplauseRule(request):
                 vaRuleInfo.ruleID = gameRule            
                 vaRuleInfo.courseID = currentCourse
                 vaRuleInfo.vaRuleName = vaRuleName
+                if( len(vaOption) == 0 ):
+                    vaOption = ApplauseOption.random
                 vaRuleInfo.ApplauseOption = vaOption 
                 
                 vaRuleInfo.awardFrequency = int(request.POST['awardFrequency'])
@@ -138,6 +142,6 @@ def SaveVirtualApplauseRule(request):
                 if 'edit' in request.POST:
                     oldRuleToDelete.delete_related()
                     oldRuleToDelete.delete()
-                
+                 
     return redirect("/oneUp/badges/VirtualApplauseEarnRuleList?isRuleCustom="+str(isRuleCustom))
     
