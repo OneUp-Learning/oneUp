@@ -9,23 +9,23 @@ class Migration(migrations.Migration):
         ('Badges', '0127_virtualapplauseruleinfoo'),
     ]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='virtualapplausecustomruleinfo',
-            name='courseID',
-        ),
-        migrations.RemoveField(
-            model_name='virtualapplauseruleinfo',
-            name='ruleID',
-        ),
-        migrations.RemoveField(
-            model_name='virtualapplauseruleinfo',
-            name='virtualapplausecustomruleinfo_ptr',
-        ),
-        migrations.DeleteModel(
-            name='VirtualApplauseCustomRuleInfo',
-        ),
-        migrations.DeleteModel(
-            name='VirtualApplauseRuleInfo',
-        ),
-    ]
+   # operations = [
+   ##     migrations.RemoveField(
+   ##         model_name='virtualapplausecustomruleinfo',
+    ##        name='courseID',
+    ##    ),
+      ##  migrations.RemoveField(
+     ##       model_name='virtualapplauseruleinfo',
+     ##       name='ruleID',
+     ##   ),
+     ##   migrations.RemoveField(
+     ##       model_name='virtualapplauseruleinfo',
+     ##       name='virtualapplausecustomruleinfo_ptr',
+      ##  ),
+  ##      migrations.DeleteModel(
+   #         name='VirtualApplauseCustomRuleInfo',
+   #     ),
+    #    migrations.DeleteModel(
+     #       name='VirtualApplauseRuleInfo',
+     #   ),
+    #]

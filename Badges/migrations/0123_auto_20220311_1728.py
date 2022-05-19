@@ -11,26 +11,26 @@ class Migration(migrations.Migration):
         ('Badges', '0122_courseconfigparams_applauseon'),
     ]
 
-    operations = [
-        migrations.CreateModel(
-            name='VirtualApplauseCustomRuleInfo',
-            fields=[
-                ('vaRuleID', models.AutoField(primary_key=True, serialize=False)),
-                ('vaRuleName', models.CharField(max_length=300)),
-                ('vaRulePosition', models.IntegerField(default=0)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='VirtualApplauseRuleInfo',
-            fields=[
-                ('virtualapplausecustomruleinfo_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='Badges.VirtualApplauseCustomRuleInfo')),
-                ('ruleID', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='Badges.Rules', verbose_name='the related rule')),
-            ],
-            bases=('Badges.virtualapplausecustomruleinfo',),
-        ),
-        migrations.AddField(
-            model_name='virtualapplausecustomruleinfo',
-            name='courseID',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Instructors.Courses', verbose_name='the related course'),
-        ),
-    ]
+ #   operations = [
+#        migrations.CreateModel(
+ #           name='VirtualApplauseCustomRuleInfo',
+ #           fields=[
+ #               ('vaRuleID', models.AutoField(primary_key=True, serialize=False)),
+ #               ('vaRuleName', models.CharField(max_length=300)),
+  #              ('vaRulePosition', models.IntegerField(default=0)),
+   #         ],
+ #       ),
+  #      migrations.CreateModel(
+  #          name='VirtualApplauseRuleInfo',
+  #          fields=[
+  #              ('virtualapplausecustomruleinfo_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='Badges.VirtualApplauseCustomRuleInfo')),
+  #              ('ruleID', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='Badges.Rules', verbose_name='the related rule')),
+  #          ],
+ #           bases=('Badges.virtualapplausecustomruleinfo',),
+ #       ),
+ #       migrations.AddField(
+ #           model_name='virtualapplausecustomruleinfo',
+ #           name='courseID',
+ #           field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Instructors.Courses', verbose_name='the related course'),
+ #       ),
+ #   ]

@@ -9,10 +9,10 @@ class Migration(migrations.Migration):
         ('Badges', '0125_remove_rules_applauseoption'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='virtualapplausecustomruleinfo',
-            name='ApplauseOption',
-            field=models.IntegerField(default=1200),
-        ),
-    ]
+   # operations = [
+   #     migrations.AddField(
+   #         model_name='virtualapplausecustomruleinfo',
+   #         name='ApplauseOption',
+   #         field=models.IntegerField(default=1200),
+   #     ),
+   # ]
