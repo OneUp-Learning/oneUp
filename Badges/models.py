@@ -367,10 +367,6 @@ class CourseConfigParams(models.Model):
     xpDisplayUsed = models.BooleanField(default=False)               ## XP Point display on/off setting      Student
     xpLeaderboardUsed = models.BooleanField(default=False)           ## XP Leaderboard enable/disable
     
-    ## Levels of Difficulties for the course
-    thresholdToLevelMedium = models.IntegerField(default=0)           ## Thresholds in %  of previous level for moving from Easy (default level) to Medium
-    thresholdToLevelDifficulty = models.IntegerField(default=0)       ## Thresholds in %  of previous level for moving from Medium (default level) to Hard
-    
     streaksUsed = models.BooleanField(default = False)                 ##
     
     ## Student Goal Setting

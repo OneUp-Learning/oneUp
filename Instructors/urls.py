@@ -139,6 +139,7 @@ from Instructors.views.flashCardCreateView import CreateFlashCards
 
 #Adaptation
 from Instructors.views.createPlayerType import createPlayerTypeView
+from Instructors.views.viewPlayerType import viewPlayerTypeView
 from Instructors.views.playerTypeList import playerTypeListView
 
 from Instructors.views.reorderViews import reorderGroups
@@ -297,6 +298,7 @@ urlpatterns = [
     url(r'^createFlashCard', CreateFlashCards, name='createFlashCard'),
     url(r'^ReorderGroups', reorderGroups, name='reorderGroups'),
     url(r'^CreatePlayerType', createPlayerTypeView, name='createPlayerType'),
+    url(r'^ViewPlayerType', viewPlayerTypeView, name='viewPlayerType'),
     url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList')
 ]
 

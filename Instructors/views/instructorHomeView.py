@@ -35,6 +35,7 @@ def instructorHome(request):
     course_ID = []      
     course_Name = []        
     course_university = []
+    course_end_date_list = []
     announcement_ID = []       
     announcement_course = []         
     start_timestamp = []
@@ -62,6 +63,7 @@ def instructorHome(request):
 
         ccp = CourseConfigParams.objects.get(courseID = item.courseID.courseID)
         courseEndDate = ccp.courseEndDate
+        course_end_date_list.append(ccp.courseEndDate)
 
         #get university tied to course to display
         course = item.courseID
@@ -103,7 +105,7 @@ def instructorHome(request):
                             break
     
     # casefold will ignore cases when sorting alphabetically so ('c' becomes before 'T')
-    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name,course_university)), key=lambda x: x[2].casefold())
+    context_dict['course_range'] = sorted(list(zip(range(1,reg_crs.count()+1),course_ID,course_Name,course_university,course_end_date_list)), key=lambda x: x[2].casefold())
     print(context_dict['course_range'])
     print(course_university)
     context_dict['num_announcements'] = num_announcements
