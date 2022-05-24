@@ -51,7 +51,7 @@ def triviaSessionCreateView(request):
             new_trivia_object.maximumVCPossible = max_possible_vc
             new_trivia_object.save()
             
-        return redirect('/oneUp/instructors//TriviaDashboard', context_dict)
+        return redirect('/oneUp/instructors/TriviaDashboard', context_dict)
     
     else: # Requesting data about a session or modifying
         if 'triviaID' in request.GET:
