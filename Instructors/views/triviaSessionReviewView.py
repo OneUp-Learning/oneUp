@@ -12,9 +12,10 @@ from oneUp.decorators import instructorsCheck
 from Instructors.models import (Trivia, 
                                 TriviaQuestion)
 
-import plotly.graph_objects as go
 
 def generate_trivia_review_data(context_dict, currentCourse):
+    import plotly.graph_objects as go
+    
     trivia_sessions = Trivia.objects.filter(courseID=currentCourse)
     
     # There should be some kind of null check here for an empty 
