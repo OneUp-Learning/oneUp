@@ -310,6 +310,6 @@ urlpatterns = [
     url(r'^TriviaSessionSetup', triviaSessionCreateView, name='triviaSessionCreateView'),
     url(r'^TriviaQuestionList', createTriviaQuestionListView, name='createTriviaQuestionListView'),
     url(r'^deleteTrivia', deleteTrivia, name='deleteTrivia'),
-    url(r'^TriviaSessionReview', triviaSessionReviewView, name='triviaSessionReviewView')
+    url(r'^TriviaSessionReview', triviaSessionReviewView, name='triviaSessionReviewView'),
 ]
 
