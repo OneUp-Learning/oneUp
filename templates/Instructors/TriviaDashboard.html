@@ -15,7 +15,6 @@
 	</style>
 	<script>
 	function deleteTrivia(trivia_id) {
-		console.log(trivia_id)
 		function getCookie(name) {
 			var cookieValue = null;
 			if (document.cookie && document.cookie !== '') {
@@ -45,19 +44,18 @@
 				}
 			}
 		});
-		/*
+		
 		$.ajax({
 			type: "POST",
 			url: "/oneUp/instructors/deleteTrivia",
 			data: {
-				'triviaID': trivia_id // from form
+				'triviaID': trivia_id
 			},
 			success: function () {
 				console.log("Deleted");
 				location.reload();
 			}
 		});
-		*/
 	}
 </script>
 </head>
@@ -76,24 +74,24 @@
 				<div class="card-panel">
 					{% if trivia_sessions|length > 0 %}
 					<ul id="sortable-categories" class="collapsible" data-collapsible="expandable">
-						{% for triviaID, triviaName in trivia_sessions %}
-						<li id="{{triviaID}}" {% if forloop.last %}class="not-sortable"{% endif %}>
-							<div class="collapsible-header"><i class="material-icons">videogame_asset</i>{{triviaName}}&nbsp;&nbsp;
+						{% for triviaID, triviaData in trivia_sessions %}
+						<li id="{{triviaData.triviaID}}" name="{{triviaData.triviaName}}" {% if forloop.last %}class="not-sortable"{% endif %}>
+							<div class="collapsible-header"><i class="material-icons">videogame_asset</i>{{triviaData.triviaName}}&nbsp;&nbsp;
 							</div>
 							<div class="collapsible-body">
-								<ul class="sortable-activities" data-category-id="{{triviaName}}"
+								<ul class="sortable-activities" data-category-id="{{triviaData.triviaName}}"
 									style="padding-bottom: 1px;">
 									<!--  Start For -->
-									<li id="{{triviaID}}" data-category-id="{{triviaName}}">
+									<li id="{{triviaData.triviaID}}" data-category-id="{{triviaData.triviaName}}">
 										<div class="sortable-item">
 											<div style="width: 35%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
-											<button class="waves-effect waves-light btn" onclick="deleteTrivia('{{triviaID}}')">Delete</button>
+											<button class="waves-effect waves-light btn" onclick="deleteTrivia('{{triviaData.triviaID}}')">Delete</button>
 											</div>
 											<div style="width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; padding-right: 10px;">
 											<a class="waves-effect waves-light btn">View Previous Sessions</a>
 											</div>
 											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
-											<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaSessionSetup?triviaID={{triviaID}}">Edit</a>
+											<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaSessionSetup?triviaID={{triviaData.triviaID}}">Edit</a>
 											</div>
 											<div style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
 											<a class="waves-effect waves-light btn">Start</a>
