@@ -480,9 +480,6 @@
                     {% if ccparams.seriousChallengesUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/challengesList">Serious Challenges</a></li>
                     {% endif %}
-			      	{% if ccparams.triviaEnabled %}
-			        <li><a class="waves-effect" href="/oneUp/instructors/TriviaDashboard">Trivia</a></li>
-			      	{% endif %}
                     {% if ccparams.warmupsUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/warmUpChallengeList">Warm-Up Challenges</a></li>		
                     {% endif %}
@@ -534,8 +531,10 @@
                     {% endif %}
                     {% if ccparams.leaderboardUsed %}
                     <li><a class="waves-effect " href="/oneUp/instructors/dynamicLeaderboard">Leaderboards</a></li>    
-                    {% endif %}               
-
+                    {% endif %}
+			      	{% if ccparams.triviaEnabled %}
+			        <li><a class="waves-effect" href="/oneUp/instructors/TriviaDashboard">Trivia</a></li>
+			      	{% endif %}
 		            {% if ccparams.contentUnlockingDisplayed %}
                     <li><a class="waves-effect " href="/oneUp/badges/ProgressiveUnlocking">Content Unlocking</a></li>
 		            {% endif %}

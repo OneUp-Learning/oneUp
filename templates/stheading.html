@@ -338,6 +338,9 @@
 				{% if ccparams.activitiesUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/ActivityList">Activities</a></li>
 				{% endif %}
+				{% if ccparams.triviaEnabled %}
+				<li><a class="waves-effect" href="TriviaDashboard">Trivia</a></li>
+				{% endif %}
 				{% if ccparams.gradebookUsed %}
 				<li><a class="waves-effect" href="/oneUp/students/CoursePerformance">Grades</a></li>
 				{% endif %}
@@ -364,9 +367,6 @@
 						{% endif %} -->
 						{% if ccparams.flashcardsUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/FlashCardsList">Flash Cards</a></li>
-						{% endif %}
-						{% if ccparams.triviaEnabled %}
-						<li><a class="waves-effect" href="TriviaDashboard">Trivia</a></li>
 						{% endif %}
 						{% if ccparams.gamificationUsed and ccparams.virtualCurrencyUsed %}
 						<li><a class="waves-effect " href="/oneUp/students/VirtualCurrencyShop">Course Shop</a></li>

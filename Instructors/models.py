@@ -450,6 +450,7 @@ class Trivia(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Registered Course", db_index=True)
     maximumPointsPerQuestion = models.IntegerField(default=0)
     maximumVCPossible = models.IntegerField(default=0)
+    currentlyRunning = models.BooleanField(default=False, verbose_name = "Current running status of trivia")
     def __str__(self):
         return str(self.triviaID)
     
