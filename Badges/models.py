@@ -404,6 +404,9 @@ class CourseConfigParams(models.Model):
     ## virtual applause
     applauseOn = models.BooleanField(default = False)
     
+    #time pressure
+    timePressure = models.BooleanField(default = False)
+
     def GenerateConfigEnumList(self, *args, **kwargs):
         EnumList = []
         
@@ -463,7 +466,9 @@ class CourseConfigParams(models.Model):
         +str(self.selfAssignment)+","\
         +str(self.xpDisplayUsed)+","\
         +str(self.xpLeaderboardUsed)+","\
-        +str(self.classFundEnabled)
+        +str(self.classFundEnabled)+","\
+        +str(self.applauseOn)+","\
+        +str(self.timePressure)
         
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
@@ -580,8 +585,11 @@ class PlayerType(models.Model):
     ##for XP settings
     xpDisplayUsed = models.BooleanField(default=False)   
         
-    xpLeaderboardUsed = models.BooleanField(default=False)     
-      
+    xpLeaderboardUsed = models.BooleanField(default=False)   
+    
+    #time pressure
+    timePressure = models.BooleanField(default = False)
+    
     def __str__(self):
         return "name:"+str(self.name)+", course:"+str(self.course) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +"levling:"+str(self.levelingUsed) +"," \
@@ -593,6 +601,7 @@ class PlayerType(models.Model):
         +"goals:"+str(self.goalsUsed) +"," \
         +"xp display:" + str(self.xpDisplayUsed) +"," \
         +"xp leaderboardused:" + str(self.xpLeaderboardUsed)
+        +"time pressure:" + str(self.timePressure)
 
 class VirtualApplauseRuleInfoo(models.Model):
     ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)

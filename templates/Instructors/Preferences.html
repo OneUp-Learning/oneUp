@@ -314,7 +314,7 @@
                     </div>
 
 
-                    moved to course config as 'attendance streaks'
+          <!--      moved to course config as 'attendance streaks' -->
   				    <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -402,6 +402,19 @@
                                             <input name="studCanChangeGoal" type="checkbox" checked>
                                             {% else %}
                                             <input name="studCanChangeGoal" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Time Pressure
+                                            {% if ccparams.timePressure %}
+                                            <input name="timePressure" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="timePressure" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>

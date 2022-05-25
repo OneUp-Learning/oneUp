@@ -141,6 +141,8 @@ def preferencesView(request):
         # Virtual Applause
         ccparams.applauseOn = "applauseOn" in request.POST
       
+        # time pressure
+        ccparams.timePressure = "timePressure" in request.POST
         
         currentCourse.save()
         if vcaddedString:
@@ -285,8 +287,8 @@ def preferencesView(request):
             #Player-Types (Adaptation)
             context_dict['adaptationUsed'] = ccparams.adaptationUsed
      
-            #Virtual applause
-            context_dict['applauseOn'] = ccparams.applauseOn
+            #time pressure
+            context_dict['timePressure'] = ccparams.timePressure
             
 
         return render(request, 'Instructors/Preferences.html', context_dict)

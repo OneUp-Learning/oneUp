@@ -251,7 +251,24 @@
                             </div>
                         </div>
                     </div>
-                    
+                    <div class="card" style="transform: translateZ(0);">
+                        <div class="card-content">
+                            <span class="card-title">Time Pressure</span>
+                            <div class="row">
+                                <div class="switch col s12">
+                                    <label>
+                                        Time Pressure
+                                        {% if timePressureOn %}
+                                        <input name="timePressureOn" type="checkbox" checked>
+                                        {% else %}
+                                        <input name="timePressureOn" type="checkbox">
+                                        {% endif %}
+                                        <span class="lever secondary-content"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                    
                   
                    
