@@ -334,6 +334,6 @@ CELERY_TIMEZONE = TIME_ZONE
 # Note that this is not automatic, but enabled by statements in our
 # code which check its value.  Turning it on or off will only effect
 # oneUp code which uses "if CELERY_ENABLED:" statements
-CELERY_ENABLED = True
+CELERY_ENABLED = False
 
 CURRENTLY_MIGRATING = False

@@ -154,6 +154,9 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     student_Feedback = []
     student_TextSubmission = []
     File_Name = []
+    
+    # send formatted student data to be parsed by modals
+    student_submission_data = []
 
     studentCourse = StudentRegisteredCourses.objects.filter(
         courseID=currentCourse).order_by('studentID__user__last_name')
@@ -214,6 +217,7 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     context_dict['activityID'] = request.GET['activityID']
     context_dict['activity'] = Activities.objects.get(
         activityID=request.GET['activityID'])
+    context_dict['student_submission_data'] = student_submission_data
     student_list = list(zip(range(1, len(student_ID)+1), student_ID, student_Name, student_Graded,student_Submission,
                                    student_TextSubmission, student_Points, student_Bonus, student_Feedback, File_Name))
     

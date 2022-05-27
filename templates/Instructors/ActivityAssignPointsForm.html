@@ -16,13 +16,11 @@
         });
     </script>
     <script>
+    	submission_data = '{{ student_submission_data|safe }}';
     	function display_submission(studentID, activityID, submissionID){
     	    $('#modal').modal();
     	    $('#modal').modal('open'); 
     	}
-	    //$(document).ready(function(){
-	     //   $('.modal').modal();
-	     //   });
     </script>
 </head>
 
@@ -117,19 +115,13 @@
                                             <p>{{student_Graded|yesno:"Yes,No" }}</p>
                                         </td>
                                         <td style="padding-bottom: 0; padding-top: 2px;">
-                                        	{% if i == 1 %}
+                                        	{% if i == 0 %}
 	                                        	<select id="submission_select{{student_ID}}" onchange="display_submission({{student_ID}}, document.getElementById('submission_select{{student_ID}}').value)">
 	                                            	<option value="submission_id">Submission 1 - 03/14/21</option>
-	                                            	<option value="submission_id">Submission 5 - 03/22/21</option>
 	                                            </select>
-	                                        {% elif i == 4 %}
+	                                        {% elif i == 2 %}
 	                                        	<select id="submission_select{{student_ID}}" onchange="display_submission({{student_ID}}, document.getElementById('submission_select{{student_ID}}').value)">
 	                                            	<option value="submission_id">Submission 1 - 03/22/21</option>
-	                                          		<option value="submission_id">Submission 2 - 03/22/21</option>
-	                                          		<option value="submission_id">Submission 3 - 03/22/21</option>
-	                                          		<option value="submission_id">Submission 4 - 03/22/21</option>
-	                                          		<option value="submission_id">Submission 5 - 03/22/21</option>
-	                                          		<option value="submission_id">Submission 6 - 03/23/21</option>
 	                                            </select>
 	                                        {% else %}
                                             	<p>{{student_Submission}}</p> 
