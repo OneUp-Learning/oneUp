@@ -156,7 +156,7 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
     File_Name = []
     
     # send formatted student data to be parsed by modals
-    student_submission_data = []
+    student_submission_data = {}
 
     studentCourse = StudentRegisteredCourses.objects.filter(
         courseID=currentCourse).order_by('studentID__user__last_name')
@@ -190,12 +190,18 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
                 student_TextSubmission.append(stud_act.richTextSubmission)
 
             student_Bonus.append(stud_act.bonusPointsAwarded)
-
             student_Feedback.append(stud_act.instructorFeedback)
-
+            
+            # singular file
             studentFile = StudentFile.objects.filter(
                 activity=stud_act, studentID=student, latest=True).first()
-                
+            
+            for current_activity in StudentActivities.objects.filter(activityID=request.GET['activityID'], studentID=student)
+                # save all student activities to submission table
+                student_data = {
+                    'activityID':current_activity.activityID, 
+                    }
+                student_submission_data[len(student_submission_data)+1] = student_data
             if studentFile:
                 fName = studentFile.fileName
                 File_Name.append(fName)
@@ -212,6 +218,9 @@ def createContextForPointsAssignment(request, context_dict, currentCourse):
             student_TextSubmission.append(False)
             File_Name.append(False)
 
+
+    
+            
     context_dict['isVcUsed'] = CourseConfigParams.objects.get(
         courseID=currentCourse).virtualCurrencyUsed
     context_dict['activityID'] = request.GET['activityID']
