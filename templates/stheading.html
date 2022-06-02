@@ -27,7 +27,9 @@
 {% load notification_tags %}
 {% include_notify_js_variables %}
 
-{% include "checkApplause.html" %}
+{% if ccparams.applauseOn %}
+	{% include "checkApplause.html" %}
+{% endif %}
 <script src="{% static "notify/notifyX.js" %}"></script>
 <script>
 		

@@ -42,7 +42,7 @@ function resetFirework(firework) {
   firework.x = Math.floor(Math.random() * canvas.width);
   firework.y = canvas.height;
   firework.age = 0;
-  firework.phase = 'fly';
+  firework.phase = 'fly'; 
 }
 function deleteFirework(firework) {
   var st = fireworks.indexOf(firework);
@@ -60,6 +60,7 @@ function explode() {
 	          let x = firework.x + spark.vx * trailAge;
 	          let y = firework.y + spark.vy * trailAge + spark.weight * trailAge * spark.weight * trailAge;
 	          let fade = i * 20 - firework.age * 2;
+	          
 	          let r = Math.floor(spark.red * fade);
 	          let g = Math.floor(spark.green * fade);
 	          let b = Math.floor(spark.blue * fade);
