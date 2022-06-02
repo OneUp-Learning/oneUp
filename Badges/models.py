@@ -405,7 +405,7 @@ class CourseConfigParams(models.Model):
     applauseOn = models.BooleanField(default = False)
     
     #time pressure
-    timePressure = models.BooleanField(default = False)
+    timePressure = models.BooleanField(default = True)
 
     def GenerateConfigEnumList(self, *args, **kwargs):
         EnumList = []
@@ -588,7 +588,7 @@ class PlayerType(models.Model):
     xpLeaderboardUsed = models.BooleanField(default=False)   
     
     #time pressure
-    timePressure = models.BooleanField(default = False)
+    timePressure = models.BooleanField(default = True)
     
     def __str__(self):
         return "name:"+str(self.name)+", course:"+str(self.course) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
@@ -610,5 +610,6 @@ class VirtualApplauseRuleInfoo(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id 
     vaRulePosition = models.IntegerField(default=0) 
     ApplauseOption = models.IntegerField(default=ApplauseOption.random) 
+  
     def __str__(self):              
         return "VirtualApplauseRule#"+str(self.vaRuleID)+":"+str(self.vaRuleName)           

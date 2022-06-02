@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from Badges.enums import Event
 from Badges.events import register_event
-from Badges.models import CourseConfigParams
+from Badges.models import CourseConfigParams, PlayerType
 from Instructors.constants import unlimited_constant
 from Instructors.lupaQuestion import CodeSegment, LupaQuestion, lupa_available
 from Instructors.models import (Answers, Challenges, ChallengesQuestions,
@@ -27,7 +27,7 @@ from Instructors.views.dynamicQuestionView import makeLibs
 from Instructors.views.utils import current_localtime, datetime_to_local
 from oneUp.ckeditorUtil import config_ck_editor
 from Students.models import (CalloutParticipants, DuelChallenges, Student,
-                             StudentAnswerHints, Teams, TeamChallenges)
+                             StudentAnswerHints, Teams, TeamChallenges, StudentPlayerType)
 from Students.views.utils import studentInitialContextDict
 
 
@@ -59,7 +59,7 @@ def makeSerializableCopyOfDjangoObjectDictionary(obj):
 def ChallengeSetup(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
-
+    student = context_dict['student']
     if 'currentCourseID' in request.session:
 
         questionObjects = []
@@ -169,7 +169,16 @@ def ChallengeSetup(request):
                 range(1, len(questionObjects)+1), qlist)
             print("contents of the qlist", qlist)
             context_dict['question_ids'] = [i for i in range(1, len(questionObjects)+1)]
-
+            
+            #
+            context_dict['timePressure'] = ccp.timePressure
+            
+            stlist = StudentPlayerType.objects.filter(course=currentCourse, student=student)
+           
+            if(len(stlist) > 0):            
+                st = stlist.first()
+                context_dict['timePressure'] = st.playerType.timePressure
+                
         register_event(Event.startChallenge, request, None, challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)
 
