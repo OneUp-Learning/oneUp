@@ -7,10 +7,11 @@ Created on November 12, 2021
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 
-from Instructors.views.utils import initialContextDict
+from Instructors.views.utils import initialContextDict, is_number
 from oneUp.decorators import instructorsCheck
 from Instructors.models import (Trivia, 
                                 TriviaQuestion)
+
 
 def generate_trivia_data(context_dict, currentCourse):
     trivia_sessions = Trivia.objects.filter(courseID=currentCourse)
@@ -54,7 +55,7 @@ def triviaSessionCreateView(request):
         return redirect('/oneUp/instructors/TriviaDashboard', context_dict)
     
     else: # Requesting data about a session or modifying
-        if 'triviaID' in request.GET:
+        if ('triviaID' in request.GET) and (is_number(request.GET['triviaID'])):
             trivia = Trivia.objects.filter(courseID=currentCourse, triviaID=request.GET['triviaID'])
             
             if trivia.exists():

@@ -610,4 +610,11 @@ def update_or_create_challenge_questions(request,question):
         challengeID = request.POST['challengeID']
         challenge = Challenges.objects.get(pk=int(challengeID))
         position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
-        ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)     
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)  
+        
+def is_number(data):
+    try:
+        int(data)
+        return True
+    except ValueError:
+        return False   

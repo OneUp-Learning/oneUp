@@ -24,10 +24,12 @@
 				
 			</div>
 		</div>
+		{% csrf_token %}
 		<div class="row right-align">
 			<div class="col s12 m10 offset-m1">
-				
+				{% if question_range|length > 0 %}
 				<button class="btn waves-effect waves-light" onclick="ToggleAllCheckboxes(this)" type="button"><i class="material-icons left">select_all</i>Select All</button>
+				{% endif %}
 				<a class="modal-trigger waves-effect waves-light btn" href="#modal-create-import"><i
 						class="material-icons left">cloud_download</i>Import Problem</a>
 				<div id="modal-create-import" class="modal modal-fixed-footer">
@@ -60,11 +62,47 @@
 						<div class="row">
 							<div class="input-field col s12 m10 offset-m1">								
 								<select id="create-type">
-									<option value="" disabled selected>Select Question Type</option>
-									<option value="/oneUp/instructors/TriviaTrueFalseForm">True/False</option>
+									<option value="/oneUp/instructors/TriviaTrueFalseForm" selected>True/False</option>
 									<option value="/oneUp/instructors/TriviaMultipleAnswerForm">Multiple Choice</option>
 								</select>
 								<label>Question Type</label>
+								
+								<!-- TODO: Dynamically update this modal to add questions -->
+								<div class="row left-align" id="question_data_root">
+									<div class="card">
+										<div class="card-content">
+										   <div class="col s12">
+												<p><span class="red-text">*</span> Denotes Required Fields.</p>
+										   </div>
+										   <div class="input-field col s12">
+										   		<i class="material-icons prefix">mode_edit</i>
+										   		<input value="" name="question_name" id="question_name" type="text" class="validate" pattern=".*\S+.*" required>
+										  		<label for="question_name">Question Text</label>
+										   </div>
+									   </div>
+									   
+									   <div class="row">
+										   <div class="col s12">
+											   <h5><span class="red-text">*</span>Question Answer</h5>
+										   </div>
+										   <div id="answers">
+											   <input type="hidden" name="ansPK1" value="1">
+											   <div id="ans1">
+												   <div class="row s12">
+														<div class="col s12 left">
+														   <input type="radio" name="correctAnswer" id="answer_1" value="1" required>
+														   <label for="answer_1">True</label>
+														</div>
+														<div class="col s12 left">
+														   <input type="radio" name="correctAnswer" id="answer_2" value="2" required>
+														   <label for="answer_2">False</label>
+														</div>
+												  </div>
+											   </div>
+										   </div>
+										</div>
+								   </div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -80,13 +118,16 @@
 		</div>
 		<div class="row">
 			<div class="col s12 m10 offset-m1">
-				<div class="card-panel">
-					
-					<ul id="sortable-questions" class="collapsible">
-					</ul>
+				<div class="card-panel left-align">
+					{% if question_range|length > 0 %}
+						<ul id="sortable-questions" class="collapsible">
+						</ul>
+					{% else %}
+						<p>No problems created</p>
+					{% endif %}
 					
 					<div class="card-action right-align">
-						
+						{% if question_range|length > 0 %}
 						<a id="submit3" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1">
 							<i class="material-icons right">send</i>Delete all checked</a>
 						<div id="modal_confirm1" class="modal">
@@ -102,6 +143,9 @@
 								</button>
 							</div>
 						</div>
+						{% endif %}
+						<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaSessionSetup?triviaID={{triviaID}}">
+							<i class="material-icons left">navigate_before</i>Back</a>
 					</div>
 				</div>
 			</div>
@@ -182,7 +226,7 @@
 		}
 		return selectedList;
 	}
-	function deleteProblemsButFilter() {
+	function deleteTriviaProblemsButFilter() {
 		var selectedChallenges = collectAllSelectedCheckboxes();
 		if (selectedChallenges.length > 0) {
 			var xhttp = new XMLHttpRequest();

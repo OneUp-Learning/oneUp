@@ -38,7 +38,6 @@ def courseConfigurationView(request):
         ccparams.seriousChallengesUsed = "seriousUsed" in request.POST
         ccparams.gradebookUsed = "gradebookUsed" in request.POST
         ccparams.activitiesUsed = "activitiesUsed" in request.POST
-        ccparams.triviaEnabled = "triviaEnabled" in request.POST
         ccparams.streaksUsed = 'attendanceUsed' in request.POST
         ccparams.skillsUsed = "skillsUsed" in request.POST
         ccparams.announcementsUsed = "announcementsUsed" in request.POST
@@ -89,7 +88,6 @@ def courseConfigurationView(request):
             context_dict['skillsUsed'] = ccparams.skillsUsed
             context_dict['announcementsUsed'] = ccparams.announcementsUsed
             context_dict['activitiesUsed'] = ccparams.activitiesUsed
-            context_dict['triviaEnabled'] = ccparams.triviaEnabled
             context_dict['flashcardsUsed'] = ccparams.flashcardsUsed
 
             # Student Achievement Page

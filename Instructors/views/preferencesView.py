@@ -175,6 +175,9 @@ def preferencesView(request):
 
         # Adaptation
         ccparams.adaptationUsed = "adaptationUsed" in request.POST
+        
+        #Trivia
+        ccparams.triviaEnabled = "triviaEnabled" in request.POST
 
        # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
@@ -287,6 +290,8 @@ def preferencesView(request):
             #Player-Types (Adaptation)
             context_dict['adaptationUsed'] = ccparams.adaptationUsed
 
+            # Trivia
+            context_dict['triviaEnabled'] = ccparams.triviaEnabled
             
 
         return render(request, 'Instructors/Preferences.html', context_dict)
