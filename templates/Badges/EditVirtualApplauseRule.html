@@ -79,12 +79,20 @@
 					  	<label>applauseSelect </label>
 					  	
 					  	 <button class ="btn" type="button" onclick = "testApplause()">try out</button>
-					  	
+					 	<div> 
+						  	<p><br>Note: There is no function that keeps tracks what virtual applause is given to each students so prevent 
+						              unwanted repeats we recommend specifying and using condition percentage of last warmup attempt score out of 
+						             possible score which uses the last score.
+						    </p>
+					    </div> 
 					  </div> 
-					 
+					  
+					  
+						
+					  
                      {% if isRuleCustom == False %}
                         {% include "Badges/conditionInterface.html" %}
-                     
+                     	 
                     
                        {% endif %}
                   </div>
