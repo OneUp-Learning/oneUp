@@ -4,6 +4,12 @@
 <head>
 
     {% include 'scripts.html' %}
+  	<style>
+		.toast{
+		 	position: fixed;		    	   
+		    left: 45%;		  
+		}
+  	</style>
     <script>
         var checked = false;
         var checkBoxes = document.getElementsByClassName('check-boxes');
@@ -190,7 +196,7 @@
                         <div class="card-action right-align">
                             <button class="btn waves-effect waves-light" type="button" name="submit" onclick="validateJSON()">Export<i
                                     class="material-icons right">send</i></button>
-                            <button class="btn waves-effect waves-light" type="reset" name="reset">Clear<i
+                            <button id = "reset" class="btn waves-effect waves-light" type="reset" name="reset">Clear<i
                                     class="material-icons right">clear_all</i></button>
                         </div>
                     </div>
@@ -215,7 +221,7 @@
             function getCookie(name) {
                 var cookieValue = null;
                 if (document.cookie && document.cookie !== '') {
-                        var cookies = document.cookie.split(';');
+                        var cookies = document.cookie.split(';');cookieValue
                         for (var i = 0; i < cookies.length; i++) {
                             var cookie = jQuery.trim(cookies[i]);
                             // Does this cookie string begin with the name we want?
@@ -241,8 +247,11 @@
                         }
                 }
             });
-
+			function clearFields(){
+				document.getElementById('reset').click();
+			}
             function validateJSON() {
+            	 
                 //   console.log("validating");
                   $.ajax({
                         type: "POST",
@@ -281,6 +290,7 @@
                             $('#messages-modal').modal('open');
                         }
                   });
+                  clearFields();
                   return false;
             }
             function exportCourse(json) {
@@ -309,7 +319,7 @@
                 });
             }
             function download(file, fileName, contentType) {
-                var a = document.createElement("a");
+                var a = document.createElement("a");              
                 a.href = URL.createObjectURL(file);
                 a.download = fileName;
                 a.click();

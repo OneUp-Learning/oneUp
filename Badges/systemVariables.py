@@ -1451,9 +1451,21 @@ def getCompletedChallengePercentageForTopic(course, student, percentage, topic):
     else:
         studentPercentage = 0
     return studentPercentage
+def PercentOfLastAttemptScoreOutOfPossibleScore(course, student, challenge):
+    ''' This will return the percentage of the last attempted challenge score obtained by a student
+        for a challenge.
+        Score includes score + adjustment + curve (bonus points not included)
+    '''
+   
+    last_attempt = getTestScores(course,student,challenge).order_by('endTimestamp').last()
+    challenge_score = challenge.getCombinedScore()
+    percentage = 0
 
+    if last_attempt and challenge_score != 0:
+        score = last_attempt.getScore()
+        percentage = float(score)/float(challenge_score) * 100
 
-    
+    return percentage
 
 class SystemVariable():
     numAttempts = 901 # The total number of attempts that a student has given to a challenge
@@ -1551,6 +1563,8 @@ class SystemVariable():
     
     #Starting new enumeration at 9000 since we have enough variables to overflow the 900s
     topicChallengesCompleted85Percent = 9000 # Percentage of topic chalenges completed at >= 85% TODO: redo numbering?
+    percentageOfLastWarmupAttemptScore = 9001
+    
     systemVariables = {
         score:{
             'index': score,
@@ -2782,6 +2796,21 @@ class SystemVariable():
             'type':'int',
             'functions':{
                 ObjectTypes.activityCategory: getActivitiesCompletedInOneActivityCategory
+            },
+        },
+        percentageOfLastWarmupAttemptScore:{
+            'index': percentageOfLastWarmupAttemptScore,
+            'name':'percentageOfLastWarmupAttemptScore',
+            'displayName':"Percentage Of Last Warmup Attempt score out of Possible Score",
+            'description':"The percentage of the student's score.  For challenges, the last attempt is used",
+            'eventsWhichCanChangeThis':{ 
+                ObjectTypes.challenge: [Event.endChallenge, Event.adjustment],
+               # ObjectTypes.topic: [Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'functions':{
+                ObjectTypes.challenge:PercentOfLastAttemptScoreOutOfPossibleScore,
+                #ObjectTypes.topic:topicPercentOfScoreOutOfMaxChallengeScore,
             },
         },                                                           
     }

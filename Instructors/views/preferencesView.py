@@ -137,6 +137,13 @@ def preferencesView(request):
         ccparams.classFundEnabled = "classFundEnabled" in request.POST
       
         currentCourse.Donations = request.POST.get("classFundChange")
+        
+        # Virtual Applause
+        ccparams.applauseOn = "applauseOn" in request.POST
+      
+        # time pressure
+        ccparams.timePressure = "timePressure" in request.POST
+        
         currentCourse.save()
         if vcaddedString:
             
@@ -156,6 +163,7 @@ def preferencesView(request):
                     recalculate_student_virtual_currency_total_offline(st_c.studentID.pk,currentCourse.pk)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
+        ccparams.useCustomAvatar = "useCustomAvatar" in request.POST
         
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
 
@@ -254,7 +262,8 @@ def preferencesView(request):
 
             # Avatars
             context_dict["avatarUsed"] = ccparams.avatarUsed
-
+            context_dict["useCustomAvatar"] = ccparams.useCustomAvatar        
+                
             # Student Settings
             
             context_dict["studCanChangeclassAverageVis"] = ccparams.studCanChangeclassAverageVis
@@ -277,7 +286,9 @@ def preferencesView(request):
 
             #Player-Types (Adaptation)
             context_dict['adaptationUsed'] = ccparams.adaptationUsed
-
+     
+            #time pressure
+            context_dict['timePressure'] = ccparams.timePressure
             
 
         return render(request, 'Instructors/Preferences.html', context_dict)

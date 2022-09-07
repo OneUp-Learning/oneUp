@@ -5,11 +5,10 @@ from django.db import models
 from django.utils.timezone import now
 from django_celery_beat.models import PeriodicTask
 
-from Badges.enums import Action, AwardFrequency, Event, OperandTypes
+from Badges.enums import Action, AwardFrequency, Event, OperandTypes, ApplauseOption
 from Badges.systemVariables import SystemVariable
 from Instructors.models import (Activities, ActivitiesCategory, Challenges,
                                 Courses, Skills, Topics)
-
 
 def custom_now():
     return now().replace(microsecond=0)
@@ -98,6 +97,7 @@ class Rules(models.Model):
     courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="Course the rule belongs to", db_index=True)
     objectSpecifier = models.CharField(max_length=2000, default="[]",verbose_name="A json-serialized object of the type ChosenObjectSpecifier (see events.py)")
     awardFrequency = models.IntegerField(default=AwardFrequency.justOnce) # See enums.py for award frequency options.
+   
     def __str__(self):
         if self.actionID in Action.actions:
             return "[Rule#:"+str(int(self.ruleID))+" When:"+str(self.conditionID)+" Do:"+Action.actions[self.actionID]['name']+']'
@@ -339,7 +339,8 @@ class CourseConfigParams(models.Model):
     ## Other fields for rule based configurations
     virtualCurrencyUsed = models.BooleanField(default=False)          ## isCourseBucksDisplayed was renamed, this is used in individual achievements
     virtualCurrencyAdded = models.IntegerField(default=0)             # Amount of course bucks given by the instructor to all students
-    avatarUsed = models.BooleanField(default=False)                   ## This is to allow the student to upload an avatar.
+    avatarUsed      = models.BooleanField(default=False)  
+    useCustomAvatar = models.BooleanField(default=False)                      ## This is to allow the student to upload an avatar.
     classAverageUsed = models.BooleanField(default=False)             ## ranga used this, in individual achievements
     studCanChangeclassAverageVis = models.BooleanField(default=False) ## The student can suppress visibility in the dashboard
 
@@ -363,7 +364,7 @@ class CourseConfigParams(models.Model):
     xpCalculateSeriousByMaxScore = models.BooleanField(default=False) ## This will decide how to calculate xp for serious challenges: either by max score of scores or by the first attempt score
     xpCalculateWarmupByMaxScore = models.BooleanField(default=True)  ## Same as preivous but for warmup challenges
     
-    xpDisplayUsed = models.BooleanField(default=False)               ## XP Point display on/off setting      
+    xpDisplayUsed = models.BooleanField(default=False)               ## XP Point display on/off setting      Student
     xpLeaderboardUsed = models.BooleanField(default=False)           ## XP Leaderboard enable/disable
     
     streaksUsed = models.BooleanField(default = False)                 ##
@@ -400,6 +401,12 @@ class CourseConfigParams(models.Model):
     ##Class Donation system
     classFundEnabled = models.BooleanField(default = False)
     
+    ## virtual applause
+    applauseOn = models.BooleanField(default = False)
+    
+    #time pressure
+    timePressure = models.BooleanField(default = True)
+
     def GenerateConfigEnumList(self, *args, **kwargs):
         EnumList = []
         
@@ -459,7 +466,9 @@ class CourseConfigParams(models.Model):
         +str(self.selfAssignment)+","\
         +str(self.xpDisplayUsed)+","\
         +str(self.xpLeaderboardUsed)+","\
-        +str(self.classFundEnabled)
+        +str(self.classFundEnabled)+","\
+        +str(self.applauseOn)+","\
+        +str(self.timePressure)
         
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
@@ -576,8 +585,11 @@ class PlayerType(models.Model):
     ##for XP settings
     xpDisplayUsed = models.BooleanField(default=False)   
         
-    xpLeaderboardUsed = models.BooleanField(default=False)     
-      
+    xpLeaderboardUsed = models.BooleanField(default=False)   
+    
+    #time pressure
+    timePressure = models.BooleanField(default = True)
+    
     def __str__(self):
         return "name:"+str(self.name)+", course:"+str(self.course) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +"levling:"+str(self.levelingUsed) +"," \
@@ -589,3 +601,15 @@ class PlayerType(models.Model):
         +"goals:"+str(self.goalsUsed) +"," \
         +"xp display:" + str(self.xpDisplayUsed) +"," \
         +"xp leaderboardused:" + str(self.xpLeaderboardUsed)
+        +"time pressure:" + str(self.timePressure)
+
+class VirtualApplauseRuleInfoo(models.Model):
+    ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)
+    vaRuleID = models.AutoField(primary_key=True)
+    vaRuleName = models.CharField(max_length=300) # e.g. test score, number of attempts 
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True) # Remove this if using the instructor Id 
+    vaRulePosition = models.IntegerField(default=0) 
+    ApplauseOption = models.IntegerField(default=ApplauseOption.random) 
+  
+    def __str__(self):              
+        return "VirtualApplauseRule#"+str(self.vaRuleID)+":"+str(self.vaRuleName)           

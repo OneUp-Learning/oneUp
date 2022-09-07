@@ -1,6 +1,8 @@
 from Instructors.views.utils import initialContextDict
-from Students.models import Student, StudentRegisteredCourses, StudentConfigParams, StudentPlayerType
+from Students.models import Student, StudentRegisteredCourses, StudentConfigParams, StudentPlayerType, StudentCustomAvatar
 from django.contrib.auth.models import User
+from Badges.models import CourseConfigParams
+from Badges.enums import ApplauseOption
 import glob
 
 def studentInitialContextDict(request):    
@@ -21,9 +23,16 @@ def studentInitialContextDict(request):
     context_dict['student_registered_course'] = st_crs
     
     context_dict['avatar'] = checkIfAvatarExist(st_crs)
-        
+ 
+    
     studentConfigParams = StudentConfigParams.objects.get(courseID=currentCourse, studentID=context_dict['student'])
     context_dict['scparams'] = studentConfigParams
+    
+    applausArr = []    
+    for x in ApplauseOption.applauseOption :         
+        applausArr.append( ApplauseOption.applauseOption.setdefault(x))
+     
+    context_dict['applauseOptionStruct'] = applausArr
     
     ###If adapation used for the student, update gamification settings to use PlayerType profiles
     if context_dict['ccparams'].adaptationUsed:
@@ -60,18 +69,32 @@ def studentInstructorInitialContextDict(request):
     studentId = Student.objects.filter(user=stud)
     
 def checkIfAvatarExist(student):
+    c = student.courseID
+    useCustom = CourseConfigParams.objects.get(courseID = c).useCustomAvatar
+
     avatars = glob.glob('static/images/avatars/*')
     defaultAvatar = '/static/images/avatars/anonymous.png'
-    studentAvatarPath = student.avatarImage
-    studentAvatarPath = studentAvatarPath[1:]
-    if studentAvatarPath in avatars:
-        return student.avatarImage
+    if not useCustom:        
+        studentAvatarPath = student.avatarImage
+        studentAvatarPath = studentAvatarPath[1:]
+        if studentAvatarPath in avatars:
+            return student.avatarImage
+        else:
+            student.avatarImage = defaultAvatar #change the students avatar to the default
+            student.save()        
+        
     else:
-        student.avatarImage = defaultAvatar #change the students avatar to the default
-        student.save()
-    
+        s = student.studentID
+        st_ava_list = StudentCustomAvatar.objects.filter(studentID = s)
+        if len(st_ava_list)==0:
+            st_ava = StudentCustomAvatar()
+            st_ava.studentID = s            
+            st_ava.save()
+        else:
+            st_ava = st_ava_list[0]               
+                      
+        return st_ava.image         
     return defaultAvatar 
-
 def getLevelFromXP(levelTo1XP, xp, nextLevelPercent):
     import decimal
     

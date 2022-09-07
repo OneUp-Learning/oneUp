@@ -314,6 +314,7 @@
             countNotifications();
         });
     </script>
+    
     <form action="/oneUp/instructors/resetTestStudent" method="POST">
         {% csrf_token %}
         <input type=hidden  name="courseID" value={{courseId}}>
@@ -541,6 +542,9 @@
                     {% if ccparams.adaptationUsed %}
                     <li><a class="waves-effect" href="/oneUp/instructors/PlayerTypeList">Adaptation</a></li>
                     {% endif %}
+                    {% if ccparams.applauseOn %}
+                    <li><a class="waves-effect" href="/oneUp/badges/VirtualApplauseEarnRuleList?isRuleCustom=False">Virtual Applause</a></li>
+                    {% endif %}
                 </ul>
             </li>
             {% endif %}
@@ -704,6 +708,9 @@
                                 <li><a class="waves-effect" href="/oneUp/instructors/preferences">Gamification Configuration</a></li>
                                 {% if ccparams.adaptationUsed %}
                                 <li><a class="waves-effect" href="/oneUp/instructors/PlayerTypeList">Adaptation</a></li>
+                                {% endif %}
+                                {% if ccparams.applauseOn %}
+                   				<li><a class="waves-effect" href="/oneUp/badges/VirtualApplauseEarnRuleList">Virtual Applause</a></li>
                                 {% endif %}
                             </ul>
                         </div>

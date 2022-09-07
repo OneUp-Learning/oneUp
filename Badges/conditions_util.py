@@ -8,7 +8,7 @@ from datetime import datetime
 
 from Badges import systemVariables
 from Badges.enums import (AwardFrequency, ObjectTypes, OperandTypes,
-                          system_variable_type_to_HTML_type)
+                          system_variable_type_to_HTML_type, ApplauseOption)
 from Badges.events import (chosenObjectSpecifierFields,
                            operandSetTypeToObjectType)
 from Badges.models import (ActivityCategorySet, ActivitySet, ChallengeSet,
@@ -377,6 +377,7 @@ def setUpContextDictForConditions(context_dict,course,rule = None):
     context_dict['defaultObject'] = "challenge"
 
     context_dict['awardFrequencyStruct']=AwardFrequency
+
     
     def processSpecifiers(spDict):
         def processOneSpecifier(sp):
@@ -396,9 +397,13 @@ def setUpContextDictForConditions(context_dict,course,rule = None):
         context_dict['initialCond'] = databaseConditionToJSONString(condition)
         print(context_dict['initialCond'])
         context_dict['awardFrequency']=rule.awardFrequency
+
+        
         context_dict['chosenObjectSpecifier'] = rule.objectSpecifier
     else:
         context_dict['awardFrequency']=AwardFrequency.justOnce
+    
+        
         context_dict['chosenObjectSpecifier'] = "[]"
         context_dict['initialCond'] = "'empty'"
                 

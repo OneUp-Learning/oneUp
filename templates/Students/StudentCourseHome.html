@@ -103,7 +103,9 @@
                                   {% for i,studentBadgeID,studentID,badgeID,badgeName, badgeImage,avatarImage in badgesInfo %} 
                                   <div style="padding-right: 16px">                                                       
                                   <img class="tooltipped" src="/{{badgeImage}}" alt="Badge Image" width="64px" height="64px" data-position="top" data-delay="50" data-tooltip="{{badgeName}}"/>
+                                
                                   <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}" data-position="top" data-delay="50">
+                                  
                                   </div>
                                   {% empty %}
                                   <i class="center-align" style="flex: 1;">No badges earned</i>
@@ -276,7 +278,11 @@
                     <tbody>
                         {% for i, avatarImage, points, studentUsers in leaderboardRankings %}
                         <tr>
-                            <td><img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}"></td>
+                            <td>
+                     
+                             <img alt="Avatar Image" width="30px" height="30px" src="{{avatarImage}}">
+                      
+                            </td>
                             <td>{{points}}</td>
                         </tr>
                         {% empty %}
@@ -316,7 +322,9 @@
                              <td>
                                 {% for usi in skill.usersInfo %} 
                                 <div class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="{{usi.user}}">
+                                   
                                     <img src="{{usi.avatarImage}}">
+                                
                                     {{usi.skillPoints}}
                                     </div>
                                 {% endfor %}

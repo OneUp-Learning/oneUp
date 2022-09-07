@@ -229,7 +229,8 @@ def virtualCurrencyShopView(request):
             total = 0
             if( fundEnabled ):
                 donate = int(request.POST['donate'])
-                total += donate
+                if( st_crs.virtualCurrencyAmount - donate > 0):
+                    total += donate
             
             for buyOption in enabledBuyOptions:
                 quantity = int(request.POST['buyOptionQuantity' +
@@ -248,8 +249,11 @@ def virtualCurrencyShopView(request):
                     quantity = min(quantity, remaining)
                     if quantity <= 0:
                         continue
-
-                    total += int(quantity) * int(rule.vcRuleAmount)
+                    
+                    t = total + int(quantity) * int(rule.vcRuleAmount)
+                    if( st_crs.virtualCurrencyAmount - t < 0):
+                        continue
+                    total = t
                     for j in range(0, quantity):
                         studentVCTransaction = StudentVirtualCurrencyTransactions()
                         studentVCTransaction.student = student
@@ -285,25 +289,27 @@ def virtualCurrencyShopView(request):
                         studentVCTransaction.save()
 
             # Send notification to Instructor that student has bought item from shop
-            instructorCourse = InstructorRegisteredCourses.objects.filter(
-                courseID=currentCourse).first()
-            instructor = instructorCourse.instructorID
-            notify.send(None, recipient=instructor, actor=student.user, verb=student.user.first_name + ' '+student.user.last_name + ' spent ' +
-                        str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/badges/VirtualCurrencyTransactions'}))
-
-            
-            st_crs.virtualCurrencyAmount -= total
-            if( fundEnabled ):
-                st_crs.donationAmount +=donate
-
-                currentCourse.Donations += donate
-
-#                ins_cou.Donations += donate
-
+            if(total > 0):
+                instructorCourse = InstructorRegisteredCourses.objects.filter(
+                    courseID=currentCourse).first()
+                instructor = instructorCourse.instructorID
+                notify.send(None, recipient=instructor, actor=student.user, verb=student.user.first_name + ' '+student.user.last_name + ' spent ' +
+                            str(total)+' course bucks', nf_type='Decrease VirtualCurrency', extra=json.dumps({"course": str(currentCourse.courseID), "name": str(currentCourse.courseName), "related_link": '/oneUp/badges/VirtualCurrencyTransactions'}))
+    
                 
-            st_crs.save()
-
-            currentCourse.save()
+                st_crs.virtualCurrencyAmount -= total
+                if( fundEnabled ):
+                    
+                    st_crs.donationAmount +=donate
+        
+                    currentCourse.Donations += donate
+        
+    #                ins_cou.Donations += donate
+    
+                    
+                st_crs.save()
+    
+                currentCourse.save()
 
 #            ins_cou.save()
 

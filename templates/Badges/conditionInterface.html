@@ -385,6 +385,19 @@ var condAwardFrequencyToThingieType = {
 	{% endfor %}
 }
 
+var condApplauseOptionToThingieTypeName = {
+	{% for appOptNum,appOptStruct in applauseOptionStruct.applauseOption.items %}
+		{{appOptNum}}:'{{appOptStruct.objectTypeName}}',
+	{% endfor %}
+}
+
+var condApplauseOptionToThingieType = {
+	{% for appOptNum,appOptStruct in applauseOptionStruct.applauseOption.items %}
+		{{appOptNum}}:{{appOptStruct.objectType}},
+	{% endfor %}
+}
+
+
 var condObjectsIdToName = { {% for objectType in objectTypes %}"{{objectType.name}}":
 { {% for object in objectType.objects %}"{{object.id}}":"{{object.name}}", {% endfor %} },
 {% endfor %} };
@@ -459,6 +472,7 @@ function condChangeAwardFreq(select,initialcall) {
     	condSpecifierDivs[newTypeNum].style.display = "block";
     }
 }
+
 
 function condChangeSpecifier(select) {
 	var objectTypeNum = select.dataset.condObjectTypeNum;
