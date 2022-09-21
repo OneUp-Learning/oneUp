@@ -457,6 +457,16 @@ class Trivia(models.Model):
 class TriviaQuestion(models.Model):
     questionID = models.AutoField(primary_key=True)
     triviaID = models.ForeignKey(Trivia, on_delete=models.CASCADE, verbose_name = "Linked Trivia Session", db_index=True)
-    challengeQuestion = models.ForeignKey(ChallengesQuestions, on_delete=models.CASCADE, verbose_name = "Linked Trivia Question", db_index=True)
+    questionText = models.CharField(default='', max_length=5000)
+    questionType = models.CharField(default='MC', max_length=2)
+    maxPoints = models.IntegerField(default=0)
     def __str__(self):
         return str(self.quesionID+", "+self.triviaID+", "+self.maximumVCPossible+", "+self.maximumPointsPossible)
+    
+class TriviaAnswer(models.Model):
+    answerID = models.AutoField(primary_key=True)
+    questionID = models.ForeignKey(TriviaQuestion, on_delete=models.CASCADE, verbose_name = "Linked Trivia Question", db_index=True)
+    answerText = models.CharField(max_length=5000)
+    isCorrect = models.BooleanField(default=False)
+    def __str__(self):
+        return str(self.answerID+", "+self.questionID+", "+self.answerText+", "+self.isCorrect)

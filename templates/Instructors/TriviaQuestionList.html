@@ -27,7 +27,7 @@
 		{% csrf_token %}
 		<div class="row right-align">
 			<div class="col s12 m10 offset-m1">
-				{% if question_range|length > 0 %}
+				{% if trivia_question_range|length > 0 %}
 				<button class="btn waves-effect waves-light" onclick="ToggleAllCheckboxes(this)" type="button"><i class="material-icons left">select_all</i>Select All</button>
 				{% endif %}
 				<a class="modal-trigger waves-effect waves-light btn" href="#modal-create-import"><i
@@ -111,23 +111,68 @@
 							class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
 						<a href="#!" class="modal-action modal-close waves-effect waves-light btn" id="create">Create Problem</a>
 					</div>
-
 				</div>
-				
 			</div>
 		</div>
 		<div class="row">
 			<div class="col s12 m10 offset-m1">
 				<div class="card-panel left-align">
-					{% if question_range|length > 0 %}
+					{% if trivia_question_range|length > 0 %}
 						<ul id="sortable-questions" class="collapsible">
+							{% for i,question_id, question_text, question_type,question_answers in trivia_trivia_question_range %}
+							<li id={{question_id}}>
+								<div class="collapsible-header"><i class="material-icons">swap_vert</i>
+									<span class="left-align" style="max-width: 30%;min-width: 30%; padding-left: 0px">
+										{{question_text}}</span>
+									<span class="left-align"
+										style="max-width: 20%;min-width: 20%;">{{question_text}}</span>
+									<span class="badge left-align" style="max-width: 30%;min-width: 30%">
+										<span class="badge left-align" style="max-width: 20%;min-width: 20%">
+											<input class="filled-in" type="checkbox" name="deletion-checkboxes" id="{{question_id}}_checkbox"
+												value="{{question_id}}" />
+											<label for="{{question_id}}_checkbox">Delete</label>
+										</span>
+									</span>
+									<span class="badge right-align" style="max-width: 4%;min-width: 4%;">
+										<a class="dropdown-button tooltipped secondary-content" href="#!"
+											data-constrainwidth="false" data-beloworigin="true"
+											data-activates='dropdown-{{i}}' data-position="right" data-delay="50"
+											data-tooltip="Options"><i class="material-icons">more_vert</i></a>
+										<ul id='dropdown-{{i}}' class='dropdown-content'>
+											{% csrf_token %}
+											{% if question_type == 'MC' %}
+											<li class="not-sortable"><a href="">Edit</a>
+											</li>
+											{% endif %}
+											<li class="divider not-sortable"></li>
+											<li class="not-sortable"><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
+										</ul>
+										<div id="modal_delete-{{i}}" class="modal no-padding">
+											<div class="modal-content">
+												<h5>Are you sure you want to delete?</h5>
+											</div>
+											<div class="modal-footer">
+												<a href="#!"
+													class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+												<button
+													class="modal-action modal-close waves-effect waves-light btn-flat"
+													type="button"
+													{% if challenge %}onclick="deleteQuestion({{question_id}},{{triviaID}})"
+													{% else %}onclick="deleteQuestion({{question_id}}, 0)"
+													{% endif %}value="Delete">Delete
+												</button>
+											</div>
+										</div>
+									</span>
+								</div>
+							</li>
+							{% endfor %}
 						</ul>
 					{% else %}
 						<p>No problems created</p>
 					{% endif %}
-					
 					<div class="card-action right-align">
-						{% if question_range|length > 0 %}
+						{% if trivia_question_range|length > 0 %}
 						<a id="submit3" class="waves-effect waves-light btn modal-trigger" href="#modal_confirm1">
 							<i class="material-icons right">send</i>Delete all checked</a>
 						<div id="modal_confirm1" class="modal">
@@ -156,7 +201,10 @@
 <script>
 	$(document).ready(() => {
 		$('#create').on('click', function () {
+			console.log('created')
             var val = $('#create-type').find(':selected').val();
+			console.log('created')
+			createQuestion()
             if (val) {
             	top.location.href = val;
             }
@@ -205,12 +253,35 @@
 			checkBoxes[i].checked = checked;
 		}
 	}
-	function deleteQuestion(questionID, challengeID) {
+	function createQuestion(){
+		// todo: find question type
+		var question = "Who is the most bruh?" // document.getElementById("question").value;
+		var answers = [{text:'Bruh!',isCorrect:false}, {text:'NotBruh',isCorrect:true}, {text:'YeahBruh',isCorrect:false}, {text:'OkayBruh',isCorrect:false}]; // document.getElementById("answers");
+		var question_type = "MC"; // document.getElementById("question_type").value;
+		var params = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+			},
+			body: JSON.stringify({triviaID: {{triviaID}}, question: question, question_type: question_type, answers: answers})
+		};
+		console.log('sending')
+		fetch("/oneUp/instructors/createTriviaQuestion", params)
+		.then((response) => { return response.json()})
+		.then((response) => {
+			if (response.success){
+				window.location.reload();
+			}
+			console.log('rip')
+		})
+	}
+	function deleteQuestion(questionID) {
 		var xhttp = new XMLHttpRequest();
 		
-		xhttp.open("POST", "/oneUp/instructors/deleteQuestion", true);
+		xhttp.open("POST", "/oneUp/instructors/deleteTriviaQuestion", true);
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhttp.send("questionId=" + questionID + "&csrfmiddlewaretoken=53b4hclfCsoec5OJaviuRw1zyJ64Zd7gxN5T6qFCr7KZnY5OljtJ1FA53tj4Pijo");
+		xhttp.send("questionId=" + questionID + "&triviaId={{triviaID}}&csrfmiddlewaretoken={{csrf_token}}");
 		
 		xhttp.onload = function () {
 			location.reload();
@@ -232,12 +303,9 @@
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", "/oneUp/instructors/deleteProblemsButFilterTakenByStudent", true);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhttp.send("deletion_checkboxes=" + selectedChallenges + "&csrfmiddlewaretoken=53b4hclfCsoec5OJaviuRw1zyJ64Zd7gxN5T6qFCr7KZnY5OljtJ1FA53tj4Pijo");
+			xhttp.send("deletion_checkboxes=" + selectedChallenges + "&csrfmiddlewaretoken={{csrf_token}}");
 			console.table(xhttp.responseText);
 			Materialize.toast(xhttp.responseText.errorMessages, 4000);
-			// for (var i = 0; i < xhttp.responseText.errorMessages.length; i++) {
-			//    Materialize.toast(xhttp.responseText.errorMessages[i], 4000);
-			// }
 
 			xhttp.onload = function () {location.reload();}
 		}
