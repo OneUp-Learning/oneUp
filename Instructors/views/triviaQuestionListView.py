@@ -30,7 +30,6 @@ def createTriviaQuestionRange(triviaID):
         for answer in possible_answers:
             trivia_answers.append({'answerText': answer.answerText, 'isCorrect': answer.isCorrect})
         
-        print("Question:", trivia_question_id, trivia_question_text, trivia_question_type, trivia_answers)
         question_ids.append(trivia_question_id)
         question_texts.append(trivia_question_text)
         question_types.append(trivia_question_type)
@@ -49,7 +48,7 @@ def createTriviaQuestionListView(request):
     elif 'triviaID' in request.POST:
         trivia = Trivia.objects.get(triviaID=int(request.POST['triviaID']))
         
-    context_dict['triviaID'] = request.GET['triviaID']
+    context_dict['triviaID'] = trivia
     context_dict["trivia_question_range"] = createTriviaQuestionRange(trivia)
     return render(request, 'Instructors/TriviaQuestionList.html', context_dict)
 

@@ -7,51 +7,26 @@
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
    <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
    <script>
-	function build_answer_array(){
-		var answer_array = [];
-		var correctAnswer = document.querySelector('input[name="correctAnswer"]:checked').value;
-		var answer1 = document.getElementById("answer_1").value;
-		var answer2 = document.getElementById("answer_2").value;
 
-		if(answer1 === correctAnswer){
-			answer_array.push({'text':answer1, 'isCorrect':true});
-			answer_array.push({'text':answer2, 'isCorrect':false});
-		}else{
-			answer_array.push({'text':answer1, 'isCorrect':false});
-			answer_array.push({'text':answer2, 'isCorrect':true});
+		// questionID
+		function build_answer_array(){
+			let answer_array = [];
+			let correctAnswer = document.querySelector('input[name="correctAnswer"]:checked').value;
+			let answers = document.querySelectorAll('[name="correctAnswer"]')
+			answers.forEach(function(answer){
+				console.log(answer.value)
+				if(answer.value == correctAnswer){
+					answer_array.push({text: answer.value, 'isCorrect': true});
+				}else{
+					answer_array.push({text: answer.value, 'isCorrect': false});
+				}
+			})
+			return answer_array;
 		}
-		return answer_array;
-	}
-
-	 function createQuestion(){
-		// todo: find question type
-		let question = document.getElementById("question_text").value;
-		let question_max_points = document.getElementById("question_max_points").value;
-		let answers = build_answer_array();
-		let question_type = "TF";
-		let params = {
-			method: 'POST',
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json',
-				'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
-			},
-			body: JSON.stringify({triviaID: {{triviaID}}, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
-		};
-		console.log('sending')
-		fetch("/oneUp/instructors/createTriviaQuestion", params)
-		.then((response) => { return response.json()})
-		.then((response) => {
-			if (response.success){
-				return false;
-			}
-		})
-		return false
-		}
-
-		function editQuestion(){
+		
+		function createQuestion(){
+			// todo: find question type
 			let question = document.getElementById("question_text").value;
-			let question_id = "{{questionID}}";
 			let question_max_points = document.getElementById("question_max_points").value;
 			let answers = build_answer_array();
 			let question_type = "TF";
@@ -62,22 +37,45 @@
 					'Content-Type': 'application/json',
 					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
 				},
-				body: JSON.stringify({triviaID: {{triviaID}}, questionID: question_id, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
+				body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', question: question, question_type: question_type, answers: answers, max_points: question_max_points})
 			};
 			console.log('sending')
 			fetch("/oneUp/instructors/createTriviaQuestion", params)
 			.then((response) => { return response.json()})
 			.then((response) => {
 				if (response.success){
-					return false;
+					window.history.back()
 				}
 			})
 			return false
 			}
-		// questionID
-      //$(document).ready(function () {
-		 
-	//	});
+	
+			function editQuestion(){
+				let question = document.getElementById("question_text").value;
+				let question_max_points = document.getElementById("question_max_points").value;
+				let answers = build_answer_array();
+				let question_type = "TF";
+				let params = {
+					method: 'POST',
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', questionID: {{questionID}}, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
+				};
+				fetch("/oneUp/instructors/TriviaTrueFalseForm", params)
+				.then((response) => { return response.json()})
+				.then((response) => {
+					if (response.success){
+						window.history.back()
+					}
+				})
+				return false
+				}
+				$(document).ready(function () {
+					document.getElementById("submit").addEventListener("click", {% if questionID %}editQuestion{% else %}createQuestion{% endif %});
+				});
    </script>
    <style>
       #hover {
@@ -100,7 +98,6 @@
 	  </div>
 	 <div class="row">
 		<div class="col s12 m10 offset-m1">
-		<form id="form" name="question" onsubmit="{% if question %}return editQuestion();{% else %} return createQuestion();{% endif %}" action="/oneUp/instructors/TriviaQuestionList" method="POST">
 			{% csrf_token %}
 			<input type="hidden" name="triviaID" value="{{triviaID}}">
 			<div class="card">
@@ -111,12 +108,12 @@
 					</div>
 					<div class="input-field col s12">
 						<i class="material-icons prefix">mode_edit</i>
-						<input value="" name="question_text" id="question_text" type="text" class="validate" pattern=".*\S+.*" required>
+						<input value="{{questionText}}" name="question_text" id="question_text" type="text" class="validate" pattern=".*\S+.*" required>
 						<label for="preview"><span class="red-text">*</span> Question Text</label>
 					</div>
 					<div class="input-field col s12">
 						<i class="material-icons prefix">mode_edit</i>
-						<input value="" name="question_max_points" id="question_max_points" type="number" required>
+						<input value="{{maxPoints}}" name="question_max_points" id="question_max_points" type="number" required>
 						<label for="preview"><span class="red-text">*</span> Question Max Points</label>
 					</div>
 					<!--
@@ -140,23 +137,32 @@
 					<div id="answers">
 						<input type="hidden" name="ansPK1" value="1">
 						<div class="row s12">
+						{% if answers|length > 1 %}
+							{% for i,questionAnswerTest, questionAnswerIsCorrect in answers %}
+								<div class="col s12 left">
+									<input type="radio" name="correctAnswer" id="answer_{{i}}" value="{{questionAnswerTest}}" required{% if questionAnswerIsCorrect %} checked{% endif %}>
+									<label for="answer_{{i}}">{{questionAnswerTest}}</label>
+								</div>
+							{% endfor %}
+						{% else %}
 							<div class="col s12 left">
 								<input type="radio" name="correctAnswer" id="answer_1" value="True" required>
 								<label for="answer_1">True</label>
 							</div>
+							<!-- default case -->
 							<div class="col s12 left">
 								<input type="radio" name="correctAnswer" id="answer_2" value="False" required>
 								<label for="answer_2">False</label>
 							</div>
+						{% endif %}
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="card-action right-align">
 				<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaQuestionList?triviaID={{triviaID}}" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
-				<button class="btn waves-effect waves-light" type="button" onclick="createQuestion()" name="submit">Save<i class="material-icons right">send</i></button>
+				<button class="btn waves-effect waves-light" name="submit" id="submit">Save<i class="material-icons right">send</i></button>
 			</div>
-		</form>
 		</div>
 	</div>
   </main>

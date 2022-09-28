@@ -104,7 +104,9 @@
 										<ul id='dropdown-{{i}}' class='dropdown-content'>
 											{% csrf_token %}
 											{% if question_type == 'MC' %}
-											<li class="not-sortable"><a href="">Edit</a>
+											<li><a href="/oneUp/instructors/TriviaMultipleAnswerForm?questionID={{question_id}}&triviaID={{triviaID}}">Edit</a></li>
+											{% elif question_type == "TF" %}
+											<li class="not-sortable"><a href="/oneUp/instructors/TriviaTrueFalseForm?triviaID={{triviaID}}&questionID={{question_id}}">Edit</a>
 											</li>
 											{% endif %}
 											<li class="divider not-sortable"></li>
