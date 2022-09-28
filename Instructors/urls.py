@@ -88,7 +88,7 @@ from Instructors.views.reorderChallengeSaveQuestions import \
     reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 from Instructors.views.reorderViews import (receive_item_in_section,
-                                            reorder_list)
+                                            reorder_list, reorderTriviaQuestions)
 from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
@@ -147,6 +147,7 @@ from Instructors.views.triviaDashboardView import createTriviaDashboard
 from Instructors.views.triviaSessionCreateView import triviaSessionCreateView
 from Instructors.views.triviaQuestionListView import createTriviaQuestionListView
 from Instructors.views.triviaSessionReviewView import triviaSessionReviewView
+from Instructors.views.TriviaQuestionCreateView import CreateTriviaQuestion, deleteTriviaQuestion, deleteTriviaQuestionsBatch, editTriviaTrueFalseQuestion
 
 
 admin.autodiscover()
@@ -309,7 +310,12 @@ urlpatterns = [
     url(r'^TriviaDashboard', createTriviaDashboard, name='triviaDashboardView'),
     url(r'^TriviaSessionSetup', triviaSessionCreateView, name='triviaSessionCreateView'),
     url(r'^TriviaQuestionList', createTriviaQuestionListView, name='createTriviaQuestionListView'),
+    url(r'^removeQuestionTriviaBatch', deleteTriviaQuestionsBatch, name='deleteTriviaQuestionsBatch'),
+    url(r'^deleteSingleTriviaQuestion', deleteTriviaQuestion, name='deleteTriviaQuestion'),
     url(r'^deleteTrivia', deleteTrivia, name='deleteTrivia'),
+    url(r'^reorderTriviaQuestions', reorderTriviaQuestions, name='reorderTriviaQuestions'),
     url(r'^TriviaSessionReview', triviaSessionReviewView, name='triviaSessionReviewView'),
+    url(r'^createTriviaQuestion', CreateTriviaQuestion, name='createTriviaQuestionView'),
+    url(r'^TriviaTrueFalseForm', editTriviaTrueFalseQuestion, name='triviaTrueFalseForm'),
 ]
 

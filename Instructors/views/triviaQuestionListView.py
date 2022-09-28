@@ -11,15 +11,14 @@ from Instructors.models import Trivia, TriviaAnswer, TriviaQuestion
 from Instructors.views.utils import initialContextDict
 from oneUp.decorators import instructorsCheck
 
-def createTriviaQuestionRange(request):
+def createTriviaQuestionRange(triviaID):
     # Create a range of questions
-    context_dict, currentCourse = initialContextDict(request)
     question_ids = []
     question_texts = []
     question_types = []
     question_answers = []
     
-    TriviaQuestions = TriviaQuestion.objects.filter(triviaID=request.GET['triviaID'])
+    TriviaQuestions = TriviaQuestion.objects.filter(triviaID=triviaID).order_by('questionPosition')
     
     for question in TriviaQuestions:
         trivia_question_id = question.questionID
@@ -31,6 +30,7 @@ def createTriviaQuestionRange(request):
         for answer in possible_answers:
             trivia_answers.append({'answerText': answer.answerText, 'isCorrect': answer.isCorrect})
         
+        print("Question:", trivia_question_id, trivia_question_text, trivia_question_type, trivia_answers)
         question_ids.append(trivia_question_id)
         question_texts.append(trivia_question_text)
         question_types.append(trivia_question_type)
@@ -44,11 +44,13 @@ def createTriviaQuestionListView(request):
 
     context_dict, currentCourse = initialContextDict(request)
 
-    if request.GET:
-        if 'triviaID' in request.GET:   
-            trivia = Trivia.objects.get(triviaID=int(request.GET['triviaID']))
-            context_dict['triviaID'] = request.GET['triviaID']
-            context_dict["trivia_question_range"] = createTriviaQuestionRange(request)
+    if 'triviaID' in request.GET:   
+        trivia = Trivia.objects.get(triviaID=int(request.GET['triviaID']))
+    elif 'triviaID' in request.POST:
+        trivia = Trivia.objects.get(triviaID=int(request.POST['triviaID']))
+        
+    context_dict['triviaID'] = request.GET['triviaID']
+    context_dict["trivia_question_range"] = createTriviaQuestionRange(trivia)
     return render(request, 'Instructors/TriviaQuestionList.html', context_dict)
 
 def batchDeleteTriviaProblems(request, questions):

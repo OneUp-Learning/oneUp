@@ -5,7 +5,7 @@ Created on February 27, 2020
 '''
 
 from django.http import JsonResponse
-from Instructors.models import CoursesTopics, Challenges, Activities, ActivitiesCategory, ChallengesQuestions,FlashCardGroupCourse
+from Instructors.models import CoursesTopics, Challenges, Activities, ActivitiesCategory, ChallengesQuestions,FlashCardGroupCourse, Trivia, TriviaQuestion
 from Badges.models import BadgesInfo, VirtualCurrencyCustomRuleInfo
 import json
 import logging
@@ -331,4 +331,28 @@ def reorderGroups(request):
                 continue
 
         return JsonResponse({"success": True})
+    return JsonResponse({"success": False})
+
+def reorderTriviaQuestions(request):
+    ''' This view is called by an ajax function to reorder Trivia Questions'''
+    context_dict, currentCourse = utils.initialContextDict(request)
+
+    if request.method == "POST":
+        json_data = json.loads(request.body)
+        if 'triviaID' in json_data:
+            triviaID = json_data['triviaID']
+            
+            trivia = Trivia.objects.get(triviaID=triviaID, courseID=currentCourse)
+            
+            if 'questionIdsPositions' in json_data:
+                questionIdsPositions = json_data['questionIdsPositions']
+                for questionIdPos in questionIdsPositions:
+                    try:
+                        question = TriviaQuestion.objects.get(
+                            triviaID=trivia, questionID=int(questionIdPos['id']))
+                        question.questionPosition = int(questionIdPos['value'])
+                        question.save()
+                    except:
+                        continue
+                return JsonResponse({"success": True})
     return JsonResponse({"success": False})
