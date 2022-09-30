@@ -38,6 +38,8 @@ def createPlayerTypeView(request):
         playerType.displayAchievementPage= "displayAchievementPage" in request.POST
         playerType.xpLeaderboardUsed = "xpLeaderboardUsed" in request.POST 
         playerType.xpDisplayUsed = "xpDisplayUsed" in request.POST
+        playerType.timePressure = "timePressureOn" in request.POST
+        
         # Student Starting Page
         playerType.displayStudentStartPageSummary = request.POST.get(
             'displayStudentStartPageSummary') 
@@ -65,5 +67,6 @@ def createPlayerTypeView(request):
             context_dict['displayStudentStartPageSummary'] = playerType.displayStudentStartPageSummary
             context_dict["xpDisplayUsed"] = playerType.xpDisplayUsed
             context_dict["xpLeaderboardUsed"] = playerType.xpLeaderboardUsed
- 
+            context_dict["timePressureOn"] = playerType.timePressure
+            
         return render(request,'Instructors/CreatePlayerType.html', context_dict)

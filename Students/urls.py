@@ -59,6 +59,7 @@ from Students.views.virtualCurrencyShopView import virtualCurrencyShopView
 from Students.views.flashCards import flashCards, flashCardsList, flashCardUsed
 from Students.views.teamListView import teamList, studentTeamJoin
 from Students.views.teamChallengeResults import teamChallengeResults
+from Students.views.avatarEditorView import AvatarEditorView
 from Students.views.TriviaDashboardView import createTriviaDashboard
 
 admin.autodiscover()
@@ -138,6 +139,8 @@ urlpatterns = [
     url(r'^teamJoin', studentTeamJoin, name='studentTeamJoin'),
     url(r'^teamChallengeResults', teamChallengeResults, name='teamChallengeResults'),
     url(r'^checkAvatar', checkAvatar, name='checkAvatar'),
+    url(r'^AvatarEditor', AvatarEditorView,
+        name='Avatar Editor'),
     #Trivia
     url(r'^TriviaDashboard', createTriviaDashboard, name='TriviaDashboard'),
 ]

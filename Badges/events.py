@@ -13,7 +13,7 @@ from Badges.models import (ActionArguments, Activities, ActivityCategorySet,
                            ChallengeSet, Conditions, ConditionSet, Dates,
                            FloatConstants, ProgressiveUnlocking, RuleEvents,
                            Rules, StringConstants, TopicSet,
-                           VirtualCurrencyRuleInfo)
+                           VirtualCurrencyRuleInfo,VirtualApplauseRuleInfoo)
 from Badges.systemVariables import (calculate_system_variable,
                                     objectTypeToObjectClass)
 from Badges.tasks import process_event_offline
@@ -27,7 +27,7 @@ from Instructors.views.whoAddedVCAndBadgeView import create_badge_vc_log_json
 from Students.models import (Courses, Student, StudentBadges, StudentEventLog,
                              StudentGoalSetting, StudentProgressiveUnlocking,
                              StudentRegisteredCourses, StudentVirtualCurrency,
-                             StudentVirtualCurrencyRuleBased, StudentVirtualCurrencyTransactions)
+                             StudentVirtualCurrencyRuleBased, StudentVirtualCurrencyTransactions, PendingVirtualApplause)
 from Students.views.goalView import mark_goal_complete
 
 postgres_enabled = False
@@ -231,6 +231,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
         eventEntry.objectType = ObjectTypes.flashcard
         eventEntry.objectID = objectId
         
+   
 #     if(eventID == Event.seeClassAverage):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId
@@ -249,7 +250,7 @@ def register_event_simple(eventID, mini_req, student=None, objectId=None):
 #     if(eventID == Event.chooseBackgroundForYourName):
 #         eventEntry.objectType = ObjectTypes.form
 #         eventEntry.objectID = objectId  
-    
+ 
     print('eventEntry: '+str(eventEntry))  
     eventEntry.save()
 
@@ -552,6 +553,7 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
         
         return
     
+    
     if(actionID == Action.unlockedProgressive):
         print(args)
         # Allow for the content to be unlocked
@@ -727,6 +729,22 @@ def fire_action(rule, courseID, studentID, objID, timestampstr, timezone):
 #                 else:
 #                     break
             return
+    if actionID == Action.DoApplause:
+        virApp = VirtualApplauseRuleInfoo.objects.filter(ruleID = rule, courseID = courseID).first()
+        pend_list = PendingVirtualApplause.objects.filter(studentID = studentID)
+        if len(pend_list)==0:
+            pend = PendingVirtualApplause()
+            pend.studentID = studentID            
+            pend.save()
+        else:
+            pend = pend_list[0]
+            
+        pend.ApplauseOption = virApp.ApplauseOption
+        pend.save()
+
+        print("pending applause " + str(pend.ApplauseOption));
+        return    
+        
 
 def getSkillsForChallenge(chall):
     questionSet = {cq.questionID for cq in chall.challengesquestions_set.all()}
@@ -990,7 +1008,7 @@ def recalculate_student_virtual_currency_total(student,course):
     total = 0
     earningTransactions = StudentVirtualCurrency.objects.filter(courseID=course, studentID=student)
     total += earning_transaction_total(earningTransactions)
-      
+    
     spendingTransactions = StudentVirtualCurrencyTransactions.objects.filter(student=student, course=course).filter(studentEvent__event=Event.spendingVirtualCurrency)
     for st_svct in spendingTransactions:
         if st_svct.status in ['In Progress', 'Requested','Complete']:

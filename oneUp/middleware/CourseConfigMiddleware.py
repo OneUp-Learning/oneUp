@@ -68,6 +68,13 @@ class CourseConfigMiddleware:
                 {
                     'avatarUsed': True, 
                     'gamificationUsed': True,
+                    'useCustomAvatar': False,
+                },
+            '/oneUp/students/AvatarEditor': 
+                {
+                    'avatarUsed': True,                     
+                    'gamificationUsed': True,
+                    'useCustomAvatar': True,
                 },
             '/oneUp/students/goalslist': 
                 {
@@ -93,11 +100,22 @@ class CourseConfigMiddleware:
                     'classmatesChallenges': True, 
                     'gamificationUsed': True,
                 },
+       
             # TODO: Add links for instructors?
             '/oneUp/instructors/preferences':
                 {
                     'gamificationUsed': True,
-                }
+                },
+            '/oneUp/badges/VirtualApplauseEarnRuleList':
+                {
+                    'gamificationUsed': True,
+                    'applauseOn': True,
+                },
+            '/oneUp/badges/CreateVirtualApplauseRule':
+                {
+                    'gamificationUsed': True,
+                    'applauseOn': True,
+                },
         }
         self.reset_course_paths = ['/oneUp/students/StudentHome', '/oneUp/instructors/instructorHome']
 

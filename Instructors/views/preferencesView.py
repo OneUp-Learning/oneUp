@@ -137,6 +137,13 @@ def preferencesView(request):
         ccparams.classFundEnabled = "classFundEnabled" in request.POST
       
         currentCourse.Donations = request.POST.get("classFundChange")
+        
+        # Virtual Applause
+        ccparams.applauseOn = "applauseOn" in request.POST
+      
+        # time pressure
+        ccparams.timePressure = "timePressure" in request.POST
+        
         currentCourse.save()
         if vcaddedString:
             
@@ -156,16 +163,12 @@ def preferencesView(request):
                     recalculate_student_virtual_currency_total_offline(st_c.studentID.pk,currentCourse.pk)
 
         ccparams.avatarUsed = "avatarUsed" in request.POST
+        ccparams.useCustomAvatar = "useCustomAvatar" in request.POST
         
         ccparams.studCanChangeclassAverageVis = "studCanChangeclassAverageVis" in request.POST
 
         ccparams.contentUnlockingDisplayed = "contentUnlockingDisplayed" in request.POST
         ccparams.debugSystemVariablesDisplayed = "debugSystemVariablesDisplayed" in request.POST
-
-        ccparams.thresholdToLevelMedium = request.POST.get(
-            'thresholdToLevelMedium')
-        ccparams.thresholdToLevelDifficulty = request.POST.get(
-            'thresholdToLevelDifficulty')
 
 
 
@@ -262,14 +265,11 @@ def preferencesView(request):
 
             # Avatars
             context_dict["avatarUsed"] = ccparams.avatarUsed
-
+            context_dict["useCustomAvatar"] = ccparams.useCustomAvatar        
+                
             # Student Settings
             
             context_dict["studCanChangeclassAverageVis"] = ccparams.studCanChangeclassAverageVis
-
-            # Challenge Difficulty
-            context_dict["thresholdToLevelMedium"] = ccparams.thresholdToLevelMedium
-            context_dict["thresholdToLevelDifficulty"] = ccparams.thresholdToLevelDifficulty
 
             # Duels & callout
             context_dict["classmatesChallenges"] = ccparams.classmatesChallenges
@@ -289,7 +289,9 @@ def preferencesView(request):
 
             #Player-Types (Adaptation)
             context_dict['adaptationUsed'] = ccparams.adaptationUsed
-
+     
+            #time pressure
+            context_dict['timePressure'] = ccparams.timePressure
             # Trivia
             context_dict['triviaEnabled'] = ccparams.triviaEnabled
             

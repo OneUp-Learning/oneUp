@@ -101,7 +101,8 @@ class Action():
     decreaseVirtualCurrency = 711 # Decreases virtual currency (CourseBucks)
 
     completeGoal = 712 # Sends goal notification on completion
-
+    DoApplause = 713 #displays virtual fireworks or confetti to the user
+    
     actions = {
            giveBadge:{
                 'index': giveBadge,
@@ -163,7 +164,12 @@ class Action():
                 'displayName': 'Complete a Goal',
                 'description': 'Sends notification that goal is completed and sets the goal status to completed'
             },
-          
+            DoApplause:{
+                'index':DoApplause,
+                'name': 'DoApplause',
+                'displayName': 'do a applause',
+                'description': 'displays virtual an Applause to the user'
+            },
         }
 
 
@@ -266,8 +272,9 @@ class Event():
     #flashcard
     viewFlashCard = 883
     submitFlashCard = 884
-
-
+    
+    doVirtualApplause = 885
+    
 
 
     events = {
@@ -617,6 +624,7 @@ class Event():
                         'description':'Event triggered when a student finishes flash card',
                         'isVirtualCurrencySpendRule':False
                         },
+       
 #               seeClassAverage: {
 #                         'index': seeClassAverage,
 #                         'name':'seeClassAverage',
@@ -778,6 +786,40 @@ class AwardFrequency:
         },
     }
     
+class ApplauseOption:
+    random = 1200
+    fireworks = 1201
+    confetti = 1202
+    
+    applauseOption = {
+        random:{
+            'index': random,
+            'name': 'Random',
+            'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
+            "jslaunchCode":"""var ind = Math.floor( Math.random() * 2 );                         
+                            switch(ind){
+                                case 0:{ doFireworks() } break;
+                                case 1:{ doConfetti()  } break;
+                            }"""
+        },
+        fireworks:{
+            'index': fireworks,
+            'name': 'Fireworks',
+            'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
+            "jslaunchCode": "doFireworks(); "
+        },
+        confetti:{
+            'index': confetti,
+            'name': 'Confetti',
+            'objectType': ObjectTypes.none,
+            'objectTypeName': 'none',
+            "jslaunchCode": "doConfetti(); "
+
+        },
+    }
+  
 class GoalFlag():
     isStudentGoal = 'studentGoal'
     requireBadgesEnabled = 'badgesUsed'

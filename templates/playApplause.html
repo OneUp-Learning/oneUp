@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+   
+    <body>
+   		<canvas id='myCanvas' style=" pointer-events: none;"></canvas>
+    	<script>
+	    	let canvas = document.getElementById('myCanvas');
+			let context = canvas.getContext('2d');
+			canvas.style.position = 'absolute';
+			canvas.style.zIndex  = "200";
+			var W = window.innerWidth;
+			var H = window.innerHeight;
+			canvas.width = W;
+			canvas.height = H;
+    	</script>
+    		{% include "applauseScripts.html" %}
+    	<script>
+    	
+    		function doApplause(index){
+    			resetAll();
+    			//for now i'll put numbers
+    			
+    			
+    			switch(index){
+	    			{% for applauseOpt in applauseOptionStruct %}
+						case "{{applauseOpt.index}}" :{ {{applauseOpt.jslaunchCode}} }break;
+					{% endfor %}
+    	
+    			}
+    		}
+    		
+    				
+    	</script>
+    </body>
+</html>	
+   

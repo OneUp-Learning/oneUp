@@ -107,14 +107,14 @@ def celery_calculate_xp(student_reg_course_id):
     student_reg_course.xp = xp
     if ccP.levelingUsed:
         # if student_reg_course.level == 0:
-        level = getLevelFromXP(xp)
+        level = getLevelFromXP(ccP.levelTo1XP,xp,ccP.nextLevelPercent)
         if level > student_reg_course.level:
             student_reg_course.level = level
             notify.send(None, recipient=student_reg_course.studentID.user, actor=student_reg_course.studentID.user, verb=f'You have leveled up to level ' + str(level), nf_type='level', extra=json.dumps(
                    {"course": str(student_reg_course.courseID.courseID), "name": str(student_reg_course.courseID.courseName), "related_link": '/oneUp/students/StudentCourseHome'}))
             # for event
             mini_req = {
-                'currentCourseID': student_reg_course.cgitourseID.courseID,
+                'currentCourseID': student_reg_course.courseID.courseID,
                 'user': student_reg_course.studentID.user.username,
                 'timezone': None,
             }

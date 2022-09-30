@@ -314,29 +314,7 @@
                     </div>
 
 
-                    <!--moved to course config as 'attendance streaks'
-  				    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Streak Configuration</span>
-                                <div class="row">
-                                    <div class="switch col s12">
-                                        <label>
-                                            Enable Streaks
-                                            {% if streaksUsed %}
-                                            <input name="streaksUsed" type="checkbox" checked>
-                                            {% else %}
-                                            <input name="streaksUsed" type="checkbox">
-                                            {% endif %}
-                                            <span class="lever secondary-content"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
-
+         
                     <div class="col s12"
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
@@ -402,6 +380,19 @@
                                             <input name="studCanChangeGoal" type="checkbox" checked>
                                             {% else %}
                                             <input name="studCanChangeGoal" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Time Pressure
+                                            {% if ccparams.timePressure %}
+                                            <input name="timePressure" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="timePressure" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>
@@ -481,30 +472,18 @@
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
-                                <span class="card-title">Thresholds for Challenge Difficulty</span>
+                                <span class="card-title">Content Unlocking</span>
                                 <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>From <i>easy</i> to <i>medium</i></p>
-                                        </div>
-                                    </div>
-                                    <div class="input-field col s12 inline">
-                                        <p style="font-size: 0.8rem;">Threshold</p>
-                                        <input value="{{thresholdToLevelMedium}}" name="thresholdToLevelMedium"
-                                            id="threshold_1" maxlength="3" type="number" min="0" max="100" required>
-
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="row">
-                                        <div class="col s12">
-                                            <p>From <i>medium</i> to <i>high</i></p>
-                                        </div>
-                                    </div>
-                                    <div class="input-field col s12 inline">
-                                        <p style="font-size: 0.8rem;">Threshold</p>
-                                        <input value="{{thresholdToLevelDifficulty}}" name="thresholdToLevelDifficulty"
-                                            id="threshold_2" maxlength="3" type="number" min="0" max="100" required>
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Content Unlocking Menu
+                                            {% if contentUnlockingDisplayed %}
+                                            <input name="contentUnlockingDisplayed" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="contentUnlockingDisplayed" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -526,8 +505,21 @@
                                             <input name="goalsUsed" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
-                                        </label>
+                                        </label>                                    
                                     </div>
+                                </div>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                    <label>
+                                            Turn virtual applause on 
+                                            {% if applauseOn %}
+                                            <input name="applauseOn" type="checkbox" checked>
+                                            {% else %}
+                                            <input name="applauseOn" type="checkbox">
+                                            {% endif %}
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                     </div>
                                 </div>
                             </div>
                         </div>
@@ -692,25 +684,16 @@
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>
-                                    </div>
+                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col s12"
-                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
-                        <div class="card" style="transform: translateZ(0);">
-                            <div class="card-content">
-                                <span class="card-title">Content Unlocking</span>
-                                <div class="row">
+                                 <div class="row">
                                     <div class="switch col s12">
                                         <label>
-                                            Enable Content Unlocking Menu
-                                            {% if contentUnlockingDisplayed %}
-                                            <input name="contentUnlockingDisplayed" type="checkbox" checked>
+                                            Use Custom Avatar
+                                            {% if useCustomAvatar %}
+                                            <input name="useCustomAvatar" type="checkbox" checked>
                                             {% else %}
-                                            <input name="contentUnlockingDisplayed" type="checkbox">
+                                            <input name="useCustomAvatar" type="checkbox">
                                             {% endif %}
                                             <span class="lever secondary-content"></span>
                                         </label>

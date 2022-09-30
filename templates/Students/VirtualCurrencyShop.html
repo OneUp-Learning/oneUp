@@ -21,7 +21,9 @@
                <div class="card">
                   <div class="card-content">
                      <!-- <form id="store" name="store" action="#" onsubmit="return updatePrices()" method="post"> -->
+                     
                      <form id="store" name="store" action="#" onsubmit="return checkTotal()" method="post">
+                     <input type="hidden" name="vtotal" id="vtotal" value="0">
                         {% csrf_token %}					
                         <table class="responsive-table">
                            <thead>
@@ -139,6 +141,7 @@
          	}
          	if(total < 0) total = 0;
          	document.getElementById("total").innerHTML =  "Total: " +  total;
+         	document.getElementById("vtotal").value = total;
          	//GGM checkTotal();
          }
          function checkQuantity(){
@@ -149,8 +152,9 @@
             return false;
          }
          function checkTotal(){
-         	var total = document.getElementById("total").innerHTML;
-         	total = total.slice(7);	//GGM get number out of string
+        	updatePrices(); 
+         	var total = document.getElementById("vtotal").value;
+         	
          	if ( {{studentVirtualCurrency}} - parseInt(total) < 0 ) {	
               alert("You do not have enough money ");
               return false;
@@ -165,7 +169,9 @@
         	 document.getElementById("donateID").addEventListener('change',updatePrices);
          }
          for (var i=0; i < {{numBuyOptions}}; i++) {
-         	document.getElementById("buyOptionQuantity"+indexes[i]).addEventListener('change',updatePrices);         	
+         	 var quan = document.getElementById("buyOptionQuantity"+indexes[i]);
+         	 if(quan != null)
+         		addEventListener('change',updatePrices);         	
          }
        
       </script>

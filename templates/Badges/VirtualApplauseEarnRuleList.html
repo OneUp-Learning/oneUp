@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% include 'scripts.html' %}
+</head>
+<body>
+	{% include 'heading.html' %}
+	   <!-- most of this page is repurposed code from VirtualCurrencyEarnRuleList -->
+	<main>
+		<div class="row center-align">
+			<div class="col s12">
+				<h3>{% if isRuleCustom == True %}Manual {% else %} Automatic {% endif %} Virtual Applause Earn Rules</h3>
+			</div>
+		</div>
+
+		{% if isRuleCustom == True %}
+		<input type="hidden" name="isRuleCustom" value="true">
+		{% else %}
+		<input type="hidden" name="isRuleCustom" value="false">
+		{% endif %}
+
+		{% csrf_token %}
+		<div class="row right-align">
+			<div class="col s12 m10 offset-m1">
+				<a class="waves-effect waves-light btn" href="/oneUp/badges/CreateVirtualApplauseRule?isRuleCustom={{isRuleCustom}}">
+					<i class="material-icons left">add_circle</i> {% if isRuleCustom == True %}Add A Manual Earning Rule{% else %}Add AN Automatic Earning Rule{% endif %}</a>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s12 m10 offset-m1">
+				<div class="card-panel">
+					{% if vaRuleInfo %}
+					<ul id="sortable-va-rules" class="collapsible">
+						{% for i,vaRuleID,vaRuleName, position in vaRuleInfo %}
+						<li id={{vaRuleID}}>
+							<div class="sortable-item">
+								<div style="padding-right: 8px;">
+									<i class="material-icons" style="vertical-align: bottom;">swap_vert</i>
+								</div>
+								<div style="width: 30%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">{{vaRuleName}}</div>
+								
+								<div style="width: 10%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
+									{% if isRuleCustom == True %}Varies{% else %} {% endif %}
+								</div>
+								<div class="badge">
+									<a class="dropdown-button tooltipped secondary-content" href="#!" data-constrainwidth="false"
+									data-beloworigin="true" data-activates='dropdown-{{i}}' data-position="right" data-delay="50" data-tooltip="Options"><i
+										class="material-icons">more_vert</i></a>
+									<ul id='dropdown-{{i}}' class='dropdown-content'>
+										<li><a href="/oneUp/badges/EditVirtualApplauseRule?vaRuleID={{vaRuleID}}&isRuleCustom={{isRuleCustom}}">Edit</a></li>
+										<li class="divider"></li>
+										<li><a class="modal-trigger" href="#modal_delete-{{i}}">Delete</a></li>
+									</ul>
+									<div id="modal_delete-{{i}}" class="modal">
+										<div class="modal-content">
+											<h5>Are you sure you want to delete?</h5>
+										</div>
+										<div class="modal-footer">
+											<a href="#!" class="modal-action modal-close waves-effect waves-light btn-flat secondary-colored-text">Cancel</a>
+											<button type="button" class="modal-action modal-close waves-effect waves-light btn-flat" value="Delete" 
+												onclick="deleteRule('{{vaRuleID}}', '{{isRuleCustom}}')">Delete
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</li>
+						{% endfor %}
+					<ul>
+					{% else %}
+					<p>No rules created</p>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</main>
+	{% include 'footer.html' %}
+</body>
+<script>
+	$(document).ready(() => {
+		$("#sortable-va-rules").sortable({
+			items: "li:not(.not-sortable)",
+			placeholder: "sortable-placeholder",
+			forcePlaceholderSize: true,
+			update: (event, ui) => {
+				var item_list = $("#sortable-va-rules").sortable("toArray");
+				var positions = []
+
+				for (var i = 0; i < item_list.length; i++) {
+					if (item_list[i]){
+						// console.log("Chall Position: " + i + " ID: " + item_list[i]);
+						positions.push({"id": parseInt(item_list[i]), "value": i});
+					}
+				}
+
+				// console.log(positions)
+				const params = {
+					method: 'POST',
+					headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+					},
+					body: JSON.stringify({type: 'va-rule', positions: positions})
+				};
+				fetch("/oneUp/instructors/reorderList", params)
+				.then((response) => { return response.json()})
+				.then((response) => {console.log(response)})
+			},
+			stop: (event, ui) => {
+				$(`#${ui.item[0].id}`).removeClass("sortable-item-active");
+			},
+			sort: (event, ui) => {
+				$(`#${ui.item[0].id}`).addClass("sortable-item-active");
+			}
+		});
+	});
+</script>
+<script>
+	function deleteRule(rule_id, rule_custom) {
+		function getCookie(name) {
+			var cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				var cookies = document.cookie.split(';');
+				for (var i = 0; i < cookies.length; i++) {
+					var cookie = jQuery.trim(cookies[i]);
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		}
+
+		var csrftoken = getCookie('csrftoken');
+		$.ajaxSetup({
+			beforeSend: function (xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				}
+			}
+		});
+		$.ajax({
+			type: "POST",
+			url: "/oneUp/badges/SaveVirtualApplauseRule",
+			data: {
+				'vaRuleID': rule_id, // from form
+				'isRuleCustom': rule_custom,
+				'edit': 'edit',
+				'delete': 'delete'
+			},
+			success: function () {
+				console.log("Deleted");
+				location.reload();
+			}
+		});
+	}
+</script>
+</html>

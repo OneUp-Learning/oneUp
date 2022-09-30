@@ -1,0 +1,238 @@
+ <html>
+<body>
+
+<script>
+
+//fireworks
+const max_fireworks = 5,  max_sparks = 50, fireworks_amount = 10; 
+var fireworks = [];
+var particles = [];
+var count = 0;
+
+function doFireworks(){
+	if( !doingThing() ){	
+
+		count = 0;
+		for (let i = 0; i < max_fireworks; i++) {
+		  let firework = {
+		    sparks: []
+		  };
+		  for (let n = 0; n < max_sparks; n++) {
+		    let spark = {
+		      vx: Math.random() * 5 + .5,
+		      vy: Math.random() * 5 + .5,
+		      weight: Math.random() * .3 + .03,
+		      red: Math.floor(Math.random() * 2),
+		      green: Math.floor(Math.random() * 2),
+		      blue: Math.floor(Math.random() * 2)
+		    };
+		    if (Math.random() > .5) spark.vx = -spark.vx;
+		    if (Math.random() > .5) spark.vy = -spark.vy;
+		    firework.sparks.push(spark);
+		  }
+		  fireworks.push(firework);
+		  resetFirework(firework);
+		}
+		window.requestAnimationFrame(explode);
+	}
+	
+
+}
+function resetFirework(firework) {
+  firework.x = Math.floor(Math.random() * canvas.width);
+  firework.y = canvas.height;
+  firework.age = 0;
+  firework.phase = 'fly'; 
+}
+function deleteFirework(firework) {
+  var st = fireworks.indexOf(firework);
+  fireworks.splice(st, 1);
+}
+  
+function explode() {
+	if(fireworks.length > 0){		
+	  context.clearRect(0, 0, canvas.width, canvas.height);
+	  fireworks.forEach((firework,index) => {
+	    if (firework.phase == 'explode') {
+	        firework.sparks.forEach((spark) => {
+	        for (let i = 0; i < 10; i++) {
+	          let trailAge = firework.age + i;
+	          let x = firework.x + spark.vx * trailAge;
+	          let y = firework.y + spark.vy * trailAge + spark.weight * trailAge * spark.weight * trailAge;
+	          let fade = i * 20 - firework.age * 2;
+	          
+	          let r = Math.floor(spark.red * fade);
+	          let g = Math.floor(spark.green * fade);
+	          let b = Math.floor(spark.blue * fade);
+	          context.beginPath();
+	          context.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',1)';
+	          context.rect(x, y, 4, 4);
+	          context.fill();
+	        }
+	      });
+	      firework.age++;
+	      if (firework.age > 100 && Math.random() < .05) {                    
+	        if(fireworks_amount < count){
+	        	deleteFirework(firework);	       
+	      	}else{
+	      		resetFirework(firework);
+	    	}
+	        count++;  
+	      }
+	    } else {
+	      firework.y = firework.y - 10;
+	      for (let spark = 0; spark < 15; spark++) {
+	        context.beginPath();
+	        context.fillStyle = 'rgba(' + index * 50 + ',' + spark * 17 + ',0,1)';
+	        context.rect(firework.x + Math.random() * spark - spark / 2, firework.y + spark * 4, 4, 4);
+	        context.fill();
+	      }
+	      if (Math.random() < .001 || firework.y < 200) firework.phase = 'explode';
+	    }
+	  });    
+	  window.requestAnimationFrame(explode);	
+	}
+	if( (fireworks.length > 0 && fireworks.length < 2) ){			
+		fireworks = [];	
+		context.clearRect(0, 0, W, H);
+	}
+}
+
+
+//confetti
+//snowflake particles
+var mp = 200; //max particles
+
+var rc = false;
+function doConfetti(){
+	if(!doingThing() ){
+		
+		rc = false;
+		for (var i = 0; i < mp; i++) {
+		    particles.push({
+		        x: Math.random() * W, //x-coordinate
+		        y: Math.random() * H, //y-coordinate
+		        r: Math.random() * 15 + 1, //radius
+		        d: Math.random() * mp, //density
+		        color: "rgba(" + Math.floor((Math.random() * 255)) + ", " + Math.floor((Math.random() * 255)) + ", " + Math.floor((Math.random() * 255)) + ", 0.8)",
+		        tilt: Math.floor(Math.random() * 5) - 5
+		    });
+		}
+		setTimeout( resetConfetti , 10000);
+	}	
+}
+//Lets draw the flakes
+function draw() {
+	
+	if(particles.length > 0){
+		context.clearRect(0, 0, W, H);
+	    for (var i = 0; i < particles.length; i++) {
+	        var p = particles[i];
+	        context.beginPath();
+	        context.lineWidth = p.r;
+	        context.strokeStyle = p.color; // Green path
+	        context.moveTo(p.x, p.y);
+	        context.lineTo(p.x + p.tilt + p.r / 2, p.y + p.tilt);
+	        context.stroke(); // Draw it
+	    }
+	    update();
+	}  
+	if( (particles.length > 0 && particles.length < 7) ){
+		
+		particles = [];	
+		context.clearRect(0, 0, W, H);
+	}
+}
+//Function to move the snowflakes
+//angle will be an ongoing incremental flag. Sin and Cos functions will be applied to it to create vertical and horizontal movements of the flakes
+var angle = 0;
+function update() {
+    angle += 0.01;
+    for (var i = particles.length-1; i >= 0; i--) {
+        var p = particles[i];
+        
+        //Updating X and Y coordinates
+        //We will add 1 to the cos function to prevent negative values which will lead flakes to move upwards
+        //Every particle has its own density which can be used to make the downward movement different for each flake
+        //Lets make it more random by adding in the radius
+        p.y += Math.cos(angle + p.d) + 1 + p.r / 2;
+        p.x += Math.sin(angle) * 2;
+
+        //Sending flakes back from the top when it exits
+        //Lets make it a bit more organic and let flakes enter from the left and right also.
+        if (p.x > W + 5 || p.x < -5 || p.y > H) {
+            if (i % 2 > 0) //66.67% of the flakes
+            {
+                particles[i] = {
+                    x: Math.random() * W,
+                    y: -10,
+                    r: p.r,
+                    d: p.d,
+                    color: p.color,
+                    tilt: p.tilt
+                };
+            } else {
+                //If the flake is exitting from the right
+                if (Math.sin(angle) > 0) {
+                    //Enter from the left
+                    particles[i] = {
+                        x: -5,
+                        y: Math.random() * H,
+                        r: p.r,
+                        d: p.d,
+                        color: p.color,
+                        tilt: p.tilt
+                    };
+                } else {
+                    //Enter from the right
+                    particles[i] = {
+                        x: W + 5,
+                        y: Math.random() * H,
+                        r: p.r,
+                        d: p.d,
+                        color: p.color,
+                        tilt: p.tilt
+                    };
+                }
+            }
+        }
+       
+        if(p.y >= H * 0.90 &&  rc ){
+        	
+        	deleteParticle(p) 
+        }
+        
+    }
+}
+
+//animation loop
+setInterval(draw, 20);
+
+function resetConfetti(){ rc = true;}
+function deleteParticle(particle) {
+  var st = particles.indexOf(particle);
+  particles.splice(st, 1);
+}
+//all
+function doingThing(){
+//	console.log( [fireworks.length, particles.length] );
+	if( fireworks.length > 0 || particles.length > 0){
+		
+		return(true);
+	}else{
+		count = 0;
+		return(false);
+	}
+		
+}
+function resetAll(){
+	fireworks = [];
+	particles = [];
+	count = 0;
+	context.clearRect(0, 0, W, H);
+}
+</script>
+</body>
+</html>
+
+ 

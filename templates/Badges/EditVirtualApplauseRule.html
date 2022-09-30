@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      {% include 'scripts.html' %}
+      <style>
+	
+      </style>
+   </head>
+   
+   <script>
+   //most of this page is repurpose code from EditVirtualCurrencyRule
+ document.addEventListener('DOMContentLoaded', function(){ // during edit function checks for the state of the checkbox and hides the field appropriately
+	 var amountVaries = document.getElementById("rule_varies");
+	 var ruleAmt=document.getElementById("rule_amt");
+	 if(amountVaries && amountVaries.checked) {
+		 ruleAmt.style.display ="none";
+         }
+		 
+ },false);
+ function valueChanged(){ //function makes the appropriate field changes to the page onchange of checkbox
+	 var rule_amt = document.getElementById("rule_amt")
+//	 var rule_amount = document.getElementById("rule_amount");
+	 var rule_varies = document.getElementById("rule_varies");
+         if(rule_varies) {
+	    if(rule_varies.checked){
+		 rule_amount.required=false;
+		 rule_amt.style.display ="none";
+		
+	    }else{
+		 rule_amt.style.display ="block"; 
+	    }
+         }
+ }
+
+</script>
+   
+   <body>
+   	
+      {% include 'heading.html' %}
+      {% include "playApplause.html" %}
+      <main>
+         <div class="row center-align">
+            <div class="col s12">
+               <h3>{{capitalEditOrCreate}} Rule for Earning Virtual Applause</h3>
+               <p><span class= "red-text">*</span> Denotes Required Fields.</p>
+            </div>
+         </div>
+         <div class="row">
+         <div class="col s12 m10 offset-m1">
+            <form id= "editRule" name= "editRule" action="/oneUp/badges/SaveVirtualApplauseRule" method="POST" {% if isRuleCustom == False %} onsubmit="return condOnSubmit();" {% endif %}>
+               {% csrf_token %}
+               <input type="hidden" name="vaRuleID" id="vaRuleID" value="{{vaRule.vaRuleID}}">
+               <input type="hidden" name="isRuleCustom" id="isRuleCustom" value="{{isRuleCustom}}">
+               
+               <input type="hidden" name="vaOption" id="vaOption" value="{{vaRule.ApplauseOption}}">
+               <div class="card">
+                  <div class="card-content">
+                     <div class="row">
+                        <div class="input-field col s12">
+                           <input  value="{{vaRule.vaRuleName}}" name="ruleName" id="rule_name" type="text" class="validate" required>
+                           <label for="rule_name"><span class= "red-text">*</span> Rule Name</label>
+                        </div>
+                     </div>                   
+                     {%if isRuleCustom == True %}
+                  <!--    <div class="row" style="margin: 0;">
+                        <div class="col s12">
+                       	<input class="filled-in" name="varyCheck" type="checkbox" id="rule_varies" onchange="valueChanged()" {{vcAmountVaries}} style="padding:0;"/> <!-- hides the rule amount field when checked -->
+                  <!--      	 <label for="rule_varies">Virtual Currency Award Varies</label>
+                        </div>
+                     </div>-->
+                     {% endif %}
+           			 <div class="input-field col s12">
+					  	<select name="applauseOption" onchange="changeAppaulse()" id="applauseOptionSelect">				  		  
+						  {% for ap in applauseOptionStruct %}
+					          <option value = {{ap.index}} id = id{{ap.index}}>{{ ap.name }} </option>
+					      {% endfor %}
+	
+					  </select>
+					  	<label>applauseSelect </label>
+					  	
+					  	 <button class ="btn" type="button" onclick = "testApplause()">try out</button>
+					 	<div> 
+						  	<p><br>Note: There is no function that keeps tracks what virtual applause is given to each students so prevent 
+						              unwanted repeats we recommend specifying and using condition percentage of last warmup attempt score out of 
+						             possible score which uses the last score.
+						    </p>
+					    </div> 
+					  </div> 
+					  
+					  
+						
+					  
+                     {% if isRuleCustom == False %}
+                        {% include "Badges/conditionInterface.html" %}
+                     	 
+                    
+                       {% endif %}
+                  </div>
+                  
+                  <div class="card-action right-align">
+                     <button class="btn waves-effect waves-light" id="{{editOrCreate}}" type="submit" name="{{editOrCreate}}">{{captialSaveOrCreate}} Rule<i class="material-icons right">send</i>
+                     </button>
+                     <a class="waves-effect waves-light btn" href="/oneUp/badges/VirtualApplauseEarnRuleList?isRuleCustom={{isRuleCustom}}">											
+                     <i class="material-icons left">close</i>Cancel</a>                                                                  									
+                  </div>
+               </div>
+            </form>
+            </div>
+         </div>
+      </main>
+      <script>
+       if( '{{capitalEditOrCreate}}' == "Edit" ){
+    	   var aSelect = document.getElementById( "id"+'{{vaRule.ApplauseOption}}');
+    	   aSelect.selected = true;
+       }
+	   function changeAppaulse(){
+		   var a = document.getElementById('applauseOptionSelect').selectedIndex;
+		   var va = document.getElementById("vaOption");
+		   va.value = document.getElementsByTagName("option")[a].value;
+		   //console.log(va.value);
+	   }
+	   function testApplause(){
+		   var a = document.getElementById('applauseOptionSelect').selectedIndex;
+		   var va = document.getElementById("vaOption");
+		   va.value = document.getElementsByTagName("option")[a].value;
+		  
+		   doApplause(va.value);
+		   console.log(va.value);
+	   }
+	   
+   </script>
+      {% include 'footer.html' %}
+   </body>
+   
+
+</html>
