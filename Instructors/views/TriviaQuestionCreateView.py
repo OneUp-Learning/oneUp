@@ -26,7 +26,7 @@ def CreateTriviaQuestion(request):
         triviaID = json_data['triviaID']
         question_type = json_data["question_type"]
         
-        if triviaID:
+        if triviaID: 
             trivia = Trivia.objects.get(triviaID=triviaID, courseID=currentCourse)
             if trivia:
                 new_question = TriviaQuestion(triviaID=trivia, questionText = question, questionType=question_type, maxPoints=max_points)
@@ -66,7 +66,11 @@ def editTriviaTrueFalseQuestion(request):
                         context_dict['answers'] = sorted(zip(range(1, len(trivia_answerTexts) + 1), trivia_answerTexts, trivia_answerCorrect), key=lambda x: x[0])
                         
             return render(request, 'instructors/TriviaTrueFalseForm.html', context_dict)
-    elif request.method == "POST" and request.is_ajax:
+        
+def editTriviaQuestion(request):
+    context_dict, currentCourse = initialContextDict(request)
+    
+    if request.method == "POST" and request.is_ajax:
         json_data = json.loads(request.body)
         if 'triviaID' in json_data:
             triviaID = json_data['triviaID']
@@ -100,6 +104,34 @@ def editTriviaTrueFalseQuestion(request):
         return JsonResponse({"success": False})
     return HttpResponseNotFound("<h1>Page not found</h1>")
 
+def editTriviaMultipleAnswerQuestion(request):
+    context_dict, currentCourse = initialContextDict(request)
+    if request.method == "GET":
+        if 'triviaID' in request.GET:
+            context_dict['triviaID'] = request.GET['triviaID']
+            trivia = Trivia.objects.get(triviaID=int(request.GET['triviaID']), courseID=currentCourse)
+            if trivia:
+                context_dict['trivia'] = trivia
+                context_dict['trivia_name'] = trivia.triviaName
+                
+                if 'questionID' in request.GET:
+                    requested_question = TriviaQuestion.objects.get(questionID=int(request.GET['questionID']), triviaID=trivia)
+                    if requested_question:
+                        context_dict['questionID'] = requested_question.questionID
+                        context_dict['questionText'] = requested_question.questionText
+                        context_dict['maxPoints'] = requested_question.maxPoints
+                        possible_answers = TriviaAnswer.objects.filter(questionID=requested_question)
+                        
+                        trivia_answerTexts = []
+                        trivia_answerCorrect = []
+                        for answer in possible_answers:
+                            print(answer.answerText)
+                            print("correct: ", answer.isCorrect)
+                            trivia_answerTexts.append(answer.answerText)
+                            trivia_answerCorrect.append(answer.isCorrect)
+                        context_dict['answers'] = sorted(zip(range(1, len(trivia_answerTexts) + 1), trivia_answerTexts, trivia_answerCorrect), key=lambda x: x[0])
+                        
+    return render(request, 'instructors/TriviaMultipleAnswerForm.html', context_dict)
 
 def deleteTriviaQuestion(request):
     # AJAX Handler for trivia questions

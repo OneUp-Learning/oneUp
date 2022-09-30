@@ -64,6 +64,7 @@ def triviaSessionCreateView(request):
                 context_dict['triviaName'] = trivia.triviaName
                 context_dict['maxPoints'] = trivia.maximumPointsPerQuestion
                 context_dict['maxVC'] = trivia.maximumVCPossible
+                context_dict['questionCount'] = TriviaQuestion.objects.filter(triviaID=trivia).count()
             
         generate_trivia_data(context_dict, currentCourse)
 

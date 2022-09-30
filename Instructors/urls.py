@@ -147,7 +147,7 @@ from Instructors.views.triviaDashboardView import createTriviaDashboard
 from Instructors.views.triviaSessionCreateView import triviaSessionCreateView
 from Instructors.views.triviaQuestionListView import createTriviaQuestionListView
 from Instructors.views.triviaSessionReviewView import triviaSessionReviewView
-from Instructors.views.TriviaQuestionCreateView import CreateTriviaQuestion, deleteTriviaQuestion, deleteTriviaQuestionsBatch, editTriviaTrueFalseQuestion
+from Instructors.views.TriviaQuestionCreateView import CreateTriviaQuestion, deleteTriviaQuestion, deleteTriviaQuestionsBatch, editTriviaMultipleAnswerQuestion, editTriviaQuestion, editTriviaTrueFalseQuestion
 
 
 admin.autodiscover()
@@ -317,5 +317,7 @@ urlpatterns = [
     url(r'^TriviaSessionReview', triviaSessionReviewView, name='triviaSessionReviewView'),
     url(r'^createTriviaQuestion', CreateTriviaQuestion, name='createTriviaQuestionView'),
     url(r'^TriviaTrueFalseForm', editTriviaTrueFalseQuestion, name='triviaTrueFalseForm'),
+    url(r'^editTriviaQuestion', editTriviaQuestion, name='editTriviaQuestion'),
+    url(r'^TriviaMultipleAnswerForm', editTriviaMultipleAnswerQuestion, name='triviaMultipleAnswerForm'),
 ]
 

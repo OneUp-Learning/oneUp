@@ -41,7 +41,7 @@
 		                       <label for="session_name"><span class="red-text">*</span> Trivia Session Name</label>
 		                    </div>
 		                    <div class="card-panel col s2 offset-s1">
-		                    	<h2 id="problem_count">0</h2>
+		                    	<h2 id="problem_count">{{questionCount}}</h2>
 		                    	<label for="problem_count">Questions in Trivia Set</label>
 		                    </div>
 		                    <div class="col s5">
@@ -54,7 +54,7 @@
 		                    </div>
 		                </div>
 		                <div class='card-action right-align'>
-							<a class="btn waves-effect waves-light" onclick="window.history.back()"><i class="material-icons left">menu</i>Back</a>
+							<a class="btn waves-effect waves-light" href="/oneUp/instructors/TriviaDashboard"><i class="material-icons left">navigate_before</i>Back</a>
 							<a class="btn waves-effect waves-light" href="/oneUp/instructors/TriviaQuestionList?triviaID={{triviaID}}"><i class="material-icons left">menu</i>Questions</a>
 							<button class="btn waves-effect waves-light" type="submit" name="submit">Save<i class="material-icons right">send</i>
 							</button>

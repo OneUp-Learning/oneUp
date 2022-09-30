@@ -1,56 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-   {% include 'scripts.html' %}
-   <!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
-   <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
-   <script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
-   <script>
+	<head>
+	{% include 'scripts.html' %}
+	<!-- <script src="/static/ThirdParty/ckeditor_4.6.2_custom1/ckeditor.js"></script> -->
+	<script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor-init.js"></script>
+	<script type="text/javascript" src="/static/ThirdParty/ckeditor/ckeditor/ckeditor.js"></script>
+	<script>
 
-		// questionID
-		function build_answer_array(){
-			let answer_array = [];
-			let correctAnswer = document.querySelector('input[name="correctAnswer"]:checked').value;
-			let answers = document.querySelectorAll('[name="correctAnswer"]')
-			answers.forEach(function(answer){
-				console.log(answer.value)
-				if(answer.value == correctAnswer){
-					answer_array.push({text: answer.value, 'isCorrect': true});
-				}else{
-					answer_array.push({text: answer.value, 'isCorrect': false});
-				}
-			})
-			return answer_array;
-		}
-		
-		function createQuestion(){
-			// todo: find question type
-			let question = document.getElementById("question_text").value;
-			let question_max_points = document.getElementById("question_max_points").value;
-			let answers = build_answer_array();
-			let question_type = "TF";
-			let params = {
-				method: 'POST',
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
-				},
-				body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', question: question, question_type: question_type, answers: answers, max_points: question_max_points})
-			};
-			console.log('sending')
-			fetch("/oneUp/instructors/createTriviaQuestion", params)
-			.then((response) => { return response.json()})
-			.then((response) => {
-				if (response.success){
-					window.history.back()
-				}
-			})
-			return false
+			// questionID
+			function build_answer_array(){
+				let answer_array = [];
+				let correctAnswer = document.querySelector('input[name="correctAnswer"]:checked').value;
+				let answers = document.querySelectorAll('[name="correctAnswer"]')
+				answers.forEach(function(answer){
+					if(answer.value == correctAnswer){
+						answer_array.push({text: answer.value, 'isCorrect': true});
+					}else{
+						answer_array.push({text: answer.value, 'isCorrect': false});
+					}
+				})
+				return answer_array;
 			}
-	
-			function editQuestion(){
+			
+			function createQuestion(){
+				// todo: find question type
 				let question = document.getElementById("question_text").value;
 				let question_max_points = document.getElementById("question_max_points").value;
 				let answers = build_answer_array();
@@ -62,109 +36,146 @@
 						'Content-Type': 'application/json',
 						'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
 					},
-					body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', questionID: {{questionID}}, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
+					body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', question: question, question_type: question_type, answers: answers, max_points: question_max_points})
 				};
-				fetch("/oneUp/instructors/TriviaTrueFalseForm", params)
+				fetch("/oneUp/instructors/createTriviaQuestion", params)
 				.then((response) => { return response.json()})
 				.then((response) => {
 					if (response.success){
-						window.history.back()
+						return true;
 					}
 				})
 				return false
 				}
-				$(document).ready(function () {
-					document.getElementById("submit").addEventListener("click", {% if questionID %}editQuestion{% else %}createQuestion{% endif %});
-				});
-   </script>
-   <style>
-      #hover {
-         left: 300px !important;
-         top: 0 !important
-      }
-   </style>
+		
+				function editQuestion(){
+					let question = document.getElementById("question_text").value;
+					let question_max_points = document.getElementById("question_max_points").value;
+					let answers = build_answer_array();
+					let question_type = "TF";
+					let params = {
+						method: 'POST',
+						headers: {
+							'Accept': 'application/json',
+							'Content-Type': 'application/json',
+							'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val(),
+						},
+						body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', questionID: {% if questionID %} {{questionID}} {% else %} -1 {% endif %}, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
+					};
+					fetch("/oneUp/instructors/editTriviaQuestion", params)
+					.then((response) => { return response.json()})
+					.then((response) => {
+						if (response.success){
+							let form = document.getElementById('trueFalseForm');
 
-</head>
+							form.style.display = 'none';
 
-<body>
-   {% include 'heading.html' %}
-  <main>
-	  <div class="row center-align">
-		<div class="col s12 m10 offset-m1">
-		  <h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{trivia_name}}</h3>
-		  <h4>Create / Edit Trivia Question</h4>
-			<p><span class="red-text">*</span> Denotes Required Fields.</p>
-		  </div>
-	  </div>
-	 <div class="row">
-		<div class="col s12 m10 offset-m1">
-			{% csrf_token %}
-			<input type="hidden" name="triviaID" value="{{triviaID}}">
-			<div class="card">
-				<div class="card-content">
-					<div class="row">
-					<div class="col s12">
-						<h5>Question Info</h5>
-					</div>
-					<div class="input-field col s12">
-						<i class="material-icons prefix">mode_edit</i>
-						<input value="{{questionText}}" name="question_text" id="question_text" type="text" class="validate" pattern=".*\S+.*" required>
-						<label for="preview"><span class="red-text">*</span> Question Text</label>
-					</div>
-					<div class="input-field col s12">
-						<i class="material-icons prefix">mode_edit</i>
-						<input value="{{maxPoints}}" name="question_max_points" id="question_max_points" type="number" required>
-						<label for="preview"><span class="red-text">*</span> Question Max Points</label>
-					</div>
-					<!--
-					<div class="row">
-					<div class="col s12">
-						<label for="question_text"><span class="red-text">*</span> Question Description</label>
-						<textarea name="questionText" id="question_text" rows="2" cols="70"
-									required data-processed="0"
-																data-config="{&quot;skin&quot;: &quot;moono-lisa&quot;, &quot;toolbar_Basic&quot;: [[&quot;Source&quot;, &quot;-&quot;, &quot;Bold&quot;, &quot;Italic&quot;]], &quot;toolbar_Full&quot;: [[&quot;Styles&quot;, &quot;Format&quot;, &quot;Bold&quot;, &quot;Italic&quot;, &quot;Underline&quot;, &quot;Strike&quot;, &quot;SpellChecker&quot;, &quot;Undo&quot;, &quot;Redo&quot;], [&quot;Link&quot;, &quot;Unlink&quot;, &quot;Anchor&quot;], [&quot;Image&quot;, &quot;Flash&quot;, &quot;Table&quot;, &quot;HorizontalRule&quot;], [&quot;TextColor&quot;, &quot;BGColor&quot;], [&quot;Smiley&quot;, &quot;SpecialChar&quot;], [&quot;Source&quot;]], &quot;toolbar&quot;: &quot;Custom&quot;, &quot;height&quot;: 291, &quot;width&quot;: &quot;100%&quot;, &quot;filebrowserWindowWidth&quot;: 940, &quot;filebrowserWindowHeight&quot;: 725, &quot;toolbar_Custom&quot;: [{&quot;name&quot;: &quot;document&quot;, &quot;items&quot;: [&quot;Source&quot;, &quot;-&quot;, &quot;Preview&quot;, &quot;Print&quot;, &quot;-&quot;, &quot;Templates&quot;]}, {&quot;name&quot;: &quot;clipboard&quot;, &quot;items&quot;: [&quot;Cut&quot;, &quot;Copy&quot;, &quot;Paste&quot;, &quot;PasteText&quot;, &quot;-&quot;, &quot;Undo&quot;, &quot;Redo&quot;]}, {&quot;name&quot;: &quot;editing&quot;, &quot;items&quot;: [&quot;Find&quot;, &quot;Replace&quot;, &quot;SelectAll&quot;]}, &quot;/&quot;, {&quot;name&quot;: &quot;basicstyles&quot;, &quot;items&quot;: [&quot;Bold&quot;, &quot;Italic&quot;, &quot;Underline&quot;, &quot;Strike&quot;, &quot;Subscript&quot;, &quot;Superscript&quot;, &quot;-&quot;, &quot;RemoveFormat&quot;]}, {&quot;name&quot;: &quot;paragraph&quot;, &quot;items&quot;: [&quot;NumberedList&quot;, &quot;BulletedList&quot;, &quot;-&quot;, &quot;Outdent&quot;, &quot;Indent&quot;, &quot;-&quot;, &quot;Blockquote&quot;, &quot;-&quot;, &quot;JustifyLeft&quot;, &quot;JustifyCenter&quot;, &quot;JustifyRight&quot;, &quot;JustifyBlock&quot;, &quot;-&quot;, &quot;BidiLtr&quot;, &quot;BidiRtl&quot;, &quot;Language&quot;]}, {&quot;name&quot;: &quot;links&quot;, &quot;items&quot;: [&quot;Link&quot;, &quot;Unlink&quot;]}, {&quot;name&quot;: &quot;insert&quot;, &quot;items&quot;: [&quot;Image&quot;, &quot;Table&quot;, &quot;HorizontalRule&quot;, &quot;Smiley&quot;, &quot;EqnEditor&quot;, &quot;CodeSnippet&quot;, &quot;Markdown&quot;]}, &quot;/&quot;, {&quot;name&quot;: &quot;styles&quot;, &quot;items&quot;: [&quot;Styles&quot;, &quot;Format&quot;, &quot;Font&quot;, &quot;FontSize&quot;]}, {&quot;name&quot;: &quot;colors&quot;, &quot;items&quot;: [&quot;TextColor&quot;, &quot;BGColor&quot;]}, {&quot;name&quot;: &quot;about&quot;, &quot;items&quot;: [&quot;About&quot;]}], &quot;format_tags&quot;: &quot;p;h1;h2;h3;pre&quot;, &quot;removeDialogTabs&quot;: &quot;image:advanced;link:advanced&quot;, &quot;line_height&quot;: &quot;0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em&quot;, &quot;autoParagraph&quot;: false, &quot;tabSpaces&quot;: 4, &quot;codeSnippet_theme&quot;: &quot;default&quot;, &quot;extraPlugins&quot;: &quot;uploadimage,uploadwidget,eqneditor,autolink,autoembed,embedsemantic,autogrow,pastecode,pastefromword,widget,lineutils,clipboard,dialog,dialogui,elementspath,smiley,codesnippet,markdown&quot;, &quot;filebrowserUploadUrl&quot;: &quot;/ckeditor/upload/&quot;, &quot;filebrowserBrowseUrl&quot;: &quot;/ckeditor/browse/&quot;, &quot;language&quot;: &quot;en-us&quot;}"
-							data-external-plugin-resources="[]"
-							data-id="question_text" data-type="ckeditortype">Question Text</textarea>
-						</div>
-					</div>
-					-->
-				</div>
-				
-				<div class="row">
-					<div class="col s12">
-						<h5>Question Answer</h5>
-					</div>
-					<div id="answers">
-						<input type="hidden" name="ansPK1" value="1">
-						<div class="row s12">
-						{% if answers|length > 1 %}
-							{% for i,questionAnswerTest, questionAnswerIsCorrect in answers %}
-								<div class="col s12 left">
-									<input type="radio" name="correctAnswer" id="answer_{{i}}" value="{{questionAnswerTest}}" required{% if questionAnswerIsCorrect %} checked{% endif %}>
-									<label for="answer_{{i}}">{{questionAnswerTest}}</label>
-								</div>
-							{% endfor %}
-						{% else %}
-							<div class="col s12 left">
-								<input type="radio" name="correctAnswer" id="answer_1" value="True" required>
-								<label for="answer_1">True</label>
-							</div>
-							<!-- default case -->
-							<div class="col s12 left">
-								<input type="radio" name="correctAnswer" id="answer_2" value="False" required>
-								<label for="answer_2">False</label>
-							</div>
-						{% endif %}
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="card-action right-align">
-				<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaQuestionList?triviaID={{triviaID}}" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
-				<button class="btn waves-effect waves-light" name="submit" id="submit">Save<i class="material-icons right">send</i></button>
+							let processing = document.createElement('span');
+
+							processing.appendChild(document.createTextNode('processing ...'));
+
+							form.parentNode.insertBefore(processing, form);
+
+							form.submit();
+						}
+					})
+					return false
+					}
+					$(document).ready(function () {
+						document.getElementById("submit").addEventListener("click", {% if questionID %}editQuestion{% else %}createQuestion{% endif %});
+					});
+	</script>
+	<style>
+		#hover {
+			left: 300px !important;
+			top: 0 !important
+		}
+	</style>
+
+	</head>
+
+	<body>
+	{% include 'heading.html' %}
+	<main>
+		<div class="row center-align">
+			<div class="col s12 m10 offset-m1">
+			<h3 style="overflow-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">{{trivia_name}}</h3>
+			<h4>Create / Edit Trivia Question</h4>
+				<p><span class="red-text">*</span> Denotes Required Fields.</p>
 			</div>
 		</div>
-	</div>
-  </main>
-      {% include 'footer.html' %}
-</body>
+		<div class="row">
+			<div class="col s12 m10 offset-m1">
+				<form id="trueFalseForm" name="question" action="/oneUp/instructors/TriviaQuestionList" method="POST">
+					{% csrf_token %}
+					<input type="hidden" name="triviaID" value="{{triviaID}}">
+					<div class="card">
+						<div class="card-content">
+							<div class="row">
+							<div class="col s12">
+								<h5>Question Info</h5>
+							</div>
+							<div class="input-field col s12">
+								<i class="material-icons prefix">mode_edit</i>
+								<input value="{{questionText}}" name="question_text" id="question_text" type="text" class="validate" pattern=".*\S+.*" required>
+								<label for="preview"><span class="red-text">*</span> Question Text</label>
+							</div>
+							<div class="input-field col s12">
+								<i class="material-icons prefix">mode_edit</i>
+								<input value="{{maxPoints}}" name="question_max_points" id="question_max_points" type="number" required>
+								<label for="preview"><span class="red-text">*</span> Question Max Points</label>
+							</div>
+							<!--
+							<div class="row">
+							<div class="col s12">
+								<label for="question_text"><span class="red-text">*</span> Question Description</label>
+								<textarea name="questionText" id="question_text" rows="2" cols="70"
+											required data-processed="0"
+																		data-config="{&quot;skin&quot;: &quot;moono-lisa&quot;, &quot;toolbar_Basic&quot;: [[&quot;Source&quot;, &quot;-&quot;, &quot;Bold&quot;, &quot;Italic&quot;]], &quot;toolbar_Full&quot;: [[&quot;Styles&quot;, &quot;Format&quot;, &quot;Bold&quot;, &quot;Italic&quot;, &quot;Underline&quot;, &quot;Strike&quot;, &quot;SpellChecker&quot;, &quot;Undo&quot;, &quot;Redo&quot;], [&quot;Link&quot;, &quot;Unlink&quot;, &quot;Anchor&quot;], [&quot;Image&quot;, &quot;Flash&quot;, &quot;Table&quot;, &quot;HorizontalRule&quot;], [&quot;TextColor&quot;, &quot;BGColor&quot;], [&quot;Smiley&quot;, &quot;SpecialChar&quot;], [&quot;Source&quot;]], &quot;toolbar&quot;: &quot;Custom&quot;, &quot;height&quot;: 291, &quot;width&quot;: &quot;100%&quot;, &quot;filebrowserWindowWidth&quot;: 940, &quot;filebrowserWindowHeight&quot;: 725, &quot;toolbar_Custom&quot;: [{&quot;name&quot;: &quot;document&quot;, &quot;items&quot;: [&quot;Source&quot;, &quot;-&quot;, &quot;Preview&quot;, &quot;Print&quot;, &quot;-&quot;, &quot;Templates&quot;]}, {&quot;name&quot;: &quot;clipboard&quot;, &quot;items&quot;: [&quot;Cut&quot;, &quot;Copy&quot;, &quot;Paste&quot;, &quot;PasteText&quot;, &quot;-&quot;, &quot;Undo&quot;, &quot;Redo&quot;]}, {&quot;name&quot;: &quot;editing&quot;, &quot;items&quot;: [&quot;Find&quot;, &quot;Replace&quot;, &quot;SelectAll&quot;]}, &quot;/&quot;, {&quot;name&quot;: &quot;basicstyles&quot;, &quot;items&quot;: [&quot;Bold&quot;, &quot;Italic&quot;, &quot;Underline&quot;, &quot;Strike&quot;, &quot;Subscript&quot;, &quot;Superscript&quot;, &quot;-&quot;, &quot;RemoveFormat&quot;]}, {&quot;name&quot;: &quot;paragraph&quot;, &quot;items&quot;: [&quot;NumberedList&quot;, &quot;BulletedList&quot;, &quot;-&quot;, &quot;Outdent&quot;, &quot;Indent&quot;, &quot;-&quot;, &quot;Blockquote&quot;, &quot;-&quot;, &quot;JustifyLeft&quot;, &quot;JustifyCenter&quot;, &quot;JustifyRight&quot;, &quot;JustifyBlock&quot;, &quot;-&quot;, &quot;BidiLtr&quot;, &quot;BidiRtl&quot;, &quot;Language&quot;]}, {&quot;name&quot;: &quot;links&quot;, &quot;items&quot;: [&quot;Link&quot;, &quot;Unlink&quot;]}, {&quot;name&quot;: &quot;insert&quot;, &quot;items&quot;: [&quot;Image&quot;, &quot;Table&quot;, &quot;HorizontalRule&quot;, &quot;Smiley&quot;, &quot;EqnEditor&quot;, &quot;CodeSnippet&quot;, &quot;Markdown&quot;]}, &quot;/&quot;, {&quot;name&quot;: &quot;styles&quot;, &quot;items&quot;: [&quot;Styles&quot;, &quot;Format&quot;, &quot;Font&quot;, &quot;FontSize&quot;]}, {&quot;name&quot;: &quot;colors&quot;, &quot;items&quot;: [&quot;TextColor&quot;, &quot;BGColor&quot;]}, {&quot;name&quot;: &quot;about&quot;, &quot;items&quot;: [&quot;About&quot;]}], &quot;format_tags&quot;: &quot;p;h1;h2;h3;pre&quot;, &quot;removeDialogTabs&quot;: &quot;image:advanced;link:advanced&quot;, &quot;line_height&quot;: &quot;0.8em;1em;1.1em;1.2em;1.3em;1.4em;1.5em&quot;, &quot;autoParagraph&quot;: false, &quot;tabSpaces&quot;: 4, &quot;codeSnippet_theme&quot;: &quot;default&quot;, &quot;extraPlugins&quot;: &quot;uploadimage,uploadwidget,eqneditor,autolink,autoembed,embedsemantic,autogrow,pastecode,pastefromword,widget,lineutils,clipboard,dialog,dialogui,elementspath,smiley,codesnippet,markdown&quot;, &quot;filebrowserUploadUrl&quot;: &quot;/ckeditor/upload/&quot;, &quot;filebrowserBrowseUrl&quot;: &quot;/ckeditor/browse/&quot;, &quot;language&quot;: &quot;en-us&quot;}"
+									data-external-plugin-resources="[]"
+									data-id="question_text" data-type="ckeditortype">Question Text</textarea>
+								</div>
+							</div>
+							-->
+						</div>
+						
+						<div class="row">
+							<div class="col s12">
+								<h5>Question Answer</h5>
+							</div>
+							<div id="answers">
+								<input type="hidden" name="ansPK1" value="1">
+								<div class="row s12">
+								{% if answers|length > 1 %}
+									{% for i,questionAnswerTest, questionAnswerIsCorrect in answers %}
+										<div class="col s12 left">
+											<input type="radio" name="correctAnswer" id="answer_{{i}}" value="{{questionAnswerTest}}" required{% if questionAnswerIsCorrect %} checked{% endif %}>
+											<label for="answer_{{i}}">{{questionAnswerTest}}</label>
+										</div>
+									{% endfor %}
+								{% else %}
+									<div class="col s12 left">
+										<input type="radio" name="correctAnswer" id="answer_1" value="True" required>
+										<label for="answer_1">True</label>
+									</div>
+									<!-- default case -->
+									<div class="col s12 left">
+										<input type="radio" name="correctAnswer" id="answer_2" value="False" required>
+										<label for="answer_2">False</label>
+									</div>
+								{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card-action right-align">
+						<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaQuestionList?triviaID={{triviaID}}" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
+						<button class="btn waves-effect waves-light" name="submit" id="submit">Save<i class="material-icons right">send</i></button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</main>
+		{% include 'footer.html' %}
+	</body>
+</html>
