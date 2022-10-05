@@ -35,6 +35,9 @@ else:
         path('service-worker.js',(TemplateView.as_view(
             template_name="Chat/service-worker.js",
             content_type='application/javascript')), name='service-worker.js'),
+        path('trivia-service-worker.js',(TemplateView.as_view(
+            template_name="Trivia/service-worker.js",
+            content_type='application/javascript')), name='service-worker.js'),
         url(r'^$', RedirectView.as_view(url="/oneUp/home"))
     ]
 

@@ -13,19 +13,27 @@ from Students.models import Student
 
 def triviaHomeView(request):
     user = request.user
-    # Test for anonymous user
+    
+    # anonymous user test
     if user.is_anonymous:
         return redirect('/oneUp/home')
-    # Teachers are students too ;)
+    
+    if 'triviaID' in request.GET:
+        request.session['triviaID'] = request.GET['triviaID']
     if not Student.objects.get(user=user).isTestStudent:
+        isStudent = True
         print("Student")
         context_dict,currentCourse = studentInitialContextDict(request)
-        if not context_dict['ccparams'].triviaEnabled:
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/oneUp/students/StudentCourseHome'))
+        if not context_dict['ccparams'].triviaEnabled or not 'triviaID' in request.session:
+            return redirect(request.META.get('HTTP_REFERER', '/oneUp/students/StudentCourseHome'))
+        else:
+            return redirect(request.META.get('HTTP_REFERER', '/oneUp/trivia/triviaHome/player'))
     else:
+        isStudent = False
         print("Teacher")
         context_dict, currentCourse = initialContextDict(request)
-        if not context_dict['ccparams'].triviaEnabled:
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/oneUp/instructors/instructorCourseHome'))
-
-    return render(request, 'Trivia/trivia.html', context_dict)
+        if not context_dict['ccparams'].triviaEnabled or not 'triviaID' in request.session:
+            return redirect(request.META.get('HTTP_REFERER', '/oneUp/instructors/instructorCourseHome'))
+        else:
+            return redirect(request.META.get('HTTP_REFERER', '/oneUp/trivia/triviaHome/game'))
+        

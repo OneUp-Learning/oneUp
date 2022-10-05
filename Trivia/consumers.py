@@ -71,15 +71,17 @@ class TriviaConsumer(WebsocketConsumer):
                     'answer4': '',
                     'correctanswer': 0,
                 }
-                answers = TriviaAnswer.objects.filter(questionID=question)
                 
-                answer_count = 1
+                answers = TriviaAnswer.objects.filter(questionID=question)
+                #Display contents of queryset
+                answer_count = 0
                 for answer in answers:
-                    if answer.isCorrect: # Update the correct answer
-                        question_dict['correctanswer'] = answer_count
-                    # append the answer to the question
-                    question_dict['answer' + str(answer_count)] = answer.answerText
                     answer_count+=1 # increment the answer count
+                    if answer.isCorrect:
+                        print("found correct answer" + answer.answerText)
+                        question_dict['correctanswer'] = answer_count
+                    question_dict['answer%d' % answer_count] = answer.answerText
+                    
                 return question_dict
             
             question_array = []
@@ -150,15 +152,6 @@ class TriviaConsumer(WebsocketConsumer):
                         'name': text_data_json['name'],
                     }
                 )
-        elif message_type == "room-joined": # Send player data to the host
-            async_to_sync(self.channel_layer.group_send)(
-                    self.room_group_name,
-                    {
-                        'type': 'broadcast',
-                        'event': message_type,
-                        'name': text_data_json['name'],
-                    }
-                )
         elif message_type == "question-over": # When the instructor ends the question
             async_to_sync(self.channel_layer.group_send)(
                     self.room_group_name,
@@ -173,7 +166,6 @@ class TriviaConsumer(WebsocketConsumer):
                     {
                         'type': 'broadcast',
                         'event': message_type,
-                        'question_count': text_data_json['question_count'],
                     }
                 )
         elif message_type == "question-answered": # Player answered a question

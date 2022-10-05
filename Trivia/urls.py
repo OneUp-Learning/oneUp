@@ -30,4 +30,5 @@ urlpatterns = [
     
     # Trivia API stuff
     url(r'^api/trivia/getTriviaQuestions/?$', DoSomething),
+    
 ]
