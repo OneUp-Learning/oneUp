@@ -34,4 +34,4 @@ def createTriviaDashboard(request):
 
     generate_trivia_data(context_dict, currentCourse)
 
-    return render(request, 'Instructors/TriviaDashboard.html', context_dict)
+    return render(request, 'Trivia/TriviaDashboard.html', context_dict)

@@ -38,7 +38,7 @@
 					},
 					body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', question: question, question_type: question_type, answers: answers, max_points: question_max_points})
 				};
-				fetch("/oneUp/instructors/createTriviaQuestion", params)
+				fetch("/oneUp/trivia/createTriviaQuestion", params)
 				.then((response) => { return response.json()})
 				.then((response) => {
 					if (response.success){
@@ -62,7 +62,7 @@
 						},
 						body: JSON.stringify({triviaID: {{triviaID}}, question_type: 'TF', questionID: {% if questionID %} {{questionID}} {% else %} -1 {% endif %}, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
 					};
-					fetch("/oneUp/instructors/editTriviaQuestion", params)
+					fetch("/oneUp/trivia/editTriviaQuestion", params)
 					.then((response) => { return response.json()})
 					.then((response) => {
 						if (response.success){
@@ -106,7 +106,7 @@
 		</div>
 		<div class="row">
 			<div class="col s12 m10 offset-m1">
-				<form id="trueFalseForm" name="question" action="/oneUp/instructors/TriviaQuestionList" method="POST">
+				<form id="trueFalseForm" name="question" action="/oneUp/trivia/TriviaQuestionList" method="POST">
 					{% csrf_token %}
 					<input type="hidden" name="triviaID" value="{{triviaID}}">
 					<div class="card">
@@ -169,7 +169,7 @@
 						</div>
 					</div>
 					<div class="card-action right-align">
-						<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaQuestionList?triviaID={{triviaID}}" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
+						<a class="waves-effect waves-light btn" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
 						<button class="btn waves-effect waves-light" name="submit" id="submit">Save<i class="material-icons right">send</i></button>
 					</div>
 				</form>

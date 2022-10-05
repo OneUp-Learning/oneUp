@@ -43,7 +43,7 @@ from Instructors.views.courseInfoView import courseInformation
 from Instructors.views.createStudentListView import createStudentListView
 from Instructors.views.createStudentView import createStudentViewUnchecked, validateCreateStudent
 
-from Instructors.views.deleteView import deleteTrivia, deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteActivity, deleteAnnouncement, deleteManualSpendRule
+from Instructors.views.deleteView import deleteQuestion, deleteChallenge, deleteSkill, deleteQuestionFromChallenge, deleteUser, deleteStudent, deleteTopic, deleteActivity, deleteAnnouncement, deleteManualSpendRule
 from Instructors.views.imageView import imageUpload, imageDelete, imageList
 from Instructors.views.importStudentsView import importStudents, saveImportStudentsPasswords
 
@@ -88,7 +88,7 @@ from Instructors.views.reorderChallengeSaveQuestions import \
     reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 from Instructors.views.reorderViews import (receive_item_in_section,
-                                            reorder_list, reorderTriviaQuestions)
+                                            reorder_list, reorderGroups, reorderTriviaQuestions)
 from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
@@ -141,15 +141,6 @@ from Instructors.views.flashCardCreateView import CreateFlashCards
 from Instructors.views.createPlayerType import createPlayerTypeView
 from Instructors.views.viewPlayerType import viewPlayerTypeView
 from Instructors.views.playerTypeList import playerTypeListView
-
-# Trivia
-from Instructors.views.reorderViews import reorderGroups
-from Instructors.views.triviaDashboardView import createTriviaDashboard
-from Instructors.views.triviaSessionCreateView import triviaSessionCreateView
-from Instructors.views.triviaQuestionListView import createTriviaQuestionListView
-from Instructors.views.triviaSessionReviewView import triviaSessionReviewView
-from Instructors.views.TriviaQuestionCreateView import CreateTriviaQuestion, deleteTriviaQuestion, deleteTriviaQuestionsBatch, editTriviaMultipleAnswerQuestion, editTriviaQuestion, editTriviaTrueFalseQuestion
-
 
 admin.autodiscover()
 urlpatterns = [
@@ -308,18 +299,5 @@ urlpatterns = [
     url(r'^CreatePlayerType', createPlayerTypeView, name='createPlayerType'),
     url(r'^ViewPlayerType', viewPlayerTypeView, name='viewPlayerType'),
     url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList'),
-    #Trivia
-    url(r'^TriviaDashboard', createTriviaDashboard, name='triviaDashboardView'),
-    url(r'^TriviaSessionSetup', triviaSessionCreateView, name='triviaSessionCreateView'),
-    url(r'^TriviaQuestionList', createTriviaQuestionListView, name='createTriviaQuestionListView'),
-    url(r'^removeQuestionTriviaBatch', deleteTriviaQuestionsBatch, name='deleteTriviaQuestionsBatch'),
-    url(r'^deleteSingleTriviaQuestion', deleteTriviaQuestion, name='deleteTriviaQuestion'),
-    url(r'^deleteTrivia', deleteTrivia, name='deleteTrivia'),
-    url(r'^reorderTriviaQuestions', reorderTriviaQuestions, name='reorderTriviaQuestions'),
-    url(r'^TriviaSessionReview', triviaSessionReviewView, name='triviaSessionReviewView'),
-    url(r'^createTriviaQuestion', CreateTriviaQuestion, name='createTriviaQuestionView'),
-    url(r'^TriviaTrueFalseForm', editTriviaTrueFalseQuestion, name='triviaTrueFalseForm'),
-    url(r'^editTriviaQuestion', editTriviaQuestion, name='editTriviaQuestion'),
-    url(r'^TriviaMultipleAnswerForm', editTriviaMultipleAnswerQuestion, name='triviaMultipleAnswerForm'),
 ]
 

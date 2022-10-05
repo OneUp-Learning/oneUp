@@ -65,13 +65,14 @@ def editTriviaTrueFalseQuestion(request):
                             trivia_answerCorrect.append(answer.isCorrect)
                         context_dict['answers'] = sorted(zip(range(1, len(trivia_answerTexts) + 1), trivia_answerTexts, trivia_answerCorrect), key=lambda x: x[0])
                         
-            return render(request, 'instructors/TriviaTrueFalseForm.html', context_dict)
+            return render(request, 'Trivia/TriviaTrueFalseForm.html', context_dict)
         
 def editTriviaQuestion(request):
     context_dict, currentCourse = initialContextDict(request)
     
     if request.method == "POST" and request.is_ajax:
         json_data = json.loads(request.body)
+        print(json_data)
         if 'triviaID' in json_data:
             triviaID = json_data['triviaID']
             trivia = Trivia.objects.get(triviaID=int(triviaID), courseID=currentCourse)
@@ -131,7 +132,7 @@ def editTriviaMultipleAnswerQuestion(request):
                             trivia_answerCorrect.append(answer.isCorrect)
                         context_dict['answers'] = sorted(zip(range(1, len(trivia_answerTexts) + 1), trivia_answerTexts, trivia_answerCorrect), key=lambda x: x[0])
                         
-    return render(request, 'instructors/TriviaMultipleAnswerForm.html', context_dict)
+    return render(request, 'Trivia/TriviaMultipleAnswerForm.html', context_dict)
 
 def deleteTriviaQuestion(request):
     # AJAX Handler for trivia questions

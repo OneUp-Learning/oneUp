@@ -62,8 +62,8 @@
 						<div class="row">
 							<div class="input-field col s12 m10 offset-m1">								
 								<select id="question_type" name="question_type">
-									<option value="/oneUp/instructors/TriviaTrueFalseForm?triviaID={{triviaID}}" selected>True/False</option>
-									<option value="/oneUp/instructors/TriviaMultipleAnswerForm?triviaID={{triviaID}}">Multiple Choice</option>
+									<option value="/oneUp/trivia/TriviaTrueFalseForm?triviaID={{triviaID}}" selected>True/False</option>
+									<option value="/oneUp/trivia/TriviaMultipleAnswerForm?triviaID={{triviaID}}">Multiple Choice</option>
 								</select>
 								<label for="question_type">Question Type</label>
 							</div>
@@ -104,9 +104,9 @@
 										<ul id='dropdown-{{i}}' class='dropdown-content'>
 											{% csrf_token %}
 											{% if question_type == 'MC' %}
-											<li><a href="/oneUp/instructors/TriviaMultipleAnswerForm?questionID={{question_id}}&triviaID={{triviaID}}">Edit</a></li>
+											<li><a href="/oneUp/trivia/TriviaMultipleAnswerForm?questionID={{question_id}}&triviaID={{triviaID}}">Edit</a></li>
 											{% elif question_type == "TF" %}
-											<li class="not-sortable"><a href="/oneUp/instructors/TriviaTrueFalseForm?triviaID={{triviaID}}&questionID={{question_id}}">Edit</a>
+											<li class="not-sortable"><a href="/oneUp/trivia/TriviaTrueFalseForm?triviaID={{triviaID}}&questionID={{question_id}}">Edit</a>
 											</li>
 											{% endif %}
 											<li class="divider not-sortable"></li>
@@ -154,7 +154,7 @@
 							</div>
 						</div>
 						{% endif %}
-						<a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaSessionSetup?triviaID={{triviaID}}">
+						<a class="waves-effect waves-light btn" href="/oneUp/trivia/TriviaSessionSetup?triviaID={{triviaID}}">
 							<i class="material-icons left">navigate_before</i>Back</a>
 					</div>
 				</div>
@@ -196,7 +196,7 @@
 					},
 					body: JSON.stringify({triviaID: {{triviaID}}, questionIdsPositions: questionIdsPositions})
 				};
-				fetch("/oneUp/instructors/reorderTriviaQuestions", params)
+				fetch("/oneUp/trivia/reorderTriviaQuestions", params)
 				.then((response) => { return response.json()})
 				.then((response) => {console.log(response)})
 			}
@@ -220,7 +220,7 @@
 	function deleteQuestion(questionID) {
 		var xhttp = new XMLHttpRequest();
 		
-		xhttp.open("POST", "/oneUp/instructors/deleteSingleTriviaQuestion", true);
+		xhttp.open("POST", "/oneUp/trivia/deleteSingleTriviaQuestion", true);
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhttp.send("questionId=" + questionID + "&triviaId={{triviaID}}&csrfmiddlewaretoken={{csrf_token}}");
 		
@@ -242,7 +242,7 @@
 		var selectedChallenges = collectAllSelectedCheckboxes();
 		if (selectedChallenges.length > 0) {
 			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST", "/oneUp/instructors/removeQuestionTriviaBatch", true);
+			xhttp.open("POST", "/oneUp/trivia/removeQuestionTriviaBatch", true);
 			xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xhttp.send("deletion_checkboxes=" + selectedChallenges + "&triviaId={{triviaID}}&csrfmiddlewaretoken={{csrf_token}}");
 			console.table(xhttp.responseText);

@@ -28,6 +28,7 @@ def createTriviaQuestionRange(triviaID):
         
         possible_answers = TriviaAnswer.objects.filter(questionID=trivia_question_id)
         for answer in possible_answers:
+            print(answer.answerText)
             trivia_answers.append({'answerText': answer.answerText, 'isCorrect': answer.isCorrect})
         
         question_ids.append(trivia_question_id)
@@ -50,7 +51,7 @@ def createTriviaQuestionListView(request):
         
     context_dict['triviaID'] = trivia
     context_dict["trivia_question_range"] = createTriviaQuestionRange(trivia)
-    return render(request, 'Instructors/TriviaQuestionList.html', context_dict)
+    return render(request, 'Trivia/TriviaQuestionList.html', context_dict)
 
 def batchDeleteTriviaProblems(request, questions):
     context_dict, currentCourse = initialContextDict(request)

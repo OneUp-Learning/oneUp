@@ -11,16 +11,19 @@
          // questionID
          function build_answer_array(){
             let answer_array = [];
-            let correctAnswer = document.querySelector('input[name="correctAnswer"]:checked').value;
-            let answers = document.querySelectorAll('[name="correctAnswer"]')
+            let correctAnswer = document.querySelector('input[type=radio][name="correctAnswer"]:checked').parentNode.children[1].children[0].value;
+            let answers = document.querySelectorAll('[name="correctAnswer"]');
+
             answers.forEach(function(answer){
-               answer_value = document.getElementById(answer.id + "_value").value;
-               if(answer.value == correctAnswer){
-                  answer_array.push({text: answer_value, 'isCorrect': true});
-               }else{
-                  answer_array.push({text: answer_value, 'isCorrect': false});
+               answer_value = document.getElementById(answer.id + "_value");
+               if (answer_value) {
+                  answer_array.push({
+                     "text": answer_value.value,
+                     "isCorrect": answer_value.value == correctAnswer
+                  });
                }
             })
+
             return answer_array;
          }
          
@@ -39,11 +42,21 @@
                },
                body: JSON.stringify({triviaID: {{triviaID}}, question_type: question_type, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
             };
-            fetch("/oneUp/instructors/createTriviaQuestion", params)
+            fetch("/oneUp/trivia/createTriviaQuestion", params)
             .then((response) => { return response.json()})
             .then((response) => {
                if (response.success){
-                  return true;
+                  let form = document.getElementById('multipleChoice');
+
+                  form.style.display = 'none';
+
+                  let processing = document.createElement('span');
+
+                  processing.appendChild(document.createTextNode('processing ...'));
+
+                  form.parentNode.insertBefore(processing, form);
+
+                  form.submit();
                }
             })
             return false
@@ -63,21 +76,21 @@
                   },
                   body: JSON.stringify({triviaID: {{triviaID}}, question_type: question_type, questionID: {% if questionID %} {{questionID}} {% else %} -1 {% endif %}, question: question, question_type: question_type, answers: answers, max_points: question_max_points})
                };
-               fetch("/oneUp/instructors/editTriviaQuestion", params)
+               fetch("/oneUp/trivia/editTriviaQuestion", params)
                .then((response) => { return response.json()})
                .then((response) => {
                   if (response.success){
-                     let form = document.getElementById('trueFalseForm');
+                     let mcForm = document.getElementById('multipleChoice');
 
-                     form.style.display = 'none';
+                     mcForm.style.display = 'none';
 
                      let processing = document.createElement('span');
 
                      processing.appendChild(document.createTextNode('processing ...'));
 
-                     form.parentNode.insertBefore(processing, form);
+                     mcForm.parentNode.insertBefore(processing, mcForm);
 
-                     form.submit();
+                     mcForm.submit();
                   }
                })
                return false
@@ -105,7 +118,7 @@
                      let answer_text = document.createElement("input");
                      answer_text.type = "text";
                      answer_text.placeholder = "Answer Text"
-                     answer_text.name = "answer_" + answerCount + "_value";
+                     answer_text.id = "answer_" + answerCount + "_value";
                      answer_text.value = "";
                      answer_label.appendChild(answer_text);
                      answer_div.appendChild(answer_older_div);
@@ -121,7 +134,7 @@
                }
 
                $(document).ready(function () {
-                  document.getElementById("submit").addEventListener("click", {% if questionID %}editQuestion{% else %}createQuestion{% endif %});
+                  document.getElementById("submitFake").addEventListener("click", {% if questionID %}editQuestion{% else %}createQuestion{% endif %});
                   document.getElementById("add_answer").addEventListener("click", add_answer_element);
                   document.getElementById("remove_answer").addEventListener("click", remove_answer_element);
                });
@@ -147,7 +160,7 @@
       </div>
       <div class="row">
          <div class="col s12 m10 offset-m1">
-            <form id="trueFalseForm" name="question" action="/oneUp/instructors/TriviaQuestionList" method="POST">
+            <form id="multipleChoice" name="question" action="/oneUp/trivia/TriviaQuestionList" method="POST">
                {% csrf_token %}
                <input type="hidden" name="triviaID" value="{{triviaID}}">
                <div class="card">
@@ -203,10 +216,6 @@
                               <input type="radio" name="correctAnswer" id="answer_2" value="" required>
                               <label for="answer_2"><input value="" placeholder="Answer Text" type="text" id="answer_2_value"></label>
                            </div>
-                           <div class="col s12 left">
-                              <input type="radio" name="correctAnswer" id="answer_3" value="" required>
-                              <label for="answer_3"><input value="" placeholder="Answer Text" type="text" id="answer_3_value"></label>
-                           </div>
                         {% endif %}
                      </div>                     
                      <div class="col s12 left-align">
@@ -216,8 +225,9 @@
                   </div>
                </div>
                <div class="card-action right-align">
-                  <a class="waves-effect waves-light btn" href="/oneUp/instructors/TriviaQuestionList?triviaID={{triviaID}}" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
-                  <button class="btn waves-effect waves-light" name="submit" id="submit">Save<i class="material-icons right">send</i></button>
+                  <a class="waves-effect waves-light btn" href="/oneUp/trivia/TriviaQuestionList?triviaID={{triviaID}}" onclick="window.history.back();"><i class="material-icons left">close</i>Cancel</a>
+                  <button class="btn waves-effect waves-light" type="button" name="submitFake" id="submitFake">Save<i class="material-icons right">send</i></button>
+                  <button class="btn waves-effect waves-light" type="submit" style="display:none;"></button>
                </div>
             </form>
          </div>
