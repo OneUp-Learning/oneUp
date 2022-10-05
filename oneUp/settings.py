@@ -139,6 +139,7 @@ INSTALLED_APPS = (
     'Badges',
     'Administrators',
     'Chat',
+    'Trivia',
     'notify',
     'easy_timezones',
     'rest_framework',

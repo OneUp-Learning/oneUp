@@ -443,3 +443,31 @@ class FlashCardGroupCourse(models.Model):
     groupPos = models.IntegerField(default=0)
     def __str__(self):              
         return str(self.groupID)+","+str(self.courseID)+","+str(self.availabilityDate)
+    
+class Trivia(models.Model):
+    triviaID = models.AutoField(primary_key=True)
+    triviaName = models.CharField(max_length=500)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name = "Registered Course", db_index=True)
+    maximumPointsPerQuestion = models.IntegerField(default=0)
+    maximumVCPossible = models.IntegerField(default=0)
+    currentlyRunning = models.BooleanField(default=False, verbose_name = "Current running status of trivia")
+    def __str__(self):
+        return str(self.triviaID)
+    
+class TriviaQuestion(models.Model):
+    questionID = models.AutoField(primary_key=True)
+    triviaID = models.ForeignKey(Trivia, on_delete=models.CASCADE, verbose_name = "Linked Trivia Session", db_index=True)
+    questionPosition = models.IntegerField(default = 0)
+    questionText = models.CharField(default='', max_length=5000)
+    questionType = models.CharField(default='MC', max_length=2)
+    maxPoints = models.IntegerField(default=0)
+    def __str__(self):
+        return str(self.questionID+", "+self.triviaID+", "+self.questionText+", "+self.maxPoints)
+    
+class TriviaAnswer(models.Model):
+    answerID = models.AutoField(primary_key=True)
+    questionID = models.ForeignKey(TriviaQuestion, on_delete=models.CASCADE, verbose_name = "Linked Trivia Question", db_index=True)
+    answerText = models.CharField(max_length=5000)
+    isCorrect = models.BooleanField(default=False)
+    def __str__(self):
+        return str(self.answerID+", "+self.questionID+", "+self.answerText+", "+self.isCorrect)
