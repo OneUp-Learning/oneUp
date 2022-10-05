@@ -288,7 +288,7 @@ class LeaderboardsConfig(models.Model):
    
 class CourseConfigParams(models.Model):
     ccpID = models.AutoField(primary_key=True)
-    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course", db_index=True)
+    courseID = models.ForeignKey(Courses, on_delete=models.CASCADE, verbose_name="the related course.", db_index=True)
 
     gamificationUsed = models.BooleanField(default=False) 
     courseAvailable = models.BooleanField(default=False)               ## Is the course open or closed?
