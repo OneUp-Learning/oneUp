@@ -88,7 +88,7 @@ from Instructors.views.reorderChallengeSaveQuestions import \
     reorderChallengeSaveQuestions
 from Instructors.views.reorderChallengesView import reorderChallenges
 from Instructors.views.reorderViews import (receive_item_in_section,
-                                            reorder_list)
+                                            reorder_list, reorderGroups, reorderTriviaQuestions)
 from Instructors.views.resetTestStudentData import resetTestStudent
 from Instructors.views.searchQuestionsView import searchQuestions
 from Instructors.views.searchResultsView import searchResults
@@ -142,7 +142,6 @@ from Instructors.views.createPlayerType import createPlayerTypeView
 from Instructors.views.viewPlayerType import viewPlayerTypeView
 from Instructors.views.playerTypeList import playerTypeListView
 
-from Instructors.views.reorderViews import reorderGroups
 admin.autodiscover()
 urlpatterns = [
 
@@ -299,6 +298,6 @@ urlpatterns = [
     url(r'^ReorderGroups', reorderGroups, name='reorderGroups'),
     url(r'^CreatePlayerType', createPlayerTypeView, name='createPlayerType'),
     url(r'^ViewPlayerType', viewPlayerTypeView, name='viewPlayerType'),
-    url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList')
+    url(r'^PlayerTypeList', playerTypeListView, name='playerTypeList'),
 ]
 

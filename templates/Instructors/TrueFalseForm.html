@@ -105,6 +105,7 @@
                         {% endfor %}
                      </div>
 
+					{% if not hide_additional_settings %}
                      <!-- GGM Difficulty Setting Updated Code -->
                      <div class="row">
                         <div class="col s12">
@@ -227,6 +228,7 @@
                         <div id="tags" class="chips chips-tags"></div>
                      </div>
                   </div>
+                  {% endif %}
                </div>
                <div class="card-action right-align">
                   {% if view %}

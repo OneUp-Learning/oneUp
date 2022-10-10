@@ -359,7 +359,7 @@ def saveGroupToCards(currentCourse,jsonData,flashID):
                 continue
 
             if gId in deletionIDs:
-                flashcard=FlashCardToGroup.object.get(groupID=gId, flashID=flashID)
+                flashcard=FlashCardToGroup.objects.get(groupID=gId, flashID=flashID)
                 flashcard.delete()
 
     else:
@@ -539,7 +539,7 @@ def str_datetime_to_utc(str_datetime, to_format="%m/%d/%Y %I:%M %p"):
 
 def datetime_to_selected(db_datetime, to_format="%m/%d/%Y %I:%M %p"):
     ''' Converts datetime object to what was actually selected in the interface '''
-
+    
     if type(db_datetime) == datetime.date:
         db_datetime = datetime.datetime.combine(db_datetime, datetime.datetime.min.time())
         
@@ -553,6 +553,8 @@ def date_to_selected(db_date, to_format="%m/%d/%Y"):
     return db_date.strftime(to_format)
 
 def localizedDate(request, date_str, date_format, timezone=None):
+    from datetime import datetime
+    
     if not timezone:
         tz = pytz.timezone(request.session['django_timezone'])
     else:
@@ -608,4 +610,11 @@ def update_or_create_challenge_questions(request,question):
         challengeID = request.POST['challengeID']
         challenge = Challenges.objects.get(pk=int(challengeID))
         position = ChallengesQuestions.objects.filter(challengeID=request.POST['challengeID']).count() + 1
-        ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)     
+        ChallengesQuestions.addQuestionToChallenge(question, challenge, Decimal(request.POST['points']), position)  
+        
+def is_number(data):
+    try:
+        int(data)
+        return True
+    except ValueError:
+        return False   

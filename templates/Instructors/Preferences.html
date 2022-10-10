@@ -729,6 +729,24 @@
                         style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
                         <div class="card" style="transform: translateZ(0);">
                             <div class="card-content">
+                                <span class="card-title">Trivia</span>
+                                <div class="row">
+                                    <div class="switch col s12">
+                                        <label>
+                                            Enable Trivia
+                                            <input name="triviaEnabled" type="checkbox" {% if triviaEnabled %} checked {% endif %}>
+                                            <span class="lever secondary-content"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col s12"
+                        style="-webkit-column-break-inside: avoid; page-break-inside: avoid; break-inside: avoid;">
+                        <div class="card" style="transform: translateZ(0);">
+                            <div class="card-content">
                                 <span class="card-title">Debug System Variables Displayed</span>
                                 <div class="row">
                                     <div class="switch col s12">

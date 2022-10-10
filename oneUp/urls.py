@@ -27,12 +27,16 @@ else:
         url(r'^oneUp/badges/', include('Badges.urls')),
         url(r'^oneUp/administrators/',include('Administrators.urls')),
         url(r'^oneUp/chat/', include('Chat.urls')),
+        url(r'^oneUp/trivia/', include('Trivia.urls')),
         url(r'^oneUp/',include('Administrators.urls')),
         url(r'^login$', LoginView.as_view(template_name='home.html'), name='login'),
         url(r'^notifications/', include('notify.urls', 'notifications')),
         url(r'^ckeditor/', include('ckeditor_uploader.urls')),
         path('service-worker.js',(TemplateView.as_view(
             template_name="Chat/service-worker.js",
+            content_type='application/javascript')), name='service-worker.js'),
+        path('trivia-service-worker.js',(TemplateView.as_view(
+            template_name="Trivia/service-worker.js",
             content_type='application/javascript')), name='service-worker.js'),
         url(r'^$', RedirectView.as_view(url="/oneUp/home"))
     ]

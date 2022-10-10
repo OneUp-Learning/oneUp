@@ -15,7 +15,6 @@ from Badges.systemVariables import SystemVariable
 from Badges.conditions_util import get_events_for_condition, stringAndPostDictToCondition
 
 from django.contrib.auth.decorators import login_required
-from curses.ascii import isdigit
 
 def DeleteVirtualApplauseRule(vaRuleID, isRuleCustom):
     ## most of this page is repurposed code from saveVirtualCurrencyRule
