@@ -128,7 +128,7 @@ def debugSysVars(request):
     context_dict['system_variables'] = sorted([ x for i, x in SystemVariable.systemVariables.items()], key=lambda x: x['displayName'])
     
     exclude_periodic_variables = [PeriodicVariables.challenge_streak, PeriodicVariables.attendance_streak, 
-            PeriodicVariables.warmup_challenge_greater_or_equal_to_40, PeriodicVariables.warmup_challenge_greater_or_equal_to_70]
+            PeriodicVariables.warmup_challenge_greater_or_equal_to_40, PeriodicVariables.warmup_challenge_greater_or_equal_to_80]
     context_dict['periodic_variables'] = sorted([ x for i, x in PeriodicVariables.periodicVariables.items() if i not in exclude_periodic_variables ], key=lambda x: x['displayName'])
 
     context_dict['time_periods'] = [x for i,x in TimePeriods.timePeriods.items()]

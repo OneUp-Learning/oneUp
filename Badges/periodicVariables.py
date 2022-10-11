@@ -1298,9 +1298,12 @@ def calculate_student_challenge_streak_for_percentage(info, percentage, result_o
     
     return (student, student_total)
 
-def calculate_warmup_challenge_greater_or_equal_to_70(info, result_only=False):
-    return calculate_student_challenge_streak_for_percentage(info, 70, result_only)
+#def calculate_warmup_challenge_greater_or_equal_to_70(info, result_only=False):
+ #   return calculate_student_challenge_streak_for_percentage(info, 70, result_only)
 
+def calculate_warmup_challenge_greater_or_equal_to_80(info, result_only=False):
+    return calculate_student_challenge_streak_for_percentage(info, 80, result_only)
+                                                             
 def calculate_warmup_challenge_greater_or_equal_to_40(info, result_only=False):
     return calculate_student_challenge_streak_for_percentage(info, 40, result_only)
 
@@ -1802,7 +1805,7 @@ class PeriodicVariables:
     attendance_streak = 1407
     challenge_streak = 1408
     warmup_challenge_greater_or_equal_to_40 = 1409
-    warmup_challenge_greater_or_equal_to_70 = 1410
+    warmup_challenge_greater_or_equal_to_80 = 1410
     number_of_days_of_unique_warmups_90 = 1411
     number_of_days_of_unique_warmups_70 = 1412
     number_of_days_of_2_unique_warmups_80 = 1413
@@ -1811,7 +1814,7 @@ class PeriodicVariables:
     duels_sent_and_accepted = 1416
     number_of_days_logging_in = 1417
     duels_won = 1418
-    
+#    warmup_challenge_greater_or_equal_to_70 = 1419
     periodicVariables = {
         highest_earner: {
             'index': highest_earner,
@@ -1869,12 +1872,12 @@ class PeriodicVariables:
             'description': 'Retrieves the student attendance streak of the number of days marked as present',
             'function': calculate_student_attendance_streak,
         },
-        warmup_challenge_greater_or_equal_to_70: {
-            'index': warmup_challenge_greater_or_equal_to_70,
-            'name': 'warmup_challenge_gte_70_by_day',
-            'displayName': 'Warmup Challenge Streak Score >= 70% over a period of time',
-            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 70% over a period of time',
-            'function': calculate_warmup_challenge_greater_or_equal_to_70,
+        warmup_challenge_greater_or_equal_to_80: {
+            'index': warmup_challenge_greater_or_equal_to_80,
+            'name': 'warmup_challenge_gte_80_by_day',
+            'displayName': 'Warmup Challenge Streak Score >= 80% over a period of time',
+            'description': 'The student Warmup Challenge Streak Score that is greater than or equal to 80% over a period of time',
+            'function': calculate_warmup_challenge_greater_or_equal_to_80,
         },
         warmup_challenge_greater_or_equal_to_40: {
             'index': warmup_challenge_greater_or_equal_to_40,
