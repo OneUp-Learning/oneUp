@@ -4,6 +4,7 @@ Created on Sep 14, 2016
 '''
 import json
 import logging
+import datetime
 from collections import defaultdict
 
 from django.contrib.auth.decorators import login_required
@@ -35,7 +36,7 @@ def StudentCourseHome(request):
 
     context_dict, currentCourse = studentInitialContextDict(request)
     student = context_dict['student']
- 
+    currentDate = datetime.datetime.now()
     
         
     if context_dict['is_test_student']:
