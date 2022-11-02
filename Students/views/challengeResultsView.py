@@ -183,7 +183,7 @@ def ChallengeResults(request):
                         
                     }
 
-                    return rors(error, context_dict, request)
+                    return showErrors(error, context_dict, request)
                    
                 print(sessionDict)
                 if 'teamLeader' in sessionDict and sessionDict['teamLeader']==False:
