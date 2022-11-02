@@ -1213,6 +1213,14 @@ def getNumberOfUniqueWarmupChallengesGreater70PercentPerTopic(course, student, t
     logger.debug("Number of unqiue warmup challenges with specific topic >= 70%: " + str(challengesGreaterThan))
     return challengesGreaterThan
 
+def getNumberOfUniqueWarmupChallengesGreater50PercentPerTopic(course, student, topic): 
+    ''' This will return the number of unique warmup challenges that a student completed with a 
+        score >= 50% for a particular topic
+    '''
+    challengesGreaterThan = getUniqueChallengesGreaterThanPercentage(course, student, False, 50.0, topic=topic)
+    logger.debug("Number of unqiue warmup challenges with specific topic >= 50%: " + str(challengesGreaterThan))
+    return challengesGreaterThan
+
 def getNumberOfUniqueWarmupChallengesGreater85PercentPerTopic(course, student, topic): 
     ''' This will return the number of unique warmup challenges that a student completed with a 
         score >= 85% for a particular topic
@@ -1565,7 +1573,8 @@ class SystemVariable():
     #Starting new enumeration at 9000 since we have enough variables to overflow the 900s
     topicChallengesCompleted85Percent = 9000 # Percentage of topic chalenges completed at >= 85% TODO: redo numbering?
     percentageOfLastWarmupAttemptScore = 9001
-    
+    uniqueWarmupChallengesGreaterThan50PercentForTopic = 9002 # Number of warmup challenges with a score percentage equal or greater than 50% for a particular topic
+ 
     systemVariables = {
         score:{
             'index': score,
@@ -2251,6 +2260,22 @@ class SystemVariable():
                 },
             'functions':{
                 ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater75PercentPerTopic
+            },
+        },  
+        uniqueWarmupChallengesGreaterThan50PercentForTopic:{
+            'index': uniqueWarmupChallengesGreaterThan50PercentForTopic,
+            'name':'uniqueWarmupChallengesGreaterThan50PercentForTopic',
+            'displayName':'# of Warmup Challenges Score for Specific Topic (>= 50% correct)',
+            'description':'The number of warmup challenges a student has completed with a score equal or greater than 50% for a specific topic. The student score only includes the student score, adjustment, and curve.',
+            'eventsWhichCanChangeThis':{
+                ObjectTypes.topic:[Event.endChallenge, Event.adjustment],
+            },
+            'type':'int',
+            'goal_flags':{
+                GoalFlag.isStudentGoal
+                },
+            'functions':{
+                ObjectTypes.topic:getNumberOfUniqueWarmupChallengesGreater50PercentPerTopic
             },
         },  
         uniqueWarmupChallengesGreaterThan75WithOnlyOneAttempt:{
