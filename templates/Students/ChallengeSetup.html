@@ -60,7 +60,8 @@
 	</script>
    <script type="text/javascript">
       // Set time out for the test if the time limit has reached 
-      if( {{timePressure|yesno:"true,false" }} ){
+   //   console.log("{{timePressure}}" );
+      if("{{timePressure}}" == "True" ){
     	  var duration = {{ testDuration }}; //time limit in minutes from database
           var now = new Date();
           var milli = now.getMilliseconds(); //current time in milliseconds

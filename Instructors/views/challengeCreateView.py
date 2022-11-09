@@ -69,6 +69,7 @@ def challengeCreateView(request):
     if request.method == "POST":
         logger.debug("[POST] " + str(context_dict))
         # Check whether a new challenge or editing an existing challenge
+       
         if request.POST['challengeID']:
             challenge = Challenges.objects.get(
                 pk=int(request.POST['challengeID']))
@@ -76,8 +77,8 @@ def challengeCreateView(request):
             # Create a NEW Challenge
             challenge = Challenges()
             challenge.courseID = currentCourse
-
-        # get isGraded
+           
+        # get isGraded       
         isGraded = str(request.POST.get('isGraded', 'false'))
         print("isGraded post")
         print(isGraded)
@@ -87,7 +88,10 @@ def challengeCreateView(request):
 
         # get randomization GGM
         isRandomized = str(request.POST.get('randomizeProblems', 'false'))
-
+        
+        # get time presure
+        timePressure = str(request.POST.get('timePressure', 'false'))
+        
         # get difficulty
         if('challengeDifficulty' in request.POST):
             challenge.challengeDifficulty = request.POST['challengeDifficulty']
@@ -150,7 +154,10 @@ def challengeCreateView(request):
             displayIncorrectAnswerFeedback = ""
         challenge.displayIncorrectAnswerFeedback = bool(
             displayIncorrectAnswerFeedback)
-
+        
+        if timePressure == str("false"):
+            timePressure = ""
+        challenge.timePressure = bool(timePressure)
         try:
             challenge.startTimestamp = datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
             challenge.hasStartTimestamp = True
@@ -192,7 +199,7 @@ def challengeCreateView(request):
             else:
                 timeLimit = int(request.POST.get("timeLimit", 45))
                 challenge.timeLimit = timeLimit
-
+                
         print("challenge")
         print(challenge)
         challenge.save()  # Save challenge to database
@@ -218,12 +225,14 @@ def challengeCreateView(request):
 
     elif request.method == "GET":
         # In case we specify a different number of blanks
+        
         if 'num_answers' in request.GET:
             num_answers = request.GET['num_answers']
 
         if 'warmUp' in request.GET:
             context_dict['warmUp'] = 1
-
+        else:
+            context_dict['timePressure'] = True
         # If challengeID is specified then we load for editing.
         if 'challengeID' in request.GET:
             challenge = Challenges.objects.get(
@@ -236,7 +245,7 @@ def challengeCreateView(request):
 
             context_dict['challengeDifficulty'] = challenge.challengeDifficulty
             context_dict['curve'] = challenge.curve
-
+          
             for attr in string_attributes:
                 data = getattr(challenge, attr)
                 if data == unlimited_constant:
@@ -253,7 +262,11 @@ def challengeCreateView(request):
                 context_dict['unlimitedTime'] = True
             else:
                 context_dict['unlimitedTime'] = False
-
+                
+            if challenge.timePressure:
+                context_dict['timePressure'] = True
+            else:
+                context_dict['timePressure'] = False
             
             if challenge.hasStartTimestamp:
                 context_dict['startTimestamp'] = datetime_to_selected(challenge.startTimestamp)

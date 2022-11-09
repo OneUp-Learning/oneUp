@@ -171,7 +171,7 @@ def ChallengeSetup(request):
             context_dict['question_ids'] = [i for i in range(1, len(questionObjects)+1)]
             
             #
-            context_dict['timePressure'] = ccp.timePressure
+            context_dict['timePressure'] = challenge.timePressure
             
             stlist = StudentPlayerType.objects.filter(course=currentCourse, student=student)
            

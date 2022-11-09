@@ -404,8 +404,6 @@ class CourseConfigParams(models.Model):
     ## virtual applause
     applauseOn = models.BooleanField(default = False)
     
-    #time pressure
-    timePressure = models.BooleanField(default = True)
 
     # Trivia Toggle
     triviaEnabled = models.BooleanField(default = False)
@@ -471,7 +469,7 @@ class CourseConfigParams(models.Model):
         +str(self.xpLeaderboardUsed)+","\
         +str(self.classFundEnabled)+","\
         +str(self.applauseOn)+","\
-        +str(self.timePressure)
+        
         
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
@@ -604,7 +602,7 @@ class PlayerType(models.Model):
         +"goals:"+str(self.goalsUsed) +"," \
         +"xp display:" + str(self.xpDisplayUsed) +"," \
         +"xp leaderboardused:" + str(self.xpLeaderboardUsed)
-        +"time pressure:" + str(self.timePressure)
+        
 
 class VirtualApplauseRuleInfoo(models.Model):
     ruleID = models.ForeignKey(Rules, on_delete=models.SET_NULL, verbose_name="the related rule", db_index=True, null=True, blank=True)
