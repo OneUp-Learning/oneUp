@@ -153,7 +153,6 @@ class Challenges(models.Model):
 
     numberAttempts = models.IntegerField()
     timeLimit = models.IntegerField(verbose_name="time limit for the challenge in minutes")
-    timePressure = models.BooleanField(default=False)
     
     displayCorrectAnswer = models.BooleanField(default=True)
     displayCorrectAnswerFeedback = models.BooleanField(default=False)

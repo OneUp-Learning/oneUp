@@ -407,6 +407,9 @@ class CourseConfigParams(models.Model):
 
     # Trivia Toggle
     triviaEnabled = models.BooleanField(default = False)
+    #time pressure
+    timePressureWarmup  = models.BooleanField(default = False)
+    timePressureSerious = models.BooleanField(default = True)
     
     def GenerateConfigEnumList(self, *args, **kwargs):
         EnumList = []
@@ -469,7 +472,8 @@ class CourseConfigParams(models.Model):
         +str(self.xpLeaderboardUsed)+","\
         +str(self.classFundEnabled)+","\
         +str(self.applauseOn)+","\
-        
+        +str(self.timePressureWarmup)+","\
+        +str(self.timePressureSerious)
         
 class ChallengeSet(models.Model):
     condition = models.ForeignKey(Conditions,verbose_name="the condition this set goes with",db_index=True,on_delete=models.CASCADE)
@@ -589,8 +593,8 @@ class PlayerType(models.Model):
     xpLeaderboardUsed = models.BooleanField(default=False)   
     
     #time pressure
-    timePressure = models.BooleanField(default = True)
-    
+    timePressureWarmup  = models.BooleanField(default = False)
+    timePressureSerious = models.BooleanField(default = True)
     def __str__(self):
         return "name:"+str(self.name)+", course:"+str(self.course) +", badges:"+str(self.badgesUsed) +",studcanchangebadgevis:" \
         +"levling:"+str(self.levelingUsed) +"," \

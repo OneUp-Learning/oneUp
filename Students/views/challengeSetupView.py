@@ -170,15 +170,19 @@ def ChallengeSetup(request):
             print("contents of the qlist", qlist)
             context_dict['question_ids'] = [i for i in range(1, len(questionObjects)+1)]
             
-            #
-            context_dict['timePressure'] = challenge.timePressure
-            
+            #time pressure
+            if( challenge.isGraded ):
+                context_dict['timePressure'] = ccp.timePressureSerious                
+            else:
+                context_dict['timePressure'] = ccp.timePressureWarmup
             stlist = StudentPlayerType.objects.filter(course=currentCourse, student=student)
            
             if(len(stlist) > 0):            
                 st = stlist.first()
-                context_dict['timePressure'] = st.playerType.timePressure
-                
+                if( challenge.isGraded ):
+                    context_dict['timePressure'] = st,playerType.timePressureSerious
+                else:
+                    context_dict['timePressure'] = st.playerType.timePressureWarmup
         register_event(Event.startChallenge, request, None, challengeId)
         print("Registered Event: Start Challenge Event, Student: student in the request, Challenge: " + challengeId)
 

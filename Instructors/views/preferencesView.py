@@ -180,7 +180,11 @@ def preferencesView(request):
         
         #Trivia
         ccparams.triviaEnabled = "triviaEnabled" in request.POST
-
+        
+        #Time pressure
+        ccparams.timePressureSerious = "timePressureSerious" in request.POST
+        ccparams.timePressureWarmup  = "timePressureWarmup"  in request.POST
+        
        # moved to course config
        #ccparams.streaksUsed = "streaksUsed" in request.POST
         ccparams.save()

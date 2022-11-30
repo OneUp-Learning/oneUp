@@ -89,9 +89,7 @@ def challengeCreateView(request):
         # get randomization GGM
         isRandomized = str(request.POST.get('randomizeProblems', 'false'))
         
-        # get time presure
-        timePressure = str(request.POST.get('timePressure', 'false'))
-        
+ 
         # get difficulty
         if('challengeDifficulty' in request.POST):
             challenge.challengeDifficulty = request.POST['challengeDifficulty']
@@ -155,9 +153,7 @@ def challengeCreateView(request):
         challenge.displayIncorrectAnswerFeedback = bool(
             displayIncorrectAnswerFeedback)
         
-        if timePressure == str("false"):
-            timePressure = ""
-        challenge.timePressure = bool(timePressure)
+     
         try:
             challenge.startTimestamp = datetime.strptime(request.POST['startTime'], "%m/%d/%Y %I:%M %p")
             challenge.hasStartTimestamp = True
@@ -231,8 +227,7 @@ def challengeCreateView(request):
 
         if 'warmUp' in request.GET:
             context_dict['warmUp'] = 1
-        else:
-            context_dict['timePressure'] = True
+      
         # If challengeID is specified then we load for editing.
         if 'challengeID' in request.GET:
             challenge = Challenges.objects.get(
@@ -263,11 +258,7 @@ def challengeCreateView(request):
             else:
                 context_dict['unlimitedTime'] = False
                 
-            if challenge.timePressure:
-                context_dict['timePressure'] = True
-            else:
-                context_dict['timePressure'] = False
-            
+        
             if challenge.hasStartTimestamp:
                 context_dict['startTimestamp'] = datetime_to_selected(challenge.startTimestamp)
             else:

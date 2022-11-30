@@ -387,7 +387,32 @@
 	                                        </label>
 	                                    </div>
 	                                </div>
-	                                
+	                                <div class="row">
+	                                    <div class="switch col s12">
+	                                        <label>
+	                                            Time pressure serious challenges
+	                                            {% if ccparams.timePressureSerious %}
+	                                            <input name="timePressureSerious" type="checkbox" checked>
+	                                            {% else %}
+	                                            <input name="timePressureSerious" type="checkbox">
+	                                            {% endif %}
+	                                            <span class="lever secondary-content"></span>
+	                                        </label>
+	                                    </div>
+	                                </div>
+	                                 <div class="row">
+	                                    <div class="switch col s12">
+	                                        <label>
+	                                            Time pressure warmup challenges
+	                                            {% if ccparams.timePressureWarmup %}
+	                                            <input name="timePressureWarmup" type="checkbox" checked>
+	                                            {% else %}
+	                                            <input name="timePressureWarmup" type="checkbox">
+	                                            {% endif %}
+	                                            <span class="lever secondary-content"></span>
+	                                        </label>
+	                                    </div>
+	                                </div>
 	                            </div>
 	                        </div>
 	                    </div>
